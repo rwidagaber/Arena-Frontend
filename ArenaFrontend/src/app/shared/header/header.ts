@@ -1,37 +1,27 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-
-
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './header.html',
   styleUrls: ['./header.css']
 })
 export class HeaderComponent {
-  @Input() isLoggedIn: boolean = false;
-  @Input() activeTab: string = 'dashboard';
-  @Output() tabChange = new EventEmitter<string>();
+  private readonly router = inject(Router);
 
-  // Additional outputs to communicate actions back to the app controller logic
-  @Output() loginRequested = new EventEmitter<void>();
-  @Output() signUpRequested = new EventEmitter<void>();
+  @Input() isLoggedIn: boolean = false;
+  @Input() activeTab: string = 'home';
+  @Output() tabChange = new EventEmitter<string>();
 
   navigateToTab(tabName: string, event: Event): void {
     event.preventDefault();
     this.activeTab = tabName;
     this.tabChange.emit(tabName);
-  }
-
-  onLoginClick(event: Event): void {
-    event.preventDefault();
-    this.loginRequested.emit();
-  }
-
-  onSignUpClick(): void {
-    this.signUpRequested.emit();
+    if (tabName === 'home') {
+      this.router.navigate(['/']);
+    }
   }
 }

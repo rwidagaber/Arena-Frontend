@@ -82,14 +82,14 @@
     <!-- RIGHT BLOCK: Replaced CTA with Log In and Sign Up layout elements -->
     <div class="d-flex align-items-center gap-3">
       <a
-        href="#"
-        (click)="onLoginClick($event)"
+        routerLink="/login"
         class="btn-login-exact font-display text-decoration-none"
       >
         Log In
       </a>
       <button
-        (click)="onSignUpClick()"
+        type="button"
+        routerLink="/register"
         class="btn-signup-exact font-display d-flex align-items-center justify-content-center gap-2"
       >
         <span>Sign Up</span>
