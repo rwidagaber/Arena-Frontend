@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { RegisterComponent } from './features/Authentication/register/register';
 import { LoginComponent } from './features/Authentication/login/login';
+import { Home } from './features/home/home';
 
 export const routes: Routes = [
      {
@@ -11,9 +12,13 @@ export const routes: Routes = [
     path: 'register',
     component: RegisterComponent
   },
-  // {
-  //   path: '',
-  //   redirectTo: 'login',
-  //   pathMatch: 'full'
-  // }
+   {
+    path: 'home',
+    component: Home
+  },
+  {
+    path: '',
+    redirectTo: 'home',
+    pathMatch: 'full'
+  }
 ];

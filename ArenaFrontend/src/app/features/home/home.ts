@@ -3,10 +3,11 @@ import { HeroComponent } from "../hero/hero.component";
 import { ProgramsComponent } from "../programs/programs.component";
 import { WhatWeDoComponent } from "../what-we-do/what-we-do.component";
 import { WhyChooseUsComponent } from "../why-choose-us/why-choose-us.component";
+import { HeaderComponent } from "../../shared/header/header";
 
 @Component({
   selector: 'app-home',
-  imports: [HeroComponent, ProgramsComponent, WhatWeDoComponent, WhyChooseUsComponent],
+  imports: [HeroComponent, ProgramsComponent, WhatWeDoComponent, WhyChooseUsComponent, HeaderComponent],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })

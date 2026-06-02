@@ -82,7 +82,7 @@ password: [
     this.serverError = '';
 
     this.auth.register(this.form.getRawValue() as any).subscribe({
-      next: () => { this.loading = false; this.router.navigate(['/dashboard']); },
+      next: () => { this.loading = false; this.router.navigate(['/home']); },
       error: (err: Error) => { this.loading = false; this.serverError = err.message; },
     });
   }
