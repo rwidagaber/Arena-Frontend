@@ -1,0 +1,70 @@
+<!-- استدعاء مكتبة أيقونات جوجل في الـ <head> بملف index.html -->
+
+<div class="auth-card">
+  <h2 class="auth-title">Welcome Back</h2>
+  <p class="auth-sub">Sign in to your Arena account</p>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+    <!-- Email -->
+    <div class="field" [class.invalid]="isInvalid('email')">
+      <label for="login-email">Email</label>
+      <input id="login-email" type="email" formControlName="email"
+             placeholder="you@example.com" autocomplete="email" />
+      
+      <!-- استخدام السنتكس الجديد @if -->
+      @if (isInvalid('email')) {
+        <span class="err">{{ getError('email') }}</span>
+      }
+    </div>
+
+    <!-- Password -->
+    <div class="field" [class.invalid]="isInvalid('password')">
+      <label for="login-pw">Password</label>
+      <div class="input-wrap">
+        <input id="login-pw" [type]="showPw ? 'text' : 'password'"
+               formControlName="password" placeholder="••••••••"
+               autocomplete="current-password" />
+        
+       <button type="button" class="toggle-pw"
+        (click)="showPw = !showPw"
+        [attr.aria-label]="showPw ? 'Hide password' : 'Show password'">
+  <span class="material-icons">
+    {{ showPw ? 'visibility' : 'visibility_off' }}
+  </span>
+</button>
+      </div>
+
+      @if (isInvalid('password')) {
+        <span class="err">{{ getError('password') }}</span>
+      }
+    </div>
+
+    <!-- Forgot -->
+    <div class="forgot-row">
+<button type="button" class="link-btn" (click)="goToforgot()">
+        Forgot password?
+      </button>
+    </div>
+
+    <!-- Server error -->
+    @if (serverError) {
+      <div class="banner error">{{ serverError }}</div>
+    }
+
+    <!-- Submit -->
+     <button class="btn-submit" type="submit" [disabled]="loading || form.invalid">
+  @if (!loading) {
+    <span>Sign In</span>
+  } @else {
+    <span class="spinner"></span>
+  }
+</button>
+  </form>
+
+  <p class="switch-text">
+    Don't have an account?
+<button type="button" class="link-btn" (click)="goToSignup()">
+  Sign up
+</button>  </p>
+</div>
