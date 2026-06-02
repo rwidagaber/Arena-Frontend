@@ -40,7 +40,7 @@ goToSignup(): void {
     this.auth.login(this.form.getRawValue() as any).subscribe({
       next: () => {
         this.loading = false;
-        const ret = new URLSearchParams(window.location.search).get('returnUrl') ?? '/dashboard';
+        const ret = new URLSearchParams(window.location.search).get('returnUrl') ?? '/home';
         this.router.navigateByUrl(ret);
       },
       error: (err: Error) => { this.loading = false; this.serverError = err.message; },

@@ -81,20 +81,38 @@
 
     <!-- RIGHT BLOCK: Replaced CTA with Log In and Sign Up layout elements -->
     <div class="d-flex align-items-center gap-3">
-      <a
-        routerLink="/login"
-        class="btn-login-exact font-display text-decoration-none"
-      >
-        Log In
-      </a>
-      <button
-        type="button"
-        routerLink="/register"
-        class="btn-signup-exact font-display d-flex align-items-center justify-content-center gap-2"
-      >
-        <span>Sign Up</span>
-        <i class="bi bi-arrow-up-right"></i>
-      </button>
-    </div>
+
+  @if (!auth.isLoggedIn) {
+
+    <a
+      routerLink="/login"
+      class="btn-login-exact font-display text-decoration-none"
+    >
+      Log In
+    </a>
+
+    <button
+      type="button"
+      routerLink="/register"
+      class="btn-signup-exact font-display d-flex align-items-center justify-content-center gap-2"
+    >
+      <span>Sign Up</span>
+      <i class="bi bi-arrow-up-right"></i>
+    </button>
+
+  } @else {
+
+    <button
+      type="button"
+      (click)="logout()"
+      class="btn-signup-exact font-display d-flex align-items-center justify-content-center gap-2"
+    >
+      <span>Logout</span>
+      <i class="bi bi-box-arrow-right"></i>
+    </button>
+
+  }
+
+</div>
   </div>
 </header>
