@@ -1,0 +1,77 @@
+<section class="why-choose-us-section">
+  <div class="content-container">
+    
+    <div class="left-column">
+      <div class="badge">
+        <span class="dot"></span>
+        Why Choose Us
+      </div>
+      
+      <h2 class="main-title">
+        Where<br />
+        dedication meet<br />
+        Real fitness<br />
+        results
+      </h2>
+      
+      <p class="description">
+        We provide more than just workouts—we offer a complete fitness experience designed to help you achieve your health and strength goals.
+      </p>
+      
+      <ul class="benefits-list">
+        <li>
+          <div class="check-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <span>Certified and experienced fitness trainers</span>
+        </li>
+        <li>
+          <div class="check-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <span>Personalized workout programs tailored</span>
+        </li>
+        <li>
+          <div class="check-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <span>Modern, high-quality equipment & facilities</span>
+        </li>
+      </ul>
+      
+      <button class="btn btn-primary" aria-label="Get In Touch">
+        Get In Touch
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M7 17L17 7M17 7H7M17 7V17"/>
+        </svg>
+      </button>
+    </div>
+    
+    <div class="center-column">
+      <img src="https://demo.awaikenthemes.com/gympro/wp-content/uploads/2026/01/why-choose-us-image-gold.png" alt="Bodybuilder" class="center-image" onerror="this.src='assets/images/placeholder.png'; this.onerror=null;">
+    </div>
+    
+    <div class="right-column">
+      <div class="stats-list">
+        @for (stat of stats; track stat.title) {
+          <div class="stat-item">
+            <div class="stat-circle">
+              {{ stat.number }}
+            </div>
+            <div class="stat-text">
+              <h3>{{ stat.title }}</h3>
+              <p>{{ stat.description }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+    
+  </div>
+</section>
