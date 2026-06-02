@@ -1,0 +1,231 @@
+<div class="container-fluid bg-light-custom p-4 min-vh-100">
+  
+  <div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+      <div class="input-group search-bar shadow-sm">
+        <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
+        <input type="text" class="form-control border-0" placeholder="Search performance metrics...">
+      </div>
+    </div>
+    <div class="col-md-4 d-flex justify-content-end align-items-center gap-3">
+      <div class="position-relative">
+        <i class="bi bi-bell fs-5"></i>
+        <span class="position-absolute top-0 start-100 translate-middle p-1 bg-warning border border-light rounded-circle"></span>
+      </div>
+      <i class="bi bi-question-circle fs-5"></i>
+      <div class="rounded-circle bg-secondary" style="width: 40px; height: 40px;"></div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-xl-8 col-lg-7">
+      
+      <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+          <div class="d-flex align-items-center gap-4">
+            <div class="avatar-wrapper border-accent rounded-circle p-1">
+              <div class="rounded-circle bg-secondary img-fluid" style="width: 100px; height: 100px;"></div>
+            </div>
+            <div>
+              <div class="d-flex align-items-center gap-2 mb-1">
+                <h3 class="mb-0 fw-bold">John Doe</h3>
+                <span class="badge bg-accent text-dark rounded-pill px-3 py-2">ACTIVE</span>
+                <span class="text-muted small">Member Since 2023</span>
+              </div>
+              <p class="text-muted mb-1"><i class="bi bi-envelope me-2"></i>john.doe@performance.arena</p>
+              <p class="text-muted mb-0"><i class="bi bi-telephone me-2"></i>+1 (555) 012-3456</p>
+            </div>
+          </div>
+          <button class="btn btn-outline-dark rounded-pill px-4 fw-medium">EDIT PROFILE</button>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-md-3 col-sm-6">
+          <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
+            <i class="bi bi-hourglass-split text-accent fs-4 mb-2"></i>
+            <span class="text-muted small text-uppercase fw-semibold">Weight</span>
+            <div class="d-flex align-items-end justify-content-between mt-1">
+              <h4 class="mb-0 fw-bold">85<span class="fs-6 fw-normal text-muted">kg</span></h4>
+              <svg width="40" height="20" class="text-accent"><polyline points="0,20 10,15 20,18 30,5 40,0" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+            </div>
+            <span class="text-muted small mt-2 d-block">Target: 82kg</span>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+          <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
+            <i class="bi bi-rulers text-accent fs-4 mb-2"></i>
+            <span class="text-muted small text-uppercase fw-semibold">Height</span>
+            <div class="mt-1">
+              <h4 class="mb-0 fw-bold">180 <span class="fs-6 fw-normal text-muted">cm</span></h4>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+          <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
+            <i class="bi bi-bar-chart-line text-accent fs-4 mb-2"></i>
+            <span class="text-muted small text-uppercase fw-semibold">BMI</span>
+            <div class="d-flex align-items-end justify-content-between mt-1">
+              <h4 class="mb-0 fw-bold">26.2</h4>
+               <svg width="40" height="20" class="text-accent"><polyline points="0,20 10,10 20,15 30,5 40,0" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+            </div>
+            <span class="text-muted small mt-2 d-block">Target: 24.5</span>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+          <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
+            <i class="bi bi-gender-male text-accent fs-4 mb-2"></i>
+            <span class="text-muted small text-uppercase fw-semibold">Gender</span>
+            <div class="mt-1">
+              <h4 class="mb-0 fw-bold">Male</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-4 mb-4">
+        <div class="col-md-6">
+          <div class="card border-0 shadow-sm rounded-4 p-4 h-100 text-center">
+            <h6 class="text-start text-muted text-uppercase fw-semibold mb-4">Daily Step Goal</h6>
+            <div class="step-chart mx-auto position-relative d-flex align-items-center justify-content-center">
+              <div class="text-center position-relative z-1">
+                <h2 class="mb-0 fw-bold fs-1">{{ currentSteps | number }}</h2>
+                <span class="text-muted small">/{{ goalSteps | number }} Steps</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <h6 class="text-muted text-uppercase fw-semibold mb-2">Weekly Calories</h6>
+            <h2 class="mb-0 fw-bold">2,840</h2>
+            <span class="text-muted small">Total</span>
+            <div class="mt-3 chart-area-placeholder h-100 w-100">
+                <div class="bg-accent-light w-100 h-100 rounded-bottom" style="clip-path: polygon(0 80%, 20% 60%, 40% 70%, 60% 40%, 80% 50%, 100% 20%, 100% 100%, 0 100%);"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-4 col-lg-5">
+      
+      <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="text-muted text-uppercase fw-semibold mb-0">Upcoming Classes</h6>
+          <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-light rounded-circle"><i class="bi bi-chevron-left"></i></button>
+            <button class="btn btn-sm btn-light rounded-circle"><i class="bi bi-chevron-right"></i></button>
+          </div>
+        </div>
+        <div class="d-flex gap-3 overflow-auto pb-2 class-scroll">
+          <div class="card border-0 shadow-sm rounded-4 overflow-hidden min-w-120 flex-shrink-0 text-white position-relative bg-secondary">
+            <div class="bg-dark bg-opacity-50 p-3 h-100 d-flex flex-column justify-content-end" style="min-height: 120px;">
+              <span class="small fw-semibold">Class</span>
+              <h5 class="mb-0 fw-bold">13:00 PM</h5>
+            </div>
+          </div>
+           <div class="card border-0 shadow-sm rounded-4 overflow-hidden min-w-120 flex-shrink-0 text-white position-relative bg-secondary">
+            <div class="bg-dark bg-opacity-50 p-3 h-100 d-flex flex-column justify-content-end" style="min-height: 120px;">
+              <span class="small fw-semibold">Class</span>
+              <h5 class="mb-0 fw-bold">13:00 PM</h5>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+        <h6 class="text-muted text-uppercase fw-semibold mb-4">Personal Data</h6>
+        
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="bg-light p-2 rounded-3 text-muted"><i class="bi bi-calendar-event fs-5"></i></div>
+          <div>
+            <span class="text-muted small text-uppercase d-block" style="font-size: 0.7rem;">Birthday</span>
+            <span class="fw-medium">12 October 1992</span>
+          </div>
+        </div>
+        
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="bg-light p-2 rounded-3 text-muted"><i class="bi bi-globe fs-5"></i></div>
+          <div>
+            <span class="text-muted small text-uppercase d-block" style="font-size: 0.7rem;">Language</span>
+            <span class="fw-medium">English (US)</span>
+          </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="bg-light p-2 rounded-3 text-muted"><i class="bi bi-calendar-check fs-5"></i></div>
+          <div>
+            <span class="text-muted small text-uppercase d-block" style="font-size: 0.7rem;">Member Since</span>
+            <span class="fw-medium">January 2023</span>
+          </div>
+        </div>
+
+        <div class="card border-0 bg-accent-light rounded-4 p-4 mt-2">
+          <h6 class="text-muted text-uppercase fw-semibold mb-2" style="font-size: 0.75rem;">Current Membership</h6>
+          <h5 class="fw-bold mb-4">Premium Plan</h5>
+          
+          <div class="d-flex justify-content-between text-dark mb-1 small fw-medium">
+            <span>Session Progress</span>
+            <span>12/20</span>
+          </div>
+          <div class="progress mb-4" style="height: 8px;">
+            <div class="progress-bar bg-accent" role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+          
+          <button class="btn btn-accent w-100 rounded-pill fw-bold">UPGRADE PLAN</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm rounded-4 p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h6 class="text-muted text-uppercase fw-semibold mb-0">Recent Activity</h6>
+          <a href="#" class="text-success text-decoration-none fw-semibold small">VIEW ALL HISTORY</a>
+        </div>
+
+        <div class="timeline position-relative ps-4 py-2">
+          <div class="timeline-item position-relative mb-4">
+            <div class="timeline-icon bg-dark text-accent rounded-circle position-absolute d-flex align-items-center justify-content-center">
+              <i class="bi bi-trophy"></i>
+            </div>
+            <div class="ms-4">
+              <span class="text-muted small text-uppercase fw-semibold" style="font-size: 0.7rem;">Milestone Reached</span>
+              <h6 class="fw-bold mb-1">100 Workouts Completed</h6>
+              <p class="text-muted mb-1 small">You've earned the "Centurion" badge for consistent performance over the last 6 months.</p>
+              <span class="text-muted" style="font-size: 0.75rem;">Today, 10:24 AM</span>
+            </div>
+          </div>
+
+          <div class="timeline-item position-relative mb-4">
+            <div class="timeline-icon bg-light text-dark border rounded-circle position-absolute d-flex align-items-center justify-content-center">
+              <i class="bi bi-activity"></i>
+            </div>
+            <div class="ms-4">
+              <span class="text-muted small text-uppercase fw-semibold" style="font-size: 0.7rem;">Training Session</span>
+              <h6 class="fw-bold mb-1">High Intensity Strength Training</h6>
+              <p class="text-muted mb-1 small">Main Focus: Compound lifts. Personal record broken in Deadlift (160kg).</p>
+              <span class="text-muted" style="font-size: 0.75rem;">Yesterday, 5:45 PM</span>
+            </div>
+          </div>
+
+          <div class="timeline-item position-relative">
+            <div class="timeline-icon bg-light text-dark border rounded-circle position-absolute d-flex align-items-center justify-content-center">
+              <i class="bi bi-credit-card"></i>
+            </div>
+            <div class="ms-4">
+              <span class="text-muted small text-uppercase fw-semibold" style="font-size: 0.7rem;">Subscription</span>
+              <h6 class="fw-bold mb-1">Membership Renewed</h6>
+              <p class="text-muted mb-1 small">Your Premium Plan has been successfully renewed for another month.</p>
+              <span class="text-muted" style="font-size: 0.75rem;">Oct 12, 2023</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

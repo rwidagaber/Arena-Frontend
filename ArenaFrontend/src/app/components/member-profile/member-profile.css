@@ -1,0 +1,114 @@
+/* Variables matching the design aesthetic */
+:root {
+  --arena-primary: #dce775;       /* The lime/yellow accent color */
+  --arena-primary-light: #f9fbe7; /* Very light version for backgrounds */
+  --arena-bg: #f5f6f8;            /* Page background */
+  --arena-text-muted: #9e9e9e;
+}
+
+.bg-light-custom {
+  background-color: var(--arena-bg);
+}
+
+.bg-accent {
+  background-color: var(--arena-primary) !important;
+  color: #000;
+}
+
+.bg-accent-light {
+  background-color: var(--arena-primary-light) !important;
+}
+
+.text-accent {
+  color: #cddc39 !important; /* Slightly darker for text visibility */
+}
+
+.border-accent {
+  border: 3px solid var(--arena-primary);
+}
+
+.btn-accent {
+  background-color: var(--arena-primary);
+  color: #000;
+  border: none;
+}
+
+.btn-accent:hover {
+  background-color: #cddc39;
+}
+
+/* Search Bar Customization */
+.search-bar {
+  border-radius: 2rem;
+  overflow: hidden;
+}
+
+.search-bar .form-control {
+  background-color: #fff;
+  box-shadow: none;
+  padding-left: 0;
+}
+
+.search-bar .form-control:focus {
+  box-shadow: none;
+}
+
+/* Circular Step Chart */
+.step-chart {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  /* Using a conic gradient to simulate the 80% progress ring */
+  background: conic-gradient(var(--arena-primary) 0% 82%, #f0f0f0 82% 100%);
+}
+
+.step-chart::before {
+  content: '';
+  position: absolute;
+  inset: 15px; /* Width of the ring */
+  background-color: #fff;
+  border-radius: 50%;
+  z-index: 0;
+}
+
+/* Horizontal scroll for classes */
+.class-scroll {
+  scrollbar-width: none; /* Firefox */
+}
+
+.class-scroll::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+.min-w-120 {
+  min-width: 120px;
+  height: 150px;
+}
+
+/* Timeline Customization */
+.timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 27px; /* Align with the center of the icons */
+  width: 2px;
+  background-color: #e9ecef;
+}
+
+.timeline-icon {
+  width: 40px;
+  height: 40px;
+  left: -40px;
+  top: 0;
+  z-index: 1;
+}
+
+/* General utility overrides for closer match */
+.rounded-4 {
+  border-radius: 1rem !important;
+}
+
+.shadow-sm {
+  box-shadow: 0 .125rem .25rem rgba(0,0,0,.04) !important;
+}
