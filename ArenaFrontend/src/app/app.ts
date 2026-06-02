@@ -1,12 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { MemberProfileComponent } from './components/member-profile/member-profile';
-import { HeaderComponent } from "./shared/header/header";
-import {WorkoutPlan} from "./components/workout-plan/workout-plan"
-
-@Component({
-  selector: 'app-root',
-  imports: [RouterOutlet, MemberProfileComponent, HeaderComponent, WorkoutPlan],
+import { HeaderComponent } from './shared/header/header';
 import { HeroComponent } from './features/hero/hero.component';
 import { ProgramsComponent } from './features/programs/programs.component';
 import { WhatWeDoComponent } from './features/what-we-do/what-we-do.component';
@@ -14,7 +8,14 @@ import { WhyChooseUsComponent } from './features/why-choose-us/why-choose-us.com
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, HeroComponent, ProgramsComponent, WhatWeDoComponent, WhyChooseUsComponent],
+  imports: [
+    RouterOutlet,
+    HeaderComponent,
+    HeroComponent,
+    ProgramsComponent,
+    WhatWeDoComponent,
+    WhyChooseUsComponent
+  ],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
