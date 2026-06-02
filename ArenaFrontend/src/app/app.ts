@@ -14,7 +14,8 @@ import { WhyChooseUsComponent } from './features/why-choose-us/why-choose-us.com
     HeroComponent,
     ProgramsComponent,
     WhatWeDoComponent,
-    WhyChooseUsComponent
+    WhyChooseUsComponent,
+    FooterComponent
   ],
   templateUrl: './app.html',
   styleUrl: './app.css'
@@ -22,3 +23,4 @@ import { WhyChooseUsComponent } from './features/why-choose-us/why-choose-us.com
 export class App {
   protected readonly title = signal('ArenaFrontend');
 }
+import { FooterComponent } from './shared/components/footer/footer';
