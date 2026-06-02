@@ -1,0 +1,142 @@
+@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&display=swap');
+@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css');
+
+:host {
+  display: block;
+  background-color: #0c0f17;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-display { font-family: 'Plus Jakarta Sans', sans-serif; }
+.fs-micro-arrow { font-size: 0.65rem; -webkit-text-stroke: 0.5px; }
+
+/* REPLICATING BACKGROUND MATRICES FROM image_5582ad.png */
+.gympro-header-exact {
+  background-color: #0c0f17;
+  background-image: 
+    linear-gradient(135deg, rgba(255,255,255,0.015) 25%, transparent 25%), 
+    linear-gradient(225deg, rgba(255,255,255,0.015) 25%, transparent 25%), 
+    linear-gradient(45deg, rgba(255,255,255,0.015) 25%, transparent 25%), 
+    linear-gradient(315deg, rgba(255,255,255,0.015) 25%, #0c0f17 25%);
+  background-position: 20px 0, 20px 0, 0 0, 0 0;
+  background-size: 40px 40px;
+  background-repeat: repeat;
+  position: relative;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.gympro-header-exact::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 450px; height: 100%;
+  background: radial-gradient(circle at 15% 50%, rgba(207, 254, 33, 0.12) 0%, rgba(207, 254, 33, 0) 70%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.max-header-width {
+  max-width: 1320px;
+  position: relative;
+  z-index: 2;
+}
+
+
+/* BRAND SIGNAGE STYLING */
+.brand-v3-exact {
+  /* Explicit column gap utility definition in case Bootstrap gap targets vary */
+  gap: 0.95rem !important; 
+}
+
+.logo-circle-exact {
+  width: 48px; /* Incremented from 44px for a stronger visual footprint */
+  height: 48px;
+  border-radius: 50%;
+  background-color: #cffe21;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(207, 254, 33, 0.15);
+  flex-shrink: 0;
+}
+
+/* Perfect crisp sizing match for the inner graphic paths */
+.logo-circle-exact svg {
+  display: block;
+  width: 28px; /* Incremented from 24px */
+  height: 28px;
+  overflow: visible;
+}
+
+.brand-text-exact {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+.dot-lime { 
+  color: #cffe21; 
+}
+
+
+
+/* NAVIGATION LINKS */
+.nav-links-exact {
+  gap: 2.5rem;
+}
+
+.nav-item-exact {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  background: transparent;
+  border: none;
+}
+
+.nav-item-exact:hover {
+  color: #cffe21;
+}
+
+.text-lime-active {
+  color: #cffe21 !important;
+}
+
+/* NEW AUTH ACTION GROUP HOOKS */
+.btn-login-exact {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: color 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-login-exact:hover {
+  color: #cffe21;
+}
+
+.btn-signup-exact {
+  background-color: #cffe21;
+  color: #0c0f17;
+  font-weight: 800;
+  font-size: 0.95rem;
+  padding: 0.75rem 1.6rem;
+  border-radius: 50px;
+  border: none;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 20px rgba(207, 254, 33, 0.15);
+}
+
+.btn-signup-exact:hover {
+  background-color: #beee16;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(207, 254, 33, 0.25);
+}
+
+.btn-signup-exact i {
+  font-size: 0.85rem;
+  -webkit-text-stroke: 0.8px;
+}
