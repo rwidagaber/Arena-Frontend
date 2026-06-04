@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../core/services/auth';
 
 @Component({
   selector: 'app-header',
@@ -11,6 +12,7 @@ import { Router, RouterLink } from '@angular/router';
 })
 export class HeaderComponent {
   private readonly router = inject(Router);
+  public readonly auth = inject(AuthService);
 
   @Input() isLoggedIn: boolean = false;
   @Input() activeTab: string = 'home';
@@ -23,5 +25,9 @@ export class HeaderComponent {
     if (tabName === 'home') {
       this.router.navigate(['/']);
     }
+  }
+
+  logout(): void {
+    this.auth.logout().subscribe();
   }
 }
