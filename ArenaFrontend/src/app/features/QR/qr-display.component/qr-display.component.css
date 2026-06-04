@@ -1,0 +1,125 @@
+.qr-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.qr-card {
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  text-align: center;
+  max-width: 380px;
+  width: 100%;
+}
+
+h3 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+}
+
+.qr-image-wrapper {
+  position: relative;
+  display: inline-block;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 3px solid #e0e0e0;
+  transition: border-color 0.3s;
+}
+
+.qr-image-wrapper.expired {
+  border-color: #ff4444;
+  opacity: 0.6;
+}
+
+.qr-image {
+  display: block;
+  width: 260px;
+  height: 260px;
+}
+
+.qr-overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.qr-code-text {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: #999;
+  margin: 12px 0;
+  word-break: break-all;
+}
+
+.countdown {
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-weight: 600;
+  margin: 12px 0;
+  transition: all 0.3s;
+}
+
+.countdown.expired {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.booking-info {
+  margin-top: 16px;
+  text-align: left;
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 12px 16px;
+}
+
+.booking-info p {
+  margin: 4px 0;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.loading {
+  text-align: center;
+  color: #666;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f0f0f0;
+  border-top-color: #4CAF50;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 12px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error-card {
+  background: #ffebee;
+  color: #c62828;
+  padding: 16px 24px;
+  border-radius: 12px;
+  font-weight: 500;
+}
