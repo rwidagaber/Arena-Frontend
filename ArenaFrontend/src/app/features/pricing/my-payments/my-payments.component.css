@@ -1,0 +1,179 @@
+.payments-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 80vh;
+  background-color: #F8F9FA;
+  padding: 60px 20px;
+  font-family: 'Inter', sans-serif;
+}
+
+.payments-card {
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 900px;
+  overflow: hidden;
+}
+
+.payments-header {
+  padding: 30px 40px;
+  border-bottom: 1px solid #EEE;
+}
+
+.payments-header h2 {
+  margin: 0 0 8px 0;
+  color: #0B0E14;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.payments-header p {
+  margin: 0;
+  color: #888;
+  font-size: 16px;
+}
+
+/* Loading */
+.loading-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #888;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #EEE;
+  border-top: 4px solid #E53935;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Error */
+.error-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #EF4444;
+}
+
+.error-state i {
+  font-size: 40px;
+  margin-bottom: 16px;
+}
+
+/* Empty */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+}
+
+.empty-state i {
+  font-size: 48px;
+  margin-bottom: 16px;
+  color: #CCC;
+}
+
+/* Table */
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.payments-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.payments-table thead {
+  background: #F8F9FA;
+}
+
+.payments-table th {
+  padding: 14px 24px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #EEE;
+}
+
+.payments-table td {
+  padding: 16px 24px;
+  font-size: 15px;
+  color: #333;
+  border-bottom: 1px solid #F0F0F0;
+}
+
+.payments-table tbody tr:hover {
+  background: #FAFAFA;
+}
+
+.amount {
+  font-weight: 600;
+  color: #111;
+}
+
+/* Status Badges */
+.badge {
+  display: inline-block;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.badge-success {
+  background: #D1FAE5;
+  color: #059669;
+}
+
+.badge-warning {
+  background: #FEF3C7;
+  color: #D97706;
+}
+
+.badge-danger {
+  background: #FEE2E2;
+  color: #DC2626;
+}
+
+.badge-default {
+  background: #F3F4F6;
+  color: #6B7280;
+}
+
+/* Actions */
+.actions {
+  padding: 24px 40px;
+  border-top: 1px solid #EEE;
+}
+
+.back-btn {
+  background: transparent;
+  color: #E53935;
+  border: 2px solid #E53935;
+  padding: 12px 28px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-btn:hover {
+  background: #E53935;
+  color: white;
+}

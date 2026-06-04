@@ -1,0 +1,79 @@
+<section class="pricing-section">
+  <div class="pricing-header">
+    <div class="pricing-badge">
+      <span class="dot"></span> Our Pricing Plans
+    </div>
+    <h2 class="pricing-title">Simple affordable pricing plans<br/>for fitness success</h2>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    Loading plans...
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="error-state">
+    {{ error }}
+  </div>
+
+  <!-- Plans Grid -->
+  <div *ngIf="!loading && !error" class="pricing-grid">
+    <div class="pricing-card" *ngFor="let plan of plans; let i = index">
+      <div class="card-header">
+        <!-- We use an index or generic icon since we don't have icons in DB yet -->
+        <div class="icon-circle">
+          <i class="fa fa-solid" [ngClass]="{'fa-basketball': i===0, 'fa-dumbbell': i===1, 'fa-globe': i===2}"></i>
+        </div>
+        <h3 class="plan-name">{{ plan.name }}</h3>
+      </div>
+      
+      <div class="price-container">
+        <span class="currency">$</span>
+        <span class="amount">{{ plan.price | number:'1.2-2' }}</span>
+        <span class="period">/Monthly</span>
+      </div>
+      
+      <div class="session-limit">
+        * Monthly {{ plan.sessionLimit ?? 'Unlimited' }} Classes
+      </div>
+
+      <p class="plan-description">
+        {{ plan.description }}
+      </p>
+
+      <div class="features-section">
+        <h4 class="features-title">What's Included:</h4>
+        <ul class="features-list">
+          <li *ngFor="let feature of includedFeatures">
+            <span class="check-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="#D3F551"/>
+                <path d="M8 12L11 15L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            {{ feature }}
+          </li>
+        </ul>
+      </div>
+
+      <button class="join-btn" 
+              (click)="onJoinNow(plan.id || $any(plan).Id)" 
+              [disabled]="paymentLoading">
+        {{ paymentLoading ? 'Processing...' : 'Join Now' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Footer Info -->
+  <div class="pricing-footer-info">
+    <div class="info-item">
+      <i class="fa fa-calendar-check"></i> Get 30 day free trial
+    </div>
+    <div class="info-item">
+      <i class="fa fa-money-bill"></i> No any hidden fees pay
+    </div>
+    <div class="info-item">
+      <i class="fa fa-clock"></i> You can cancel anytime
+    </div>
+  </div>
+</section>
