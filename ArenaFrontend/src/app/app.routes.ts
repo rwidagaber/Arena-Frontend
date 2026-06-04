@@ -3,6 +3,7 @@ import { RegisterComponent } from './features/Authentication/register/register';
 import { LoginComponent } from './features/Authentication/login/login';
 import { Home } from './features/home/home';
 import { guestGuard } from './core/guards/auth/guest-guard-guard';
+import { CheckoutComponent } from './features/pricing/checkout/checkout.component';
 
 export const routes: Routes = [
      {
@@ -20,6 +21,10 @@ export const routes: Routes = [
    {
     path: 'home',
     component: Home
+  },
+  {
+    path: 'checkout',
+    component: CheckoutComponent
   },
   {
     path: '',
