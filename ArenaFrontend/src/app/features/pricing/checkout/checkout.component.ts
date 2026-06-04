@@ -50,4 +50,8 @@ export class CheckoutComponent implements OnInit {
   goToHome(): void {
     this.router.navigate(['/home']);
   }
+
+  goToPaymentHistory(): void {
+    this.router.navigate(['/my-payments']);
+  }
 }

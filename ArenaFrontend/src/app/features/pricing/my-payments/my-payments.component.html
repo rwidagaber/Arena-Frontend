@@ -1,0 +1,68 @@
+<section class="payments-container">
+  <div class="payments-card">
+    <div class="payments-header">
+      <h2>Payment History</h2>
+      <p>View all your past transactions</p>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading your payments...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error" class="error-state">
+      <i class="fa fa-exclamation-triangle"></i>
+      <p>{{ error }}</p>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && !error && payments.length === 0" class="empty-state">
+      <i class="fa fa-receipt"></i>
+      <p>No payments found yet.</p>
+    </div>
+
+    <!-- Payments Table -->
+    <div *ngIf="!loading && !error && payments.length > 0" class="table-wrapper">
+      <table class="payments-table">
+        <thead>
+          <tr>
+            <th>Plan</th>
+            <th>Amount</th>
+            <th>Method</th>
+            <th>Payment Date</th>
+            <th>Payment Status</th>
+            <th>Plan Ends</th>
+            <th>Activation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let payment of payments">
+            <td>{{ payment.planName }}</td>
+            <td class="amount">{{ payment.amount | number:'1.2-2' }} {{ payment.currency }}</td>
+            <td>{{ payment.paymentMethod }}</td>
+            <td>{{ payment.paymentDate ? (payment.paymentDate | date:'mediumDate') : '—' }}</td>
+            <td>
+              <span class="badge" [ngClass]="getStatusClass(payment.status)">
+                {{ payment.status }}
+              </span>
+            </td>
+            <td>{{ payment.subscriptionEndDate ? (payment.subscriptionEndDate | date:'mediumDate') : '—' }}</td>
+            <td>
+              <span class="badge" [ngClass]="getActivationClass(payment.subscriptionStatus)">
+                {{ payment.subscriptionStatus || '—' }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="actions">
+      <button class="back-btn" (click)="goBack()">
+        <i class="fa fa-arrow-left"></i> Back to Home
+      </button>
+    </div>
+  </div>
+</section>

@@ -21,7 +21,10 @@
     </div>
     <h2>Payment Successful!</h2>
     <p>Thank you for joining. Your plan is now active.</p>
-    <button class="primary-btn" (click)="goToHome()">Go to Dashboard</button>
+    <div class="btn-group">
+      <button class="primary-btn" (click)="goToHome()">Go to Dashboard</button>
+      <button class="secondary-btn" (click)="goToPaymentHistory()">View Payment History</button>
+    </div>
   </div>
 
   <div class="checkout-card result-card" *ngIf="paymentStatus === 'failed'">

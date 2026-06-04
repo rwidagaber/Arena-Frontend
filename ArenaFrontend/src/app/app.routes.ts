@@ -4,6 +4,7 @@ import { LoginComponent } from './features/Authentication/login/login';
 import { Home } from './features/home/home';
 import { guestGuard } from './core/guards/auth/guest-guard-guard';
 import { CheckoutComponent } from './features/pricing/checkout/checkout.component';
+import { MyPaymentsComponent } from './features/pricing/my-payments/my-payments.component';
 
 export const routes: Routes = [
      {
@@ -25,6 +26,10 @@ export const routes: Routes = [
   {
     path: 'checkout',
     component: CheckoutComponent
+  },
+  {
+    path: 'my-payments',
+    component: MyPaymentsComponent
   },
   {
     path: '',
