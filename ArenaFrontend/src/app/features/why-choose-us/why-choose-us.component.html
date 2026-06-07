@@ -4,18 +4,15 @@
     <div class="left-column">
       <div class="badge">
         <span class="dot"></span>
-        Why Choose Us
+        {{ 'WHY_CHOOSE_US.BADGE' | translate }}
       </div>
       
       <h2 class="main-title">
-        Where<br />
-        dedication meet<br />
-        Real fitness<br />
-        results
+        {{ 'WHY_CHOOSE_US.TITLE' | translate }}
       </h2>
       
       <p class="description">
-        We provide more than just workouts—we offer a complete fitness experience designed to help you achieve your health and strength goals.
+        {{ 'WHY_CHOOSE_US.DESC' | translate }}
       </p>
       
       <ul class="benefits-list">
@@ -25,7 +22,7 @@
               <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
           </div>
-          <span>Certified and experienced fitness trainers</span>
+          <span>{{ 'WHY_CHOOSE_US.BENEFIT_1' | translate }}</span>
         </li>
         <li>
           <div class="check-circle">
@@ -33,7 +30,7 @@
               <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
           </div>
-          <span>Personalized workout programs tailored</span>
+          <span>{{ 'WHY_CHOOSE_US.BENEFIT_2' | translate }}</span>
         </li>
         <li>
           <div class="check-circle">
@@ -41,12 +38,12 @@
               <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
           </div>
-          <span>Modern, high-quality equipment & facilities</span>
+          <span>{{ 'WHY_CHOOSE_US.BENEFIT_3' | translate }}</span>
         </li>
       </ul>
       
-      <button class="btn btn-primary" aria-label="Get In Touch">
-        Get In Touch
+      <button class="btn btn-primary" [attr.aria-label]="'WHY_CHOOSE_US.BTN_CONTACT' | translate">
+        {{ 'WHY_CHOOSE_US.BTN_CONTACT' | translate }}
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M7 17L17 7M17 7H7M17 7V17"/>
         </svg>
@@ -54,7 +51,7 @@
     </div>
     
     <div class="center-column">
-      <img src="https://demo.awaikenthemes.com/gympro/wp-content/uploads/2026/01/why-choose-us-image-gold.png" alt="Bodybuilder" class="center-image" onerror="this.src='assets/images/placeholder.png'; this.onerror=null;">
+      <img src="https://demo.awaikenthemes.com/gympro/wp-content/uploads/2026/01/why-choose-us-image-gold.png" [alt]="'WHY_CHOOSE_US.IMG_ALT' | translate" class="center-image" onerror="this.src='assets/images/placeholder.png'; this.onerror=null;">
     </div>
     
     <div class="right-column">
@@ -62,11 +59,11 @@
         @for (stat of stats; track stat.title) {
           <div class="stat-item">
             <div class="stat-circle">
-              {{ stat.number }}
+              {{ stat.number | translate }}
             </div>
             <div class="stat-text">
-              <h3>{{ stat.title }}</h3>
-              <p>{{ stat.description }}</p>
+              <h3>{{ stat.title | translate }}</h3>
+              <p>{{ stat.description | translate }}</p>
             </div>
           </div>
         }

@@ -4,11 +4,12 @@ import { PricingService } from '../../core/services/pricing.service';
 import { SubscriptionPlan } from '../../core/models/subscription-plan';
 import { AuthService } from '../../core/services/auth';
 import { Router } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-pricing',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslateModule],
   templateUrl: './pricing.component.html',
   styleUrls: ['./pricing.component.css']
 })
@@ -18,18 +19,19 @@ export class PricingComponent implements OnInit {
   error = '';
   paymentLoading = false; // Add state to show loading during payment initiation
 
-  // Hardcoded features as per Option A
+  // Translation keys for included features
   includedFeatures = [
-    'Priority Support & Premium Locker',
-    'High-energy group fitness classes',
-    'Motivating & supportive environment',
-    'Fitness assessment & progress'
+    'PRICING.FEATURE_1',
+    'PRICING.FEATURE_2',
+    'PRICING.FEATURE_3',
+    'PRICING.FEATURE_4'
   ];
 
   constructor(
     private pricingService: PricingService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {
@@ -39,7 +41,7 @@ export class PricingComponent implements OnInit {
         this.loading = false;
       },
       error: (err) => {
-        this.error = 'Failed to load subscription plans.';
+        this.error = this.translate.instant('PRICING.ERROR_LOAD');
         this.loading = false;
         console.error(err);
       }
@@ -67,8 +69,8 @@ export class PricingComponent implements OnInit {
       },
       error: (err) => {
         this.paymentLoading = false;
-        const errMsg = err.error?.message || err.message || 'Unknown error';
-        alert('Failed to initiate payment. Reason: ' + errMsg);
+        const errMsg = err.error?.message || err.message || this.translate.instant('PRICING.ERROR_UNKNOWN');
+        alert(this.translate.instant('PRICING.ERROR_PAYMENT') + errMsg);
         console.error('Payment Error:', err);
       }
     });

@@ -1,18 +1,19 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-why-choose-us',
   standalone: true,
-  imports: [],
+  imports: [TranslateModule],
   templateUrl: './why-choose-us.component.html',
   styleUrl: './why-choose-us.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WhyChooseUsComponent {
   stats = [
-    { number: '12+', title: 'Years Experience', description: 'With over a decade of experience' },
-    { number: '80+', title: 'Active & Motivated Members', description: 'Our gym is home to a thriving' },
-    { number: '35+', title: 'Certified Fitness Professionals', description: 'Our team of certified trainers brings' },
-    { number: '60+', title: 'Specialized Training Programs', description: 'We offer a wide variety of structure' }
+    { number: 'WHY_CHOOSE_US.STAT_1_NUM', title: 'WHY_CHOOSE_US.STAT_1_TITLE', description: 'WHY_CHOOSE_US.STAT_1_DESC' },
+    { number: 'WHY_CHOOSE_US.STAT_2_NUM', title: 'WHY_CHOOSE_US.STAT_2_TITLE', description: 'WHY_CHOOSE_US.STAT_2_DESC' },
+    { number: 'WHY_CHOOSE_US.STAT_3_NUM', title: 'WHY_CHOOSE_US.STAT_3_TITLE', description: 'WHY_CHOOSE_US.STAT_3_DESC' },
+    { number: 'WHY_CHOOSE_US.STAT_4_NUM', title: 'WHY_CHOOSE_US.STAT_4_TITLE', description: 'WHY_CHOOSE_US.STAT_4_DESC' }
   ];
 }
