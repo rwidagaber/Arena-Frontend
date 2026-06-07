@@ -9,12 +9,7 @@ import { WhyChooseUsComponent } from './features/why-choose-us/why-choose-us.com
 @Component({
   selector: 'app-root',
   imports: [
-    RouterOutlet,
-    HeaderComponent,
-    HeroComponent,
-    ProgramsComponent,
-    WhatWeDoComponent,
-    WhyChooseUsComponent
+    RouterOutlet
   ],
   templateUrl: './app.html',
   styleUrl: './app.css'
