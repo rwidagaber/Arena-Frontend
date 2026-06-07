@@ -1,6 +1,8 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideTranslateService } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth/auth-interceptor';
@@ -18,6 +20,11 @@ export const appConfig: ApplicationConfig = {
       loadingInterceptor,
       authInterceptor,
       errorInterceptor,
-    ]))
+    ])),
+    // Register ngx-translate with standalone APIs
+    provideTranslateService({
+      defaultLanguage: 'en'
+    }),
+    provideTranslateHttpLoader({ prefix: './i18n/', suffix: '.json' })
   ]
 };

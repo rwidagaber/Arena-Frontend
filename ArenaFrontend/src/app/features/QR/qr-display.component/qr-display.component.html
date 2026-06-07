@@ -23,12 +23,12 @@
 
       <!-- Overlay if expired or used -->
       <div *ngIf="isExpired || qrData.isUsed" class="qr-overlay">
-        <span>{{ qrData?.isUsed ? '✅ Already Used' : '⏰ Expired' }}</span>
+        <span>{{ qrData.isUsed ? '✅ Already Used' : '⏰ Expired' }}</span>
       </div>
     </div>
 
     <!-- QR Code Text -->
-    <p class="qr-code-text">{{ qrData?.code }}</p>
+    <p class="qr-code-text">{{ qrData.code }}</p>
 
     <!-- Expiration Countdown -->
     <div class="countdown" [class.expired]="isExpired">
@@ -38,8 +38,8 @@
 
     <!-- Booking Details -->
     <div class="booking-info">
-      <p>📅 Generated: {{ qrData?.generatedAt }}</p>
-      <p>⏰ Expires: {{ qrData?.expirationTime }}</p>
+      <p>📅 Generated: {{ qrData.generatedAt }}</p>
+      <p>⏰ Expires: {{ qrData.expirationTime }}</p>
     </div>
 
   </div>

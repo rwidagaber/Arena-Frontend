@@ -143,3 +143,23 @@
   font-size: 0.85rem;
   -webkit-text-stroke: 0.8px;
 }
+
+/* LANGUAGE TOGGLE BUTTON */
+.btn-lang-toggle {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  font-weight: 800;
+  font-size: 0.8rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.05em;
+}
+
+.btn-lang-toggle:hover {
+  background: rgba(207, 254, 33, 0.15);
+  border-color: #cffe21;
+  color: #cffe21;
+}

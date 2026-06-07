@@ -27,7 +27,7 @@
       </g>
     </svg>
   </div>
-  <span class="brand-text-exact font-display">ArenaGym<span class="dot-lime">.</span></span>
+  <span class="brand-text-exact font-display">{{ 'HEADER.BRAND' | translate }}<span class="dot-lime">.</span></span>
 </div>
 
     <!-- CENTER BLOCK: Clean Navigation Structure (Store and Blog removed) -->
@@ -40,7 +40,7 @@
             class="nav-item-exact"
             [class.text-lime-active]="activeTab === 'home'"
           >
-            Home <i></i>
+            {{ 'HEADER.NAV_HOME' | translate }} <i></i>
           </a>
         </li>
         <li>
@@ -50,7 +50,7 @@
             class="nav-item-exact"
             [class.text-lime-active]="activeTab === 'about'"
           >
-            About Us
+            {{ 'HEADER.NAV_ABOUT' | translate }}
           </a>
         </li>
 
@@ -62,7 +62,7 @@
             class="nav-item-exact"
             [class.text-lime-active]="activeTab === 'dashboard'"
           >
-            Pages <i class="bi bi-chevron-down ms-1 fs-micro-arrow"></i>
+            {{ 'HEADER.NAV_PAGES' | translate }} <i class="bi bi-chevron-down ms-1 fs-micro-arrow"></i>
           </a>
         </li>
 
@@ -73,14 +73,24 @@
             class="nav-item-exact"
             [class.text-lime-active]="activeTab === 'contact'"
           >
-            Contact Us
+            {{ 'HEADER.NAV_CONTACT' | translate }}
           </a>
         </li>
       </ul>
     </nav>
 
-    <!-- RIGHT BLOCK: Replaced CTA with Log In and Sign Up layout elements -->
+    <!-- RIGHT BLOCK: Language Switcher + Auth Buttons -->
     <div class="d-flex align-items-center gap-3">
+
+      <!-- Language Toggle Button -->
+      <button
+        type="button"
+        class="btn-lang-toggle font-display"
+        (click)="switchLanguage()"
+        [attr.aria-label]="currentLang === 'en' ? 'Switch to Arabic' : 'Switch to English'"
+      >
+        {{ currentLang === 'en' ? 'AR' : 'EN' }}
+      </button>
 
   @if (!auth.isLoggedIn) {
 
@@ -88,7 +98,7 @@
       routerLink="/login"
       class="btn-login-exact font-display text-decoration-none"
     >
-      Log In
+      {{ 'HEADER.LOG_IN' | translate }}
     </a>
 
     <button
@@ -96,7 +106,7 @@
       routerLink="/register"
       class="btn-signup-exact font-display d-flex align-items-center justify-content-center gap-2"
     >
-      <span>Sign Up</span>
+      <span>{{ 'HEADER.SIGN_UP' | translate }}</span>
       <i class="bi bi-arrow-up-right"></i>
     </button>
 
@@ -107,7 +117,7 @@
       (click)="logout()"
       class="btn-signup-exact font-display d-flex align-items-center justify-content-center gap-2"
     >
-      <span>Logout</span>
+      <span>{{ 'HEADER.LOGOUT' | translate }}</span>
       <i class="bi bi-box-arrow-right"></i>
     </button>
 

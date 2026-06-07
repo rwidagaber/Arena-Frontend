@@ -2,11 +2,10 @@
   <div class="section-header">
     <div class="badge">
       <span class="dot"></span>
-      Our Programs & Training
+      {{ 'PROGRAMS.BADGE' | translate }}
     </div>
     <h2 class="section-title">
-      Personalized programs and<br />
-      training for stronger you
+      {{ 'PROGRAMS.TITLE' | translate }}
     </h2>
   </div>
 
@@ -30,14 +29,14 @@
             }
           </div>
           <div class="image-wrapper">
-            <img [src]="program.image" [alt]="program.title" class="program-image" onerror="this.src='assets/images/placeholder.png'; this.onerror=null;" />
+            <img [src]="program.image" [alt]="program.title | translate" class="program-image" onerror="this.src='assets/images/placeholder.png'; this.onerror=null;" />
           </div>
         </div>
         <div class="card-content">
-          <h3 class="card-title">{{ program.title }}</h3>
-          <p class="card-description">{{ program.description }}</p>
+          <h3 class="card-title">{{ program.title | translate }}</h3>
+          <p class="card-description">{{ program.description | translate }}</p>
           <a href="#" class="view-link">
-            View Program
+            {{ 'PROGRAMS.VIEW_PROGRAM' | translate }}
             <span class="arrow-icon">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
             </span>
