@@ -45,6 +45,19 @@ export class AuthService {
     return localStorage.getItem(KEYS.refresh);
   }
 
+  get userRole(): string | null {
+    try {
+      const raw = localStorage.getItem(KEYS.user);
+      if (raw) {
+        const user = JSON.parse(raw);
+        return user.role || null;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
   // ───────────────────────── API ─────────────────────────
 
   register(dto: UserRegisterDto): Observable<AuthResponseDto> {
@@ -63,6 +76,7 @@ export class AuthService {
 
   refresh(): Observable<AuthResponseDto> {
     const dto: RefreshTokenDto = {
+      accessToken: this.accessToken ?? '',
       refreshToken: this.refreshToken ?? ''
     };
 
@@ -88,8 +102,13 @@ export class AuthService {
   getMe(): Observable<GetProfileDto> {
     return this.http.get<GetProfileDto>(`${BASE}/me`).pipe(
       tap(profile => {
-        this._user$.next(profile);
-        localStorage.setItem(KEYS.user, JSON.stringify(profile));
+        // If the profile has an active subscription, they are a Member
+        const isSubscribed = !!profile.activeSubscription;
+        const frontendRole = isSubscribed ? 'Member' : 'User';
+
+        const updatedUser = { ...profile, role: frontendRole, isSubscribed };
+        this._user$.next(updatedUser as any);
+        localStorage.setItem(KEYS.user, JSON.stringify(updatedUser));
       }),
       catchError(this._handleError)
     );
@@ -102,15 +121,18 @@ export class AuthService {
     localStorage.setItem(KEYS.access, res.accessToken);
     localStorage.setItem(KEYS.refresh, res.refreshToken);
 
-    // ❗ مفيش user جاي من backend
-    const user = {
-      role: res.role,
-      expiresAt: res.expiresAt
-    };
-     const tempUser = {
-    role: res.role,
-  };
+    // Determine the frontend role:
+    // - Backend always sends role="GymMember" for normal users
+    // - Backend sends isSubscribed=true when user has an active paid subscription
+    // - We map: isSubscribed=true → "Member", otherwise → "User"
+    const frontendRole = res.isSubscribed ? 'Member' : 'User';
 
+    const user = {
+      role: frontendRole,
+      backendRole: res.role,
+      expiresAt: res.expiresAt,
+      isSubscribed: res.isSubscribed ?? false
+    };
 
     localStorage.setItem(KEYS.user, JSON.stringify(user));
     this._user$.next(user as any);

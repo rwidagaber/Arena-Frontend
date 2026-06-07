@@ -50,7 +50,9 @@ export class HeaderComponent implements OnInit {
     this.activeTab = tabName;
     this.tabChange.emit(tabName);
     if (tabName === 'home') {
-      this.router.navigate(['/']);
+      this.router.navigate(['/home']);
+    } else if (tabName === 'about') {
+      this.router.navigate(['/about']);
     }
   }
 
