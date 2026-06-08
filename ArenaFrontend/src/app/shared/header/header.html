@@ -53,7 +53,7 @@
         {{ currentLang === 'en' ? 'AR' : 'EN' }}
       </button>
 
-      <ng-container *ngIf="isLoggedIn; else loginButtons">
+      <ng-container *ngIf="auth.currentUser$ | async; else loginButtons">
         <div class="user-dropdown-container">
           <div class="user-trigger-wrapper" (click)="toggleDropdown()">
             <div class="user-avatar-circle">
