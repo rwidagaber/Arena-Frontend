@@ -74,7 +74,7 @@ export class LoginComponent implements AfterViewInit {
         } else {
           this.auth.getMe().subscribe(() => {
             this.loading = false;
-            const ret = new URLSearchParams(window.location.search).get('returnUrl') ?? '/home';
+            const ret = new URLSearchParams(window.location.search).get('returnUrl') ?? '/dashboard';
             this.router.navigateByUrl(ret);
           });
         }
@@ -114,7 +114,7 @@ export class LoginComponent implements AfterViewInit {
         this.auth.getMe().subscribe({
           next: () => {
             this.loading = false;
-            const ret = new URLSearchParams(window.location.search).get('returnUrl') ?? '/home';
+            const ret = new URLSearchParams(window.location.search).get('returnUrl') ?? '/dashboard';
             this.router.navigateByUrl(ret);
           },
           error: (profileErr: Error) => {
