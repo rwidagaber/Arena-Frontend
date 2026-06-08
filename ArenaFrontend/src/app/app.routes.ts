@@ -14,6 +14,8 @@ import { CompleteProfileComponent } from './features/Authentication/complete-pro
 import { authGuard } from './core/guards/auth/auth-guard';
 import { ForgotPasswordComponent } from './features/Authentication/forgot-password/forgot-password';
 import { ResetPasswordComponent } from './features/Authentication/reset-password/reset-password';
+import { ProfileComponent } from './components/member-profile/member-profile';
+import { subscriptionGuard } from './core/guards/subscription/subscription-guard';
 export const routes: Routes = [
   {
     path: 'about',
@@ -64,6 +66,11 @@ export const routes: Routes = [
   {
     path: 'my-payments',
     component: MyPaymentsComponent
+  },
+  {
+    path: 'profile',
+    component: ProfileComponent,
+    canActivate: [authGuard, subscriptionGuard]
   },
   {
     path: '',
