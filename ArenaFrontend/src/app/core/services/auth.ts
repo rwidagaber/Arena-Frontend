@@ -107,14 +107,22 @@ export class AuthService {
     localStorage.setItem(KEYS.refresh, res.refreshToken);
     localStorage.setItem(KEYS.subscribed, String(res.isSubscribed));
 
-    const user = {
+    const user: any = {
       role: res.role,
       expiresAt: res.expiresAt,
       isSubscribed: res.isSubscribed,
+      firstName: res.firstName,
+      lastName: res.lastName,
     };
 
     localStorage.setItem(KEYS.user, JSON.stringify(user));
-    this._user$.next(user as any);
+    this._user$.next(user);
+  }
+
+  get displayName(): string {
+    const u = this._user$.value;
+    if (u?.firstName) return u.firstName;
+    return '';
   }
 
   private _clear(): void {

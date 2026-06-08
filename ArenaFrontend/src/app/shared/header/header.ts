@@ -17,22 +17,33 @@ export class HeaderComponent {
   readonly t = inject(TranslationService);
   readonly auth = inject(AuthService);
 
-  @Input() isLoggedIn: boolean = false;
-  @Input() activeTab: string = 'home';
-  @Output() tabChange = new EventEmitter<string>();
+  activeTab: string = 'home';
 
   get currentLang(): Lang {
     return this.t.currentLang();
+  }
+
+  get isLoggedIn(): boolean {
+    return this.auth.isLoggedIn;
+  }
+
+  get displayName(): string {
+    return this.auth.displayName;
   }
 
   toggleLang(): void {
     this.t.switchLang(this.currentLang === 'en' ? 'ar' : 'en');
   }
 
+  logout(): void {
+    this.auth.logout().subscribe({
+      error: () => this.router.navigate(['/']),
+    });
+  }
+
   navigateToTab(tabName: string, event: Event): void {
     event.preventDefault();
     this.activeTab = tabName;
-    this.tabChange.emit(tabName);
     if (tabName === 'home') {
       this.router.navigate(['/']);
     }

@@ -49,6 +49,8 @@ export interface AuthResponseDto {
   expiresAt: string;
   role: string;
   isSubscribed: boolean;
+  firstName?: string;
+  lastName?: string;
 }
 
 export interface UserSummary {
