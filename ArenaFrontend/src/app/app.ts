@@ -40,8 +40,8 @@ export class App implements OnInit, OnDestroy {
   }
 
   private syncUrl(): void {
-    const url = this.router.url;
-    this.isHomePage.set(url === '/' || url === '');
+    const path = this.router.url.split('?')[0];
+    this.isHomePage.set(path === '/' || path === '');
   }
 }
 
