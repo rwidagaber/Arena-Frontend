@@ -44,6 +44,19 @@ get isLoggedIn(): boolean {
   return localStorage.getItem(KEYS.access) ?? sessionStorage.getItem(KEYS.access);
 }
 
+  get userRole(): string | null {
+    try {
+      const raw = localStorage.getItem(KEYS.user);
+      if (raw) {
+        const user = JSON.parse(raw);
+        return user.role || null;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
 get refreshToken(): string | null {
   return localStorage.getItem(KEYS.refresh) ?? sessionStorage.getItem(KEYS.refresh);
 }
@@ -65,6 +78,7 @@ get refreshToken(): string | null {
 
   refresh(): Observable<AuthResponseDto> {
     const dto: RefreshTokenDto = {
+      accessToken: this.accessToken ?? '',
       refreshToken: this.refreshToken ?? ''
     };
 
@@ -96,8 +110,13 @@ get refreshToken(): string | null {
   getMe(): Observable<GetProfileDto> {
     return this.http.get<GetProfileDto>(`${BASE}/me`).pipe(
       tap(profile => {
-        this._user$.next(profile);
-        localStorage.setItem(KEYS.user, JSON.stringify(profile));
+        // If the profile has an active subscription, they are a Member
+        const isSubscribed = !!profile.activeSubscription;
+        const frontendRole = isSubscribed ? 'Member' : 'User';
+
+        const updatedUser = { ...profile, role: frontendRole, isSubscribed };
+        this._user$.next(updatedUser as any);
+        localStorage.setItem(KEYS.user, JSON.stringify(updatedUser));
       }),
       catchError(this._handleError)
     );
@@ -120,6 +139,7 @@ completeProfile(dto: CompleteProfileDto): Observable<void> {
   );
 }
 
+
 resetPassword(dto: ResetPasswordDto): Observable<void> {
   return this.http.post<void>(`${BASE}/reset-password`, dto).pipe(
     catchError(this._handleError)
@@ -127,13 +147,24 @@ resetPassword(dto: ResetPasswordDto): Observable<void> {
 }
   // ───────────────────────── Helpers ─────────────────────────
 
-  private _persist(res: AuthResponseDto, rememberMe = false): void {
+private _persist(res: AuthResponseDto, rememberMe = false): void {
   const storage = rememberMe ? localStorage : sessionStorage;
 
   storage.setItem(KEYS.access, res.accessToken);
   storage.setItem(KEYS.refresh, res.refreshToken);
+    
+  // Determine the frontend role:
+  // - Backend always sends role="GymMember" for normal users
+  // - Backend sends isSubscribed=true when user has an active paid subscription
+  // - We map: isSubscribed=true → "Member", otherwise → "User"
+  const frontendRole = res.isSubscribed ? 'Member' : 'User';
 
-  const user = { role: res.role, expiresAt: res.expiresAt };
+  const user = {
+    role: frontendRole,
+    backendRole: res.role,
+    expiresAt: res.expiresAt,
+    isSubscribed: res.isSubscribed ?? false
+  };
   storage.setItem(KEYS.user, JSON.stringify(user));
   this._user$.next(user as any);
 }

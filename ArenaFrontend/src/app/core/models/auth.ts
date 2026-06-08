@@ -32,7 +32,8 @@ export interface AuthResponseDto {
   refreshToken: string;
   expiresAt:    string;
   role:         string;
-  isGoogleUser: boolean; // ← ضيف ده
+  isGoogleUser: boolean;
+  isSubscribed?: boolean;
 }
 export interface UserLoginDto {
   email: string;
@@ -41,6 +42,7 @@ export interface UserLoginDto {
 }
 
 export interface RefreshTokenDto {
+  accessToken: string;
   refreshToken: string;
 }
 
@@ -87,4 +89,5 @@ export interface GetProfileDto {
   bmi?: number;
   gender?: number;        // 0 = Male, 1 = Female (حسب الـ Gender enum)
   profileImageUrl?: string;
+  activeSubscription?: any; // To check if they have an active subscription
 }

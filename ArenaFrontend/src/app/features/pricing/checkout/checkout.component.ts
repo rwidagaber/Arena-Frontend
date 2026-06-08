@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { AuthService } from '../../../core/services/auth';
 
 @Component({
   selector: 'app-checkout',
@@ -18,7 +19,8 @@ export class CheckoutComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -34,6 +36,16 @@ export class CheckoutComponent implements OnInit {
         // We are out of the iframe, show status
         this.paymentStatus = params['success'] === 'true' ? 'success' : 'failed';
         this.iframeUrl = null; // hide iframe
+
+        // Add a delay before refreshing to allow the Paymob webhook to process in the backend!
+        if (this.paymentStatus === 'success') {
+          setTimeout(() => {
+            this.authService.refresh().subscribe({
+              next: () => console.log('Auth token refreshed after payment webhook delay'),
+              error: err => console.error('Failed to refresh token after payment', err)
+            });
+          }, 3000); // 3-second delay prevents the race condition
+        }
         return;
       }
 
