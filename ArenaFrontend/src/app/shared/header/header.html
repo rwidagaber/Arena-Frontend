@@ -1,14 +1,11 @@
-<header class="gympro-header-exact sticky-top px-4 py-3">
+<header class="gympro-header-exact sticky-top px-4 py-3" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
   <div
     class="container-fluid max-header-width d-flex align-items-center justify-content-between mx-auto"
   >
 
-<!-- LEFT BLOCK: Brand Identity (Perfect Spacing & Icon Scale Match) -->
 <div class="brand-v3-exact d-flex align-items-center gap-3.5">
   <div class="logo-circle-exact">
-    <!-- Scaled up viewBox canvas slightly for high fidelity visibility -->
     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0c0f17" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-      <!-- Dumbbell 1: Top-Left to Bottom-Right -->
       <g>
         <line x1="5" y1="5" x2="19" y2="19" />
         <line x1="6.5" y1="9.5" x2="9.5" y2="6.5" />
@@ -17,7 +14,6 @@
         <line x1="16" y1="19" x2="19" y2="16" />
       </g>
       
-      <!-- Dumbbell 2: Bottom-Left to Top-Right -->
       <g>
         <line x1="5" y1="19" x2="19" y2="5" />
         <line x1="6.5" y1="14.5" x2="9.5" y2="17.5" />
@@ -27,102 +23,108 @@
       </g>
     </svg>
   </div>
-  <span class="brand-text-exact font-display">{{ 'HEADER.BRAND' | translate }}<span class="dot-lime">.</span></span>
+  <span class="brand-text-exact font-display">{{ 'app.title' | translate }}<span class="dot-lime">.</span></span>
 </div>
 
-    <!-- CENTER BLOCK: Clean Navigation Structure (Store and Blog removed) -->
     <nav class="d-none d-lg-block">
       <ul class="nav-links-exact d-flex align-items-center mb-0 list-unstyled">
         <li>
           <a
-            href="#"
-            (click)="navigateToTab('home', $event)"
+            routerLink="/"
+            routerLinkActive="text-lime-active"
+            [routerLinkActiveOptions]="{exact: true}"
             class="nav-item-exact"
-            [class.text-lime-active]="activeTab === 'home'"
           >
-            {{ 'HEADER.NAV_HOME' | translate }} <i></i>
+            {{ 'header.home' | translate }}
           </a>
         </li>
         <li>
           <a
-            href="#"
-            (click)="navigateToTab('about', $event)"
+            routerLink="/about"
+            routerLinkActive="text-lime-active"
             class="nav-item-exact"
-            [class.text-lime-active]="activeTab === 'about'"
           >
-            {{ 'HEADER.NAV_ABOUT' | translate }}
+            {{ 'header.about' | translate }}
           </a>
         </li>
 
-        <!-- Conditionally Rendered Pages Link Option (Appears only after login) -->
-        <li *ngIf="isLoggedIn">
+        <li *ngIf="auth.isSubscribed">
           <a
-            href="#"
-            (click)="navigateToTab('dashboard', $event)"
+            routerLink="/dashboard"
             class="nav-item-exact"
-            [class.text-lime-active]="activeTab === 'dashboard'"
           >
-            {{ 'HEADER.NAV_PAGES' | translate }} <i class="bi bi-chevron-down ms-1 fs-micro-arrow"></i>
+            {{ 'header.dashboard' | translate }}
           </a>
         </li>
 
         <li>
           <a
-            href="#"
-            (click)="navigateToTab('contact', $event)"
+            routerLink="/contact"
+            routerLinkActive="text-lime-active"
             class="nav-item-exact"
-            [class.text-lime-active]="activeTab === 'contact'"
           >
-            {{ 'HEADER.NAV_CONTACT' | translate }}
+            {{ 'header.contact' | translate }}
           </a>
         </li>
       </ul>
     </nav>
 
-    <!-- RIGHT BLOCK: Language Switcher + Auth Buttons -->
     <div class="d-flex align-items-center gap-3">
-
-      <!-- Language Toggle Button -->
-      <button
-        type="button"
-        class="btn-lang-toggle font-display"
-        (click)="switchLanguage()"
-        [attr.aria-label]="currentLang === 'en' ? 'Switch to Arabic' : 'Switch to English'"
-      >
+      <button type="button" class="btn-lang-exact font-display text-decoration-none" (click)="toggleLang()">
         {{ currentLang === 'en' ? 'AR' : 'EN' }}
       </button>
 
-  @if (!auth.isLoggedIn) {
+      @if (isLoggedIn) {
+        <div class="user-dropdown-container">
+          <div class="user-trigger-wrapper" (click)="toggleDropdown()">
+            <div class="user-avatar-circle">
+              <span class="user-avatar-text">{{ (displayName() || 'U')[0] }}</span>
+            </div>
+          </div>
 
-    <a
-      routerLink="/login"
-      class="btn-login-exact font-display text-decoration-none"
-    >
-      {{ 'HEADER.LOG_IN' | translate }}
-    </a>
+          @if (dropdownOpen) {
+            <div class="user-dropdown-menu">
+              @if (!auth.isSubscribed) {
+                <div class="dropdown-subscription-pill" (click)="goToSubscription()">
+                  {{ 'subscription.pill' | translate }}
+                </div>
+                <div class="dropdown-divider"></div>
+              }
 
-    <button
-      type="button"
-      routerLink="/register"
-      class="btn-signup-exact font-display d-flex align-items-center justify-content-center gap-2"
-    >
-      <span>{{ 'HEADER.SIGN_UP' | translate }}</span>
-      <i class="bi bi-arrow-up-right"></i>
-    </button>
+              @for (item of dropdownItems; track item.key) {
+                <button
+                  class="dropdown-item"
+                  [class.disabled]="!auth.isSubscribed"
+                  [disabled]="!auth.isSubscribed"
+                  (click)="auth.isSubscribed && navigateToSection(item.key)"
+                >
+                  {{ item.label | translate }}
+                </button>
+              }
 
-  } @else {
-
-    <button
-      type="button"
-      (click)="logout()"
-      class="btn-signup-exact font-display d-flex align-items-center justify-content-center gap-2"
-    >
-      <span>{{ 'HEADER.LOGOUT' | translate }}</span>
-      <i class="bi bi-box-arrow-right"></i>
-    </button>
-
-  }
-
-</div>
+              <div class="dropdown-divider"></div>
+              <button class="dropdown-item dropdown-logout" (click)="logout()">
+                {{ 'header.logout' | translate }}
+              </button>
+            </div>
+          }
+        </div>
+      } @else {
+        <a
+          routerLink="/login"
+          class="btn-login-exact font-display text-decoration-none"
+        >
+          {{ 'header.login' | translate }}
+        </a>
+        <button
+          type="button"
+          routerLink="/register"
+          class="btn-signup-exact font-display d-flex align-items-center justify-content-center gap-2"
+        >
+          <span>{{ 'header.signup' | translate }}</span>
+          <i class="bi bi-arrow-up-right"></i>
+        </button>
+      }
+    </div>
   </div>
 </header>

@@ -1,60 +1,88 @@
-import { Component, Input, Output, EventEmitter, inject, OnInit } from '@angular/core';
+import { Component, signal, inject, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { TranslationService, Lang } from '../../core/services/translation.service';
 import { AuthService } from '../../core/services/auth';
-import { TranslateService, TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '../pipes/translate.pipe';
+
+export type DropdownSection = 'profile' | 'workout' | 'nutrition' | 'bookings' | 'calendar' | 'attendance';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, TranslateModule],
+  imports: [CommonModule, RouterLink, RouterLinkActive, TranslatePipe],
   templateUrl: './header.html',
   styleUrls: ['./header.css']
 })
-export class HeaderComponent implements OnInit {
-  private readonly router = inject(Router);
-  public readonly auth = inject(AuthService);
-  private readonly translate = inject(TranslateService);
+export class HeaderComponent implements OnInit, OnDestroy {
+  protected readonly router = inject(Router);
+  readonly t = inject(TranslationService);
+  readonly auth = inject(AuthService);
+  private userSub?: Subscription;
 
-  @Input() isLoggedIn: boolean = false;
-  @Input() activeTab: string = 'home';
-  @Output() tabChange = new EventEmitter<string>();
+  protected readonly displayName = signal('');
+  protected dropdownOpen = false;
 
-  currentLang: string = 'en';
+  protected readonly dropdownItems: { key: DropdownSection; label: string }[] = [
+    { key: 'profile',   label: 'sidebar.profile' },
+    { key: 'workout',   label: 'sidebar.workout' },
+    { key: 'nutrition', label: 'sidebar.nutrition' },
+    { key: 'bookings',  label: 'sidebar.bookings' },
+    { key: 'calendar',  label: 'sidebar.calendar' },
+    { key: 'attendance', label: 'sidebar.attendance' },
+  ];
 
   ngOnInit(): void {
-    // Restore saved language from localStorage, default to 'en'
-    const savedLang = localStorage.getItem('lang') || 'en';
-    this.currentLang = savedLang;
-    this.translate.use(savedLang);
-    this.applyDirection(savedLang);
+    this.userSub = this.auth.currentUser$.subscribe(u => {
+      this.displayName.set(u?.firstName ?? '');
+    });
   }
 
-  switchLanguage(): void {
-    // Toggle between 'en' and 'ar'
-    this.currentLang = this.currentLang === 'en' ? 'ar' : 'en';
-    this.translate.use(this.currentLang);
-    localStorage.setItem('lang', this.currentLang);
-    this.applyDirection(this.currentLang);
+  ngOnDestroy(): void {
+    this.userSub?.unsubscribe();
   }
 
-  private applyDirection(lang: string): void {
-    // Set RTL/LTR on the document for Arabic/English
-    const dir = lang === 'ar' ? 'rtl' : 'ltr';
-    document.documentElement.setAttribute('dir', dir);
-    document.documentElement.setAttribute('lang', lang);
-  }
-
-  navigateToTab(tabName: string, event: Event): void {
-    event.preventDefault();
-    this.activeTab = tabName;
-    this.tabChange.emit(tabName);
-    if (tabName === 'home') {
-      this.router.navigate(['/']);
+  @HostListener('document:click', ['$event'])
+  onDocClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.user-dropdown-container')) {
+      this.dropdownOpen = false;
     }
   }
 
-  logout(): void {
-    this.auth.logout().subscribe();
+  get currentLang(): Lang {
+    return this.t.currentLang();
   }
+
+  get isLoggedIn(): boolean {
+    return this.auth.isLoggedIn;
+  }
+
+  toggleLang(): void {
+    this.t.switchLang(this.currentLang === 'en' ? 'ar' : 'en');
+  }
+
+  toggleDropdown(): void {
+    this.dropdownOpen = !this.dropdownOpen;
+  }
+
+  navigateToSection(section: DropdownSection): void {
+    this.dropdownOpen = false;
+    this.router.navigate(['/dashboard'], { queryParams: { section } });
+  }
+
+  goToSubscription(): void {
+    this.dropdownOpen = false;
+    this.router.navigate(['/subscription']);
+  }
+
+  logout(): void {
+    this.dropdownOpen = false;
+    this.auth.logout().subscribe({
+      next: () => this.router.navigate(['/']),
+      error: () => this.router.navigate(['/']),
+    });
+  }
+
 }

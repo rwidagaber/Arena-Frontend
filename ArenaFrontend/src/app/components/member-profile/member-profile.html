@@ -1,0 +1,535 @@
+<div class="dashboard-layout">
+  <app-sidebar
+    [activeSection]="activeSection"
+    (sectionChange)="onSectionChange($event)"
+  />
+
+  <main class="main-content">
+    @if (loading) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>{{ 'profile.loading' | translate }}</p>
+      </div>
+    } @else if (!profile) {
+      <div class="empty-state">
+        <div class="empty-icon">
+          <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/>
+          </svg>
+        </div>
+        <p>{{ 'profile.error' | translate }}</p>
+      </div>
+    } @else {
+      <section class="content-section">
+        @switch (activeSection) {
+          @case ('profile') {
+            <!-- Welcome Banner -->
+            <div class="welcome-banner">
+              <div class="welcome-bg"></div>
+              <div class="welcome-content">
+                <div class="welcome-avatar">
+                  @if (profile.profileImage) {
+                    <img [src]="profile.profileImage" [alt]="profile.firstName" />
+                  } @else {
+                    <div class="avatar-placeholder">
+                      <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                      </svg>
+                    </div>
+                  }
+                  @if (profile.activeSubscription) {
+                    <span class="online-dot"></span>
+                  }
+                </div>
+                <div class="welcome-text">
+                  <h1>{{ 'profile.welcomeBack' | translate:{name: profile.firstName} }}</h1>
+                  <p>{{ 'profile.welcomeSubtitle' | translate }}</p>
+                  @if (profile.activeSubscription) {
+                    <div class="welcome-badge">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                      </svg>
+                      {{ profile.activeSubscription.planNameEn }}
+                    </div>
+                  }
+                </div>
+              </div>
+              <button class="btn-edit" (click)="toggleEdit()">
+                @if (!editMode) {
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                }
+                {{ editMode ? ('profile.cancel' | translate) : ('profile.editProfile' | translate) }}
+              </button>
+            </div>
+
+            <!-- Quick Stats Row -->
+            <div class="stats-row">
+              <div class="stat-card" [style.--stat-color]="'#a3e635'">
+                <div class="stat-icon" style="background: rgba(163,230,53,0.12); color: #a3e635;">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+                  </svg>
+                </div>
+                <div class="stat-info">
+                  <span class="stat-number">{{ profile.bmi ? profile.bmi.toFixed(1) : '--' }}</span>
+                  <span class="stat-label">{{ 'profile.bmi' | translate }}</span>
+                </div>
+                @if (profile.bmi) {
+                  <div class="stat-trend" [class.trend-good]="profile.bmi >= 18.5 && profile.bmi <= 24.9" [class.trend-warn]="profile.bmi < 18.5 || profile.bmi > 24.9">
+                    {{ profile.bmi >= 18.5 && profile.bmi <= 24.9 ? ('profile.bmiOptimal' | translate) : ('profile.bmiNeedsWork' | translate) }}
+                  </div>
+                }
+              </div>
+              <div class="stat-card" [style.--stat-color]="'#60a5fa'">
+                <div class="stat-icon" style="background: rgba(96,165,250,0.12); color: #60a5fa;">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/>
+                  </svg>
+                </div>
+                <div class="stat-info">
+                  <span class="stat-number">{{ profile.weight ?? '--' }}</span>
+                  <span class="stat-label">{{ 'profile.weight' | translate }}</span>
+                </div>
+              </div>
+              <div class="stat-card" [style.--stat-color]="'#f59e0b'">
+                <div class="stat-icon" style="background: rgba(245,158,11,0.12); color: #f59e0b;">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/>
+                  </svg>
+                </div>
+                <div class="stat-info">
+                  <span class="stat-number">{{ profile.height ?? '--' }}</span>
+                  <span class="stat-label">{{ 'profile.height' | translate }}</span>
+                </div>
+              </div>
+              @if (profile.activeSubscription) {
+                <div class="stat-card" [style.--stat-color]="'#f472b6'">
+                  <div class="stat-icon" style="background: rgba(244,114,182,0.12); color: #f472b6;">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                  </div>
+                  <div class="stat-info">
+                    <span class="stat-number">{{ profile.activeSubscription.remainingSessions }}</span>
+                    <span class="stat-label">{{ 'profile.sessionsLeft' | translate }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Main Dashboard Grid -->
+            <div class="dashboard-grid">
+              <!-- Body Stats Card -->
+              <div class="card body-stats-card">
+                <div class="card-header">
+                  <div class="card-header-left">
+                    <div class="card-icon" style="background: rgba(163,230,53,0.12); color: #a3e635;">
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                      </svg>
+                    </div>
+                    <h2>{{ 'profile.bodyMetrics' | translate }}</h2>
+                  </div>
+                  @if (!editMode) {
+                    <span class="card-badge status-good">{{ 'profile.updated' | translate }}</span>
+                  }
+                </div>
+                <div class="card-content">
+                  @if (!editMode) {
+                    <div class="metrics-grid">
+                      <div class="metric-item">
+                        <div class="metric-label">{{ 'profile.bmiRange' | translate }}</div>
+                        <div class="bmi-bar-wrapper">
+                          <div class="bmi-bar">
+                            <div class="bmi-segment" style="left: 0%; width: 18.5%; background: #60a5fa; border-radius: 6px 0 0 6px;" title="Underweight ({{ 'profile.bmi' | translate }} < 18.5)"></div>
+                            <div class="bmi-segment" style="left: 18.5%; width: 25.5%; background: #a3e635;" title="Normal (18.5 - 24.9)"></div>
+                            <div class="bmi-segment" style="left: 44%; width: 24%; background: #f59e0b;" title="Overweight (25 - 29.9)"></div>
+                            <div class="bmi-segment" style="left: 68%; width: 32%; background: #ef4444; border-radius: 0 6px 6px 0;" title="Obese (30+)"></div>
+                          </div>
+                          @if (profile.bmi) {
+                            <div class="bmi-indicator" [style.left.%]="(profile.bmi / 40) * 100 > 100 ? 100 : (profile.bmi / 40) * 100">
+                              <div class="bmi-dot"></div>
+                            </div>
+                          }
+                        </div>
+                        <div class="bmi-labels">
+                          <span>18.5</span>
+                          <span>25</span>
+                          <span>30</span>
+                        </div>
+                      </div>
+                      <div class="metric-row">
+                        <div class="metric-item">
+                          <span class="metric-label">{{ 'profile.weight' | translate }}</span>
+                          <span class="metric-value">{{ profile.weight ?? '--' }} <small>{{ 'profile.weightUnit' | translate }}</small></span>
+                        </div>
+                        <div class="metric-item">
+                          <span class="metric-label">{{ 'profile.height' | translate }}</span>
+                          <span class="metric-value">{{ profile.height ?? '--' }} <small>{{ 'profile.heightUnit' | translate }}</small></span>
+                        </div>
+                      </div>
+                      <div class="metric-row">
+                        <div class="metric-item">
+                          <span class="metric-label">{{ 'profile.gender' | translate }}</span>
+                          <span class="metric-value">{{ profile.gender || '--' }}</span>
+                        </div>
+                        <div class="metric-item">
+                          <span class="metric-label">{{ 'profile.age' | translate }}</span>
+                          <span class="metric-value">{{ profile.birthday ? getAge(profile.birthday) : '--' }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  } @else {
+                    <form [formGroup]="form" class="edit-form">
+                      <div class="form-row">
+                        <div class="field">
+                          <label for="pf-weight">{{ 'profile.weight' | translate }}</label>
+                          <input id="pf-weight" type="number" formControlName="weight" placeholder="0" />
+                        </div>
+                        <div class="field">
+                          <label for="pf-height">{{ 'profile.height' | translate }}</label>
+                          <input id="pf-height" type="number" formControlName="height" placeholder="0" />
+                        </div>
+                      </div>
+                    </form>
+                  }
+                </div>
+              </div>
+
+              <!-- Personal Info Card -->
+              <div class="card info-card">
+                <div class="card-header">
+                  <div class="card-header-left">
+                    <div class="card-icon" style="background: rgba(96,165,250,0.12); color: #60a5fa;">
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                      </svg>
+                    </div>
+                    <h2>{{ 'profile.personalInfo' | translate }}</h2>
+                  </div>
+                  @if (!editMode) {
+                    <button class="btn-edit-sm" (click)="toggleEdit()">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                      </svg>
+                    </button>
+                  }
+                </div>
+                <div class="card-content">
+                  @if (!editMode) {
+                    <div class="info-grid">
+                      <div class="info-item">
+                        <span class="info-label">{{ 'profile.firstName' | translate }}</span>
+                        <span class="info-value">{{ profile.firstName }}</span>
+                      </div>
+                      <div class="info-item">
+                        <span class="info-label">{{ 'profile.lastName' | translate }}</span>
+                        <span class="info-value">{{ profile.lastName }}</span>
+                      </div>
+                      <div class="info-item">
+                        <span class="info-label">{{ 'profile.email' | translate }}</span>
+                        <span class="info-value">{{ profile.email }}</span>
+                      </div>
+                      <div class="info-item">
+                        <span class="info-label">{{ 'profile.phone' | translate }}</span>
+                        <span class="info-value">{{ profile.phoneNumber || ('profile.notSet' | translate) }}</span>
+                      </div>
+                      <div class="info-item">
+                        <span class="info-label">{{ 'profile.dateOfBirth' | translate }}</span>
+                        <span class="info-value">{{ profile.birthday ? (profile.birthday | date:'mediumDate') : ('profile.notSet' | translate) }}</span>
+                      </div>
+                      <div class="info-item">
+                        <span class="info-label">{{ 'profile.language' | translate }}</span>
+                        <span class="info-value">{{ profile.preferredLanguage || 'English' }}</span>
+                      </div>
+                      @if (profile.gender) {
+                        <div class="info-item">
+                          <span class="info-label">{{ 'profile.gender' | translate }}</span>
+                          <span class="info-value">{{ profile.gender }}</span>
+                        </div>
+                      }
+                    </div>
+                  } @else {
+                    <form [formGroup]="form" class="edit-form">
+                      <div class="form-row">
+                        <div class="field">
+                          <label for="pf-fn">{{ 'profile.firstName' | translate }}</label>
+                          <input id="pf-fn" formControlName="firstName" />
+                        </div>
+                        <div class="field">
+                          <label for="pf-ln">{{ 'profile.lastName' | translate }}</label>
+                          <input id="pf-ln" formControlName="lastName" />
+                        </div>
+                      </div>
+                      <div class="form-row">
+                        <div class="field">
+                          <label for="pf-phone">{{ 'profile.phone' | translate }}</label>
+                          <input id="pf-phone" formControlName="phoneNumber" />
+                        </div>
+                        <div class="field">
+                          <label for="pf-lang">{{ 'profile.language' | translate }}</label>
+                          <input id="pf-lang" formControlName="preferredLanguage" />
+                        </div>
+                      </div>
+                      <div class="form-actions">
+                        <button type="button" class="btn-cancel" (click)="cancel()">{{ 'profile.cancel' | translate }}</button>
+                        <button type="button" class="btn-save" (click)="save()" [disabled]="saving || form.invalid">
+                          @if (saving) {
+                            <span class="spinner-sm"></span>
+                          }
+                          {{ 'profile.saveChanges' | translate }}
+                        </button>
+                      </div>
+                    </form>
+                  }
+                </div>
+              </div>
+
+              <!-- Membership Card -->
+              @if (profile.activeSubscription) {
+                <div class="card membership-card">
+                  <div class="card-header">
+                    <div class="card-header-left">
+                      <div class="card-icon" style="background: rgba(244,114,182,0.12); color: #f472b6;">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                        </svg>
+                      </div>
+                      <h2>{{ 'profile.membership' | translate }}</h2>
+                    </div>
+                    <span class="membership-status" [class.status-active]="profile.activeSubscription.status === 'Active'" [class.status-expiring]="profile.activeSubscription.status !== 'Active'">
+                      {{ profile.activeSubscription.status }}
+                    </span>
+                  </div>
+                  <div class="card-content">
+                    <div class="membership-plan-name">{{ profile.activeSubscription.planNameEn }}</div>
+                    <div class="membership-progress">
+                      @if (profile.activeSubscription.startDate && profile.activeSubscription.endDate) {
+                        @let progress = getMembershipProgress(profile.activeSubscription.startDate, profile.activeSubscription.endDate);
+                        <div class="progress-bar-wrapper">
+                          <div class="progress-bar">
+                            <div class="progress-fill" [style.width.%]="progress"></div>
+                          </div>
+                          <span class="progress-text">{{ progress }}%</span>
+                        </div>
+                        <div class="membership-dates">
+                          <div class="date-item">
+                            <span class="date-label">{{ 'profile.started' | translate }}</span>
+                            <span class="date-value">{{ profile.activeSubscription.startDate | date:'mediumDate' }}</span>
+                          </div>
+                          <div class="date-item">
+                            <span class="date-label">{{ 'profile.ends' | translate }}</span>
+                            <span class="date-value">{{ profile.activeSubscription.endDate | date:'mediumDate' }}</span>
+                          </div>
+                        </div>
+                      }
+                    </div>
+                    @if (profile.activeSubscription.remainingSessions > 0) {
+                      <div class="sessions-row">
+                        <div class="session-badge">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                          </svg>
+                          {{ 'profile.sessionsRemaining' | translate:{count: profile.activeSubscription.remainingSessions} }}
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+
+              <!-- Goals & Progress Card -->
+              <div class="card goals-card">
+                <div class="card-header">
+                  <div class="card-header-left">
+                    <div class="card-icon" style="background: rgba(245,158,11,0.12); color: #f59e0b;">
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                      </svg>
+                    </div>
+                    <h2>{{ 'profile.fitnessGoals' | translate }}</h2>
+                  </div>
+                </div>
+                <div class="card-content">
+                  <div class="goals-grid">
+                    <div class="goal-item">
+                      <div class="goal-icon" style="background: rgba(163,230,53,0.12); color: #a3e635;">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/>
+                        </svg>
+                      </div>
+                      <div class="goal-info">
+                        <span class="goal-title">{{ 'profile.targetWeight' | translate }}</span>
+                        <span class="goal-value">{{ '--' }} {{ 'profile.weightUnit' | translate }}</span>
+                      </div>
+                      @if (profile.weight) {
+                        <div class="goal-progress">
+                          <div class="goal-bar">
+                            <div class="goal-fill" style="width: 65%;"></div>
+                          </div>
+                        </div>
+                      }
+                    </div>
+                    <div class="goal-item">
+                      <div class="goal-icon" style="background: rgba(96,165,250,0.12); color: #60a5fa;">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+                        </svg>
+                      </div>
+                      <div class="goal-info">
+                        <span class="goal-title">{{ 'profile.consistency' | translate }}</span>
+                        <span class="goal-value">{{ profile.activeSubscription?.remainingSessions || 0 }} {{ 'profile.sessions' | translate }}</span>
+                      </div>
+                      @if (profile.activeSubscription) {
+                        <div class="goal-progress">
+                          <div class="goal-bar">
+                            <div class="goal-fill" style="width: 40%;"></div>
+                          </div>
+                        </div>
+                      }
+                    </div>
+                    <div class="goal-item">
+                      <div class="goal-icon" style="background: rgba(244,114,182,0.12); color: #f472b6;">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                        </svg>
+                      </div>
+                      <div class="goal-info">
+                        <span class="goal-title">{{ 'profile.streak' | translate }}</span>
+                        <span class="goal-value">0 {{ 'profile.days' | translate }}</span>
+                      </div>
+                      <div class="goal-progress">
+                        <div class="goal-bar">
+                          <div class="goal-fill" style="width: 0%;"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Activity / Achievements Card -->
+              <div class="card activity-card">
+                <div class="card-header">
+                  <div class="card-header-left">
+                    <div class="card-icon" style="background: rgba(163,230,53,0.12); color: #a3e635;">
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                      </svg>
+                    </div>
+                    <h2>{{ 'profile.achievements' | translate }}</h2>
+                  </div>
+                </div>
+                <div class="card-content">
+                  <div class="achievements-grid">
+                    <div class="achievement-item unlocked">
+                      <div class="achievement-icon" style="background: rgba(163,230,53,0.15); color: #a3e635;">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                        </svg>
+                      </div>
+                      <span class="achievement-title">{{ 'profile.achievementMember' | translate }}</span>
+                    </div>
+                    <div class="achievement-item locked">
+                      <div class="achievement-icon" style="background: rgba(148,163,184,0.1); color: #94a3b8;">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/>
+                        </svg>
+                      </div>
+                      <span class="achievement-title">{{ 'profile.achievementFirstWorkout' | translate }}</span>
+                    </div>
+                    <div class="achievement-item locked">
+                      <div class="achievement-icon" style="background: rgba(148,163,184,0.1); color: #94a3b8;">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                      </div>
+                      <span class="achievement-title">{{ 'profile.achievement7DayStreak' | translate }}</span>
+                    </div>
+                    <div class="achievement-item locked">
+                      <div class="achievement-icon" style="background: rgba(148,163,184,0.1); color: #94a3b8;">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
+                        </svg>
+                      </div>
+                      <span class="achievement-title">{{ 'profile.achievementGoalCrusher' | translate }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+          @case ('workout') {
+            <div class="section-placeholder">
+              <div class="placeholder-icon">
+                <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M6.5 6.5 17.5 17.5M6.5 17.5 17.5 6.5"/>
+                  <line x1="6" y1="12" x2="18" y2="12"/>
+                </svg>
+              </div>
+              <h2>{{ 'sidebar.workout' | translate }}</h2>
+              <p>{{ 'section.workoutPlaceholder' | translate }}</p>
+            </div>
+          }
+          @case ('nutrition') {
+            <div class="section-placeholder">
+              <div class="placeholder-icon">
+                <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
+                  <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+                  <line x1="6" y1="1" x2="6" y2="4"/>
+                  <line x1="10" y1="1" x2="10" y2="4"/>
+                  <line x1="14" y1="1" x2="14" y2="4"/>
+                </svg>
+              </div>
+              <h2>{{ 'sidebar.nutrition' | translate }}</h2>
+              <p>{{ 'section.nutritionPlaceholder' | translate }}</p>
+            </div>
+          }
+          @case ('bookings') {
+            <div class="section-placeholder">
+              <div class="placeholder-icon">
+                <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+              </div>
+              <h2>{{ 'sidebar.bookings' | translate }}</h2>
+              <p>{{ 'section.bookingsPlaceholder' | translate }}</p>
+            </div>
+          }
+          @case ('calendar') {
+            <div class="section-placeholder">
+              <div class="placeholder-icon">
+                <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+              </div>
+              <h2>{{ 'sidebar.calendar' | translate }}</h2>
+              <p>{{ 'section.calendarPlaceholder' | translate }}</p>
+            </div>
+          }
+          @case ('attendance') {
+            <div class="section-placeholder">
+              <div class="placeholder-icon">
+                <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                  <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+              </div>
+              <h2>{{ 'sidebar.attendance' | translate }}</h2>
+              <p>{{ 'section.attendancePlaceholder' | translate }}</p>
+            </div>
+          }
+        }
+      </section>
+    }
+  </main>
+</div>

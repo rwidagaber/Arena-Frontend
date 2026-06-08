@@ -20,6 +20,7 @@ const KEYS = {
   access: 'arena_access_token',
   refresh: 'arena_refresh_token',
   user: 'arena_user',
+  subscribed: 'arena_subscribed',
 } as const;
 
 @Injectable({ providedIn: 'root' })
@@ -35,6 +36,10 @@ export class AuthService {
 
   get isLoggedIn(): boolean {
     return !!this.accessToken;
+  }
+
+  get isSubscribed(): boolean {
+    return localStorage.getItem(KEYS.subscribed) === 'true';
   }
 
   get accessToken(): string | null {
@@ -98,22 +103,26 @@ export class AuthService {
   // ───────────────────────── Helpers ─────────────────────────
 
   private _persist(res: AuthResponseDto): void {
-    // tokens
     localStorage.setItem(KEYS.access, res.accessToken);
     localStorage.setItem(KEYS.refresh, res.refreshToken);
+    localStorage.setItem(KEYS.subscribed, String(res.isSubscribed));
 
-    // ❗ مفيش user جاي من backend
-    const user = {
+    const user: any = {
       role: res.role,
-      expiresAt: res.expiresAt
+      expiresAt: res.expiresAt,
+      isSubscribed: res.isSubscribed,
+      firstName: res.firstName,
+      lastName: res.lastName,
     };
-     const tempUser = {
-    role: res.role,
-  };
-
 
     localStorage.setItem(KEYS.user, JSON.stringify(user));
-    this._user$.next(user as any);
+    this._user$.next(user);
+  }
+
+  get displayName(): string {
+    const u = this._user$.value;
+    if (u?.firstName) return u.firstName;
+    return '';
   }
 
   private _clear(): void {
