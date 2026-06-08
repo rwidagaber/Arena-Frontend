@@ -1,21 +1,21 @@
 <section class="what-we-do-section">
   <div class="content-container">
     <div class="image-column">
-      <img src="https://demo.awaikenthemes.com/gympro/wp-content/uploads/2026/01/what-we-do-image-gold.jpg" alt="Man working out with dumbbells" class="main-image" onerror="this.src='assets/images/placeholder.png'; this.onerror=null;">
+      <img src="https://demo.awaikenthemes.com/gympro/wp-content/uploads/2026/01/what-we-do-image-gold.jpg" [alt]="'WHAT_WE_DO.IMG_ALT' | translate" class="main-image" onerror="this.src='assets/images/placeholder.png'; this.onerror=null;">
     </div>
     
     <div class="text-column">
       <div class="badge">
         <span class="dot"></span>
-        {{ 'whatWeDo.badge' | translate }}
+        {{ 'WHAT_WE_DO.BADGE' | translate }}
       </div>
       
       <h2 class="main-title">
-        {{ 'whatWeDo.title' | translate }}
+        {{ 'WHAT_WE_DO.TITLE' | translate }}
       </h2>
       
       <p class="subtitle">
-        {{ 'whatWeDo.subtitle' | translate }}
+        {{ 'WHAT_WE_DO.SUBTITLE' | translate }}
       </p>
       
       <div class="features-list">
@@ -26,8 +26,8 @@
             </svg>
           </div>
           <div class="feature-text">
-            <h3>{{ 'whatWeDo.feature1' | translate }}</h3>
-            <p>{{ 'whatWeDo.feature1Desc' | translate }}</p>
+            <h3>{{ 'WHAT_WE_DO.FEATURE_1_TITLE' | translate }}</h3>
+            <p>{{ 'WHAT_WE_DO.FEATURE_1_DESC' | translate }}</p>
           </div>
         </div>
         
@@ -40,15 +40,15 @@
             </svg>
           </div>
           <div class="feature-text">
-            <h3>{{ 'whatWeDo.feature2' | translate }}</h3>
-            <p>{{ 'whatWeDo.feature2Desc' | translate }}</p>
+            <h3>{{ 'WHAT_WE_DO.FEATURE_2_TITLE' | translate }}</h3>
+            <p>{{ 'WHAT_WE_DO.FEATURE_2_DESC' | translate }}</p>
           </div>
         </div>
       </div>
       
       <div class="action-row">
-        <button class="btn btn-primary" aria-label="Get In Touch">
-          {{ 'whatWeDo.getInTouch' | translate }}
+        <button class="btn btn-primary" [attr.aria-label]="'WHAT_WE_DO.BTN_CONTACT' | translate">
+          {{ 'WHAT_WE_DO.BTN_CONTACT' | translate }}
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M7 17L17 7M17 7H7M17 7V17"/>
           </svg>
@@ -61,8 +61,8 @@
             </svg>
           </div>
           <div class="phone-text">
-            <span class="phone-label">{{ 'whatWeDo.phone' | translate }}</span>
-            <span class="phone-number">+(123) 456-789</span>
+            <span class="phone-label">{{ 'WHAT_WE_DO.PHONE_LABEL' | translate }}</span>
+            <span class="phone-number">{{ 'WHAT_WE_DO.PHONE_NUMBER' | translate }}</span>
           </div>
         </div>
       </div>

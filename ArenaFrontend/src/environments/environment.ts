@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
   developerMode: false,
-  apiUrl: 'https://api.arena.com/api'
+  apiUrl: 'http://localhost:5095/api'
 };

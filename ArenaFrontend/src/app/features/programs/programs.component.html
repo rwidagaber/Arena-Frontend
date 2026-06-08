@@ -10,15 +10,37 @@
   </div>
 
   <div class="programs-grid">
-    <div class="program-card">
-      <div class="card-header">
-        <div class="icon-wrapper">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 4v16m0-16c-3 0-5 2.2-5 5s2 5 5 5 5 2.2 5 5-2 5-5 5"/>
-          </svg>
+    @for (program of programs; track program.title) {
+      <div class="program-card">
+        <div class="card-header">
+          <div class="icon-wrapper">
+            @if (program.icon === 'weight-loss') {
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 4v16m0-16c-3 0-5 2.2-5 5s2 5 5 5 5 2.2 5 5-2 5-5 5"/>
+              </svg>
+            } @else if (program.icon === 'strength') {
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m14 14 6 6"/><path d="m4 4 6 6"/><path d="m14 4 6 6"/><path d="m4 14 6 6"/>
+              </svg>
+            } @else if (program.icon === 'cardio') {
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+              </svg>
+            }
+          </div>
+          <div class="image-wrapper">
+            <img [src]="program.image" [alt]="program.title | translate" class="program-image" onerror="this.src='assets/images/placeholder.png'; this.onerror=null;" />
+          </div>
         </div>
-        <div class="image-wrapper">
-          <img src="https://demo.awaikenthemes.com/gympro/wp-content/uploads/2026/01/our-programs-image-1-gold.png" alt="Weight Loss" class="program-image" onerror="this.src='assets/images/placeholder.png'; this.onerror=null;" />
+        <div class="card-content">
+          <h3 class="card-title">{{ program.title | translate }}</h3>
+          <p class="card-description">{{ program.description | translate }}</p>
+          <a href="#" class="view-link">
+            {{ 'PROGRAMS.VIEW_PROGRAM' | translate }}
+            <span class="arrow-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
+            </span>
+          </a>
         </div>
       </div>
       <div class="card-content">

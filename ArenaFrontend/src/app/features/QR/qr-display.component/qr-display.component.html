@@ -1,0 +1,47 @@
+<div class="qr-container">
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading">
+    <div class="spinner"></div>
+    <p>Generating your QR code...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error" class="error-card">
+    <span>❌ {{ error }}</span>
+  </div>
+
+  <!-- QR Display -->
+  <div *ngIf="qrData && !isLoading" class="qr-card">
+
+    <h3>Your Gym QR Code</h3>
+    <p class="subtitle">Show this to the admin when you arrive</p>
+
+    <!-- QR Image -->
+    <div class="qr-image-wrapper" [class.expired]="isExpired || qrData.isUsed">
+      <img [src]="qrImageUrl" alt="QR Code" class="qr-image"/>
+
+      <!-- Overlay if expired or used -->
+      <div *ngIf="isExpired || qrData.isUsed" class="qr-overlay">
+        <span>{{ qrData.isUsed ? '✅ Already Used' : '⏰ Expired' }}</span>
+      </div>
+    </div>
+
+    <!-- QR Code Text -->
+    <p class="qr-code-text">{{ qrData.code }}</p>
+
+    <!-- Expiration Countdown -->
+    <div class="countdown" [class.expired]="isExpired">
+      <span *ngIf="!isExpired">⏳ Expires in: {{ timeLeft }}</span>
+      <span *ngIf="isExpired">❌ QR Code Expired</span>
+    </div>
+
+    <!-- Booking Details -->
+    <div class="booking-info">
+      <p>📅 Generated: {{ qrData.generatedAt }}</p>
+      <p>⏰ Expires: {{ qrData.expirationTime }}</p>
+    </div>
+
+  </div>
+
+</div>
