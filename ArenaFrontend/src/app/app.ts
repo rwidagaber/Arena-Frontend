@@ -26,7 +26,8 @@ export class App {
   protected readonly title = signal('ArenaFrontend');
 
   get isHomePage(): boolean {
-    return this.router.url === '/';
+    const url = this.router.url;
+    return url === '/' || url === '';
   }
 }
 

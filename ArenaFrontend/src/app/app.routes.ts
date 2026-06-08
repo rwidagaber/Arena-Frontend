@@ -23,10 +23,5 @@ export const routes: Routes = [
     path: 'profile',
     component: ProfileComponent,
     canActivate: [subGuard]
-  },
-  {
-    path: '',
-    redirectTo: '',
-    pathMatch: 'full'
   }
 ];
