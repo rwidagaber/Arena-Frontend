@@ -80,6 +80,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   logout(): void {
     this.dropdownOpen = false;
     this.auth.logout().subscribe({
+      next: () => this.router.navigate(['/']),
       error: () => this.router.navigate(['/']),
     });
   }
