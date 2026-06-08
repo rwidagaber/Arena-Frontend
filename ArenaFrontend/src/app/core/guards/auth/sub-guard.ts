@@ -8,6 +8,6 @@ export const subGuard: CanActivateFn = (_route, state) => {
 
   if (auth.isLoggedIn && auth.isSubscribed) return true;
 
-  router.navigate(['/'], { queryParams: { returnUrl: state.url } });
+  router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
   return false;
 };

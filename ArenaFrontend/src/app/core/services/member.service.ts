@@ -12,7 +12,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class MemberService {
   private http = inject(HttpClient);
-  private base = `${environment.apiUrl}/members`;
+  private base = `${environment.apiUrl}`;
 
   getProfile(): Observable<MemberProfile> {
     return this.http.get<MemberProfile>(`${this.base}/profile`);
@@ -23,10 +23,10 @@ export class MemberService {
   }
 
   getWorkoutHistory(): Observable<WorkoutSession[]> {
-    return this.http.get<WorkoutSession[]>(`${this.base}/workouts`);
+    return this.http.get<WorkoutSession[]>(`${this.base}/profile/workouts`);
   }
 
   getMembership(): Observable<MembershipDetails> {
-    return this.http.get<MembershipDetails>(`${this.base}/membership`);
+    return this.http.get<MembershipDetails>(`${this.base}/profile/membership`);
   }
 }

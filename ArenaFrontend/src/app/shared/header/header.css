@@ -151,6 +151,115 @@
   -webkit-text-stroke: 0.8px;
 }
 
+.user-dropdown-container {
+  position: relative;
+}
+
+.user-trigger-wrapper {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-avatar-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #cffe21, #a3e635);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(207, 254, 33, 0.2);
+}
+
+.user-avatar-circle:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(207, 254, 33, 0.35);
+}
+
+.user-avatar-text {
+  color: #0c0f17;
+  font-weight: 800;
+  font-size: 0.9rem;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.user-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 220px;
+  background: #1a1f2e;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.dropdown-subscription-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  margin-bottom: 4px;
+  border-radius: 8px;
+  background: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  text-align: center;
+}
+
+.dropdown-subscription-pill:hover {
+  background: rgba(234, 179, 8, 0.25);
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
+  margin: 4px 0;
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #e2e8f0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease;
+}
+
+.dropdown-item:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.dropdown-item.disabled,
+.dropdown-item:disabled {
+  color: #475569;
+  cursor: not-allowed;
+}
+
+.dropdown-logout {
+  color: #f87171;
+}
+
+.dropdown-logout:hover:not(:disabled) {
+  background: rgba(248, 113, 113, 0.1) !important;
+  color: #f87171 !important;
+}
+
 .btn-logout-exact {
   background: transparent;
   color: #f87171;

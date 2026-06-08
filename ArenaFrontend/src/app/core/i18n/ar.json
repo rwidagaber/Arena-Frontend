@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "أرينا جيم.",
+    "title": "Arena Gym.",
     "tagline": "تمكين رحلة لياقتك البدنية بتدريب خبير ونتائج دائمة"
   },
   "header": {
@@ -135,16 +135,43 @@
     "phone": "الهاتف",
     "dateOfBirth": "تاريخ الميلاد",
     "language": "اللغة",
+    "gender": "الجنس",
+    "age": "العمر",
     "notSet": "غير محدد",
     "editProfile": "تعديل الملف الشخصي",
     "cancel": "إلغاء",
     "saveChanges": "حفظ التغييرات",
     "bodyStats": "إحصائيات الجسم",
+    "bodyMetrics": "مؤشرات الجسم",
+    "bmi": "مؤشر كتلة الجسم",
+    "bmiRange": "نطاق المؤشر",
+    "bmiOptimal": "ممتاز",
+    "bmiNeedsWork": "بحاجة لتحسين",
     "weight": "الوزن (كجم)",
+    "weightKg": "كجم",
     "height": "الطول (سم)",
+    "heightCm": "سم",
     "membership": "العضوية",
     "started": "تاريخ البدء",
-    "ends": "تاريخ الانتهاء"
+    "ends": "تاريخ الانتهاء",
+    "sessionsLeft": "الحصص المتبقية",
+    "sessionsRemaining": "{{count}} حصص متبقية",
+    "updated": "مُحدّث",
+    "fitnessGoals": "أهداف اللياقة",
+    "targetWeight": "الوزن المستهدف",
+    "consistency": "الاستمرارية",
+    "streak": "التتابع",
+    "sessions": "حصص",
+    "days": "أيام",
+    "achievements": "الإنجازات",
+    "achievementMember": "عضو",
+    "achievementFirstWorkout": "أول تمرين",
+    "achievement7DayStreak": "تتابع 7 أيام",
+    "achievementGoalCrusher": "محقق الأهداف",
+    "welcomeBack": "مرحباً بعودتك، {{name}}! 🔥",
+    "welcomeSubtitle": "هيا نحقق أهداف اليوم ونواصل الزخم.",
+    "weightUnit": "كجم",
+    "heightUnit": "سم"
   },
   "sidebar": {
     "profile": "ملفي الشخصي",
@@ -153,6 +180,13 @@
     "bookings": "الحجوزات",
     "calendar": "التقويم",
     "attendance": "الحضور"
+  },
+  "section": {
+    "workoutPlaceholder": "ستظهر خطة التمرين المخصصة لك هنا.",
+    "nutritionPlaceholder": "ستظهر خطة التغذية والوجبات الخاصة بك هنا.",
+    "bookingsPlaceholder": "ستظهر حجوزات الحصص الخاصة بك هنا.",
+    "calendarPlaceholder": "سيظهر جدول التدريب والأحداث الخاص بك هنا.",
+    "attendancePlaceholder": "ستظهر سجلات الحضور الخاصة بك هنا."
   },
   "common": {
     "loading": "جارٍ التحميل...",

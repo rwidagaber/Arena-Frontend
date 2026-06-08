@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -20,6 +20,7 @@ export class ProfileComponent {
   private memberService = inject(MemberService);
   private fb = inject(FormBuilder);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   profile: MemberProfile | null = null;
   loading = true;
@@ -53,19 +54,23 @@ export class ProfileComponent {
           height: res.height ?? 0,
         });
         this.loading = false;
+        this.cdr.markForCheck();
       },
-      error: () => { this.loading = false; }
+      error: () => {
+        this.loading = false;
+        this.cdr.markForCheck();
+      }
     });
   }
 
   toggleEdit(): void {
     this.editMode = !this.editMode;
+    this.cdr.markForCheck();
   }
 
   save(): void {
     if (this.form.invalid) return;
     this.saving = true;
-
     const dto: UpdateProfileDto = {
       firstName: this.form.value.firstName ?? undefined,
       lastName: this.form.value.lastName ?? undefined,
@@ -74,19 +79,45 @@ export class ProfileComponent {
       weight: this.form.value.weight ?? undefined,
       height: this.form.value.height ?? undefined,
     };
-
     this.memberService.updateProfile(dto).subscribe({
       next: (res) => {
         this.profile = res;
         this.editMode = false;
         this.saving = false;
+        this.cdr.markForCheck();
       },
-      error: () => { this.saving = false; }
+      error: () => {
+        this.saving = false;
+        this.cdr.markForCheck();
+      }
     });
   }
 
   onSectionChange(section: SidebarSection): void {
     this.activeSection = section;
+    this.cdr.markForCheck();
+  }
+
+  getAge(birthday: string): number {
+    const birth = new Date(birthday);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+    return age;
+  }
+
+  getMembershipProgress(startDate: string, endDate: string): number {
+    const start = new Date(startDate).getTime();
+    const end = new Date(endDate).getTime();
+    const now = Date.now();
+    const total = end - start;
+    if (total <= 0) return 0;
+    return Math.min(Math.round(((now - start) / total) * 100), 100);
+  }
+
+  copyId(id: string): void {
+    navigator.clipboard.writeText(id);
   }
 
   cancel(): void {
@@ -101,5 +132,6 @@ export class ProfileComponent {
       });
     }
     this.editMode = false;
+    this.cdr.markForCheck();
   }
 }

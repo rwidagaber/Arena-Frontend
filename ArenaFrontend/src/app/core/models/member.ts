@@ -1,19 +1,30 @@
+export interface ActiveSubscription {
+  id: string;
+  planNameEn: string;
+  planNameAr: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  remainingSessions: number;
+  reminderSent: boolean;
+}
+
 export interface MemberProfile {
   id: string;
+  memberProfileId: string;
   firstName: string;
   lastName: string;
   email: string;
-  phoneNumber: string;
-  dateOfBirth: string;
-  gender?: number;
-  weight?: number;
-  height?: number;
-  bmi?: number;
-  profileImageUrl?: string;
-  membershipType?: string;
-  membershipStartDate?: string;
-  membershipEndDate?: string;
-  preferredLanguage?: string;
+  phoneNumber: string | null;
+  preferredLanguage: string;
+  isActive: boolean;
+  weight: number | null;
+  height: number | null;
+  bmi: number | null;
+  gender: string | null;
+  profileImage: string | null;
+  birthday: string | null;
+  activeSubscription: ActiveSubscription | null;
 }
 
 export interface UpdateProfileDto {
@@ -23,8 +34,8 @@ export interface UpdateProfileDto {
   preferredLanguage?: string;
   weight?: number;
   height?: number;
-  gender?: number;
-  profileImageUrl?: string;
+  gender?: string;
+  profileImage?: string;
 }
 
 export interface WorkoutSession {
