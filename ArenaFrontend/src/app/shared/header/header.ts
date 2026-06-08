@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { TranslationService, Lang } from '../../core/services/translation.service';
+import { AuthService } from '../../core/services/auth';
 import { TranslatePipe } from '../pipes/translate.pipe';
 
 @Component({
@@ -14,6 +15,7 @@ import { TranslatePipe } from '../pipes/translate.pipe';
 export class HeaderComponent {
   private readonly router = inject(Router);
   readonly t = inject(TranslationService);
+  readonly auth = inject(AuthService);
 
   @Input() isLoggedIn: boolean = false;
   @Input() activeTab: string = 'home';

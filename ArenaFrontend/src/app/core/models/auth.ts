@@ -48,6 +48,7 @@ export interface AuthResponseDto {
   refreshToken: string;
   expiresAt: string;
   role: string;
+  isSubscribed: boolean;
 }
 
 export interface UserSummary {

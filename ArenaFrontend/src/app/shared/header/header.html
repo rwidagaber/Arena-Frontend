@@ -49,7 +49,7 @@
           </a>
         </li>
 
-        <li *ngIf="isLoggedIn">
+        <li *ngIf="auth.isSubscribed">
           <a
             href="#"
             (click)="navigateToTab('dashboard', $event)"
