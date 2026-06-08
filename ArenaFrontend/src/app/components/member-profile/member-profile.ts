@@ -6,14 +6,12 @@ import { MemberService } from '../../core/services/member.service';
 import { MemberProfile, UpdateProfileDto } from '../../core/models/member';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { TranslationService } from '../../core/services/translation.service';
-import { SidebarComponent, SidebarSection } from '../../shared/pipes/sidebar/sidebar';
-import { HeaderComponent } from '../../shared/header/header';
-import { FooterComponent } from '../../shared/footer/footer';
+import { SidebarComponent, SidebarSection } from '../../shared/sidebar/sidebar';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslatePipe ,SidebarComponent, HeaderComponent, FooterComponent],
+  imports: [CommonModule, ReactiveFormsModule, TranslatePipe, SidebarComponent],
   templateUrl: './member-profile.html',
   styleUrl: './member-profile.css',
   changeDetection: ChangeDetectionStrategy.OnPush

@@ -1,2 +1,12 @@
+<app-header/>
 <router-outlet></router-outlet>
+@if (isHomePage()) {
+  <app-hero></app-hero>
+  <app-programs></app-programs>
+  <app-what-we-do></app-what-we-do>
+  <app-why-choose-us></app-why-choose-us>
+}
+<app-footer></app-footer>
+<!-- <app-member-profile/> -->
+<!-- <app-workout-plan/> -->
 

@@ -21,6 +21,7 @@ const KEYS = {
   access: 'arena_access_token',
   refresh: 'arena_refresh_token',
   user: 'arena_user',
+  subscribed: 'arena_subscribed',
 } as const;
 
 @Injectable({ providedIn: 'root' })
@@ -28,34 +29,30 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
 
-  private _user$ = new BehaviorSubject<GetProfileDto | null>(
-    this._loadUser()
-  );
-
+  private _user$ = new BehaviorSubject<any | null>(this._loadUser());
   readonly currentUser$ = this._user$.asObservable();
 
   get isLoggedIn(): boolean {
-    return !!localStorage.getItem(KEYS.access) ||
+    return !!localStorage.getItem(KEYS.access) || 
            !!sessionStorage.getItem(KEYS.access);
   }
 
   get isSubscribed(): boolean {
-    try {
-      const raw = localStorage.getItem(KEYS.user)
-               ?? sessionStorage.getItem(KEYS.user);
-      return raw ? JSON.parse(raw).isSubscribed === true : false;
-    } catch {
-      return false;
-    }
+    return localStorage.getItem(KEYS.subscribed) === 'true' || 
+           sessionStorage.getItem(KEYS.subscribed) === 'true';
   }
 
   get accessToken(): string | null {
     return localStorage.getItem(KEYS.access) ?? sessionStorage.getItem(KEYS.access);
   }
 
+  get refreshToken(): string | null {
+    return localStorage.getItem(KEYS.refresh) ?? sessionStorage.getItem(KEYS.refresh);
+  }
+
   get userRole(): string | null {
     try {
-      const raw = localStorage.getItem(KEYS.user);
+      const raw = localStorage.getItem(KEYS.user) ?? sessionStorage.getItem(KEYS.user);
       if (raw) {
         const user = JSON.parse(raw);
         return user.role || null;
@@ -66,8 +63,9 @@ export class AuthService {
     }
   }
 
-  get refreshToken(): string | null {
-    return localStorage.getItem(KEYS.refresh) ?? sessionStorage.getItem(KEYS.refresh);
+  get displayName(): string {
+    const u = this._user$.value;
+    return u?.firstName ? u.firstName : '';
   }
 
   // ───────────────────────── API ─────────────────────────
@@ -78,7 +76,8 @@ export class AuthService {
     );
   }
 
-  login(dto: UserLoginDto, rememberMe = false): Observable<AuthResponseDto> {
+  login(dto: UserLoginDto): Observable<AuthResponseDto> {
+    const rememberMe = dto.RememberMe ?? false;
     return this.http.post<AuthResponseDto>(`${BASE}/login`, dto).pipe(
       tap(res => this._persist(res, rememberMe)),
       catchError(this._handleError)
@@ -92,7 +91,11 @@ export class AuthService {
     };
 
     return this.http.post<AuthResponseDto>(`${BASE}/refresh`, dto).pipe(
-      tap(res => this._persist(res)),
+      // Keep existing storage choice by checking where the current token lives
+      tap(res => {
+        const isUsingLocal = !!localStorage.getItem(KEYS.access);
+        this._persist(res, isUsingLocal);
+      }),
       catchError(err => {
         this._clear();
         return throwError(() => err);
@@ -102,7 +105,7 @@ export class AuthService {
 
   googleLogin(idToken: string): Observable<AuthResponseDto> {
     return this.http.post<AuthResponseDto>(`${BASE}/google-login`, { idToken }).pipe(
-      tap(res => this._persist(res)),
+      tap(res => this._persist(res, true)),
       catchError(this._handleError)
     );
   }
@@ -123,9 +126,18 @@ export class AuthService {
         const isSubscribed = !!profile.activeSubscription;
         const frontendRole = isSubscribed ? 'Member' : 'User';
 
-        const updatedUser = { ...profile, role: frontendRole, isSubscribed };
-        this._user$.next(updatedUser as any);
-        localStorage.setItem(KEYS.user, JSON.stringify(updatedUser));
+        const updatedUser = { 
+          ...profile, 
+          role: frontendRole, 
+          isSubscribed,
+          firstName: profile.firstName,
+          lastName: profile.lastName 
+        };
+
+        this._user$.next(updatedUser);
+        const storage = localStorage.getItem(KEYS.access) ? localStorage : sessionStorage;
+        storage.setItem(KEYS.user, JSON.stringify(updatedUser));
+        storage.setItem(KEYS.subscribed, String(isSubscribed));
       }),
       catchError(this._handleError)
     );
@@ -133,7 +145,7 @@ export class AuthService {
 
   confirmEmail(userId: string, otp: string): Observable<AuthResponseDto> {
     return this.http.post<AuthResponseDto>(`${BASE}/confirm-email`, { userId, otp }).pipe(
-      tap(res => this._persist(res)),
+      tap(res => this._persist(res, true)),
       catchError(this._handleError)
     );
   }
@@ -163,17 +175,21 @@ export class AuthService {
 
     storage.setItem(KEYS.access, res.accessToken);
     storage.setItem(KEYS.refresh, res.refreshToken);
-
+    storage.setItem(KEYS.subscribed, String(res.isSubscribed ?? false));
+      
     const frontendRole = res.isSubscribed ? 'Member' : 'User';
 
     const user = {
       role: frontendRole,
       backendRole: res.role,
       expiresAt: res.expiresAt,
-      isSubscribed: res.isSubscribed ?? false
+      isSubscribed: res.isSubscribed ?? false,
+      firstName: res.firstName ?? '',
+      lastName: res.lastName ?? ''
     };
+
     storage.setItem(KEYS.user, JSON.stringify(user));
-    this._user$.next(user as any);
+    this._user$.next(user);
   }
 
   private _clear(): void {
@@ -185,9 +201,9 @@ export class AuthService {
     this.router.navigate(['/']);
   }
 
-  private _loadUser(): GetProfileDto | null {
+  private _loadUser(): any | null {
     try {
-      const raw = localStorage.getItem(KEYS.user);
+      const raw = localStorage.getItem(KEYS.user) ?? sessionStorage.getItem(KEYS.user);
       return raw ? JSON.parse(raw) : null;
     } catch {
       return null;
@@ -196,7 +212,6 @@ export class AuthService {
 
   private _handleError(err: any): Observable<never> {
     let msg = 'Something went wrong';
-
     const error = err?.error;
 
     if (typeof error === 'string') {
@@ -208,13 +223,10 @@ export class AuthService {
     } else if (Array.isArray(error?.errors)) {
       msg = error.errors.join(', ');
     } else if (error?.errors && typeof error.errors === 'object') {
-      msg = Object.values(error.errors)
-        .flat()
-        .join(', ');
+      msg = Object.values(error.errors).flat().join(', ');
     } else if (err?.message) {
       msg = err.message;
     }
-
     return throwError(() => new Error(msg));
   }
 }

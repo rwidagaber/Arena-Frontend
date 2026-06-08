@@ -24,15 +24,13 @@ export class TranslationService {
     document.documentElement.lang = lang;
   }
 
-translate(key: string, params?: Record<string, string | number>): string {
-  const keys = key.split('.');
-  let value: any = this.translations[this.currentLang()];
-  
-  console.log('Translating:', key, '| Lang:', this.currentLang(), '| Found:', value);
+  translate(key: string, params?: Record<string, string | number>): string {
+    const keys = key.split('.');
+    let value: any = this.translations[this.currentLang()];
 
-  for (const k of keys) {
-    value = value?.[k];
-  }
+    for (const k of keys) {
+      value = value?.[k];
+    }
 
     if (typeof value !== 'string') return key;
 
