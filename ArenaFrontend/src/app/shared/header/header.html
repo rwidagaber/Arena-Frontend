@@ -30,20 +30,19 @@
       <ul class="nav-links-exact d-flex align-items-center mb-0 list-unstyled">
         <li>
           <a
-            href="#"
-            (click)="navigateToTab('home', $event)"
+            routerLink="/"
+            routerLinkActive="text-lime-active"
+            [routerLinkActiveOptions]="{exact: true}"
             class="nav-item-exact"
-            [class.text-lime-active]="activeTab === 'home'"
           >
             {{ 'header.home' | translate }}
           </a>
         </li>
         <li>
           <a
-            href="#"
-            (click)="navigateToTab('about', $event)"
+            routerLink="/about"
+            routerLinkActive="text-lime-active"
             class="nav-item-exact"
-            [class.text-lime-active]="activeTab === 'about'"
           >
             {{ 'header.about' | translate }}
           </a>
@@ -51,21 +50,18 @@
 
         <li *ngIf="auth.isSubscribed">
           <a
-            href="#"
-            (click)="navigateToTab('dashboard', $event)"
+            routerLink="/dashboard"
             class="nav-item-exact"
-            [class.text-lime-active]="activeTab === 'dashboard'"
           >
-            {{ 'header.pages' | translate }}
+            {{ 'header.dashboard' | translate }}
           </a>
         </li>
 
         <li>
           <a
-            href="#"
-            (click)="navigateToTab('contact', $event)"
+            routerLink="/contact"
+            routerLinkActive="text-lime-active"
             class="nav-item-exact"
-            [class.text-lime-active]="activeTab === 'contact'"
           >
             {{ 'header.contact' | translate }}
           </a>
@@ -79,7 +75,11 @@
       </button>
 
       @if (isLoggedIn) {
-        <span class="text-light fw-semibold small">{{ displayName() || 'User' }}</span>
+        <span
+          class="text-light fw-semibold small"
+          [style.cursor]="auth.isSubscribed ? 'pointer' : 'default'"
+          (click)="auth.isSubscribed && router.navigate(['/dashboard'])"
+        >{{ displayName() || 'User' }}</span>
         <button
           type="button"
           class="btn-logout-exact font-display"

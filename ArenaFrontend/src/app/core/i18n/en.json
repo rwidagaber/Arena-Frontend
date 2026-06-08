@@ -146,6 +146,13 @@
     "started": "Started",
     "ends": "Ends"
   },
+  "sidebar": {
+    "profile": "My Profile",
+    "workout": "Workout Plan",
+    "nutrition": "Nutrition Plan",
+    "bookings": "Bookings",
+    "calendar": "Calendar"
+  },
   "common": {
     "loading": "Loading...",
     "error": "Something went wrong",

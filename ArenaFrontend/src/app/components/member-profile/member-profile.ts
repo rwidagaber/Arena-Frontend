@@ -1,15 +1,17 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { MemberService } from '../../core/services/member.service';
 import { MemberProfile, UpdateProfileDto } from '../../core/models/member';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { TranslationService } from '../../core/services/translation.service';
+import { SidebarComponent, SidebarSection } from '../../shared/sidebar/sidebar';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslatePipe],
+  imports: [CommonModule, ReactiveFormsModule, TranslatePipe, SidebarComponent],
   templateUrl: './member-profile.html',
   styleUrl: './member-profile.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -17,11 +19,13 @@ import { TranslationService } from '../../core/services/translation.service';
 export class ProfileComponent {
   private memberService = inject(MemberService);
   private fb = inject(FormBuilder);
+  private router = inject(Router);
 
   profile: MemberProfile | null = null;
   loading = true;
   saving = false;
   editMode = false;
+  activeSection: SidebarSection = 'profile';
 
   form = this.fb.group({
     firstName: ['', Validators.required],
@@ -79,6 +83,10 @@ export class ProfileComponent {
       },
       error: () => { this.saving = false; }
     });
+  }
+
+  onSectionChange(section: SidebarSection): void {
+    this.activeSection = section;
   }
 
   cancel(): void {

@@ -1,151 +1,217 @@
-<section class="profile-section">
-  @if (loading) {
-    <div class="loading-state">
-      <div class="spinner"></div>
-      <p>{{ 'profile.loading' | translate }}</p>
-    </div>
-  } @else if (profile) {
-    <div class="profile-header">
-      <div class="profile-avatar">
-        @if (profile.profileImageUrl) {
-          <img [src]="profile.profileImageUrl" [alt]="profile.firstName" />
-        } @else {
-          <span class="avatar-initials-lg">{{ profile.firstName[0] }}{{ profile.lastName[0] }}</span>
-        }
-      </div>
-      <div class="profile-info">
-        <h1>{{ profile.firstName }} {{ profile.lastName }}</h1>
-        <span class="profile-email">{{ profile.email }}</span>
-        @if (profile.membershipType) {
-          <span class="membership-badge">{{ profile.membershipType }}</span>
-        }
-      </div>
-      <button class="btn-edit" (click)="toggleEdit()">
-        @if (!editMode) {
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-          </svg>
-        }
-        {{ editMode ? ('profile.cancel' | translate) : ('profile.editProfile' | translate) }}
-      </button>
-    </div>
+<div class="dashboard-layout">
+  <app-sidebar
+    [activeSection]="activeSection"
+    (sectionChange)="onSectionChange($event)"
+  />
 
-    <div class="content-grid">
-      <div class="card personal-info">
-        <h2>{{ 'profile.personalInfo' | translate }}</h2>
-        @if (!editMode) {
-          <div class="info-rows">
-            <div class="info-row">
-              <span class="info-label">{{ 'profile.firstName' | translate }}</span>
-              <span class="info-value">{{ profile.firstName }}</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">{{ 'profile.lastName' | translate }}</span>
-              <span class="info-value">{{ profile.lastName }}</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">{{ 'profile.email' | translate }}</span>
-              <span class="info-value">{{ profile.email }}</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">{{ 'profile.phone' | translate }}</span>
-              <span class="info-value">{{ profile.phoneNumber || ('profile.notSet' | translate) }}</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">{{ 'profile.dateOfBirth' | translate }}</span>
-              <span class="info-value">{{ profile.dateOfBirth ? (profile.dateOfBirth | date:'mediumDate') : ('profile.notSet' | translate) }}</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">{{ 'profile.language' | translate }}</span>
-              <span class="info-value">{{ profile.preferredLanguage || 'English' }}</span>
-            </div>
-          </div>
-        } @else {
-          <form [formGroup]="form" class="edit-form">
-            <div class="form-row">
-              <div class="field">
-                <label for="pf-fn">{{ 'profile.firstName' | translate }}</label>
-                <input id="pf-fn" formControlName="firstName" />
-              </div>
-              <div class="field">
-                <label for="pf-ln">{{ 'profile.lastName' | translate }}</label>
-                <input id="pf-ln" formControlName="lastName" />
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="field">
-                <label for="pf-phone">{{ 'profile.phone' | translate }}</label>
-                <input id="pf-phone" formControlName="phoneNumber" />
-              </div>
-              <div class="field">
-                <label for="pf-lang">{{ 'profile.language' | translate }}</label>
-                <input id="pf-lang" formControlName="preferredLanguage" />
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="field">
-                <label for="pf-weight">{{ 'profile.weight' | translate }}</label>
-                <input id="pf-weight" type="number" formControlName="weight" />
-              </div>
-              <div class="field">
-                <label for="pf-height">{{ 'profile.height' | translate }}</label>
-                <input id="pf-height" type="number" formControlName="height" />
-              </div>
-            </div>
-            <div class="form-actions">
-              <button type="button" class="btn-cancel" (click)="cancel()">{{ 'profile.cancel' | translate }}</button>
-              <button type="button" class="btn-save" (click)="save()" [disabled]="saving || form.invalid">
-                @if (saving) {
-                  <span class="spinner-sm"></span>
+  <main class="main-content">
+    @if (loading) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>{{ 'profile.loading' | translate }}</p>
+      </div>
+    } @else if (!profile) {
+      <div class="empty-state">
+        <p>{{ 'profile.error' | translate }}</p>
+      </div>
+    } @else {
+      <section class="content-section">
+        @switch (activeSection) {
+          @case ('profile') {
+            <div class="profile-header">
+              <div class="profile-avatar">
+                @if (profile.profileImageUrl) {
+                  <img [src]="profile.profileImageUrl" [alt]="profile.firstName" />
+                } @else {
+                  <span class="avatar-initials-lg">{{ profile.firstName[0] }}{{ profile.lastName[0] }}</span>
                 }
-                {{ 'profile.saveChanges' | translate }}
+              </div>
+              <div class="profile-info">
+                <h1>{{ profile.firstName }} {{ profile.lastName }}</h1>
+                <span class="profile-email">{{ profile.email }}</span>
+                @if (profile.membershipType) {
+                  <span class="membership-badge">{{ profile.membershipType }}</span>
+                }
+              </div>
+              <button class="btn-edit" (click)="toggleEdit()">
+                @if (!editMode) {
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                }
+                {{ editMode ? ('profile.cancel' | translate) : ('profile.editProfile' | translate) }}
               </button>
             </div>
-          </form>
-        }
-      </div>
 
-      <div class="right-column">
-        <div class="card bmi-card">
-          <h2>{{ 'profile.bodyStats' | translate }}</h2>
-          <div class="bmi-display">
-            <div class="bmi-circle">
-              <span class="bmi-value">{{ profile.bmi?.toFixed(1) || '--' }}</span>
-              <span class="bmi-label">BMI</span>
-            </div>
-            <div class="stats-row">
-              <div class="stat-item">
-                <span class="stat-num">{{ profile.weight || '--' }}</span>
-                <span class="stat-desc">{{ 'profile.weight' | translate }}</span>
+            <div class="content-grid">
+              <div class="card personal-info">
+                <h2>{{ 'profile.personalInfo' | translate }}</h2>
+                @if (!editMode) {
+                  <div class="info-rows">
+                    <div class="info-row">
+                      <span class="info-label">{{ 'profile.firstName' | translate }}</span>
+                      <span class="info-value">{{ profile.firstName }}</span>
+                    </div>
+                    <div class="info-row">
+                      <span class="info-label">{{ 'profile.lastName' | translate }}</span>
+                      <span class="info-value">{{ profile.lastName }}</span>
+                    </div>
+                    <div class="info-row">
+                      <span class="info-label">{{ 'profile.email' | translate }}</span>
+                      <span class="info-value">{{ profile.email }}</span>
+                    </div>
+                    <div class="info-row">
+                      <span class="info-label">{{ 'profile.phone' | translate }}</span>
+                      <span class="info-value">{{ profile.phoneNumber || ('profile.notSet' | translate) }}</span>
+                    </div>
+                    <div class="info-row">
+                      <span class="info-label">{{ 'profile.dateOfBirth' | translate }}</span>
+                      <span class="info-value">{{ profile.dateOfBirth ? (profile.dateOfBirth | date:'mediumDate') : ('profile.notSet' | translate) }}</span>
+                    </div>
+                    <div class="info-row">
+                      <span class="info-label">{{ 'profile.language' | translate }}</span>
+                      <span class="info-value">{{ profile.preferredLanguage || 'English' }}</span>
+                    </div>
+                  </div>
+                } @else {
+                  <form [formGroup]="form" class="edit-form">
+                    <div class="form-row">
+                      <div class="field">
+                        <label for="pf-fn">{{ 'profile.firstName' | translate }}</label>
+                        <input id="pf-fn" formControlName="firstName" />
+                      </div>
+                      <div class="field">
+                        <label for="pf-ln">{{ 'profile.lastName' | translate }}</label>
+                        <input id="pf-ln" formControlName="lastName" />
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="field">
+                        <label for="pf-phone">{{ 'profile.phone' | translate }}</label>
+                        <input id="pf-phone" formControlName="phoneNumber" />
+                      </div>
+                      <div class="field">
+                        <label for="pf-lang">{{ 'profile.language' | translate }}</label>
+                        <input id="pf-lang" formControlName="preferredLanguage" />
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="field">
+                        <label for="pf-weight">{{ 'profile.weight' | translate }}</label>
+                        <input id="pf-weight" type="number" formControlName="weight" />
+                      </div>
+                      <div class="field">
+                        <label for="pf-height">{{ 'profile.height' | translate }}</label>
+                        <input id="pf-height" type="number" formControlName="height" />
+                      </div>
+                    </div>
+                    <div class="form-actions">
+                      <button type="button" class="btn-cancel" (click)="cancel()">{{ 'profile.cancel' | translate }}</button>
+                      <button type="button" class="btn-save" (click)="save()" [disabled]="saving || form.invalid">
+                        @if (saving) {
+                          <span class="spinner-sm"></span>
+                        }
+                        {{ 'profile.saveChanges' | translate }}
+                      </button>
+                    </div>
+                  </form>
+                }
               </div>
-              <div class="stat-item">
-                <span class="stat-num">{{ profile.height || '--' }}</span>
-                <span class="stat-desc">{{ 'profile.height' | translate }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        @if (profile.membershipType) {
-          <div class="card membership-card">
-            <h2>{{ 'profile.membership' | translate }}</h2>
-            <div class="membership-info">
-              <span class="membership-type">{{ profile.membershipType }}</span>
-              @if (profile.membershipStartDate) {
-                <span class="membership-date">{{ 'profile.started' | translate }}: {{ profile.membershipStartDate | date }}</span>
-              }
-              @if (profile.membershipEndDate) {
-                <span class="membership-date">{{ 'profile.ends' | translate }}: {{ profile.membershipEndDate | date }}</span>
-              }
+              <div class="right-column">
+                <div class="card bmi-card">
+                  <h2>{{ 'profile.bodyStats' | translate }}</h2>
+                  <div class="bmi-display">
+                    <div class="bmi-circle">
+                      <span class="bmi-value">{{ profile.bmi?.toFixed(1) || '--' }}</span>
+                      <span class="bmi-label">BMI</span>
+                    </div>
+                    <div class="stats-row">
+                      <div class="stat-item">
+                        <span class="stat-num">{{ profile.weight || '--' }}</span>
+                        <span class="stat-desc">{{ 'profile.weight' | translate }}</span>
+                      </div>
+                      <div class="stat-item">
+                        <span class="stat-num">{{ profile.height || '--' }}</span>
+                        <span class="stat-desc">{{ 'profile.height' | translate }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                @if (profile.membershipType) {
+                  <div class="card membership-card">
+                    <h2>{{ 'profile.membership' | translate }}</h2>
+                    <div class="membership-info">
+                      <span class="membership-type">{{ profile.membershipType }}</span>
+                      @if (profile.membershipStartDate) {
+                        <span class="membership-date">{{ 'profile.started' | translate }}: {{ profile.membershipStartDate | date }}</span>
+                      }
+                      @if (profile.membershipEndDate) {
+                        <span class="membership-date">{{ 'profile.ends' | translate }}: {{ profile.membershipEndDate | date }}</span>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
             </div>
-          </div>
+          }
+          @case ('workout') {
+            <div class="section-placeholder">
+              <div class="placeholder-icon">
+                <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M6.5 6.5 17.5 17.5M6.5 17.5 17.5 6.5"/>
+                  <line x1="6" y1="12" x2="18" y2="12"/>
+                </svg>
+              </div>
+              <h2>{{ 'sidebar.workout' | translate }}</h2>
+              <p>Your personalized workout plan will appear here.</p>
+            </div>
+          }
+          @case ('nutrition') {
+            <div class="section-placeholder">
+              <div class="placeholder-icon">
+                <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
+                  <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+                  <line x1="6" y1="1" x2="6" y2="4"/>
+                  <line x1="10" y1="1" x2="10" y2="4"/>
+                  <line x1="14" y1="1" x2="14" y2="4"/>
+                </svg>
+              </div>
+              <h2>{{ 'sidebar.nutrition' | translate }}</h2>
+              <p>Your nutrition and meal plan will appear here.</p>
+            </div>
+          }
+          @case ('bookings') {
+            <div class="section-placeholder">
+              <div class="placeholder-icon">
+                <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+              </div>
+              <h2>{{ 'sidebar.bookings' | translate }}</h2>
+              <p>Your class bookings and reservations will appear here.</p>
+            </div>
+          }
+          @case ('calendar') {
+            <div class="section-placeholder">
+              <div class="placeholder-icon">
+                <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+              </div>
+              <h2>{{ 'sidebar.calendar' | translate }}</h2>
+              <p>Your training schedule and events will appear here.</p>
+            </div>
+          }
         }
-      </div>
-    </div>
-  } @else {
-    <div class="empty-state">
-      <p>{{ 'profile.error' | translate }}</p>
-    </div>
-  }
-</section>
+      </section>
+    }
+  </main>
+</div>
