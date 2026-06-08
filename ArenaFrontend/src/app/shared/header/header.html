@@ -84,12 +84,10 @@
 
           @if (dropdownOpen) {
             <div class="user-dropdown-menu">
-              @if (!auth.isSubscribed) {
-                <div class="dropdown-subscription-pill" (click)="goToSubscription()">
-                  {{ 'subscription.pill' | translate }}
-                </div>
-                <div class="dropdown-divider"></div>
-              }
+              <div class="dropdown-subscription-pill" (click)="goToSubscription()">
+                {{ 'subscription.pill' | translate }}
+              </div>
+              <div class="dropdown-divider"></div>
 
               @for (item of dropdownItems; track item.key) {
                 <button
