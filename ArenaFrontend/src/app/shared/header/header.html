@@ -79,7 +79,7 @@
       </button>
 
       @if (isLoggedIn) {
-        <span class="text-light fw-semibold small">{{ displayName || 'User' }}</span>
+        <span class="text-light fw-semibold small">{{ displayName() || 'User' }}</span>
         <button
           type="button"
           class="btn-logout-exact font-display"

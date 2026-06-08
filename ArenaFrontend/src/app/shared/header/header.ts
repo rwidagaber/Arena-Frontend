@@ -1,6 +1,7 @@
-import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
+import { Component, signal, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { TranslationService, Lang } from '../../core/services/translation.service';
 import { AuthService } from '../../core/services/auth';
 import { TranslatePipe } from '../pipes/translate.pipe';
@@ -12,12 +13,24 @@ import { TranslatePipe } from '../pipes/translate.pipe';
   templateUrl: './header.html',
   styleUrls: ['./header.css']
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   readonly t = inject(TranslationService);
   readonly auth = inject(AuthService);
+  private userSub?: Subscription;
 
+  protected readonly displayName = signal('');
   activeTab: string = 'home';
+
+  ngOnInit(): void {
+    this.userSub = this.auth.currentUser$.subscribe(u => {
+      this.displayName.set(u?.firstName ?? '');
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.userSub?.unsubscribe();
+  }
 
   get currentLang(): Lang {
     return this.t.currentLang();
@@ -25,10 +38,6 @@ export class HeaderComponent {
 
   get isLoggedIn(): boolean {
     return this.auth.isLoggedIn;
-  }
-
-  get displayName(): string {
-    return this.auth.displayName;
   }
 
   toggleLang(): void {
