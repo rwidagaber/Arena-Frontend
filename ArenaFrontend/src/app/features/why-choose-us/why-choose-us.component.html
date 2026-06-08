@@ -4,18 +4,15 @@
     <div class="left-column">
       <div class="badge">
         <span class="dot"></span>
-        Why Choose Us
+        {{ 'whyChooseUs.badge' | translate }}
       </div>
       
       <h2 class="main-title">
-        Where<br />
-        dedication meet<br />
-        Real fitness<br />
-        results
+        {{ 'whyChooseUs.title' | translate }}
       </h2>
       
       <p class="description">
-        We provide more than just workouts—we offer a complete fitness experience designed to help you achieve your health and strength goals.
+        {{ 'whyChooseUs.desc' | translate }}
       </p>
       
       <ul class="benefits-list">
@@ -25,7 +22,7 @@
               <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
           </div>
-          <span>Certified and experienced fitness trainers</span>
+          <span>{{ 'whyChooseUs.benefit1' | translate }}</span>
         </li>
         <li>
           <div class="check-circle">
@@ -33,7 +30,7 @@
               <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
           </div>
-          <span>Personalized workout programs tailored</span>
+          <span>{{ 'whyChooseUs.benefit2' | translate }}</span>
         </li>
         <li>
           <div class="check-circle">
@@ -41,12 +38,12 @@
               <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
           </div>
-          <span>Modern, high-quality equipment & facilities</span>
+          <span>{{ 'whyChooseUs.benefit3' | translate }}</span>
         </li>
       </ul>
       
       <button class="btn btn-primary" aria-label="Get In Touch">
-        Get In Touch
+        {{ 'whyChooseUs.getInTouch' | translate }}
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M7 17L17 7M17 7H7M17 7V17"/>
         </svg>
@@ -59,17 +56,34 @@
     
     <div class="right-column">
       <div class="stats-list">
-        @for (stat of stats; track stat.title) {
-          <div class="stat-item">
-            <div class="stat-circle">
-              {{ stat.number }}
-            </div>
-            <div class="stat-text">
-              <h3>{{ stat.title }}</h3>
-              <p>{{ stat.description }}</p>
-            </div>
+        <div class="stat-item">
+          <div class="stat-circle">12+</div>
+          <div class="stat-text">
+            <h3>{{ 'whyChooseUs.stat1' | translate }}</h3>
+            <p>{{ 'whyChooseUs.stat1Desc' | translate }}</p>
           </div>
-        }
+        </div>
+        <div class="stat-item">
+          <div class="stat-circle">80+</div>
+          <div class="stat-text">
+            <h3>{{ 'whyChooseUs.stat2' | translate }}</h3>
+            <p>{{ 'whyChooseUs.stat2Desc' | translate }}</p>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-circle">35+</div>
+          <div class="stat-text">
+            <h3>{{ 'whyChooseUs.stat3' | translate }}</h3>
+            <p>{{ 'whyChooseUs.stat3Desc' | translate }}</p>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-circle">60+</div>
+          <div class="stat-text">
+            <h3>{{ 'whyChooseUs.stat4' | translate }}</h3>
+            <p>{{ 'whyChooseUs.stat4Desc' | translate }}</p>
+          </div>
+        </div>
       </div>
     </div>
     

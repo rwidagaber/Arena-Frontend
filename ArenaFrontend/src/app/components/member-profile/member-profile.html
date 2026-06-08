@@ -1,261 +1,151 @@
-<div class="dashboard-container">
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="logo">
-      <span class="logo-text">Arena</span>
-      <span class="logo-sub">ELITE PERFORMANCE</span>
+<section class="profile-section">
+  @if (loading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>{{ 'profile.loading' | translate }}</p>
+    </div>
+  } @else if (profile) {
+    <div class="profile-header">
+      <div class="profile-avatar">
+        @if (profile.profileImageUrl) {
+          <img [src]="profile.profileImageUrl" [alt]="profile.firstName" />
+        } @else {
+          <span class="avatar-initials-lg">{{ profile.firstName[0] }}{{ profile.lastName[0] }}</span>
+        }
+      </div>
+      <div class="profile-info">
+        <h1>{{ profile.firstName }} {{ profile.lastName }}</h1>
+        <span class="profile-email">{{ profile.email }}</span>
+        @if (profile.membershipType) {
+          <span class="membership-badge">{{ profile.membershipType }}</span>
+        }
+      </div>
+      <button class="btn-edit" (click)="toggleEdit()">
+        @if (!editMode) {
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+        }
+        {{ editMode ? ('profile.cancel' | translate) : ('profile.editProfile' | translate) }}
+      </button>
     </div>
 
-    <nav class="sidebar-nav">
-      <ul>
-        <li><i class="bi bi-grid-3x3-gap"></i> DASHBOARD</li>
-        <li class="active"><i class="bi bi-person"></i> PROFILE</li>
-        <li><i class="bi bi-lightning-fill"></i> WORKOUTS</li>
-        <li><i class="bi bi-egg-fried"></i> NUTRITION</li>
-        <li><i class="bi bi-calendar-check"></i> BOOKINGS</li>
-        <li><i class="bi bi-credit-card"></i> SUBSCRIPTION</li>
-        <li><i class="bi bi-gear"></i> SETTINGS</li>
-      </ul>
-    </nav>
-
-    <div class="training-focus">
-      <h3>TRAINING FOCUS</h3>
-      <div class="focus-item">
-        <label>HYPERTROPHY</label>
-        <div class="progress-bar">
-          <div class="progress-fill" style="width: 75%"></div>
-        </div>
-        <span class="percentage">75%</span>
-      </div>
-      <div class="focus-item">
-        <label>STRENGTH</label>
-        <div class="progress-bar">
-          <div class="progress-fill" style="width: 80%"></div>
-        </div>
-        <span class="percentage">80%</span>
-      </div>
-      <div class="focus-item">
-        <label>MOBILITY</label>
-        <div class="progress-bar">
-          <div class="progress-fill" style="width: 85%"></div>
-        </div>
-        <span class="percentage">85%</span>
-      </div>
-    </div>
-
-    <div class="sidebar-user">
-      <div class="user-avatar"></div>
-      <div class="user-info">
-        <h4>John Doe</h4>
-        <p>Pro Member</p>
-      </div>
-    </div>
-  </aside>
-
-  <!-- Main Content -->
-  <main class="main-content">
-    <!-- Header -->
-    <div class="header">
-      <div class="search-bar">
-        <i class="bi bi-search"></i>
-        <input type="text" placeholder="Search performance metrics...">
-      </div>
-      <div class="header-right">
-        <div class="notification">
-          <i class="bi bi-bell"></i>
-          <span class="notification-dot"></span>
-        </div>
-        <i class="bi bi-question-circle"></i>
-        <div class="user-avatar-small"></div>
-      </div>
-    </div>
-
-    <!-- Content Grid -->
-    <div class="content-wrapper">
-      <!-- Left Section -->
-      <div class="left-section">
-        <!-- Profile Card -->
-        <div class="card profile-card">
-          <div class="profile-header">
-            <div class="avatar-large"></div>
-            <div class="profile-info">
-              <div class="name-badge">
-                <h2>John Doe</h2>
-                <span class="badge active">ACTIVE</span>
-                <span class="member-since">Member Since 2023</span>
-              </div>
-              <p class="email"><i class="bi bi-envelope"></i>john.doe@performance.arena</p>
-              <p class="phone"><i class="bi bi-telephone"></i>+1 (555) 012-3456</p>
+    <div class="content-grid">
+      <div class="card personal-info">
+        <h2>{{ 'profile.personalInfo' | translate }}</h2>
+        @if (!editMode) {
+          <div class="info-rows">
+            <div class="info-row">
+              <span class="info-label">{{ 'profile.firstName' | translate }}</span>
+              <span class="info-value">{{ profile.firstName }}</span>
             </div>
-            <button class="btn-edit">EDIT PROFILE</button>
+            <div class="info-row">
+              <span class="info-label">{{ 'profile.lastName' | translate }}</span>
+              <span class="info-value">{{ profile.lastName }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">{{ 'profile.email' | translate }}</span>
+              <span class="info-value">{{ profile.email }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">{{ 'profile.phone' | translate }}</span>
+              <span class="info-value">{{ profile.phoneNumber || ('profile.notSet' | translate) }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">{{ 'profile.dateOfBirth' | translate }}</span>
+              <span class="info-value">{{ profile.dateOfBirth ? (profile.dateOfBirth | date:'mediumDate') : ('profile.notSet' | translate) }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">{{ 'profile.language' | translate }}</span>
+              <span class="info-value">{{ profile.preferredLanguage || 'English' }}</span>
+            </div>
           </div>
-        </div>
+        } @else {
+          <form [formGroup]="form" class="edit-form">
+            <div class="form-row">
+              <div class="field">
+                <label for="pf-fn">{{ 'profile.firstName' | translate }}</label>
+                <input id="pf-fn" formControlName="firstName" />
+              </div>
+              <div class="field">
+                <label for="pf-ln">{{ 'profile.lastName' | translate }}</label>
+                <input id="pf-ln" formControlName="lastName" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="field">
+                <label for="pf-phone">{{ 'profile.phone' | translate }}</label>
+                <input id="pf-phone" formControlName="phoneNumber" />
+              </div>
+              <div class="field">
+                <label for="pf-lang">{{ 'profile.language' | translate }}</label>
+                <input id="pf-lang" formControlName="preferredLanguage" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="field">
+                <label for="pf-weight">{{ 'profile.weight' | translate }}</label>
+                <input id="pf-weight" type="number" formControlName="weight" />
+              </div>
+              <div class="field">
+                <label for="pf-height">{{ 'profile.height' | translate }}</label>
+                <input id="pf-height" type="number" formControlName="height" />
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn-cancel" (click)="cancel()">{{ 'profile.cancel' | translate }}</button>
+              <button type="button" class="btn-save" (click)="save()" [disabled]="saving || form.invalid">
+                @if (saving) {
+                  <span class="spinner-sm"></span>
+                }
+                {{ 'profile.saveChanges' | translate }}
+              </button>
+            </div>
+          </form>
+        }
+      </div>
 
-        <!-- Stats Grid -->
-        <div class="stats-grid">
-          <div class="stat-card">
-            <i class="bi bi-hourglass-split"></i>
-            <label>Weight</label>
-            <div class="stat-value">85<span>kg</span></div>
-            <span class="stat-target">Target: 82kg</span>
-          </div>
-          <div class="stat-card">
-            <i class="bi bi-rulers"></i>
-            <label>Height</label>
-            <div class="stat-value">180 <span>cm</span></div>
-          </div>
-          <div class="stat-card">
-            <i class="bi bi-bar-chart-line"></i>
-            <label>BMI</label>
-            <div class="stat-value">26.2</div>
-            <span class="stat-target">Target: 24.5</span>
-          </div>
-          <div class="stat-card">
-            <i class="bi bi-gender-ambiguous"></i>
-            <label>Gender</label>
-            <div class="stat-value">Male</div>
-          </div>
-        </div>
-
-        <!-- Charts Row -->
-        <div class="charts-row">
-          <div class="card chart-card">
-            <h3>DAILY STEP GOAL</h3>
-            <div class="circular-progress">
-              <svg class="progress-ring" width="120" height="120">
-                <circle cx="60" cy="60" r="50" class="progress-ring-background"></circle>
-                <circle cx="60" cy="60" r="50" class="progress-ring-circle" style="stroke-dashoffset: 31.4;"></circle>
-              </svg>
-              <div class="progress-text">
-                <div class="steps">{{ currentSteps | number }}</div>
-                <small>/{{ goalSteps | number }} Steps</small>
+      <div class="right-column">
+        <div class="card bmi-card">
+          <h2>{{ 'profile.bodyStats' | translate }}</h2>
+          <div class="bmi-display">
+            <div class="bmi-circle">
+              <span class="bmi-value">{{ profile.bmi?.toFixed(1) || '--' }}</span>
+              <span class="bmi-label">BMI</span>
+            </div>
+            <div class="stats-row">
+              <div class="stat-item">
+                <span class="stat-num">{{ profile.weight || '--' }}</span>
+                <span class="stat-desc">{{ 'profile.weight' | translate }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-num">{{ profile.height || '--' }}</span>
+                <span class="stat-desc">{{ 'profile.height' | translate }}</span>
               </div>
             </div>
           </div>
-
-          <div class="card chart-card">
-            <h3>WEEKLY CALORIES</h3>
-            <div class="weekly-chart">
-              <div class="chart-value">2,840<br><small>Total</small></div>
-              <svg class="area-chart" width="100%" height="100" viewBox="0 0 200 100" preserveAspectRatio="none">
-                <defs>
-                  <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" style="stop-color:#d4e157;stop-opacity:0.6" />
-                    <stop offset="100%" style="stop-color:#d4e157;stop-opacity:0.1" />
-                  </linearGradient>
-                </defs>
-                <polyline points="0,80 30,50 60,60 90,30 120,45 150,20 200,10 200,100 0,100" fill="url(#chartGradient)" stroke="none"/>
-              </svg>
-            </div>
-          </div>
         </div>
 
-        <!-- Recent Activity -->
-        <div class="card activity-card">
-          <div class="activity-header">
-            <h3>RECENT ACTIVITY</h3>
-            <a href="#" class="view-all">VIEW ALL HISTORY</a>
-          </div>
-          <div class="activity-item">
-            <div class="activity-icon badge-icon">
-              <i class="bi bi-lightning-charge"></i>
-            </div>
-            <div class="activity-content">
-              <strong>100 Workouts Completed</strong>
-              <p>You've earned the "Centurion" badge for consistent performance over the last 6 months.</p>
-              <small>Today, 10:24 AM</small>
+        @if (profile.membershipType) {
+          <div class="card membership-card">
+            <h2>{{ 'profile.membership' | translate }}</h2>
+            <div class="membership-info">
+              <span class="membership-type">{{ profile.membershipType }}</span>
+              @if (profile.membershipStartDate) {
+                <span class="membership-date">{{ 'profile.started' | translate }}: {{ profile.membershipStartDate | date }}</span>
+              }
+              @if (profile.membershipEndDate) {
+                <span class="membership-date">{{ 'profile.ends' | translate }}: {{ profile.membershipEndDate | date }}</span>
+              }
             </div>
           </div>
-          <div class="activity-item">
-            <div class="activity-icon training-icon">
-              <i class="bi bi-dumbbell"></i>
-            </div>
-            <div class="activity-content">
-              <strong>High Intensity Strength Training</strong>
-              <p>Main Focus: Compound Lifts. Personal record broken in Deadlift (160kg).</p>
-              <small>Yesterday, 5:45 PM</small>
-            </div>
-          </div>
-          <div class="activity-item">
-            <div class="activity-icon renewal-icon">
-              <i class="bi bi-check-circle"></i>
-            </div>
-            <div class="activity-content">
-              <strong>Membership Renewed</strong>
-              <p>Your Premium Plan has been successfully renewed for another month.</p>
-              <small>Oct 12, 2023</small>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right Section -->
-      <div class="right-section">
-        <!-- Upcoming Classes -->
-        <div class="card upcoming-card">
-          <div class="upcoming-header">
-            <h3>UPCOMING CLASSES</h3>
-            <div class="carousel-nav">
-              <button class="nav-btn"><i class="bi bi-chevron-left"></i></button>
-              <button class="nav-btn"><i class="bi bi-chevron-right"></i></button>
-            </div>
-          </div>
-          <div class="classes-carousel">
-            <div class="class-item">
-              <div class="class-image"></div>
-              <div class="class-time">13:00 PM</div>
-            </div>
-            <div class="class-item">
-              <div class="class-image"></div>
-              <div class="class-time">13:00 PM</div>
-            </div>
-            <div class="class-item">
-              <div class="class-image"></div>
-              <div class="class-time">07:00 PM</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Personal Data -->
-        <div class="card personal-data-card">
-          <h3>PERSONAL DATA</h3>
-          <div class="data-item">
-            <i class="bi bi-calendar-event"></i>
-            <div class="data-content">
-              <label>Birthday</label>
-              <span>12 October 1992</span>
-            </div>
-          </div>
-          <div class="data-item">
-            <i class="bi bi-globe"></i>
-            <div class="data-content">
-              <label>Language</label>
-              <span>English (US)</span>
-            </div>
-          </div>
-          <div class="data-item">
-            <i class="bi bi-arrow-repeat"></i>
-            <div class="data-content">
-              <label>Renewal Date</label>
-              <span>January 2023</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Current Membership -->
-        <div class="card membership-card">
-          <h3>CURRENT MEMBERSHIP</h3>
-          <p class="membership-plan">Premium Plan</p>
-          <div class="session-progress">
-            <label>Session Progress</label>
-            <div class="progress-bar">
-              <div class="progress-fill" style="width: 60%;"></div>
-            </div>
-            <span class="session-count">12/20</span>
-          </div>
-          <button class="btn-upgrade">UPGRADE PLAN</button>
-        </div>
+        }
       </div>
     </div>
-  </main>
-</div>
+  } @else {
+    <div class="empty-state">
+      <p>{{ 'profile.error' | translate }}</p>
+    </div>
+  }
+</section>

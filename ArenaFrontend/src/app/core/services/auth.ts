@@ -98,19 +98,13 @@ export class AuthService {
   // ───────────────────────── Helpers ─────────────────────────
 
   private _persist(res: AuthResponseDto): void {
-    // tokens
     localStorage.setItem(KEYS.access, res.accessToken);
     localStorage.setItem(KEYS.refresh, res.refreshToken);
 
-    // ❗ مفيش user جاي من backend
     const user = {
       role: res.role,
       expiresAt: res.expiresAt
     };
-     const tempUser = {
-    role: res.role,
-  };
-
 
     localStorage.setItem(KEYS.user, JSON.stringify(user));
     this._user$.next(user as any);

@@ -1,2 +1,19 @@
-/* You can add global styles to this file, and also import other style files */
-/* @import 'bootstrap-icons/font/bootstrap-icons.css'; */
+[dir="rtl"] .ms-1 { margin-left: 0 !important; margin-right: 0.25rem !important; }
+[dir="rtl"] .me-1 { margin-right: 0 !important; margin-left: 0.25rem !important; }
+[dir="rtl"] .ms-2 { margin-left: 0 !important; margin-right: 0.5rem !important; }
+[dir="rtl"] .me-2 { margin-right: 0 !important; margin-left: 0.5rem !important; }
+[dir="rtl"] .ms-3 { margin-left: 0 !important; margin-right: 1rem !important; }
+[dir="rtl"] .me-3 { margin-right: 0 !important; margin-left: 1rem !important; }
+[dir="rtl"] .ps-0 { padding-left: 0 !important; padding-right: 0 !important; }
+[dir="rtl"] .pe-0 { padding-right: 0 !important; padding-left: 0 !important; }
+[dir="rtl"] .text-start { text-align: right !important; }
+[dir="rtl"] .text-end { text-align: left !important; }
+
+[dir="rtl"] .nav-links-exact { padding-right: 0; }
+[dir="rtl"] .benefits-list { padding-right: 0; }
+[dir="rtl"] .stats-list { padding-right: 0; }
+[dir="rtl"] ul, [dir="rtl"] ol { padding-right: 0; }
+
+[dir="rtl"] .program-card .image-wrapper { right: auto; left: -20px; }
+[dir="rtl"] .member-meta { align-items: flex-start !important; }
+[dir="rtl"] .info-row { flex-direction: row-reverse; }

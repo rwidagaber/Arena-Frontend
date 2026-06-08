@@ -1,14 +1,11 @@
-<header class="gympro-header-exact sticky-top px-4 py-3">
+<header class="gympro-header-exact sticky-top px-4 py-3" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
   <div
     class="container-fluid max-header-width d-flex align-items-center justify-content-between mx-auto"
   >
 
-<!-- LEFT BLOCK: Brand Identity (Perfect Spacing & Icon Scale Match) -->
 <div class="brand-v3-exact d-flex align-items-center gap-3.5">
   <div class="logo-circle-exact">
-    <!-- Scaled up viewBox canvas slightly for high fidelity visibility -->
     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0c0f17" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-      <!-- Dumbbell 1: Top-Left to Bottom-Right -->
       <g>
         <line x1="5" y1="5" x2="19" y2="19" />
         <line x1="6.5" y1="9.5" x2="9.5" y2="6.5" />
@@ -17,7 +14,6 @@
         <line x1="16" y1="19" x2="19" y2="16" />
       </g>
       
-      <!-- Dumbbell 2: Bottom-Left to Top-Right -->
       <g>
         <line x1="5" y1="19" x2="19" y2="5" />
         <line x1="6.5" y1="14.5" x2="9.5" y2="17.5" />
@@ -27,10 +23,9 @@
       </g>
     </svg>
   </div>
-  <span class="brand-text-exact font-display">ArenaGym<span class="dot-lime">.</span></span>
+  <span class="brand-text-exact font-display">{{ 'app.title' | translate }}<span class="dot-lime">.</span></span>
 </div>
 
-    <!-- CENTER BLOCK: Clean Navigation Structure (Store and Blog removed) -->
     <nav class="d-none d-lg-block">
       <ul class="nav-links-exact d-flex align-items-center mb-0 list-unstyled">
         <li>
@@ -40,7 +35,7 @@
             class="nav-item-exact"
             [class.text-lime-active]="activeTab === 'home'"
           >
-            Home <i></i>
+            {{ 'header.home' | translate }}
           </a>
         </li>
         <li>
@@ -50,11 +45,10 @@
             class="nav-item-exact"
             [class.text-lime-active]="activeTab === 'about'"
           >
-            About Us
+            {{ 'header.about' | translate }}
           </a>
         </li>
 
-        <!-- Conditionally Rendered Pages Link Option (Appears only after login) -->
         <li *ngIf="isLoggedIn">
           <a
             href="#"
@@ -62,7 +56,7 @@
             class="nav-item-exact"
             [class.text-lime-active]="activeTab === 'dashboard'"
           >
-            Pages <i class="bi bi-chevron-down ms-1 fs-micro-arrow"></i>
+            {{ 'header.pages' | translate }}
           </a>
         </li>
 
@@ -73,26 +67,28 @@
             class="nav-item-exact"
             [class.text-lime-active]="activeTab === 'contact'"
           >
-            Contact Us
+            {{ 'header.contact' | translate }}
           </a>
         </li>
       </ul>
     </nav>
 
-    <!-- RIGHT BLOCK: Replaced CTA with Log In and Sign Up layout elements -->
     <div class="d-flex align-items-center gap-3">
+      <button type="button" class="btn-lang-exact font-display text-decoration-none" (click)="toggleLang()">
+        {{ currentLang === 'en' ? 'AR' : 'EN' }}
+      </button>
       <a
         routerLink="/login"
         class="btn-login-exact font-display text-decoration-none"
       >
-        Log In
+        {{ 'header.login' | translate }}
       </a>
       <button
         type="button"
         routerLink="/register"
         class="btn-signup-exact font-display d-flex align-items-center justify-content-center gap-2"
       >
-        <span>Sign Up</span>
+        <span>{{ 'header.signup' | translate }}</span>
         <i class="bi bi-arrow-up-right"></i>
       </button>
     </div>

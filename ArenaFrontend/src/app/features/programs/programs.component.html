@@ -2,48 +2,81 @@
   <div class="section-header">
     <div class="badge">
       <span class="dot"></span>
-      Our Programs & Training
+      {{ 'programs.badge' | translate }}
     </div>
     <h2 class="section-title">
-      Personalized programs and<br />
-      training for stronger you
+      {{ 'programs.title' | translate }}
     </h2>
   </div>
 
   <div class="programs-grid">
-    @for (program of programs; track program.title) {
-      <div class="program-card">
-        <div class="card-header">
-          <div class="icon-wrapper">
-            @if (program.icon === 'weight-loss') {
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 4v16m0-16c-3 0-5 2.2-5 5s2 5 5 5 5 2.2 5 5-2 5-5 5"/>
-              </svg>
-            } @else if (program.icon === 'strength') {
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="m14 14 6 6"/><path d="m4 4 6 6"/><path d="m14 4 6 6"/><path d="m4 14 6 6"/>
-              </svg>
-            } @else if (program.icon === 'cardio') {
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-              </svg>
-            }
-          </div>
-          <div class="image-wrapper">
-            <img [src]="program.image" [alt]="program.title" class="program-image" onerror="this.src='assets/images/placeholder.png'; this.onerror=null;" />
-          </div>
+    <div class="program-card">
+      <div class="card-header">
+        <div class="icon-wrapper">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 4v16m0-16c-3 0-5 2.2-5 5s2 5 5 5 5 2.2 5 5-2 5-5 5"/>
+          </svg>
         </div>
-        <div class="card-content">
-          <h3 class="card-title">{{ program.title }}</h3>
-          <p class="card-description">{{ program.description }}</p>
-          <a href="#" class="view-link">
-            View Program
-            <span class="arrow-icon">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
-            </span>
-          </a>
+        <div class="image-wrapper">
+          <img src="https://demo.awaikenthemes.com/gympro/wp-content/uploads/2026/01/our-programs-image-1-gold.png" alt="Weight Loss" class="program-image" onerror="this.src='assets/images/placeholder.png'; this.onerror=null;" />
         </div>
       </div>
-    }
+      <div class="card-content">
+        <h3 class="card-title">{{ 'programs.weightLoss' | translate }}</h3>
+        <p class="card-description">{{ 'programs.weightLossDesc' | translate }}</p>
+        <a href="#" class="view-link">
+          {{ 'programs.view' | translate }}
+          <span class="arrow-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
+          </span>
+        </a>
+      </div>
+    </div>
+
+    <div class="program-card">
+      <div class="card-header">
+        <div class="icon-wrapper">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m14 14 6 6"/><path d="m4 4 6 6"/><path d="m14 4 6 6"/><path d="m4 14 6 6"/>
+          </svg>
+        </div>
+        <div class="image-wrapper">
+          <img src="https://demo.awaikenthemes.com/gympro/wp-content/uploads/2026/01/our-programs-image-2-gold.png" alt="Strength" class="program-image" onerror="this.src='assets/images/placeholder.png'; this.onerror=null;" />
+        </div>
+      </div>
+      <div class="card-content">
+        <h3 class="card-title">{{ 'programs.strength' | translate }}</h3>
+        <p class="card-description">{{ 'programs.strengthDesc' | translate }}</p>
+        <a href="#" class="view-link">
+          {{ 'programs.view' | translate }}
+          <span class="arrow-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
+          </span>
+        </a>
+      </div>
+    </div>
+
+    <div class="program-card">
+      <div class="card-header">
+        <div class="icon-wrapper">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+          </svg>
+        </div>
+        <div class="image-wrapper">
+          <img src="https://demo.awaikenthemes.com/gympro/wp-content/uploads/2026/01/our-programs-image-3-gold.png" alt="Cardio" class="program-image" onerror="this.src='assets/images/placeholder.png'; this.onerror=null;" />
+        </div>
+      </div>
+      <div class="card-content">
+        <h3 class="card-title">{{ 'programs.cardio' | translate }}</h3>
+        <p class="card-description">{{ 'programs.cardioDesc' | translate }}</p>
+        <a href="#" class="view-link">
+          {{ 'programs.view' | translate }}
+          <span class="arrow-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
+          </span>
+        </a>
+      </div>
+    </div>
   </div>
 </section>

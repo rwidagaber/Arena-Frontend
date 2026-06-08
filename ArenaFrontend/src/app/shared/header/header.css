@@ -12,7 +12,6 @@
 .font-display { font-family: 'Plus Jakarta Sans', sans-serif; }
 .fs-micro-arrow { font-size: 0.65rem; -webkit-text-stroke: 0.5px; }
 
-/* REPLICATING BACKGROUND MATRICES FROM image_5582ad.png */
 .gympro-header-exact {
   background-color: #0c0f17;
   background-image: 
@@ -42,15 +41,12 @@
   z-index: 2;
 }
 
-
-/* BRAND SIGNAGE STYLING */
 .brand-v3-exact {
-  /* Explicit column gap utility definition in case Bootstrap gap targets vary */
   gap: 0.95rem !important; 
 }
 
 .logo-circle-exact {
-  width: 48px; /* Incremented from 44px for a stronger visual footprint */
+  width: 48px;
   height: 48px;
   border-radius: 50%;
   background-color: #cffe21;
@@ -61,10 +57,9 @@
   flex-shrink: 0;
 }
 
-/* Perfect crisp sizing match for the inner graphic paths */
 .logo-circle-exact svg {
   display: block;
-  width: 28px; /* Incremented from 24px */
+  width: 28px;
   height: 28px;
   overflow: visible;
 }
@@ -80,9 +75,6 @@
   color: #cffe21; 
 }
 
-
-
-/* NAVIGATION LINKS */
 .nav-links-exact {
   gap: 2.5rem;
 }
@@ -105,7 +97,25 @@
   color: #cffe21 !important;
 }
 
-/* NEW AUTH ACTION GROUP HOOKS */
+.btn-lang-exact {
+  color: #94a3b8;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 6px 14px;
+  border-radius: 50px;
+  transition: all 0.2s ease;
+  letter-spacing: 0.02em;
+}
+
+.btn-lang-exact:hover {
+  background: rgba(207, 254, 33, 0.12);
+  border-color: #cffe21;
+  color: #cffe21;
+}
+
 .btn-login-exact {
   color: #ffffff;
   font-weight: 700;
@@ -117,9 +127,6 @@
 .btn-login-exact:hover {
   color: #cffe21;
 }
-
-
-
 
 .btn-signup-exact {
   background-color: #cffe21;
