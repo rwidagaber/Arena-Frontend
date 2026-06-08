@@ -40,6 +40,7 @@ goToSignup(): void {
     this.auth.login(this.form.getRawValue() as any).subscribe({
       next: () => {
         this.loading = false;
+        this.auth.getMe().subscribe();
         const ret = new URLSearchParams(window.location.search).get('returnUrl') ?? '/dashboard';
         this.router.navigateByUrl(ret);
       },
