@@ -77,7 +77,6 @@ export class AuthService {
   }
 
   login(dto: UserLoginDto): Observable<AuthResponseDto> {
-    // Check if RememberMe was passed inside the DTO, fallback to false
     const rememberMe = dto.RememberMe ?? false;
     return this.http.post<AuthResponseDto>(`${BASE}/login`, dto).pipe(
       tap(res => this._persist(res, rememberMe)),
@@ -106,7 +105,7 @@ export class AuthService {
 
   googleLogin(idToken: string): Observable<AuthResponseDto> {
     return this.http.post<AuthResponseDto>(`${BASE}/google-login`, { idToken }).pipe(
-      tap(res => this._persist(res, true)), // Social logins usually default to permanent sessions
+      tap(res => this._persist(res, true)),
       catchError(this._handleError)
     );
   }
@@ -228,7 +227,6 @@ export class AuthService {
     } else if (err?.message) {
       msg = err.message;
     }
-
     return throwError(() => new Error(msg));
   }
 }

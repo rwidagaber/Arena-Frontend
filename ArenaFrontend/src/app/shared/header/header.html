@@ -53,42 +53,41 @@
         {{ currentLang === 'en' ? 'AR' : 'EN' }}
       </button>
 
-      @if (isLoggedIn) {
+      <ng-container *ngIf="isLoggedIn; else loginButtons">
         <div class="user-dropdown-container">
           <div class="user-trigger-wrapper" (click)="toggleDropdown()">
             <div class="user-avatar-circle">
               <span class="user-avatar-text">{{ (displayName() || 'U')[0] }}</span>
             </div>
-          </div>
 
-          @if (dropdownOpen) {
-            <div class="user-dropdown-menu">
-              @if (!auth.isSubscribed) {
+            @if (dropdownOpen) {
+              <div class="user-dropdown-menu">
                 <div class="dropdown-subscription-pill" (click)="goToSubscription()">
                   {{ 'subscription.pill' | translate }}
                 </div>
                 <div class="dropdown-divider"></div>
-              }
 
-              @for (item of dropdownItems; track item.key) {
-                <button
-                  class="dropdown-item"
-                  [class.disabled]="!auth.isSubscribed"
-                  [disabled]="!auth.isSubscribed"
-                  (click)="auth.isSubscribed && navigateToSection(item.key)"
-                >
-                  {{ item.label | translate }}
+                @for (item of dropdownItems; track item.key) {
+                  <button
+                    class="dropdown-item"
+                    [class.disabled]="!auth.isSubscribed"
+                    [disabled]="!auth.isSubscribed"
+                    (click)="auth.isSubscribed && navigateToSection(item.key)"
+                  >
+                    {{ item.label | translate }}
+                  </button>
+                }
+
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item dropdown-logout" (click)="logout()">
+                  {{ 'header.logout' | translate }}
                 </button>
-              }
-
-              <div class="dropdown-divider"></div>
-              <button class="dropdown-item dropdown-logout" (click)="logout()">
-                {{ 'header.logout' | translate }}
-              </button>
-            </div>
-          }
+              </div>
+            }
+          </div>
         </div>
-      } @else {
+      </ng-container>
+      <ng-template #loginButtons>
         <a routerLink="/login" class="btn-login-exact font-display text-decoration-none">
           {{ 'header.login' | translate }}
         </a>
@@ -96,8 +95,7 @@
           <span>{{ 'header.signup' | translate }}</span>
           <i class="bi bi-arrow-up-right"></i>
         </button>
-      }
+      </ng-template>
     </div>
-
   </div>
 </header>
