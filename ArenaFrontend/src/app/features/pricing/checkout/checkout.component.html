@@ -1,0 +1,42 @@
+<section class="checkout-container">
+  <div class="checkout-card" *ngIf="paymentStatus === 'pending' && iframeUrl">
+    <div class="checkout-header">
+      <h2>Complete Your Payment</h2>
+      <p>Secure payment powered by Paymob</p>
+    </div>
+    
+    <!-- The iframe where Paymob loads the credit card form -->
+    <iframe 
+      [src]="iframeUrl" 
+      width="100%" 
+      height="600" 
+      frameborder="0" 
+      allowfullscreen>
+    </iframe>
+  </div>
+
+  <div class="checkout-card result-card" *ngIf="paymentStatus === 'success'">
+    <div class="result-icon success">
+      <i class="fa fa-check-circle"></i>
+    </div>
+    <h2>Payment Successful!</h2>
+    <p>Thank you for joining. Your plan is now active.</p>
+    <div class="btn-group">
+      <button class="primary-btn" (click)="goToHome()">Go to Dashboard</button>
+      <button class="secondary-btn" (click)="goToPaymentHistory()">View Payment History</button>
+    </div>
+  </div>
+
+  <div class="checkout-card result-card" *ngIf="paymentStatus === 'failed'">
+    <div class="result-icon error">
+      <i class="fa fa-times-circle"></i>
+    </div>
+    <h2>Payment Failed</h2>
+    <p>Unfortunately, your payment could not be processed. Please try again.</p>
+    <button class="primary-btn" (click)="goToHome()">Return to Plans</button>
+  </div>
+
+  <div *ngIf="paymentStatus === 'pending' && !iframeUrl" class="loading-state">
+    Preparing secure checkout...
+  </div>
+</section>

@@ -17,23 +17,25 @@ export type DropdownSection = 'profile' | 'workout' | 'nutrition' | 'bookings' |
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   protected readonly router = inject(Router);
-  readonly t = inject(TranslationService);
-  readonly auth = inject(AuthService);
+  protected readonly t = inject(TranslationService);
+  public    readonly auth = inject(AuthService);
+
   private userSub?: Subscription;
 
   protected readonly displayName = signal('');
   protected dropdownOpen = false;
 
   protected readonly dropdownItems: { key: DropdownSection; label: string }[] = [
-    { key: 'profile',   label: 'sidebar.profile' },
-    { key: 'workout',   label: 'sidebar.workout' },
-    { key: 'nutrition', label: 'sidebar.nutrition' },
-    { key: 'bookings',  label: 'sidebar.bookings' },
-    { key: 'calendar',  label: 'sidebar.calendar' },
+    { key: 'profile',    label: 'sidebar.profile' },
+    { key: 'workout',    label: 'sidebar.workout' },
+    { key: 'nutrition',  label: 'sidebar.nutrition' },
+    { key: 'bookings',   label: 'sidebar.bookings' },
+    { key: 'calendar',   label: 'sidebar.calendar' },
     { key: 'attendance', label: 'sidebar.attendance' },
   ];
 
   ngOnInit(): void {
+    // Listens to user profile data streams and automatically extracts updates
     this.userSub = this.auth.currentUser$.subscribe(u => {
       this.displayName.set(u?.firstName ?? '');
     });
@@ -43,6 +45,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.userSub?.unsubscribe();
   }
 
+  // Closes the menu automatically if the user clicks anywhere outside the container dropdown layout
   @HostListener('document:click', ['$event'])
   onDocClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
@@ -84,5 +87,4 @@ export class HeaderComponent implements OnInit, OnDestroy {
       error: () => this.router.navigate(['/']),
     });
   }
-
 }

@@ -1,24 +1,19 @@
-<!-- استدعاء مكتبة أيقونات جوجل في الـ <head> بملف index.html -->
-
 <div class="auth-card">
   <h2 class="auth-title">Welcome Back</h2>
   <p class="auth-sub">Sign in to your Arena account</p>
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
 
-    <!-- Email -->
     <div class="field" [class.invalid]="isInvalid('email')">
       <label for="login-email">Email</label>
       <input id="login-email" type="email" formControlName="email"
              placeholder="you@example.com" autocomplete="email" />
       
-      <!-- استخدام السنتكس الجديد @if -->
       @if (isInvalid('email')) {
         <span class="err">{{ getError('email') }}</span>
       }
     </div>
 
-    <!-- Password -->
     <div class="field" [class.invalid]="isInvalid('password')">
       <label for="login-pw">Password</label>
       <div class="input-wrap">
@@ -26,13 +21,24 @@
                formControlName="password" placeholder="••••••••"
                autocomplete="current-password" />
         
-       <button type="button" class="toggle-pw"
-        (click)="showPw = !showPw"
-        [attr.aria-label]="showPw ? 'Hide password' : 'Show password'">
-  <span class="material-icons">
-    {{ showPw ? 'visibility' : 'visibility_off' }}
-  </span>
-</button>
+        <button type="button" class="toggle-pw" (click)="showPw = !showPw"
+                [attr.aria-label]="showPw ? 'Hide password' : 'Show password'">
+          @if (showPw) {
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          } @else {
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+              <line x1="1" y1="1" x2="23" y2="23"></line>
+            </svg>
+          }
+        </button>
       </div>
 
       @if (isInvalid('password')) {
@@ -40,31 +46,43 @@
       }
     </div>
 
-    <!-- Forgot -->
-    <div class="forgot-row">
-<button type="button" class="link-btn" (click)="goToforgot()">
+    <div class="options-row">
+      <label class="remember-me">
+        <input type="checkbox" formControlName="rememberMe" />
+        <span class="custom-checkbox"></span>
+        <span class="label-text">Remember me</span>
+      </label>
+      
+      <button type="button" class="link-btn" (click)="goToforgot()">
         Forgot password?
       </button>
     </div>
 
-    <!-- Server error -->
     @if (serverError) {
-      <div class="banner error">{{ serverError }}</div>
+      <div class="banner error">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        {{ serverError }}
+      </div>
     }
 
-    <!-- Submit -->
-     <button class="btn-submit" type="submit" [disabled]="loading || form.invalid">
-  @if (!loading) {
-    <span>Sign In</span>
-  } @else {
-    <span class="spinner"></span>
-  }
+   <button class="btn-submit" type="submit" [disabled]="loading">
+  <span class="btn-text-content">
+    @if (loading) {
+      <div class="spinner"></div>
+    } @else {
+      Sign In
+    }
+  </span>
 </button>
   </form>
 
+  <div class="divider"><span>OR</span></div>
+  <div id="google-btn"></div>
+
   <p class="switch-text">
     Don't have an account?
-<button type="button" class="link-btn" (click)="goToSignup()">
-  Sign up
-</button>  </p>
+    <button type="button" class="link-btn" (click)="goToSignup()">
+      Sign up
+    </button>
+  </p>
 </div>

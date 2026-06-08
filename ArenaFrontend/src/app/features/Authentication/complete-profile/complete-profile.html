@@ -1,0 +1,71 @@
+<div class="auth-card">
+  <h2 class="auth-title">Complete Your Profile</h2>
+  <p class="auth-sub">Just a few more details to get started</p>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+    <div class="field" [class.invalid]="isInvalid('phoneNumber')">
+      <label>Phone Number</label>
+      <input type="tel" formControlName="phoneNumber" placeholder="01012345678" />
+      @if (isInvalid('phoneNumber')) {
+        <span class="err">Enter a valid phone number</span>
+      }
+    </div>
+
+    <div class="field" [class.invalid]="isInvalid('dateOfBirth')">
+      <label>Date of Birth</label>
+      <input type="date" formControlName="dateOfBirth" />
+      @if (isInvalid('dateOfBirth')) {
+        <span class="err">You must be at least 16 years old</span>
+      }
+    </div>
+
+    <div class="field-row">
+      <div class="field" [class.invalid]="isInvalid('weight')">
+        <label>Weight (kg)</label>
+        <input type="number" formControlName="weight" placeholder="70" />
+        @if (isInvalid('weight')) {
+          <span class="err">Enter a valid weight</span>
+        }
+      </div>
+
+      <div class="field" [class.invalid]="isInvalid('height')">
+        <label>Height (cm)</label>
+        <input type="number" formControlName="height" placeholder="170" />
+        @if (isInvalid('height')) {
+          <span class="err">Enter a valid height</span>
+        }
+      </div>
+    </div>
+
+    <div class="field" [class.invalid]="isInvalid('gender')">
+      <label>Gender</label>
+      <div class="select-wrap">
+        <select formControlName="gender">
+          <option value="" disabled selected>Select gender</option>
+        <option [ngValue]="0">Male</option>
+       <option [ngValue]="1">Female</option>
+        </select>
+      </div>
+      @if (isInvalid('gender')) {
+        <span class="err">Required</span>
+      }
+    </div>
+
+    @if (serverError) {
+      <div class="banner error">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        {{ serverError }}
+      </div>
+    }
+
+    <button type="submit" class="btn-submit" [disabled]="loading || form.invalid">
+      @if (loading) {
+        <div class="spinner"></div>
+      } @else {
+        Save & Continue
+      }
+    </button>
+
+  </form>
+</div>

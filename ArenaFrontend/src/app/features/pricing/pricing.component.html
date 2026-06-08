@@ -1,0 +1,79 @@
+<section class="pricing-section">
+  <div class="pricing-header">
+    <div class="pricing-badge">
+      <span class="dot"></span> {{ 'PRICING.BADGE' | translate }}
+    </div>
+    <h2 class="pricing-title">{{ 'PRICING.TITLE' | translate }}</h2>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    {{ 'PRICING.LOADING' | translate }}
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="error-state">
+    {{ error }}
+  </div>
+
+  <!-- Plans Grid -->
+  <div *ngIf="!loading && !error" class="pricing-grid">
+    <div class="pricing-card" *ngFor="let plan of plans; let i = index">
+      <div class="card-header">
+        <!-- We use an index or generic icon since we don't have icons in DB yet -->
+        <div class="icon-circle">
+          <i class="fa fa-solid" [ngClass]="{'fa-basketball': i===0, 'fa-dumbbell': i===1, 'fa-globe': i===2}"></i>
+        </div>
+        <h3 class="plan-name">{{ plan.name | translate }}</h3>
+      </div>
+      
+      <div class="price-container">
+        <span class="currency">{{ 'PRICING.CURRENCY' | translate }}</span>
+        <span class="amount">{{ plan.price | number:'1.2-2' }}</span>
+        <span class="period">{{ 'PRICING.PERIOD' | translate }}</span>
+      </div>
+      
+      <div class="session-limit">
+        {{ 'PRICING.SESSION_PREFIX' | translate }} {{ plan.sessionLimit ?? ('PRICING.SESSION_UNLIMITED' | translate) }} {{ 'PRICING.SESSION_SUFFIX' | translate }}
+      </div>
+
+      <p class="plan-description">
+        {{ plan.description | translate }}
+      </p>
+
+      <div class="features-section">
+        <h4 class="features-title">{{ 'PRICING.INCLUDED_TITLE' | translate }}</h4>
+        <ul class="features-list">
+          <li *ngFor="let feature of includedFeatures">
+            <span class="check-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="#D3F551"/>
+                <path d="M8 12L11 15L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            {{ feature | translate }}
+          </li>
+        </ul>
+      </div>
+
+      <button class="join-btn" 
+              (click)="onJoinNow(plan.id || $any(plan).Id)" 
+              [disabled]="paymentLoading">
+        {{ paymentLoading ? ('PRICING.BTN_PROCESSING' | translate) : ('PRICING.BTN_JOIN' | translate) }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Footer Info -->
+  <div class="pricing-footer-info">
+    <div class="info-item">
+      <i class="fa fa-calendar-check"></i> {{ 'PRICING.FOOTER_1' | translate }}
+    </div>
+    <div class="info-item">
+      <i class="fa fa-money-bill"></i> {{ 'PRICING.FOOTER_2' | translate }}
+    </div>
+    <div class="info-item">
+      <i class="fa fa-clock"></i> {{ 'PRICING.FOOTER_3' | translate }}
+    </div>
+  </div>
+</section>
