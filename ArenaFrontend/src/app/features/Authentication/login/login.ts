@@ -69,8 +69,8 @@ export class LoginComponent implements AfterViewInit {
         if (res.isGoogleUser) {
           this.router.navigate(['/complete-profile']);
         } else {
-          const ret = new URLSearchParams(window.location.search).get('returnUrl') ?? '/home';
-          this.router.navigateByUrl(ret);
+          const target = this.auth.isSubscribed ? '/profile' : '/home';
+          this.router.navigateByUrl(target);
         }
       },
       error: (err: Error) => this.serverError = err.message
@@ -91,8 +91,8 @@ export class LoginComponent implements AfterViewInit {
   this.auth.login(loginDto as any, rememberMe ?? false).subscribe({
     next: () => {
       this.loading = false;
-      const ret = new URLSearchParams(window.location.search).get('returnUrl') ?? '/home';
-      this.router.navigateByUrl(ret);
+      const target = this.auth.isSubscribed ? '/profile' : '/home';
+      this.router.navigateByUrl(target);
     },
     error: (err: Error) => { this.loading = false; this.serverError = err.message; },
   });
