@@ -12,6 +12,7 @@ import {
   ResetPasswordDto,
   UserLoginDto,
   UserRegisterDto,
+  CompleteProfileDto
 } from '../models/auth';
 
 const BASE = `${environment.apiUrl}/auth`;
@@ -33,17 +34,15 @@ export class AuthService {
 
   readonly currentUser$ = this._user$.asObservable();
 
-  get isLoggedIn(): boolean {
-    return !!this.accessToken;
-  }
+ // ضيف ده في AuthService
+get isLoggedIn(): boolean {
+  return !!localStorage.getItem(KEYS.access) || 
+         !!sessionStorage.getItem(KEYS.access);
+}
 
   get accessToken(): string | null {
-    return localStorage.getItem(KEYS.access);
-  }
-
-  get refreshToken(): string | null {
-    return localStorage.getItem(KEYS.refresh);
-  }
+  return localStorage.getItem(KEYS.access) ?? sessionStorage.getItem(KEYS.access);
+}
 
   get userRole(): string | null {
     try {
@@ -58,21 +57,24 @@ export class AuthService {
     }
   }
 
+get refreshToken(): string | null {
+  return localStorage.getItem(KEYS.refresh) ?? sessionStorage.getItem(KEYS.refresh);
+}
   // ───────────────────────── API ─────────────────────────
 
-  register(dto: UserRegisterDto): Observable<AuthResponseDto> {
-    return this.http.post<AuthResponseDto>(`${BASE}/register`, dto).pipe(
-      tap(res => this._persist(res)),
-      catchError(this._handleError)
-    );
-  }
+  register(dto: UserRegisterDto): Observable<{ userId: string }> {
+  return this.http.post<{ userId: string }>(`${BASE}/register`, dto).pipe(
+    // مش بنعمل persist هنا لأن مفيش tokens
+    catchError(this._handleError)
+  );
+}
 
-  login(dto: UserLoginDto): Observable<AuthResponseDto> {
-    return this.http.post<AuthResponseDto>(`${BASE}/login`, dto).pipe(
-      tap(res => this._persist(res)),
-      catchError(this._handleError)
-    );
-  }
+  login(dto: UserLoginDto, rememberMe = false): Observable<AuthResponseDto> {
+  return this.http.post<AuthResponseDto>(`${BASE}/login`, dto).pipe(
+    tap(res => this._persist(res, rememberMe)),
+    catchError(this._handleError)
+  );
+}
 
   refresh(): Observable<AuthResponseDto> {
     const dto: RefreshTokenDto = {
@@ -89,6 +91,12 @@ export class AuthService {
     );
   }
 
+  googleLogin(idToken: string): Observable<AuthResponseDto> {
+  return this.http.post<AuthResponseDto>(`${BASE}/google-login`, { idToken }).pipe(
+    tap(res => this._persist(res)),
+    catchError(this._handleError)
+  );
+}
   logout(): Observable<void> {
     return this.http.post<void>(`${BASE}/logout`, {}).pipe(
       tap(() => this._clear()),
@@ -113,37 +121,61 @@ export class AuthService {
       catchError(this._handleError)
     );
   }
+confirmEmail(userId: string, otp: string): Observable<AuthResponseDto> {
+  return this.http.post<AuthResponseDto>(`${BASE}/confirm-email`, { userId, otp }).pipe(
+    tap(res => this._persist(res)),
+    catchError(this._handleError)
+  );
+}
+forgotPassword(dto: ForgotPasswordDto): Observable<void> {
+  return this.http.post<void>(`${BASE}/forgot-password`, dto).pipe(
+    catchError(this._handleError)
+  );
+}
 
+completeProfile(dto: CompleteProfileDto): Observable<void> {
+  return this.http.post<void>(`${BASE}/complete-profile`, dto).pipe(
+    catchError(this._handleError)
+  );
+}
+
+
+resetPassword(dto: ResetPasswordDto): Observable<void> {
+  return this.http.post<void>(`${BASE}/reset-password`, dto).pipe(
+    catchError(this._handleError)
+  );
+}
   // ───────────────────────── Helpers ─────────────────────────
 
-  private _persist(res: AuthResponseDto): void {
-    // tokens
-    localStorage.setItem(KEYS.access, res.accessToken);
-    localStorage.setItem(KEYS.refresh, res.refreshToken);
+private _persist(res: AuthResponseDto, rememberMe = false): void {
+  const storage = rememberMe ? localStorage : sessionStorage;
 
-    // Determine the frontend role:
-    // - Backend always sends role="GymMember" for normal users
-    // - Backend sends isSubscribed=true when user has an active paid subscription
-    // - We map: isSubscribed=true → "Member", otherwise → "User"
-    const frontendRole = res.isSubscribed ? 'Member' : 'User';
+  storage.setItem(KEYS.access, res.accessToken);
+  storage.setItem(KEYS.refresh, res.refreshToken);
+    
+  // Determine the frontend role:
+  // - Backend always sends role="GymMember" for normal users
+  // - Backend sends isSubscribed=true when user has an active paid subscription
+  // - We map: isSubscribed=true → "Member", otherwise → "User"
+  const frontendRole = res.isSubscribed ? 'Member' : 'User';
 
-    const user = {
-      role: frontendRole,
-      backendRole: res.role,
-      expiresAt: res.expiresAt,
-      isSubscribed: res.isSubscribed ?? false
-    };
-
-    localStorage.setItem(KEYS.user, JSON.stringify(user));
-    this._user$.next(user as any);
-  }
-
+  const user = {
+    role: frontendRole,
+    backendRole: res.role,
+    expiresAt: res.expiresAt,
+    isSubscribed: res.isSubscribed ?? false
+  };
+  storage.setItem(KEYS.user, JSON.stringify(user));
+  this._user$.next(user as any);
+}
   private _clear(): void {
-    Object.values(KEYS).forEach(k => localStorage.removeItem(k));
-    this._user$.next(null);
-    this.router.navigate(['/']);
-  }
-
+  Object.values(KEYS).forEach(k => {
+    localStorage.removeItem(k);
+    sessionStorage.removeItem(k);
+  });
+  this._user$.next(null);
+  this.router.navigate(['/']);
+}
   private _loadUser(): GetProfileDto | null {
     try {
       const raw = localStorage.getItem(KEYS.user);
