@@ -15,13 +15,15 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       }
     });
 
-  // 🚨 مهم: استثناء endpoints اللي لازم تكون anonymous
   const isPublicEndpoint =
     req.url.includes('/auth/login') ||
     req.url.includes('/auth/register') ||
-    req.url.includes('/auth/forgot-password');
+    req.url.includes('/auth/forgot-password') ||
+    req.url.includes('/auth/confirm-email') ||
+    req.url.includes('/auth/google-login') ||
+    req.url.includes('/auth/reset-password');
+     req.url.includes('/auth/logout');
 
-  // ❌ ما نضيفش token في الـ public endpoints
   let authReq = req;
 
   if (!isPublicEndpoint && token) {
@@ -31,12 +33,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   return next(authReq).pipe(
     catchError((err: HttpErrorResponse) => {
 
-      // ❌ لو مش 401 أو request refresh نفسه → رجّع error زي ما هو
       if (err.status !== 401 || req.url.includes('/auth/refresh')) {
         return throwError(() => err);
       }
 
-      // 🔁 حاول refresh token
       const refreshToken = auth.refreshToken;
 
       if (!refreshToken) {

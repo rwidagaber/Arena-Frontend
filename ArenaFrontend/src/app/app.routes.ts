@@ -5,7 +5,12 @@ import { Home } from './features/home/home';
 import { guestGuard } from './core/guards/auth/guest-guard-guard';
 import { CheckoutComponent } from './features/pricing/checkout/checkout.component';
 import { MyPaymentsComponent } from './features/pricing/my-payments/my-payments.component';
-
+import { ConfirmEmailComponent } from './features/Authentication/confirm-email/confirm-email';
+import { confirmEmailGuard } from './core/guards/auth/confirm-email-guard';
+import { CompleteProfileComponent } from './features/Authentication/complete-profile/complete-profile';
+import { authGuard } from './core/guards/auth/auth-guard';
+import { ForgotPasswordComponent } from './features/Authentication/forgot-password/forgot-password';
+import { ResetPasswordComponent } from './features/Authentication/reset-password/reset-password';
 export const routes: Routes = [
      {
     path: 'login',
@@ -19,6 +24,26 @@ export const routes: Routes = [
         canActivate: [guestGuard]
 
   },
+   {
+    path: 'confirm-email',  // ← ضيف ده
+    component:  ConfirmEmailComponent,
+    canActivate:[confirmEmailGuard]
+  },
+  {
+  path: 'complete-profile',
+  component: CompleteProfileComponent,
+  canActivate: [authGuard] // لازم يكون logged in
+},
+{
+  path: 'forgot-password',
+  component: ForgotPasswordComponent,
+  canActivate: [guestGuard]
+},
+{
+  path: 'reset-password',
+  component: ResetPasswordComponent,
+  canActivate: [guestGuard]
+},
    {
     path: 'home',
     component: Home

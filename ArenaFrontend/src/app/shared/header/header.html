@@ -92,36 +92,22 @@
         {{ currentLang === 'en' ? 'AR' : 'EN' }}
       </button>
 
-  @if (!auth.isLoggedIn) {
-
-    <a
-      routerLink="/login"
-      class="btn-login-exact font-display text-decoration-none"
-    >
-      {{ 'HEADER.LOG_IN' | translate }}
-    </a>
-
-    <button
-      type="button"
-      routerLink="/register"
-      class="btn-signup-exact font-display d-flex align-items-center justify-content-center gap-2"
-    >
-      <span>{{ 'HEADER.SIGN_UP' | translate }}</span>
-      <i class="bi bi-arrow-up-right"></i>
-    </button>
-
-  } @else {
-
-    <button
-      type="button"
-      (click)="logout()"
-      class="btn-signup-exact font-display d-flex align-items-center justify-content-center gap-2"
-    >
-      <span>{{ 'HEADER.LOGOUT' | translate }}</span>
-      <i class="bi bi-box-arrow-right"></i>
-    </button>
-
-  }
+ @if (!isLoggedIn) {
+  <a routerLink="/login" class="btn-login-exact font-display text-decoration-none">
+    {{ 'HEADER.LOG_IN' | translate }}
+  </a>
+  <button type="button" routerLink="/register"
+    class="btn-signup-exact font-display d-flex align-items-center justify-content-center gap-2">
+    <span>{{ 'HEADER.SIGN_UP' | translate }}</span>
+    <i class="bi bi-arrow-up-right"></i>
+  </button>
+} @else {
+  <button type="button" (click)="logout()"
+    class="btn-signup-exact font-display d-flex align-items-center justify-content-center gap-2">
+    <span>{{ 'HEADER.LOGOUT' | translate }}</span>
+    <i class="bi bi-box-arrow-right"></i>
+  </button>
+}
 
 </div>
   </div>
