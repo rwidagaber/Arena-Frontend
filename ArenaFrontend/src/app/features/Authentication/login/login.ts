@@ -63,40 +63,78 @@ export class LoginComponent implements AfterViewInit {
 
   handleGoogleResponse(response: any): void {
     const idToken = response.credential;
+    this.loading = true;
+    this.serverError = '';
 
     this.auth.googleLogin(idToken).subscribe({
       next: (res) => {
         if (res.isGoogleUser) {
+          this.loading = false;
           this.router.navigate(['/complete-profile']);
         } else {
-          const ret = new URLSearchParams(window.location.search).get('returnUrl') ?? '/home';
-          this.router.navigateByUrl(ret);
+          // Fetch profile information before finalizing navigation
+          this.auth.getMe().subscribe(() => {
+            this.loading = false;
+            const ret = new URLSearchParams(window.location.search).get('returnUrl') ?? '/home';
+            this.router.navigateByUrl(ret);
+          });
         }
       },
-      error: (err: Error) => this.serverError = err.message
+      error: (err: Error) => {
+        this.loading = false;
+        this.serverError = err.message;
+      }
     });
   }
 
   // =========================
-  // Form
+  // Form Submission
   // =========================
 
   onSubmit(): void {
-  if (this.form.invalid) { this.form.markAllAsTouched(); return; }
-  this.loading = true;
-  this.serverError = '';
+    if (this.form.invalid) { 
+      this.form.markAllAsTouched(); 
+      return; 
+    }
+    
+    this.loading = true;
+    this.serverError = '';
 
-  const { rememberMe, ...loginDto } = this.form.getRawValue();
+    // Fixed: Pulling values directly and using type assertions safely
+    const formValues = this.form.getRawValue();
+    const rememberMe = formValues.rememberMe ?? false;
+    
+    const loginDto = {
+      email: formValues.email ?? '',
+      password: formValues.password ?? '',
+      RememberMe: rememberMe
+    };
 
-  this.auth.login(loginDto as any, rememberMe ?? false).subscribe({
-    next: () => {
-      this.loading = false;
-      const ret = new URLSearchParams(window.location.search).get('returnUrl') ?? '/home';
-      this.router.navigateByUrl(ret);
-    },
-    error: (err: Error) => { this.loading = false; this.serverError = err.message; },
-  });
-}
+    this.auth.login(loginDto).subscribe({
+      next: () => {
+        // Dev branch fix: Sequentially fetch profile data so app state populates immediately
+        this.auth.getMe().subscribe({
+          next: () => {
+            this.loading = false;
+            const ret = new URLSearchParams(window.location.search).get('returnUrl') ?? '/home';
+            this.router.navigateByUrl(ret);
+          },
+          error: (profileErr: Error) => {
+            this.loading = false;
+            this.serverError = profileErr.message;
+          }
+        });
+      },
+      error: (err: Error) => { 
+        this.loading = false; 
+        this.serverError = err.message; 
+      },
+    });
+  }
+
+  // =========================
+  // Navigation & Helpers
+  // =========================
 
   goToSignup(): void {
     this.router.navigate(['/register']);

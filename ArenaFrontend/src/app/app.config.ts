@@ -22,8 +22,9 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([
       loggingInterceptor,
       loadingInterceptor,
-      authInterceptor,
       errorInterceptor,
+      authInterceptor,
+    ]))
     ])),
     // Register ngx-translate with standalone APIs
     provideTranslateService({

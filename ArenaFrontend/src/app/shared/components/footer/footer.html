@@ -1,0 +1,52 @@
+<footer class="bg-dark text-light py-5" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
+  <div class="container">
+    <div class="mb-5">
+      <h2 class="h4">{{ 'app.title' | translate }}</h2>
+      <p class="h3 fw-bold">{{ 'app.tagline' | translate }}</p>
+    </div>
+
+    <div class="row">
+      <div class="col-md-3">
+        <h5>{{ 'footer.location' | translate }}</h5>
+        <p>{{ 'footer.locationDesc' | translate }}</p>
+        <p class="fw-bold">{{ 'footer.address' | translate }}</p>
+      </div>
+
+      <div class="col-md-3">
+        <h5>{{ 'footer.quickLinks' | translate }}</h5>
+        <ul class="list-unstyled">
+          <li>{{ 'footer.home' | translate }}</li>
+          <li>{{ 'footer.about' | translate }}</li>
+          <li>{{ 'footer.programs' | translate }}</li>
+          <li>{{ 'footer.blog' | translate }}</li>
+          <li>{{ 'footer.contact' | translate }}</li>
+        </ul>
+      </div>
+
+      <div class="col-md-3">
+        <h5>{{ 'footer.trainingPrograms' | translate }}</h5>
+        <ul class="list-unstyled">
+          <li>{{ 'footer.weightLoss' | translate }}</li>
+          <li>{{ 'footer.groupFitness' | translate }}</li>
+          <li>{{ 'footer.beginner' | translate }}</li>
+          <li>{{ 'footer.muscleBuilding' | translate }}</li>
+          <li>{{ 'footer.cardio' | translate }}</li>
+        </ul>
+      </div>
+
+      <div class="col-md-3">
+        <h5>{{ 'footer.hours' | translate }}</h5>
+        <p>{{ 'footer.weekdays' | translate }}</p>
+        <p>{{ 'footer.saturday' | translate }}</p>
+        <div class="d-flex gap-3">
+          <span>Pinterest</span> <span>X</span> <span>Facebook</span> <span>Instagram</span>
+        </div>
+      </div>
+    </div>
+    
+    <hr class="mt-4">
+    <div class="text-center text-muted">
+      {{ 'footer.copyright' | translate: { year: currentYear } }}
+    </div>
+  </div>
+</footer>

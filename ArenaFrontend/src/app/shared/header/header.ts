@@ -1,75 +1,90 @@
-import { Component, Input, Output, EventEmitter, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, signal, inject, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../core/services/auth';
-import { TranslateService, TranslateModule } from '@ngx-translate/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { TranslationService, Lang } from '../../core/services/translation.service';
+import { AuthService } from '../../core/services/auth';
+import { TranslatePipe } from '../pipes/translate.pipe';
+
+export type DropdownSection = 'profile' | 'workout' | 'nutrition' | 'bookings' | 'calendar' | 'attendance';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, TranslateModule],
+  imports: [CommonModule, RouterLink, RouterLinkActive, TranslatePipe],
   templateUrl: './header.html',
   styleUrls: ['./header.css']
 })
 export class HeaderComponent implements OnInit, OnDestroy {
+  protected readonly router = inject(Router);
+  protected readonly t = inject(TranslationService);
+  public    readonly auth = inject(AuthService);
 
-  private readonly router    = inject(Router);
-  public  readonly auth      = inject(AuthService);
-  private readonly translate = inject(TranslateService);
+  private userSub?: Subscription;
 
-  @Input() activeTab: string = 'home';
-  @Output() tabChange = new EventEmitter<string>();
+  protected readonly displayName = signal('');
+  protected dropdownOpen = false;
 
-  currentLang: string = 'en';
-  isLoggedIn          = false;
-
-  private _sub = new Subscription();
+  protected readonly dropdownItems: { key: DropdownSection; label: string }[] = [
+    { key: 'profile',    label: 'sidebar.profile' },
+    { key: 'workout',    label: 'sidebar.workout' },
+    { key: 'nutrition',  label: 'sidebar.nutrition' },
+    { key: 'bookings',   label: 'sidebar.bookings' },
+    { key: 'calendar',   label: 'sidebar.calendar' },
+    { key: 'attendance', label: 'sidebar.attendance' },
+  ];
 
   ngOnInit(): void {
-    // اشترك في الـ user$ عشان يتحدث تلقائي لما اليوزر يعمل login/logout
-    this._sub.add(
-      this.auth.currentUser$.subscribe(() => {
-        this.isLoggedIn = this.auth.isLoggedIn;
-      })
-    );
-
-    // الـ language
-    const savedLang = localStorage.getItem('lang') || 'en';
-    this.currentLang = savedLang;
-    this.translate.use(savedLang);
-    this.applyDirection(savedLang);
+    // Listens to user profile data streams and automatically extracts updates
+    this.userSub = this.auth.currentUser$.subscribe(u => {
+      this.displayName.set(u?.firstName ?? '');
+    });
   }
 
   ngOnDestroy(): void {
-    this._sub.unsubscribe();
+    this.userSub?.unsubscribe();
   }
 
-  switchLanguage(): void {
-    this.currentLang = this.currentLang === 'en' ? 'ar' : 'en';
-    this.translate.use(this.currentLang);
-    localStorage.setItem('lang', this.currentLang);
-    this.applyDirection(this.currentLang);
-  }
-
-  private applyDirection(lang: string): void {
-    const dir = lang === 'ar' ? 'rtl' : 'ltr';
-    document.documentElement.setAttribute('dir', dir);
-    document.documentElement.setAttribute('lang', lang);
-  }
-
-  navigateToTab(tabName: string, event: Event): void {
-    event.preventDefault();
-    this.activeTab = tabName;
-    this.tabChange.emit(tabName);
-    if (tabName === 'home') {
-      this.router.navigate(['/home']);
-    } else if (tabName === 'about') {
-      this.router.navigate(['/about']);
+  // Closes the menu automatically if the user clicks anywhere outside the container dropdown layout
+  @HostListener('document:click', ['$event'])
+  onDocClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.user-dropdown-container')) {
+      this.dropdownOpen = false;
     }
   }
 
+  get currentLang(): Lang {
+    return this.t.currentLang();
+  }
+
+  get isLoggedIn(): boolean {
+    return this.auth.isLoggedIn;
+  }
+
+  toggleLang(): void {
+    this.t.switchLang(this.currentLang === 'en' ? 'ar' : 'en');
+  }
+
+  toggleDropdown(): void {
+    this.dropdownOpen = !this.dropdownOpen;
+  }
+
+  navigateToSection(section: DropdownSection): void {
+    this.dropdownOpen = false;
+    this.router.navigate(['/dashboard'], { queryParams: { section } });
+  }
+
+  goToSubscription(): void {
+    this.dropdownOpen = false;
+    this.router.navigate(['/subscription']);
+  }
+
   logout(): void {
-    this.auth.logout().subscribe();
+    this.dropdownOpen = false;
+    this.auth.logout().subscribe({
+      next: () => this.router.navigate(['/']),
+      error: () => this.router.navigate(['/']),
+    });
   }
 }

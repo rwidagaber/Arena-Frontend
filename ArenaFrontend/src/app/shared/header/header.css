@@ -12,7 +12,6 @@
 .font-display { font-family: 'Plus Jakarta Sans', sans-serif; }
 .fs-micro-arrow { font-size: 0.65rem; -webkit-text-stroke: 0.5px; }
 
-/* REPLICATING BACKGROUND MATRICES FROM image_5582ad.png */
 .gympro-header-exact {
   background-color: #0c0f17;
   background-image: 
@@ -42,15 +41,12 @@
   z-index: 2;
 }
 
-
-/* BRAND SIGNAGE STYLING */
 .brand-v3-exact {
-  /* Explicit column gap utility definition in case Bootstrap gap targets vary */
   gap: 0.95rem !important; 
 }
 
 .logo-circle-exact {
-  width: 48px; /* Incremented from 44px for a stronger visual footprint */
+  width: 48px;
   height: 48px;
   border-radius: 50%;
   background-color: #cffe21;
@@ -61,10 +57,9 @@
   flex-shrink: 0;
 }
 
-/* Perfect crisp sizing match for the inner graphic paths */
 .logo-circle-exact svg {
   display: block;
-  width: 28px; /* Incremented from 24px */
+  width: 28px;
   height: 28px;
   overflow: visible;
 }
@@ -80,9 +75,6 @@
   color: #cffe21; 
 }
 
-
-
-/* NAVIGATION LINKS */
 .nav-links-exact {
   gap: 2.5rem;
 }
@@ -105,7 +97,25 @@
   color: #cffe21 !important;
 }
 
-/* NEW AUTH ACTION GROUP HOOKS */
+.btn-lang-exact {
+  color: #94a3b8;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 6px 14px;
+  border-radius: 50px;
+  transition: all 0.2s ease;
+  letter-spacing: 0.02em;
+}
+
+.btn-lang-exact:hover {
+  background: rgba(207, 254, 33, 0.12);
+  border-color: #cffe21;
+  color: #cffe21;
+}
+
 .btn-login-exact {
   color: #ffffff;
   font-weight: 700;
@@ -117,9 +127,6 @@
 .btn-login-exact:hover {
   color: #cffe21;
 }
-
-
-
 
 .btn-signup-exact {
   background-color: #cffe21;
@@ -144,22 +151,129 @@
   -webkit-text-stroke: 0.8px;
 }
 
-/* LANGUAGE TOGGLE BUTTON */
-.btn-lang-toggle {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  font-weight: 800;
-  font-size: 0.8rem;
-  padding: 0.45rem 0.85rem;
-  border-radius: 50px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  letter-spacing: 0.05em;
+.user-dropdown-container {
+  position: relative;
 }
 
-.btn-lang-toggle:hover {
-  background: rgba(207, 254, 33, 0.15);
-  border-color: #cffe21;
-  color: #cffe21;
+.user-trigger-wrapper {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-avatar-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #cffe21, #a3e635);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(207, 254, 33, 0.2);
+}
+
+.user-avatar-circle:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(207, 254, 33, 0.35);
+}
+
+.user-avatar-text {
+  color: #0c0f17;
+  font-weight: 800;
+  font-size: 0.9rem;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.user-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 220px;
+  background: #1a1f2e;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.dropdown-subscription-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  margin-bottom: 4px;
+  border-radius: 8px;
+  background: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  text-align: center;
+}
+
+.dropdown-subscription-pill:hover {
+  background: rgba(234, 179, 8, 0.25);
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
+  margin: 4px 0;
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #e2e8f0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease;
+}
+
+.dropdown-item:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.dropdown-item.disabled,
+.dropdown-item:disabled {
+  color: #475569;
+  cursor: not-allowed;
+}
+
+.dropdown-logout {
+  color: #f87171;
+}
+
+.dropdown-logout:hover:not(:disabled) {
+  background: rgba(248, 113, 113, 0.1) !important;
+  color: #f87171 !important;
+}
+
+.btn-logout-exact {
+  background: transparent;
+  color: #f87171;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.5rem 1.2rem;
+  border-radius: 50px;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-logout-exact:hover {
+  background: rgba(248, 113, 113, 0.12);
+  border-color: #f87171;
+  transform: translateY(-1px);
 }
