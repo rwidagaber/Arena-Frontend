@@ -1,5 +1,6 @@
-import { Component, signal, inject } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
+import { Component, signal, inject, OnInit, OnDestroy } from '@angular/core';
+import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
+import { filter, Subscription } from 'rxjs';
 import { HeaderComponent } from './shared/header/header';
 import { HeroComponent } from './features/hero/hero.component';
 import { ProgramsComponent } from './features/programs/programs.component';
@@ -21,13 +22,26 @@ import { FooterComponent } from './shared/components/footer/footer';
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App {
+export class App implements OnInit, OnDestroy {
   private router = inject(Router);
+  private routerSub?: Subscription;
   protected readonly title = signal('ArenaFrontend');
+  protected readonly isHomePage = signal(false);
 
-  get isHomePage(): boolean {
+  ngOnInit(): void {
+    this.syncUrl();
+    this.routerSub = this.router.events
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .subscribe(() => this.syncUrl());
+  }
+
+  ngOnDestroy(): void {
+    this.routerSub?.unsubscribe();
+  }
+
+  private syncUrl(): void {
     const url = this.router.url;
-    return url === '/' || url === '';
+    this.isHomePage.set(url === '/' || url === '');
   }
 }
 
