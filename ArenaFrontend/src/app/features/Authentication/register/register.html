@@ -4,79 +4,110 @@
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
 
-    <!-- سطر الأسماء (First Name & Last Name) -->
     <div class="field-row">
       <div class="field" [class.invalid]="isInvalid('firstName')">
-        <label for="reg-fn">First Name</label>
-        <input id="reg-fn" type="text" formControlName="firstName" placeholder="John" />
+        <label>First Name</label>
+        <input formControlName="firstName" placeholder="John" />
         @if (isInvalid('firstName')) {
           <span class="err">Required</span>
         }
       </div>
-      
+
       <div class="field" [class.invalid]="isInvalid('lastName')">
-        <label for="reg-ln">Last Name</label>
-        <input id="reg-ln" type="text" formControlName="lastName" placeholder="Doe" />
+        <label>Last Name</label>
+        <input formControlName="lastName" placeholder="Doe" />
         @if (isInvalid('lastName')) {
           <span class="err">Required</span>
         }
       </div>
     </div>
 
-    <!-- سطر البيانات الجديدة (Phone Number & Birthday) بجانب بعضهما لتوفير المساحة -->
     <div class="field-row">
-       <!-- Phone -->
-      <div class="field" [class.invalid]="isInvalid('phoneNumber')">
-        <label>Phone Number</label>
-        <input formControlName="phoneNumber" placeholder="01xxxxxxxxx" />
-
-        @if (form.get('phoneNumber')?.hasError('required') && form.get('phoneNumber')?.touched) {
-          <span class="err">Required</span>
-        }
-
-        @if (form.get('phoneNumber')?.hasError('invalidPhone') && form.get('phoneNumber')?.touched) {
-          <span class="err">Invalid phone number</span>
-        }
-      </div>
-
-      <!-- Birthday -->
       <div class="field" [class.invalid]="isInvalid('birthday')">
         <label>Birthday</label>
         <input type="date" formControlName="birthday" />
-
-        @if (form.get('birthday')?.hasError('required') && form.get('birthday')?.touched) {
-          <span class="err">Required</span>
+        @if (isInvalid('birthday')) {
+          <span class="err">{{ getError('birthday') }}</span>
         }
+      </div>
 
-        @if (form.get('birthday')?.hasError('minAge') && form.get('birthday')?.touched) {
-          <span class="err">You must be at least 16 years old</span>
+      <div class="field" [class.invalid]="isInvalid('phoneNumber')">
+        <label>Phone Number</label>
+        <input type="tel" formControlName="phoneNumber" placeholder="01012345678" />
+        @if (isInvalid('phoneNumber')) {
+          <span class="err">{{ getError('phoneNumber') }}</span>
         }
       </div>
     </div>
 
-    <!-- Email -->
+    <div class="field-row field-row-3">
+      <div class="field" [class.invalid]="isInvalid('weight')">
+        <label>Weight (kg)</label>
+        <input type="number" formControlName="weight" placeholder="70" />
+        @if (isInvalid('weight')) {
+          <span class="err">{{ getError('weight') }}</span>
+        }
+      </div>
+
+      <div class="field" [class.invalid]="isInvalid('height')">
+        <label>Height (cm)</label>
+        <input type="number" formControlName="height" placeholder="170" />
+        @if (isInvalid('height')) {
+          <span class="err">{{ getError('height') }}</span>
+        }
+      </div>
+
+      <div class="field" [class.invalid]="isInvalid('gender')">
+        <label>Gender</label>
+        <div class="select-wrap">
+          <select formControlName="gender">
+            <option value="" disabled selected>Select</option>
+           <option [ngValue]="0">Male</option>
+           <option [ngValue]="1">Female</option>
+          </select>
+        </div>
+        @if (isInvalid('gender')) {
+          <span class="err">Required</span>
+        }
+      </div>
+    </div>
+
+    @if (bodyError) {
+      <div class="banner error">{{ bodyError }}</div>
+    }
+
     <div class="field" [class.invalid]="isInvalid('email')">
-      <label for="reg-email">Email</label>
-      <input id="reg-email" type="email" formControlName="email"
-             placeholder="you@example.com" autocomplete="email" />
+      <label>Email</label>
+      <input type="email" formControlName="email" placeholder="example@mail.com" />
       @if (isInvalid('email')) {
         <span class="err">{{ getError('email') }}</span>
       }
     </div>
 
-    <!-- Password -->
     <div class="field" [class.invalid]="isInvalid('password')">
-      <label for="reg-pw">Password</label>
+      <label>Password</label>
       <div class="input-wrap">
-        <input id="reg-pw" [type]="showPw ? 'text' : 'password'"
-               formControlName="password" placeholder="Min 8 characters"
-               autocomplete="new-password" />
-        <button type="button" class="toggle-pw" 
-                (click)="showPw = !showPw"
-                [attr.aria-label]="showPw ? 'Hide password' : 'Show password'">
-          <span class="material-icons">
-            {{ showPw ? 'visibility' : 'visibility_off' }}
-          </span>
+        <input
+          [type]="showPw ? 'text' : 'password'"
+          formControlName="password"
+          placeholder="••••••••"
+        />
+        <button type="button" class="toggle-pw" (click)="showPw = !showPw">
+          @if (showPw) {
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          } @else {
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+              <line x1="1" y1="1" x2="23" y2="23"></line>
+            </svg>
+          }
         </button>
       </div>
       @if (isInvalid('password')) {
@@ -84,41 +115,40 @@
       }
     </div>
 
-    <!-- Confirm Password -->
-    <div class="field" [class.invalid]="isInvalid('confirmPassword') || showMismatch">
-      <label for="reg-cpw">Confirm Password</label>
+    <div class="field" [class.invalid]="showMismatch">
+      <label>Confirm Password</label>
       <div class="input-wrap">
-        <input id="reg-cpw" [type]="showPw ? 'text' : 'password'"
-               formControlName="confirmPassword" placeholder="Confirm password"
-               autocomplete="new-password" />
+        <input
+          [type]="showPw ? 'text' : 'password'"
+          formControlName="confirmPassword"
+          placeholder="••••••••"
+        />
       </div>
-      
-      @if (isInvalid('confirmPassword') && !showMismatch) {
-        <span class="err">Required</span>
-      }
       @if (showMismatch) {
         <span class="err">Passwords do not match</span>
       }
     </div>
 
-    <!-- Server error -->
     @if (serverError) {
       <div class="banner error">{{ serverError }}</div>
     }
 
-    <!-- Submit -->
-    <button class="btn-submit" type="submit" [disabled]="loading || form.invalid">
-  @if (!loading) {
-    <span>Create Account</span>
-  } @else {
-    <span class="spinner"></span>
-  }
-</button>
+    <button type="submit" class="btn-submit" [disabled]="loading || form.invalid">
+      @if (loading) {
+        <div class="spinner"></div>
+      } @else {
+        Create Account
+      }
+    </button>
+
+    <div class="divider"><span>OR</span></div>
+
+    <div id="google-btn"></div>
+
   </form>
 
   <p class="switch-text">
-    Already have an account?
-<button type="button" class="link-btn" (click)="goToLogin()">
-  Sign in
-</button>  </p>
+    Already have account?
+    <button type="button" class="link-btn" (click)="goToLogin()">Sign in</button>
+  </p>
 </div>

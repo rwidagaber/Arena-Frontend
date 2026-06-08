@@ -12,6 +12,7 @@ import {
   ResetPasswordDto,
   UserLoginDto,
   UserRegisterDto,
+  CompleteProfileDto
 } from '../models/auth';
 
 const BASE = `${environment.apiUrl}/auth`;
@@ -28,55 +29,85 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
 
-  private _user$ = new BehaviorSubject<GetProfileDto | null>(
-    this._loadUser()
-  );
-
+  private _user$ = new BehaviorSubject<any | null>(this._loadUser());
   readonly currentUser$ = this._user$.asObservable();
 
   get isLoggedIn(): boolean {
-    return !!this.accessToken;
+    return !!localStorage.getItem(KEYS.access) || 
+           !!sessionStorage.getItem(KEYS.access);
   }
 
   get isSubscribed(): boolean {
-    return localStorage.getItem(KEYS.subscribed) === 'true';
+    return localStorage.getItem(KEYS.subscribed) === 'true' || 
+           sessionStorage.getItem(KEYS.subscribed) === 'true';
   }
 
   get accessToken(): string | null {
-    return localStorage.getItem(KEYS.access);
+    return localStorage.getItem(KEYS.access) ?? sessionStorage.getItem(KEYS.access);
   }
 
   get refreshToken(): string | null {
-    return localStorage.getItem(KEYS.refresh);
+    return localStorage.getItem(KEYS.refresh) ?? sessionStorage.getItem(KEYS.refresh);
+  }
+
+  get userRole(): string | null {
+    try {
+      const raw = localStorage.getItem(KEYS.user) ?? sessionStorage.getItem(KEYS.user);
+      if (raw) {
+        const user = JSON.parse(raw);
+        return user.role || null;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
+  get displayName(): string {
+    const u = this._user$.value;
+    return u?.firstName ? u.firstName : '';
   }
 
   // ───────────────────────── API ─────────────────────────
 
-  register(dto: UserRegisterDto): Observable<AuthResponseDto> {
-    return this.http.post<AuthResponseDto>(`${BASE}/register`, dto).pipe(
-      tap(res => this._persist(res)),
+  register(dto: UserRegisterDto): Observable<{ userId: string }> {
+    return this.http.post<{ userId: string }>(`${BASE}/register`, dto).pipe(
       catchError(this._handleError)
     );
   }
 
   login(dto: UserLoginDto): Observable<AuthResponseDto> {
+    // Check if RememberMe was passed inside the DTO, fallback to false
+    const rememberMe = dto.RememberMe ?? false;
     return this.http.post<AuthResponseDto>(`${BASE}/login`, dto).pipe(
-      tap(res => this._persist(res)),
+      tap(res => this._persist(res, rememberMe)),
       catchError(this._handleError)
     );
   }
 
   refresh(): Observable<AuthResponseDto> {
     const dto: RefreshTokenDto = {
+      accessToken: this.accessToken ?? '',
       refreshToken: this.refreshToken ?? ''
     };
 
     return this.http.post<AuthResponseDto>(`${BASE}/refresh`, dto).pipe(
-      tap(res => this._persist(res)),
+      // Keep existing storage choice by checking where the current token lives
+      tap(res => {
+        const isUsingLocal = !!localStorage.getItem(KEYS.access);
+        this._persist(res, isUsingLocal);
+      }),
       catchError(err => {
         this._clear();
         return throwError(() => err);
       })
+    );
+  }
+
+  googleLogin(idToken: string): Observable<AuthResponseDto> {
+    return this.http.post<AuthResponseDto>(`${BASE}/google-login`, { idToken }).pipe(
+      tap(res => this._persist(res, true)), // Social logins usually default to permanent sessions
+      catchError(this._handleError)
     );
   }
 
@@ -93,47 +124,87 @@ export class AuthService {
   getMe(): Observable<GetProfileDto> {
     return this.http.get<GetProfileDto>(`${BASE}/me`).pipe(
       tap(profile => {
-        this._user$.next(profile);
-        localStorage.setItem(KEYS.user, JSON.stringify(profile));
+        const isSubscribed = !!profile.activeSubscription;
+        const frontendRole = isSubscribed ? 'Member' : 'User';
+
+        const updatedUser = { 
+          ...profile, 
+          role: frontendRole, 
+          isSubscribed,
+          firstName: profile.firstName,
+          lastName: profile.lastName 
+        };
+
+        this._user$.next(updatedUser);
+        const storage = localStorage.getItem(KEYS.access) ? localStorage : sessionStorage;
+        storage.setItem(KEYS.user, JSON.stringify(updatedUser));
+        storage.setItem(KEYS.subscribed, String(isSubscribed));
       }),
+      catchError(this._handleError)
+    );
+  }
+
+  confirmEmail(userId: string, otp: string): Observable<AuthResponseDto> {
+    return this.http.post<AuthResponseDto>(`${BASE}/confirm-email`, { userId, otp }).pipe(
+      tap(res => this._persist(res, true)),
+      catchError(this._handleError)
+    );
+  }
+
+  forgotPassword(dto: ForgotPasswordDto): Observable<void> {
+    return this.http.post<void>(`${BASE}/forgot-password`, dto).pipe(
+      catchError(this._handleError)
+    );
+  }
+
+  completeProfile(dto: CompleteProfileDto): Observable<void> {
+    return this.http.post<void>(`${BASE}/complete-profile`, dto).pipe(
+      catchError(this._handleError)
+    );
+  }
+
+  resetPassword(dto: ResetPasswordDto): Observable<void> {
+    return this.http.post<void>(`${BASE}/reset-password`, dto).pipe(
       catchError(this._handleError)
     );
   }
 
   // ───────────────────────── Helpers ─────────────────────────
 
-  private _persist(res: AuthResponseDto): void {
-    localStorage.setItem(KEYS.access, res.accessToken);
-    localStorage.setItem(KEYS.refresh, res.refreshToken);
-    localStorage.setItem(KEYS.subscribed, String(res.isSubscribed));
+  private _persist(res: AuthResponseDto, rememberMe = false): void {
+    const storage = rememberMe ? localStorage : sessionStorage;
 
-    const user: any = {
-      role: res.role,
+    storage.setItem(KEYS.access, res.accessToken);
+    storage.setItem(KEYS.refresh, res.refreshToken);
+    storage.setItem(KEYS.subscribed, String(res.isSubscribed ?? false));
+      
+    const frontendRole = res.isSubscribed ? 'Member' : 'User';
+
+    const user = {
+      role: frontendRole,
+      backendRole: res.role,
       expiresAt: res.expiresAt,
-      isSubscribed: res.isSubscribed,
-      firstName: res.firstName,
-      lastName: res.lastName,
+      isSubscribed: res.isSubscribed ?? false,
+      firstName: res.firstName ?? '',
+      lastName: res.lastName ?? ''
     };
 
-    localStorage.setItem(KEYS.user, JSON.stringify(user));
+    storage.setItem(KEYS.user, JSON.stringify(user));
     this._user$.next(user);
   }
 
-  get displayName(): string {
-    const u = this._user$.value;
-    if (u?.firstName) return u.firstName;
-    return '';
-  }
-
   private _clear(): void {
-    Object.values(KEYS).forEach(k => localStorage.removeItem(k));
+    Object.values(KEYS).forEach(k => {
+      localStorage.removeItem(k);
+      sessionStorage.removeItem(k);
+    });
     this._user$.next(null);
     this.router.navigate(['/']);
   }
 
-  private _loadUser(): GetProfileDto | null {
+  private _loadUser(): any | null {
     try {
-      const raw = localStorage.getItem(KEYS.user);
+      const raw = localStorage.getItem(KEYS.user) ?? sessionStorage.getItem(KEYS.user);
       return raw ? JSON.parse(raw) : null;
     } catch {
       return null;
@@ -141,36 +212,23 @@ export class AuthService {
   }
 
   private _handleError(err: any): Observable<never> {
-  let msg = 'Something went wrong';
+    let msg = 'Something went wrong';
+    const error = err?.error;
 
-  const error = err?.error;
+    if (typeof error === 'string') {
+      msg = error;
+    } else if (Array.isArray(error)) {
+      msg = error.join(', ');
+    } else if (error?.message) {
+      msg = error.message;
+    } else if (Array.isArray(error?.errors)) {
+      msg = error.errors.join(', ');
+    } else if (error?.errors && typeof error.errors === 'object') {
+      msg = Object.values(error.errors).flat().join(', ');
+    } else if (err?.message) {
+      msg = err.message;
+    }
 
-  if (typeof error === 'string') {
-    msg = error;
+    return throwError(() => new Error(msg));
   }
-
-  else if (Array.isArray(error)) {
-    msg = error.join(', ');
-  }
-
-  else if (error?.message) {
-    msg = error.message;
-  }
-
-  else if (Array.isArray(error?.errors)) {
-    msg = error.errors.join(', ');
-  }
-
-  else if (error?.errors && typeof error.errors === 'object') {
-    msg = Object.values(error.errors)
-      .flat()
-      .join(', ');
-  }
-
-  else if (err?.message) {
-    msg = err.message;
-  }
-
-  return throwError(() => new Error(msg));
-}
 }

@@ -1,30 +1,84 @@
-/* استيراد خط Google Sans المريح للعين */
-@import url('https://fonts.googleapis.com/css2?family=Product+Sans:wght@400;700&display=swap');
+/* ==========================================================================
+   1. Imports & Host Styles (الخلفية والثيم العام)
+   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :host {
-  font-family: 'Product Sans', sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  /* خلفية هادئة وفاتحة جداً مائلة للزرقة لتريح العين */
-  background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%); 
+  width: 100%;
+  box-sizing: border-box;
+  padding: 40px 20px;
+  background-color: var(--dark-bg);
+  
+  /* نظام الألوان والهوية البصرية */
+  --neon-green: #d4fa24;
+  --dark-bg: #0b0c0c;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --card-bg: rgba(255, 255, 255, 0.03);
+  --border-color: rgba(255, 255, 255, 0.08);
+
+  /* الخلفية الشبكية المميزة للموقع */
+  background-image: repeating-linear-gradient(135deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 2px, transparent 2px, transparent 24px),
+                    repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 2px, transparent 2px, transparent 24px);
+  background-size: 60px 60px;
+  background-position: center top;
 }
 
-/* الكارد الرئيسي باللون الأبيض الناصع */
+/* ==========================================================================
+   2. Card Layout & Typography (بنية الكارد والعناوين)
+   ========================================================================== */
 .auth-card {
-  background-color: #ffffff; 
-  border: 1px solid #e2e8f0; 
-  border-radius: 20px; /* زوايا دائرية ناعمة */
+  background: var(--card-bg); 
+  border: 1px solid var(--border-color); 
+  border-radius: 20px; 
   padding: 40px 32px;
   width: 100%;
   max-width: 440px; 
-  /* ظلال ناعمة جداً وبدون قسوة تعطي عمق جميل */
-  box-shadow: 0 10px 30px rgba(148, 163, 184, 0.15);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 50px rgba(212, 250, 36, 0.03);
   box-sizing: border-box;
+  margin: 0;
 }
 
-/* تنسيق سطر الاسم الأول والأخير بجانب بعضهما */
+.auth-title {
+  color: var(--text-primary);
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  text-align: center;
+  letter-spacing: -0.5px;
+}
+
+.auth-sub {
+  color: var(--text-secondary);
+  font-size: 15px;
+  margin: 0 0 32px 0;
+  text-align: center;
+}
+
+/* ==========================================================================
+   3. Form Fields & Layout Rows (تقسيم الحقول والصفوف)
+   ========================================================================== */
+.field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.field label {
+  color: var(--text-primary); 
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  opacity: 0.9;
+}
+
+/* الصف الثنائي (الاسم الأول والأخير / تاريخ الميلاد والهاتف) */
 .field-row {
   display: flex;
   gap: 16px; 
@@ -36,43 +90,26 @@
   min-width: 0; 
 }
 
-/* العناوين */
-.auth-title {
-  color: #0f172a; /* لون داكن صريح وواضح */
-  font-size: 28px;
-  font-weight: 700;
-  margin: 0 0 8px 0;
-  text-align: center;
-  letter-spacing: -0.5px;
-}
-
-.auth-sub {
-  color: #64748b; /* رمادي متناسق */
-  font-size: 15px;
-  margin: 0 0 32px 0;
-  text-align: center;
-}
-
-/* الحقول والنصوص */
-.field {
+/* الصف الثلاثي الذكي (الوزن والطول والنوع) */
+.field-row-3 {
   display: flex;
-  flex-direction: column;
-  margin-bottom: 20px;
+  gap: 12px; 
+  width: 100%;
 }
 
-.field label {
-  color: #334155; 
-  font-size: 14px;
-  font-weight: 500;
-  margin-bottom: 8px;
+.field-row-3 .field {
+  flex: 1;
+  min-width: 0;
 }
 
-/* تصميم حقول الإدخال الفاتحة */
+/* ==========================================================================
+   4. Inputs & Custom Dropdowns (عناصر الإدخال وحقل الجيندر)
+   ========================================================================== */
 .field input {
-  background-color: #f8fafc; /* خلفية هادئة جداً للحقل */
-  border: 1px solid #cbd5e1;
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-color);
   border-radius: 10px;
-  color: #0f172a;
+  color: var(--text-primary);
   padding: 12px 16px;
   font-size: 15px;
   transition: all 0.25s ease;
@@ -80,20 +117,83 @@
   width: 100%;
 }
 
-/* التفاعل عند الضغط على الحقل (توهج أزرق منعش) */
 .field input:focus {
   outline: none;
-  background-color: #ffffff; /* يتحول للأبيض عند الكتابة */
-  border-color: #06b6d4; /* Cyan */
-  box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.15);
+  background-color: rgba(0, 0, 0, 0.4);
+  border-color: var(--neon-green);
+  box-shadow: 0 0 0 4px rgba(212, 250, 36, 0.15);
 }
 
 .field input::placeholder {
-  color: #94a3b8;
-  opacity: 0.8;
+  color: var(--text-secondary);
+  opacity: 0.6;
 }
 
-/* غلاف كلمة المرور والعين */
+/* غلاف وتنسيق حقل الاختيار (Gender Select) لمنع تدمير التصميم */
+.select-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.select-wrap select {
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  color: var(--text-primary);
+  padding: 12px 32px 12px 12px; /* مساحة يمين للسهم الجديد */
+  font-size: 15px;
+  font-family: inherit;
+  transition: all 0.25s ease;
+  box-sizing: border-box;
+  width: 100%;
+  cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none; 
+}
+
+.select-wrap select:focus {
+  outline: none;
+  background-color: rgba(0, 0, 0, 0.4);
+  border-color: var(--neon-green);
+  box-shadow: 0 0 0 4px rgba(212, 250, 36, 0.15);
+}
+
+/* سهم نيون مخصص يتناسب مع أيقونة الـ Calendar */
+.select-wrap::after {
+  content: "";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23d4fa24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
+  background-size: contain;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+
+.select-wrap select option {
+  background-color: #111212; /* خلفية داكنة للخيارات لتناسب الثيم */
+  color: var(--text-primary);
+}
+
+/* تخصيص أيقونة اختيار التاريخ لتصبح نيون */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23d4fa24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>');
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   5. Password Toggle Section (حقول كلمات المرور والعين)
+   ========================================================================== */
 .input-wrap {
   position: relative;
   display: flex;
@@ -105,13 +205,12 @@
   padding-right: 48px; 
 }
 
-/* تصميم زر العين الخاص بجوجل (متوافق مع المظهر الفاتح) */
 .toggle-pw {
   position: absolute;
   right: 12px;
   background: none;
   border: none;
-  color: #94a3b8; 
+  color: var(--text-secondary); 
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -119,47 +218,26 @@
   padding: 6px;
   border-radius: 50%;
   transition: all 0.2s ease;
+  z-index: 2;
 }
 
 .toggle-pw:hover {
-  background-color: #f1f5f9;
-  color: #06b6d4; /* تضيء باللون الأزرق */
+  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--neon-green);
 }
 
-.toggle-pw .material-icons {
-  font-size: 22px; 
+.toggle-pw svg {
+  display: block;
 }
 
-/* سطر نسيت كلمة المرور */
-.forgot-row {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: -8px;
-  margin-bottom: 24px;
-}
-
-.link-btn {
-  background: none;
-  border: none;
-  color: #0284c7; /* أزرق حيوي للروابط واضح في الـ Light mode */
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  padding: 0;
-  transition: color 0.2s;
-}
-
-.link-btn:hover {
-  color: #06b6d4;
-  text-decoration: underline;
-}
-
-/* زر تسجيل الدخول الأساسي (مبهج ومشرق) */
+/* ==========================================================================
+   6. Buttons & Dividers (أزرار الارسال، جوجل، والفاصل)
+   ========================================================================== */
 .btn-submit {
-  background: linear-gradient(135deg, #06b6d4 0%, #10b981 100%); /* تدرج لوني يبعث على الحيوية والنشاط */
-  color: #ffffff; /* نص أبيض واضح فوق الزر */
+  background-color: var(--neon-green);
+  color: var(--dark-bg);
   border: none;
-  border-radius: 10px;
+  border-radius: 100px; 
   padding: 14px;
   font-size: 16px;
   font-weight: 700;
@@ -169,41 +247,88 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.2);
+  box-shadow: 0 4px 14px rgba(212, 250, 36, 0.2);
+  margin-top: 10px;
 }
 
 .btn-submit:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(6, 182, 212, 0.35);
-  filter: brightness(1.05); /* زيادة الإضاءة قليلاً */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(212, 250, 36, 0.4);
 }
 
 .btn-submit:disabled {
-  opacity: 0.5;
+  opacity: 0.5;        
   cursor: not-allowed;
-  background: #e2e8f0;
-  color: #94a3b8;
+  background: #4a4a4a; 
+  color: #ffffff;
   box-shadow: none;
 }
 
-/* نصوص التبديل بالأسفل */
+.divider {
+  margin: 24px 0;
+  text-align: center;
+  position: relative;
+}
+
+.divider::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  border-top: 1px solid var(--border-color);
+}
+
+.divider span {
+  background: #0b0c0c; 
+  padding: 0 12px;
+  position: relative;
+  z-index: 1;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+#google-btn {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  min-height: 44px;
+}
+
+#google-btn iframe {
+  width: 100% !important;
+}
+
+/* الروابط والنصوص التبديلية بالأسفل */
 .switch-text {
-  color: #64748b;
+  color: var(--text-secondary);
   text-align: center;
   font-size: 14px;
   margin-top: 24px;
-  margin-bottom: 0;
 }
 
-.switch-text .link-btn {
-  margin-left: 4px;
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--neon-green);
+  font-size: 14px;
   font-weight: 700;
+  cursor: pointer;
+  padding: 0 0 0 4px;
+  transition: text-decoration 0.2s;
 }
 
-/* الأخطاء والتحذيرات (باللون الأحمر الصريح المناسب للخلفيات الفاتحة) */
-.field.invalid input {
+.link-btn:hover {
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   7. Validation, Errors & Animations (الأخطاء واللودر)
+   ========================================================================== */
+.field.invalid input,
+.field.invalid select {
   border-color: #ef4444;
-  background-color: #fef2f2; /* تحويل خلفية الحقل لوردي خفيف عند الخطأ */
+  background-color: rgba(239, 68, 68, 0.05);
 }
 
 .err {
@@ -214,22 +339,24 @@
 }
 
 .banner.error {
-  background-color: #fef2f2;
+  background-color: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.2);
   color: #ef4444;
   padding: 12px;
   border-radius: 10px;
   font-size: 14px;
   margin-bottom: 20px;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
-/* لودر متناسق مع التصميم الفاتح */
 .spinner {
   width: 20px;
   height: 20px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #ffffff;
+  border: 2px solid rgba(11, 12, 12, 0.3);
+  border-top-color: var(--dark-bg);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -238,25 +365,16 @@
   to { transform: rotate(360deg); }
 }
 
-/* ريسبونسيف للهواتف */
-@media (max-width: 400px) {
-  .field-row {
+/* ==========================================================================
+   8. Responsive Design (التجاوب مع الشاشات المختلفة)
+   ========================================================================== */
+@media (max-width: 440px) {
+  .field-row,
+  .field-row-3 {
     flex-direction: column;
     gap: 0;
   }
   .auth-card {
     padding: 30px 20px;
   }
-}
-
-/* تنسيق أيقونة النتيجة الفاتحة لتتماشى مع ألوان الـ Cyan المبهجة */
-input[type="date"]::-webkit-calendar-picker-indicator {
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2306b6d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>');
-  cursor: pointer;
-  opacity: 0.8;
-  transition: opacity 0.2s;
-}
-
-input[type="date"]::-webkit-calendar-picker-indicator:hover {
-  opacity: 1;
 }

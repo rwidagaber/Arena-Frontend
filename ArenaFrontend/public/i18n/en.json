@@ -97,5 +97,20 @@
   "Gold": "Gold",
   "the": "the",
   "Monthly": "Monthly",
-  "Monthly gym subscription": "Monthly gym subscription"
+  "Monthly gym subscription": "Monthly gym subscription",
+  "ABOUT": {
+    "BADGE": "Our Story",
+    "TITLE": "About ArenaGym",
+    "MISSION_TITLE": "Our Mission",
+    "MISSION_DESC": "To transform fitness goals into real, lasting results by providing expert guidance, a supportive community, and top-tier facilities.",
+    "VISION_TITLE": "Our Vision",
+    "VISION_DESC": "To be the ultimate destination where passion, discipline, and results come together daily for every member.",
+    "VALUES_TITLE": "Our Core Values",
+    "VALUE_1_TITLE": "Excellence",
+    "VALUE_1_DESC": "Certified & experienced trainers dedicated to your personal growth.",
+    "VALUE_2_TITLE": "Community",
+    "VALUE_2_DESC": "A motivating, inclusive, and supportive environment for all fitness levels.",
+    "VALUE_3_TITLE": "Innovation",
+    "VALUE_3_DESC": "Modern, high-quality equipment and scientifically proven training methods."
+  }
 }
