@@ -151,7 +151,8 @@
     "workout": "خطة التمرين",
     "nutrition": "الخطة الغذائية",
     "bookings": "الحجوزات",
-    "calendar": "التقويم"
+    "calendar": "التقويم",
+    "attendance": "الحضور"
   },
   "common": {
     "loading": "جارٍ التحميل...",

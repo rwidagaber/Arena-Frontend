@@ -6,6 +6,11 @@ import { subGuard } from './core/guards/auth/sub-guard';
 
 export const routes: Routes = [
   {
+    path: '',
+    redirectTo: '/dashboard',
+    pathMatch: 'full'
+  },
+  {
     path: 'login',
     component: LoginComponent
   },
@@ -15,8 +20,7 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard',
-    component: ProfileComponent,
-    canActivate: [subGuard]
+    component: ProfileComponent
   },
   {
     path: 'about',

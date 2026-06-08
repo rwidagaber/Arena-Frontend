@@ -151,7 +151,8 @@
     "workout": "Workout Plan",
     "nutrition": "Nutrition Plan",
     "bookings": "Bookings",
-    "calendar": "Calendar"
+    "calendar": "Calendar",
+    "attendance": "Attendance"
   },
   "common": {
     "loading": "Loading...",
