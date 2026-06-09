@@ -24,7 +24,6 @@ export const appConfig: ApplicationConfig = {
       loadingInterceptor,
       errorInterceptor,
       authInterceptor,
-    ]))
     ])),
     // Register ngx-translate with standalone APIs
     provideTranslateService({
