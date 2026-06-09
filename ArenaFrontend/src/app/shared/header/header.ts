@@ -85,5 +85,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
       error: () => this.router.navigate(['/']),
     });
   }
+  
 
 }
