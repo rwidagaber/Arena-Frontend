@@ -18,7 +18,6 @@ import { subGuard } from './core/guards/auth/sub-guard';
 import { guestGuard } from './core/guards/auth/guest-guard-guard';
 import { roleGuard } from './core/guards/role/role-guard';
 import { confirmEmailGuard } from './core/guards/auth/confirm-email-guard';
-
 export const routes: Routes = [
   // Base / Home Routes
   {
@@ -84,6 +83,11 @@ export const routes: Routes = [
   {
     path: 'my-payments',
     component: MyPaymentsComponent
+  },
+  {
+    path: 'profile',
+    component: ProfileComponent,
+    canActivate: [authGuard, subGuard]
   },
   {
     path: 'contact',

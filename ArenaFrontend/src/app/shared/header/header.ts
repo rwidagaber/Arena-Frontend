@@ -35,7 +35,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ];
 
   ngOnInit(): void {
-    // Listens to user profile data streams and automatically extracts updates
     this.userSub = this.auth.currentUser$.subscribe(u => {
       this.displayName.set(u?.firstName ?? '');
     });
@@ -45,7 +44,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.userSub?.unsubscribe();
   }
 
-  // Closes the menu automatically if the user clicks anywhere outside the container dropdown layout
   @HostListener('document:click', ['$event'])
   onDocClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;

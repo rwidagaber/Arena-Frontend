@@ -72,10 +72,9 @@ export class LoginComponent implements AfterViewInit {
           this.loading = false;
           this.router.navigate(['/complete-profile']);
         } else {
-          // Fetch profile information before finalizing navigation
           this.auth.getMe().subscribe(() => {
             this.loading = false;
-            const ret = new URLSearchParams(window.location.search).get('returnUrl') ?? '/home';
+            const ret = new URLSearchParams(window.location.search).get('returnUrl') ?? '/dashboard';
             this.router.navigateByUrl(ret);
           });
         }
@@ -112,11 +111,10 @@ export class LoginComponent implements AfterViewInit {
 
     this.auth.login(loginDto).subscribe({
       next: () => {
-        // Dev branch fix: Sequentially fetch profile data so app state populates immediately
         this.auth.getMe().subscribe({
           next: () => {
             this.loading = false;
-            const ret = new URLSearchParams(window.location.search).get('returnUrl') ?? '/home';
+            const ret = new URLSearchParams(window.location.search).get('returnUrl') ?? '/dashboard';
             this.router.navigateByUrl(ret);
           },
           error: (profileErr: Error) => {
