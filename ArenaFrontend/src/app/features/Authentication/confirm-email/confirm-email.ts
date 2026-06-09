@@ -117,14 +117,30 @@ export class ConfirmEmailComponent implements OnInit, AfterViewInit {
   // Resend
   // =========================
 
-  onResendCode(): void {
-    if (!this.email) return;
-    this.loading = true;
-    this.serverError = '';
+ resendCooldown = 0;
+private _cooldownInterval: any;
 
-    this.auth.forgotPassword({ email: this.email }).subscribe({
-      next: () => { this.loading = false; },
-      error: (err: Error) => { this.loading = false; this.serverError = err.message; }
-    });
-  }
+onResendCode(): void {
+  if (!this.userId || this.resendCooldown > 0) return;
+  this.loading = true;
+  this.serverError = '';
+
+  this.auth.resendConfirmation(this.userId).subscribe({
+    next: () => { 
+      this.loading = false;
+      this._startCooldown(120); // 120 ثانية = وقت انتهاء الـ OTP
+    },
+    error: (err: Error) => { this.loading = false; this.serverError = err.message; }
+  });
+}
+
+private _startCooldown(seconds: number): void {
+  this.resendCooldown = seconds;
+  this._cooldownInterval = setInterval(() => {
+    this.resendCooldown--;
+    if (this.resendCooldown <= 0) {
+      clearInterval(this._cooldownInterval);
+    }
+  }, 1000);
+}
 }

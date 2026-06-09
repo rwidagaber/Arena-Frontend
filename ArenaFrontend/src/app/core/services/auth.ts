@@ -168,6 +168,12 @@ export class AuthService {
     );
   }
 
+  resendConfirmation(userId: string): Observable<void> {
+  return this.http.post<void>(`${BASE}/resend-confirmation`, { userId }).pipe(
+    catchError(this._handleError)
+  );
+}
+
   // ───────────────────────── Helpers ─────────────────────────
 
   private _persist(res: AuthResponseDto, rememberMe = false): void {
@@ -210,23 +216,24 @@ export class AuthService {
     }
   }
 
-  private _handleError(err: any): Observable<never> {
-    let msg = 'Something went wrong';
-    const error = err?.error;
+ private _handleError = (err: any): Observable<never> => {
+  let msg = 'Something went wrong';
+  const error = err?.error;
 
-    if (typeof error === 'string') {
-      msg = error;
-    } else if (Array.isArray(error)) {
-      msg = error.join(', ');
-    } else if (error?.message) {
-      msg = error.message;
-    } else if (Array.isArray(error?.errors)) {
-      msg = error.errors.join(', ');
-    } else if (error?.errors && typeof error.errors === 'object') {
-      msg = Object.values(error.errors).flat().join(', ');
-    } else if (err?.message) {
-      msg = err.message;
-    }
-    return throwError(() => new Error(msg));
+  if (Array.isArray(error)) {
+    msg = error.join(', ');
+  } else if (typeof error === 'string') {
+    msg = error;
+  } else if (error?.message) {
+    msg = error.message;
+  } else if (Array.isArray(error?.errors)) {
+    msg = error.errors.join(', ');
+  } else if (error?.errors && typeof error.errors === 'object') {
+    msg = Object.values(error.errors).flat().join(', ');
+  } else if (err?.message) {
+    msg = err.message;
   }
+
+  return throwError(() => new Error(msg));
+}
 }
