@@ -184,9 +184,8 @@ export class AuthService {
     const frontendRole = res.isSubscribed ? 'Member' : 'User';
 
     const user = {
+      ...res,
       role: frontendRole,
-      backendRole: res.role,
-      expiresAt: res.expiresAt,
       isSubscribed: res.isSubscribed ?? false,
       firstName: res.firstName ?? '',
       lastName: res.lastName ?? ''
