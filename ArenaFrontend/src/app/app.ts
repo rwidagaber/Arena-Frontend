@@ -6,6 +6,7 @@ import { HeroComponent } from './features/hero/hero.component';
 import { ProgramsComponent } from './features/programs/programs.component';
 import { WhatWeDoComponent } from './features/what-we-do/what-we-do.component';
 import { WhyChooseUsComponent } from './features/why-choose-us/why-choose-us.component';
+import { PricingComponent } from './features/pricing/pricing.component';
 import { FooterComponent } from './shared/components/footer/footer';
 
 @Component({
@@ -17,6 +18,7 @@ import { FooterComponent } from './shared/components/footer/footer';
     ProgramsComponent,
     WhatWeDoComponent,
     WhyChooseUsComponent,
+    PricingComponent,
     FooterComponent,
   ],
   templateUrl: './app.html',
