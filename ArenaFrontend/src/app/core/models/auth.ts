@@ -8,14 +8,11 @@ export interface UserRegisterDto {
   email: string;
   password: string;
   confirmPassword: string;
-
   phoneNumber: string;
   birthday: string;
-
-  // ✅ الجديد
   weight?: number;
   height?: number;
-gender: number; // 0 = Male, 1 = Female
+  gender: number; // 0 = Male, 1 = Female
   preferredLanguage?: string;
 }
 
@@ -27,18 +24,10 @@ export interface CompleteProfileDto {
   gender: number; // 0 = Male, 1 = Female
 }
 
-export interface AuthResponseDto {
-  accessToken:  string;
-  refreshToken: string;
-  expiresAt:    string;
-  role:         string;
-  isGoogleUser: boolean;
-  isSubscribed?: boolean;
-}
 export interface UserLoginDto {
   email: string;
   password: string;
-  RememberMe:boolean;
+  RememberMe: boolean;
 }
 
 export interface RefreshTokenDto {
@@ -67,7 +56,17 @@ export interface ResetPasswordDto {
 // Responses
 // ─────────────────────────────────────────
 
-
+// Combined main & dev properties cleanly
+export interface AuthResponseDto {
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: string;
+  role: string;
+  isSubscribed: boolean;
+  isGoogleUser: boolean; // From main branch
+  firstName?: string;    // From dev branch
+  lastName?: string;     // From dev branch
+}
 
 export interface UserSummary {
   id: string;
@@ -102,5 +101,7 @@ export interface GetProfileDto {
   gender?: string | null;
   profileImage?: string | null;
   birthday?: string | null;
+  dateOfBirth?: string;
+  profileImageUrl?: string;
   activeSubscription?: UserSubscriptionDto | null;
 }

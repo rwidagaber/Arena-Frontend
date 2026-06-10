@@ -10,7 +10,6 @@ import { StatsOverview, StatItem } from './stats-overview/stats-overview';
 import { MembershipSection } from './membership-section/membership-section';
 import { RecentWorkouts } from './recent-workouts/recent-workouts';
 import { DashboardSidebar, DashboardSection } from './dashboard-sidebar/dashboard-sidebar';
-import { HeaderComponent } from '../../shared/header/header';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
 function mapAuthToProfile(dto: GetProfileDto): MemberProfileModel {
@@ -54,7 +53,6 @@ function mapSubscriptionToMembership(sub: UserSubscriptionDto): MembershipDetail
     MembershipSection,
     RecentWorkouts,
     DashboardSidebar,
-    HeaderComponent,
     TranslatePipe,
   ],
   templateUrl: './member-profile.html',

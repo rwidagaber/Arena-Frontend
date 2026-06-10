@@ -6,7 +6,6 @@ import { TranslationService, Lang } from '../../core/services/translation.servic
 import { AuthService } from '../../core/services/auth';
 import { TranslatePipe } from '../pipes/translate.pipe';
 
-
 export type DropdownSection = 'profile' | 'workout' | 'nutrition' | 'bookings' | 'calendar' | 'attendance';
 
 @Component({
@@ -18,19 +17,20 @@ export type DropdownSection = 'profile' | 'workout' | 'nutrition' | 'bookings' |
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   protected readonly router = inject(Router);
-  readonly t = inject(TranslationService);
-  readonly auth = inject(AuthService);
+  protected readonly t = inject(TranslationService);
+  public    readonly auth = inject(AuthService);
+
   private userSub?: Subscription;
 
   protected readonly displayName = signal('');
   protected dropdownOpen = false;
 
   protected readonly dropdownItems: { key: DropdownSection; label: string }[] = [
-    { key: 'profile',   label: 'sidebar.profile' },
-    { key: 'workout',   label: 'sidebar.workout' },
-    { key: 'nutrition', label: 'sidebar.nutrition' },
-    { key: 'bookings',  label: 'sidebar.bookings' },
-    { key: 'calendar',  label: 'sidebar.calendar' },
+    { key: 'profile',    label: 'sidebar.profile' },
+    { key: 'workout',    label: 'sidebar.workout' },
+    { key: 'nutrition',  label: 'sidebar.nutrition' },
+    { key: 'bookings',   label: 'sidebar.bookings' },
+    { key: 'calendar',   label: 'sidebar.calendar' },
     { key: 'attendance', label: 'sidebar.attendance' },
   ];
 
@@ -85,6 +85,5 @@ export class HeaderComponent implements OnInit, OnDestroy {
       error: () => this.router.navigate(['/']),
     });
   }
-  
 
 }

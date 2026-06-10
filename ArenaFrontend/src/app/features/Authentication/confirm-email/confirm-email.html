@@ -77,9 +77,15 @@
   </form>
 
   <div class="resend-section">
-    <p class="switch-text">
-      Didn't receive the code? 
-      <button type="button" class="link-btn" (click)="onResendCode()" [disabled]="loading">Resend</button>
-    </p>
-  </div>
+  <p class="switch-text">
+    Didn't receive the code?
+    <button 
+      type="button" 
+      class="link-btn" 
+      (click)="onResendCode()" 
+      [disabled]="loading || resendCooldown > 0">
+      {{ resendCooldown > 0 ? 'Resend in ' + resendCooldown + 's' : 'Resend' }}
+    </button>
+  </p>
+</div>
 </div>

@@ -1,68 +1,47 @@
 <header class="gympro-header-exact sticky-top px-4 py-3" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
-  <div
-    class="container-fluid max-header-width d-flex align-items-center justify-content-between mx-auto"
-  >
+  <div class="container-fluid max-header-width d-flex align-items-center justify-content-between mx-auto">
 
-<div class="brand-v3-exact d-flex align-items-center gap-3.5">
-  <div class="logo-circle-exact">
-    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0c0f17" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-      <g>
-        <line x1="5" y1="5" x2="19" y2="19" />
-        <line x1="6.5" y1="9.5" x2="9.5" y2="6.5" />
-        <line x1="14.5" y1="17.5" x2="17.5" y2="14.5" />
-        <line x1="5" y1="8" x2="8" y2="5" />
-        <line x1="16" y1="19" x2="19" y2="16" />
-      </g>
-      
-      <g>
-        <line x1="5" y1="19" x2="19" y2="5" />
-        <line x1="6.5" y1="14.5" x2="9.5" y2="17.5" />
-        <line x1="14.5" y1="6.5" x2="17.5" y2="9.5" />
-        <line x1="5" y1="16" x2="8" y2="19" />
-        <line x1="16" y1="5" x2="19" y2="8" />
-      </g>
-    </svg>
-  </div>
-  <span class="brand-text-exact font-display">{{ 'app.title' | translate }}<span class="dot-lime">.</span></span>
-</div>
+    <div class="brand-v3-exact d-flex align-items-center gap-3.5">
+      <div class="logo-circle-exact">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0c0f17" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <g>
+            <line x1="5" y1="5" x2="19" y2="19" />
+            <line x1="6.5" y1="9.5" x2="9.5" y2="6.5" />
+            <line x1="14.5" y1="17.5" x2="17.5" y2="14.5" />
+            <line x1="5" y1="8" x2="8" y2="5" />
+            <line x1="16" y1="19" x2="19" y2="16" />
+          </g>
+          <g>
+            <line x1="5" y1="19" x2="19" y2="5" />
+            <line x1="6.5" y1="14.5" x2="9.5" y2="17.5" />
+            <line x1="14.5" y1="6.5" x2="17.5" y2="9.5" />
+            <line x1="5" y1="16" x2="8" y2="19" />
+            <line x1="16" y1="5" x2="19" y2="8" />
+          </g>
+        </svg>
+      </div>
+      <span class="brand-text-exact font-display">{{ 'app.title' | translate }}<span class="dot-lime">.</span></span>
+    </div>
 
     <nav class="d-none d-lg-block">
       <ul class="nav-links-exact d-flex align-items-center mb-0 list-unstyled">
         <li>
-          <a
-            routerLink="/"
-            routerLinkActive="text-lime-active"
-            [routerLinkActiveOptions]="{exact: true}"
-            class="nav-item-exact"
-          >
+          <a routerLink="/" routerLinkActive="text-lime-active" [routerLinkActiveOptions]="{exact: true}" class="nav-item-exact">
             {{ 'header.home' | translate }}
           </a>
         </li>
         <li>
-          <a
-            routerLink="/about"
-            routerLinkActive="text-lime-active"
-            class="nav-item-exact"
-          >
+          <a routerLink="/about" routerLinkActive="text-lime-active" class="nav-item-exact">
             {{ 'header.about' | translate }}
           </a>
         </li>
-
         <li *ngIf="auth.isSubscribed">
-          <a
-            routerLink="/dashboard"
-            class="nav-item-exact"
-          >
+          <a routerLink="/dashboard" class="nav-item-exact">
             {{ 'header.dashboard' | translate }}
           </a>
         </li>
-
         <li>
-          <a
-            routerLink="/contact"
-            routerLinkActive="text-lime-active"
-            class="nav-item-exact"
-          >
+          <a routerLink="/contact" routerLinkActive="text-lime-active" class="nav-item-exact">
             {{ 'header.contact' | translate }}
           </a>
         </li>
@@ -74,57 +53,49 @@
         {{ currentLang === 'en' ? 'AR' : 'EN' }}
       </button>
 
-      @if (isLoggedIn) {
+      <ng-container *ngIf="auth.currentUser$ | async; else loginButtons">
         <div class="user-dropdown-container">
           <div class="user-trigger-wrapper" (click)="toggleDropdown()">
             <div class="user-avatar-circle">
               <span class="user-avatar-text">{{ (displayName() || 'U')[0] }}</span>
             </div>
-          </div>
 
-          @if (dropdownOpen) {
-            <div class="user-dropdown-menu">
-              @if (!auth.isSubscribed) {
+            @if (dropdownOpen) {
+              <div class="user-dropdown-menu">
                 <div class="dropdown-subscription-pill" (click)="goToSubscription()">
                   {{ 'subscription.pill' | translate }}
                 </div>
                 <div class="dropdown-divider"></div>
-              }
 
-              @for (item of dropdownItems; track item.key) {
-                <button
-                  class="dropdown-item"
-                  [class.disabled]="!auth.isSubscribed"
-                  [disabled]="!auth.isSubscribed"
-                  (click)="auth.isSubscribed && navigateToSection(item.key)"
-                >
-                  {{ item.label | translate }}
+                @for (item of dropdownItems; track item.key) {
+                  <button
+                    class="dropdown-item"
+                    [class.disabled]="!auth.isSubscribed"
+                    [disabled]="!auth.isSubscribed"
+                    (click)="auth.isSubscribed && navigateToSection(item.key)"
+                  >
+                    {{ item.label | translate }}
+                  </button>
+                }
+
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item dropdown-logout" (click)="logout()">
+                  {{ 'header.logout' | translate }}
                 </button>
-              }
-
-              <div class="dropdown-divider"></div>
-              <button class="dropdown-item dropdown-logout" (click)="logout()">
-                {{ 'header.logout' | translate }}
-              </button>
-            </div>
-          }
+              </div>
+            }
+          </div>
         </div>
-      } @else {
-        <a
-          routerLink="/login"
-          class="btn-login-exact font-display text-decoration-none"
-        >
+      </ng-container>
+      <ng-template #loginButtons>
+        <a routerLink="/login" class="btn-login-exact font-display text-decoration-none">
           {{ 'header.login' | translate }}
         </a>
-        <button
-          type="button"
-          routerLink="/register"
-          class="btn-signup-exact font-display d-flex align-items-center justify-content-center gap-2"
-        >
+        <button type="button" routerLink="/register" class="btn-signup-exact font-display d-flex align-items-center justify-content-center gap-2">
           <span>{{ 'header.signup' | translate }}</span>
           <i class="bi bi-arrow-up-right"></i>
         </button>
-      }
+      </ng-template>
     </div>
   </div>
 </header>
