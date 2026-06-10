@@ -1,0 +1,67 @@
+@if (loading()) {
+  <div class="header-skeleton">
+    <div class="skeleton-row">
+      <div class="skeleton skeleton-text-lg"></div>
+      <div class="skeleton skeleton-avatar"></div>
+    </div>
+    <div class="skeleton skeleton-text-sm"></div>
+  </div>
+} @else {
+  <div class="welcome-card">
+    <div class="welcome-glow"></div>
+    <div class="welcome-content">
+      <div class="avatar-container">
+        @if (profileImage()) {
+          <img [src]="profileImage()" [alt]="firstName()" class="avatar">
+        } @else {
+          <div class="avatar-placeholder">
+            <span class="avatar-initials">{{ firstName()[0] }}{{ lastName()[0] }}</span>
+          </div>
+        }
+      </div>
+      <div class="welcome-text">
+        <span class="welcome-label">{{ 'memberProfile.dashboardLabel' | translate }}</span>
+        <div class="greeting">
+          <h1>{{ greetingKey() | translate:{firstName: firstName()} }}</h1>
+        </div>
+        <p class="motivational-tagline">{{ motivationalMessage() }}</p>
+        <div class="member-meta">
+          @if (isActive()) {
+            <span class="status-badge">
+              <span class="status-dot"></span>
+              {{ 'memberProfile.active' | translate }}
+            </span>
+          }
+          @if (memberSince()) {
+            <span class="member-since">
+              <i class="far fa-calendar-alt"></i>
+              {{ memberSince() }}
+            </span>
+          }
+        </div>
+      </div>
+      <div class="hero-svg-container">
+        <svg viewBox="0 0 120 170" fill="none" class="hero-svg">
+          <g transform="rotate(-10, 60, 85)">
+            <rect x="49" y="55" width="22" height="60" rx="4" fill="#D4FA24"/>
+            <rect x="45" y="72" width="30" height="22" rx="3" fill="#0F172A"/>
+            <rect x="28" y="47" width="64" height="13" rx="4" fill="#D4FA24"/>
+            <rect x="24" y="41" width="72" height="8" rx="3" fill="#D4FA24" opacity="0.55"/>
+            <rect x="21" y="35" width="78" height="6" rx="2" fill="#D4FA24" opacity="0.3"/>
+            <rect x="36" y="60" width="48" height="4" rx="1.5" fill="#D4FA24" opacity="0.4"/>
+            <rect x="28" y="110" width="64" height="13" rx="4" fill="#D4FA24"/>
+            <rect x="24" y="121" width="72" height="8" rx="3" fill="#D4FA24" opacity="0.55"/>
+            <rect x="21" y="129" width="78" height="6" rx="2" fill="#D4FA24" opacity="0.3"/>
+            <rect x="36" y="106" width="48" height="4" rx="1.5" fill="#D4FA24" opacity="0.4"/>
+          </g>
+          <path d="M108 24 L110 30 L116 32 L110 34 L108 40 L106 34 L100 32 L106 30 Z" fill="#D4FA24" opacity="0.35"/>
+          <path d="M14 138 L16 142 L20 144 L16 146 L14 150 L12 146 L8 144 L12 142 Z" fill="#D4FA24" opacity="0.2"/>
+          <path d="M96 18 Q104 8 112 12" stroke="#D4FA24" stroke-width="2" stroke-linecap="round" opacity="0.25"/>
+          <path d="M18 22 Q12 14 20 10" stroke="#D4FA24" stroke-width="2" stroke-linecap="round" opacity="0.2"/>
+          <path d="M10 52 Q4 46 10 40" stroke="#D4FA24" stroke-width="1.5" stroke-linecap="round" opacity="0.15"/>
+          <path d="M110 118 Q116 112 112 106" stroke="#D4FA24" stroke-width="1.5" stroke-linecap="round" opacity="0.15"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+}

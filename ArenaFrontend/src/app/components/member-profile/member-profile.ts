@@ -1,137 +1,183 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { catchError, of } from 'rxjs';
+import { AuthService } from '../../core/services/auth';
 import { MemberService } from '../../core/services/member.service';
-import { MemberProfile, UpdateProfileDto } from '../../core/models/member';
+import type { GetProfileDto, UserSubscriptionDto } from '../../core/models/auth';
+import type { MemberProfile as MemberProfileModel, MembershipDetails } from '../../core/models/member';
+import { DashboardHeader } from './dashboard-header/dashboard-header';
+import { StatsOverview, StatItem } from './stats-overview/stats-overview';
+import { MembershipSection } from './membership-section/membership-section';
+import { RecentWorkouts } from './recent-workouts/recent-workouts';
+import { DashboardSidebar, DashboardSection } from './dashboard-sidebar/dashboard-sidebar';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
-import { TranslationService } from '../../core/services/translation.service';
-import { SidebarComponent, SidebarSection } from '../../shared/sidebar/sidebar';
+
+function mapAuthToProfile(dto: GetProfileDto): MemberProfileModel {
+  return {
+    id: dto.id,
+    memberProfileId: dto.id,
+    firstName: dto.firstName,
+    lastName: dto.lastName,
+    email: dto.email,
+    phoneNumber: dto.phoneNumber ?? null,
+    preferredLanguage: dto.preferredLanguage,
+    isActive: dto.isActive ?? true,
+    weight: dto.weight ?? null,
+    height: dto.height ?? null,
+    bmi: dto.bmi ?? null,
+    gender: dto.gender ?? null,
+    profileImage: dto.profileImage ?? null,
+    birthday: dto.birthday ?? null,
+    activeSubscription: dto.activeSubscription ?? null,
+  };
+}
+
+function mapSubscriptionToMembership(sub: UserSubscriptionDto): MembershipDetails {
+  return {
+    type: sub.planNameEn,
+    startDate: sub.startDate,
+    endDate: sub.endDate,
+    isActive: sub.status === 'Active',
+    price: 0,
+    features: [],
+  };
+}
 
 @Component({
-  selector: 'app-profile',
+  selector: 'app-member-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslatePipe, SidebarComponent],
+  imports: [
+    CommonModule,
+    DashboardHeader,
+    StatsOverview,
+    MembershipSection,
+    RecentWorkouts,
+    DashboardSidebar,
+    TranslatePipe,
+  ],
   templateUrl: './member-profile.html',
   styleUrl: './member-profile.css',
-  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ProfileComponent {
+export class MemberProfile implements OnInit {
+  private auth = inject(AuthService);
   private memberService = inject(MemberService);
-  private fb = inject(FormBuilder);
-  private router = inject(Router);
-  private cdr = inject(ChangeDetectorRef);
 
-  profile: MemberProfile | null = null;
-  loading = true;
-  saving = false;
-  editMode = false;
-  activeSection: SidebarSection = 'profile';
+  profile = signal<MemberProfileModel | null>(null);
+  loading = signal(true);
+  error = signal<string | null>(null);
 
-  form = this.fb.group({
-    firstName: ['', Validators.required],
-    lastName: ['', Validators.required],
-    phoneNumber: [''],
-    preferredLanguage: [''],
-    weight: [0],
-    height: [0],
+  activeSection = signal<DashboardSection>('profile');
+
+  mappedMembership = computed<MembershipDetails | null>(() => {
+    const sub = this.profile()?.activeSubscription;
+    return sub ? mapSubscriptionToMembership(sub) : null;
   });
 
-  constructor() {
-    this.loadProfile();
-  }
-
-  private loadProfile(): void {
-    this.memberService.getProfile().subscribe({
-      next: (res) => {
-        this.profile = res;
-        this.form.patchValue({
-          firstName: res.firstName,
-          lastName: res.lastName,
-          phoneNumber: res.phoneNumber,
-          preferredLanguage: res.preferredLanguage,
-          weight: res.weight ?? 0,
-          height: res.height ?? 0,
-        });
-        this.loading = false;
-        this.cdr.markForCheck();
+  stats = computed<StatItem[]>(() => {
+    const p = this.profile();
+    return [
+      {
+        label: 'profile.weight',
+        value: p?.weight ? `${p.weight} kg` : '—',
+        icon: 'fas fa-weight-scale',
       },
-      error: () => {
-        this.loading = false;
-        this.cdr.markForCheck();
-      }
-    });
-  }
-
-  toggleEdit(): void {
-    this.editMode = !this.editMode;
-    this.cdr.markForCheck();
-  }
-
-  save(): void {
-    if (this.form.invalid) return;
-    this.saving = true;
-    const dto: UpdateProfileDto = {
-      firstName: this.form.value.firstName ?? undefined,
-      lastName: this.form.value.lastName ?? undefined,
-      phoneNumber: this.form.value.phoneNumber ?? undefined,
-      preferredLanguage: this.form.value.preferredLanguage ?? undefined,
-      weight: this.form.value.weight ?? undefined,
-      height: this.form.value.height ?? undefined,
-    };
-    this.memberService.updateProfile(dto).subscribe({
-      next: (res) => {
-        this.profile = res;
-        this.editMode = false;
-        this.saving = false;
-        this.cdr.markForCheck();
+      {
+        label: 'profile.height',
+        value: p?.height ? `${p.height} cm` : '—',
+        icon: 'fas fa-ruler',
       },
-      error: () => {
-        this.saving = false;
-        this.cdr.markForCheck();
-      }
-    });
-  }
+      {
+        label: 'profile.bmi',
+        value: p?.bmi ? p.bmi.toFixed(1) : '—',
+        icon: 'fas fa-heart-pulse',
+      },
+      {
+        label: 'memberProfile.workouts',
+        value: '—',
+        icon: 'fas fa-dumbbell',
+      },
+    ];
+  });
 
-  onSectionChange(section: SidebarSection): void {
-    this.activeSection = section;
-    this.cdr.markForCheck();
-  }
+  bmiCategory = computed(() => {
+    const bmi = this.profile()?.bmi;
+    if (bmi == null) return { label: '—', percent: 0 };
+    if (bmi < 18.5) return { label: 'Underweight', percent: 25 };
+    if (bmi < 25) return { label: 'Normal', percent: 50 };
+    if (bmi < 30) return { label: 'Overweight', percent: 75 };
+    return { label: 'Obese', percent: 100 };
+  });
 
-  getAge(birthday: string): number {
-    const birth = new Date(birthday);
-    const today = new Date();
-    let age = today.getFullYear() - birth.getFullYear();
-    const m = today.getMonth() - birth.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-    return age;
-  }
+  bmiProgress = computed(() => {
+    const bmi = this.profile()?.bmi;
+    if (bmi == null) return 0;
+    return Math.min((bmi / 40) * 100, 100);
+  });
 
-  getMembershipProgress(startDate: string, endDate: string): number {
-    const start = new Date(startDate).getTime();
-    const end = new Date(endDate).getTime();
+  membershipProgress = computed(() => {
+    const sub = this.profile()?.activeSubscription;
+    if (!sub?.startDate || !sub?.endDate) return 0;
+    const start = new Date(sub.startDate).getTime();
+    const end = new Date(sub.endDate).getTime();
     const now = Date.now();
-    const total = end - start;
-    if (total <= 0) return 0;
-    return Math.min(Math.round(((now - start) / total) * 100), 100);
-  }
+    if (now >= end) return 100;
+    if (now <= start) return 0;
+    return Math.round(((now - start) / (end - start)) * 100);
+  });
 
-  copyId(id: string): void {
-    navigator.clipboard.writeText(id);
-  }
-
-  cancel(): void {
-    if (this.profile) {
-      this.form.patchValue({
-        firstName: this.profile.firstName,
-        lastName: this.profile.lastName,
-        phoneNumber: this.profile.phoneNumber,
-        preferredLanguage: this.profile.preferredLanguage,
-        weight: this.profile.weight ?? 0,
-        height: this.profile.height ?? 0,
-      });
+  motivationalMessage = computed(() => {
+    const subStart = this.profile()?.activeSubscription?.startDate;
+    if (subStart) {
+      const start = new Date(subStart).getTime();
+      const now = Date.now();
+      const weekMs = 7 * 24 * 60 * 60 * 1000;
+      const diff = start - now;
+      if (diff > -weekMs && diff < weekMs) return "Let's Grow Together!";
+      if (diff < -weekMs) return "You've grown so much since you started!";
     }
-    this.editMode = false;
-    this.cdr.markForCheck();
+    return 'Push harder than yesterday.';
+  });
+
+  onSectionChange(section: DashboardSection): void {
+    this.activeSection.set(section);
+  }
+
+  ngOnInit(): void {
+    const cached = this.auth.currentUser$.subscribe(user => {
+      if (user && user.firstName) {
+        this.profile.set(mapAuthToProfile(user));
+        console.log('[Dashboard] Profile set from cache:', user.firstName);
+      } else {
+        console.log('[Dashboard] Cache skipped - no firstName in cached user:', user);
+      }
+    });
+    cached.unsubscribe();
+
+    this.loadData();
+  }
+
+  loadData(): void {
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.memberService.getProfile().pipe(
+      catchError(err => {
+        let msg = 'Failed to load profile';
+        if (err?.status) msg += ` (HTTP ${err.status})`;
+        if (err?.message) msg += `: ${err.message}`;
+        msg += ' — Check that the backend is running on http://localhost:5095';
+        console.error('[Dashboard] getProfile failed:', err);
+        this.error.set(msg);
+        return of(null);
+      })
+    ).subscribe(data => {
+      console.log('[Dashboard] profile API response:', data);
+      if (data) {
+        this.profile.set(data);
+      }
+      this.loading.set(false);
+    });
   }
 }
+
+export { MemberProfile as ProfileComponent };

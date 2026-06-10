@@ -184,9 +184,8 @@ export class AuthService {
     const frontendRole = res.isSubscribed ? 'Member' : 'User';
 
     const user = {
+      ...res,
       role: frontendRole,
-      backendRole: res.role,
-      expiresAt: res.expiresAt,
       isSubscribed: res.isSubscribed ?? false,
       firstName: res.firstName ?? '',
       lastName: res.lastName ?? ''
@@ -194,6 +193,10 @@ export class AuthService {
 
     storage.setItem(KEYS.user, JSON.stringify(user));
     this._user$.next(user);
+
+    if (!res.isGoogleUser && res.isSubscribed) {
+      setTimeout(() => this.router.navigate(['/profile']));
+    }
   }
 
   private _clear(): void {

@@ -63,6 +63,8 @@ export class LoginComponent implements AfterViewInit {
         this.loading = false;
         if (res.isGoogleUser) {
           this.router.navigate(['/complete-profile']);
+        } else if (res.isSubscribed) {
+          return;
         } else {
           const ret = new URLSearchParams(window.location.search).get('returnUrl') ?? '/home';
           this.router.navigateByUrl(ret);
@@ -85,6 +87,7 @@ export class LoginComponent implements AfterViewInit {
     this.auth.login(loginDto as any, rememberMe ?? false).subscribe({
       next: () => {
         this.loading = false;
+        if (this.auth.isSubscribed) return;
         const ret = new URLSearchParams(window.location.search).get('returnUrl') ?? '/home';
         this.router.navigateByUrl(ret);
       },

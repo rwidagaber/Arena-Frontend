@@ -23,6 +23,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private userSub?: Subscription;
 
   protected readonly displayName = signal('');
+  protected readonly profileImage = signal<string | null>(null);
   protected dropdownOpen = false;
 
   protected readonly dropdownItems: { key: DropdownSection; label: string }[] = [
@@ -37,6 +38,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.userSub = this.auth.currentUser$.subscribe(u => {
       this.displayName.set(u?.firstName ?? '');
+      this.profileImage.set(u?.profileImage ?? u?.profileImageUrl ?? null);
     });
   }
 
@@ -85,4 +87,5 @@ export class HeaderComponent implements OnInit, OnDestroy {
       error: () => this.router.navigate(['/']),
     });
   }
+
 }

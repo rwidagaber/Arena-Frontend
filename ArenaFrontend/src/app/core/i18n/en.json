@@ -179,14 +179,47 @@
     "nutrition": "Nutrition Plan",
     "bookings": "Bookings",
     "calendar": "Calendar",
-    "attendance": "Attendance"
+    "attendance": "Attendance",
+    "chatbot": "ChatBot",
+    "logout": "Logout"
   },
   "section": {
     "workoutPlaceholder": "Your personalized workout plan will appear here.",
     "nutritionPlaceholder": "Your nutrition and meal plan will appear here.",
     "bookingsPlaceholder": "Your class bookings and reservations will appear here.",
     "calendarPlaceholder": "Your training schedule and events will appear here.",
-    "attendancePlaceholder": "Your attendance records will appear here."
+    "attendancePlaceholder": "Your attendance records will appear here.",
+    "chatbotPlaceholder": "Ask me anything about your fitness journey!"
+  },
+  "memberProfile": {
+    "dashboardLabel": "MEMBER DASHBOARD",
+    "greeting": {
+      "morning": "Good morning, {{firstName}}",
+      "afternoon": "Good afternoon, {{firstName}}",
+      "evening": "Good evening, {{firstName}}"
+    },
+    "active": "Active",
+    "inactive": "Inactive",
+    "bmiIndicator": "BMI Indicator",
+    "membershipProgress": "Membership Progress",
+    "complete": "Complete",
+    "accountDetails": "Account Details",
+    "membership": "Membership",
+    "started": "Started",
+    "expires": "Expires",
+    "remainingSessions": "Remaining Sessions",
+    "price": "Price",
+    "planFeatures": "Plan Features",
+    "noMembership": "No membership information available",
+    "recentWorkouts": "Recent Workouts",
+    "sessions": "sessions",
+    "noWorkouts": "No workouts recorded yet",
+    "startJourney": "Start your fitness journey today!",
+    "retry": "Retry",
+    "somethingWentWrong": "Something went wrong",
+    "min": "min",
+    "cal": "cal",
+    "workouts": "Workouts"
   },
   "subscription": {
     "plans": "Subscription Plans",

@@ -76,17 +76,32 @@ export interface UserSummary {
   preferredLanguage: string;
 }
 
+export interface UserSubscriptionDto {
+  id: string;
+  planNameEn: string;
+  planNameAr: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  remainingSessions: number;
+  reminderSent: boolean;
+}
+
 export interface GetProfileDto {
   id: string;
   email: string;
   firstName: string;
   lastName: string;
+  phoneNumber?: string | null;
   preferredLanguage: string;
+  isActive?: boolean;
+  weight?: number | null;
+  height?: number | null;
+  bmi?: number | null;
+  gender?: string | null;
+  profileImage?: string | null;
+  birthday?: string | null;
   dateOfBirth?: string;
-  weight?: number;
-  height?: number;
-  bmi?: number;
-  gender?: number;         // 0 = Male, 1 = Female
   profileImageUrl?: string;
-  activeSubscription?: any; // To check if they have an active subscription
+  activeSubscription?: UserSubscriptionDto | null;
 }
