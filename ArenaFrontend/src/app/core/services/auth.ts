@@ -194,6 +194,10 @@ export class AuthService {
 
     storage.setItem(KEYS.user, JSON.stringify(user));
     this._user$.next(user);
+
+    if (!res.isGoogleUser && res.isSubscribed) {
+      setTimeout(() => this.router.navigate(['/profile']));
+    }
   }
 
   private _clear(): void {
