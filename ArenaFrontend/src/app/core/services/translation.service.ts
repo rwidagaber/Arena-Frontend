@@ -1,4 +1,5 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import en from '../i18n/en.json';
 import ar from '../i18n/ar.json';
 
@@ -8,8 +9,13 @@ export type Lang = 'en' | 'ar';
 export class TranslationService {
   private readonly storageKey = 'arena_lang';
   private translations: Record<string, any> = { en, ar };
+  private ngxTranslate = inject(TranslateService);
 
   currentLang = signal<Lang>(this.loadLang());
+
+  constructor() {
+    this.ngxTranslate.use(this.currentLang());
+  }
 
   private loadLang(): Lang {
     const stored = localStorage.getItem(this.storageKey) as Lang | null;
@@ -22,6 +28,7 @@ export class TranslationService {
     localStorage.setItem(this.storageKey, lang);
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = lang;
+    this.ngxTranslate.use(lang);
   }
 
   translate(key: string, params?: Record<string, string | number>): string {

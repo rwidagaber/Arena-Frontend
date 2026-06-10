@@ -69,7 +69,7 @@
     "BADGE": "خطط الأسعار",
     "TITLE": "خطط أسعار بسيطة ومناسبة لنجاح لياقتك",
     "LOADING": "جاري تحميل الخطط...",
-    "CURRENCY": "$",
+    "CURRENCY": "ج.م",
     "PERIOD": "/شهرياً",
     "SESSION_PREFIX": "* شهرياً",
     "SESSION_UNLIMITED": "غير محدود",
