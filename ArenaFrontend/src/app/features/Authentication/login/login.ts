@@ -1,4 +1,5 @@
-import { Component, inject, AfterViewInit } from '@angular/core';
+// login.component.ts
+import { Component, inject, AfterViewInit, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -16,6 +17,7 @@ export class LoginComponent implements AfterViewInit {
   private fb     = inject(FormBuilder);
   private auth   = inject(AuthService);
   private router = inject(Router);
+  private ngZone = inject(NgZone);
 
   showPw      = false;
   loading     = false;
@@ -27,10 +29,6 @@ export class LoginComponent implements AfterViewInit {
     rememberMe: [false]
   });
 
-  // =========================
-  // Lifecycle
-  // =========================
-
   ngAfterViewInit(): void {
     const waitForGoogle = setInterval(() => {
       if (typeof (window as any).google !== 'undefined') {
@@ -41,25 +39,19 @@ export class LoginComponent implements AfterViewInit {
   }
 
   private initGoogleButton(): void {
+
     (window as any).google.accounts.id.initialize({
       client_id: '656089986689-anh4euktf142is1dmbeqq9ovank82cjc.apps.googleusercontent.com',
-      callback: (response: any) => this.handleGoogleResponse(response)
+      callback: (response: any) => {
+        this.ngZone.run(() => this.handleGoogleResponse(response));
+      }
     });
 
     (window as any).google.accounts.id.renderButton(
       document.getElementById('google-btn'),
-      {
-        theme: 'outline',
-        size: 'large',
-        text: 'signin_with',
-        width: 376
-      }
+      { theme: 'outline', size: 'large', text: 'signin_with', width: 376 }
     );
   }
-
-  // =========================
-  // Google Auth
-  // =========================
 
   handleGoogleResponse(response: any): void {
     const idToken = response.credential;
@@ -68,15 +60,12 @@ export class LoginComponent implements AfterViewInit {
 
     this.auth.googleLogin(idToken).subscribe({
       next: (res) => {
+        this.loading = false;
         if (res.isGoogleUser) {
-          this.loading = false;
           this.router.navigate(['/complete-profile']);
         } else {
-          this.auth.getMe().subscribe(() => {
-            this.loading = false;
-            const ret = new URLSearchParams(window.location.search).get('returnUrl') ?? '/dashboard';
-            this.router.navigateByUrl(ret);
-          });
+          const ret = new URLSearchParams(window.location.search).get('returnUrl') ?? '/home';
+          this.router.navigateByUrl(ret);
         }
       },
       error: (err: Error) => {
@@ -86,61 +75,25 @@ export class LoginComponent implements AfterViewInit {
     });
   }
 
-  // =========================
-  // Form Submission
-  // =========================
-
   onSubmit(): void {
-    if (this.form.invalid) { 
-      this.form.markAllAsTouched(); 
-      return; 
-    }
-    
+    if (this.form.invalid) { this.form.markAllAsTouched(); return; }
     this.loading = true;
     this.serverError = '';
 
-    // Fixed: Pulling values directly and using type assertions safely
-    const formValues = this.form.getRawValue();
-    const rememberMe = formValues.rememberMe ?? false;
-    
-    const loginDto = {
-      email: formValues.email ?? '',
-      password: formValues.password ?? '',
-      RememberMe: rememberMe
-    };
+    const { rememberMe, ...loginDto } = this.form.getRawValue();
 
-    this.auth.login(loginDto).subscribe({
+    this.auth.login(loginDto as any, rememberMe ?? false).subscribe({
       next: () => {
-        this.auth.getMe().subscribe({
-          next: () => {
-            this.loading = false;
-            const ret = new URLSearchParams(window.location.search).get('returnUrl') ?? '/dashboard';
-            this.router.navigateByUrl(ret);
-          },
-          error: (profileErr: Error) => {
-            this.loading = false;
-            this.serverError = profileErr.message;
-          }
-        });
+        this.loading = false;
+        const ret = new URLSearchParams(window.location.search).get('returnUrl') ?? '/home';
+        this.router.navigateByUrl(ret);
       },
-      error: (err: Error) => { 
-        this.loading = false; 
-        this.serverError = err.message; 
-      },
+      error: (err: Error) => { this.loading = false; this.serverError = err.message; },
     });
   }
 
-  // =========================
-  // Navigation & Helpers
-  // =========================
-
-  goToSignup(): void {
-    this.router.navigate(['/register']);
-  }
-
-  goToforgot(): void {
-    this.router.navigate(['/forgot-password']);
-  }
+  goToSignup(): void { this.router.navigate(['/register']); }
+  goToforgot(): void { this.router.navigate(['/forgot-password']); }
 
   isInvalid(field: string): boolean {
     const c = this.form.get(field)!;

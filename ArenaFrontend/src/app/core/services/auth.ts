@@ -76,14 +76,12 @@ export class AuthService {
     );
   }
 
-  login(dto: UserLoginDto): Observable<AuthResponseDto> {
-    const rememberMe = dto.RememberMe ?? false;
-    return this.http.post<AuthResponseDto>(`${BASE}/login`, dto).pipe(
-      tap(res => this._persist(res, rememberMe)),
-      catchError(this._handleError)
-    );
-  }
-
+  login(dto: UserLoginDto, rememberMe = false): Observable<AuthResponseDto> {
+  return this.http.post<AuthResponseDto>(`${BASE}/login`, dto).pipe(
+    tap(res => this._persist(res, rememberMe)),
+    catchError(this._handleError)
+  );
+}
   refresh(): Observable<AuthResponseDto> {
     const dto: RefreshTokenDto = {
       accessToken: this.accessToken ?? '',
