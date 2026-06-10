@@ -1,0 +1,64 @@
+@if (loading()) {
+  <div class="section-card">
+    <div class="skeleton skeleton-title"></div>
+    @for (_ of [1,2,3]; track _) {
+      <div class="workout-skeleton">
+        <div class="skeleton skeleton-workout-icon"></div>
+        <div class="skeleton-workout-info">
+          <div class="skeleton skeleton-workout-name"></div>
+          <div class="skeleton skeleton-workout-meta"></div>
+        </div>
+        <div class="skeleton skeleton-workout-date"></div>
+      </div>
+    }
+  </div>
+} @else {
+  <div class="section-card">
+    <div class="section-header">
+      <div class="section-header-left">
+        <i class="fas fa-dumbbell"></i>
+        <h2>Recent Workouts</h2>
+      </div>
+      @if (workouts().length > 0) {
+        <span class="workout-count">{{ workouts().length }} sessions</span>
+      }
+    </div>
+
+    @if (workouts().length > 0) {
+      <div class="workout-list">
+        @for (workout of workouts(); track workout.id) {
+          <div class="workout-item">
+            <div class="workout-icon-wrapper">
+              <i [class]="getTypeIcon(workout.type)"></i>
+            </div>
+            <div class="workout-info">
+              <span class="workout-name">{{ workout.name }}</span>
+              <span class="workout-meta">
+                <span class="meta-item">
+                  <i class="far fa-clock"></i>
+                  {{ workout.durationMinutes }} min
+                </span>
+                <span class="meta-divider"></span>
+                <span class="meta-item">
+                  <i class="fas fa-fire"></i>
+                  {{ workout.caloriesBurned }} cal
+                </span>
+              </span>
+            </div>
+            <div class="workout-date">
+              <span>{{ workout.date | date:'MMM d' }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="empty-state">
+        <i class="fas fa-dumbbell"></i>
+        <p>No workouts recorded yet</p>
+        <span class="empty-hint">Start your fitness journey today!</span>
+      </div>
+    }
+  </div>
+}
+
+

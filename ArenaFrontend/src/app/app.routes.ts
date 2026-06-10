@@ -12,10 +12,10 @@ import { ConfirmEmailComponent } from './features/Authentication/confirm-email/c
 import { confirmEmailGuard } from './core/guards/auth/confirm-email-guard';
 import { CompleteProfileComponent } from './features/Authentication/complete-profile/complete-profile';
 import { authGuard } from './core/guards/auth/auth-guard';
+import { subscriptionGuard } from './core/guards/subscription/subscription-guard';
 import { ForgotPasswordComponent } from './features/Authentication/forgot-password/forgot-password';
 import { ResetPasswordComponent } from './features/Authentication/reset-password/reset-password';
 import { ProfileComponent } from './components/member-profile/member-profile';
-import { subscriptionGuard } from './core/guards/subscription/subscription-guard';
 export const routes: Routes = [
   {
     path: 'about',
@@ -69,6 +69,11 @@ export const routes: Routes = [
   },
   {
     path: 'profile',
+    component: ProfileComponent,
+    canActivate: [authGuard, subscriptionGuard]
+  },
+  {
+    path: 'dashboard',
     component: ProfileComponent,
     canActivate: [authGuard, subscriptionGuard]
   },
