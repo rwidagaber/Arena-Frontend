@@ -11,6 +11,7 @@ import { MembershipSection } from './membership-section/membership-section';
 import { RecentWorkouts } from './recent-workouts/recent-workouts';
 import { DashboardSidebar, DashboardSection } from './dashboard-sidebar/dashboard-sidebar';
 import { HeaderComponent } from '../../shared/header/header';
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
 function mapAuthToProfile(dto: GetProfileDto): MemberProfileModel {
   return {
@@ -54,6 +55,7 @@ function mapSubscriptionToMembership(sub: UserSubscriptionDto): MembershipDetail
     RecentWorkouts,
     DashboardSidebar,
     HeaderComponent,
+    TranslatePipe,
   ],
   templateUrl: './member-profile.html',
   styleUrl: './member-profile.css',
@@ -77,22 +79,22 @@ export class MemberProfile implements OnInit {
     const p = this.profile();
     return [
       {
-        label: 'Weight',
+        label: 'profile.weight',
         value: p?.weight ? `${p.weight} kg` : '—',
         icon: 'fas fa-weight-scale',
       },
       {
-        label: 'Height',
+        label: 'profile.height',
         value: p?.height ? `${p.height} cm` : '—',
         icon: 'fas fa-ruler',
       },
       {
-        label: 'BMI',
+        label: 'profile.bmi',
         value: p?.bmi ? p.bmi.toFixed(1) : '—',
         icon: 'fas fa-heart-pulse',
       },
       {
-        label: 'Workouts',
+        label: 'memberProfile.workouts',
         value: '—',
         icon: 'fas fa-dumbbell',
       },

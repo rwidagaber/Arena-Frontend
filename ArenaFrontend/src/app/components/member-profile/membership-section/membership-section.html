@@ -9,12 +9,12 @@
     <div class="section-header">
       <div class="section-header-left">
         <i class="fas fa-id-card"></i>
-        <h2>Membership</h2>
+        <h2>{{ 'memberProfile.membership' | translate }}</h2>
       </div>
       @if (membership(); as m) {
         <span class="status-indicator" [class.active]="m.isActive">
           <i class="fas fa-circle"></i>
-          {{ m.isActive ? 'Active' : 'Inactive' }}
+          {{ m.isActive ? ('memberProfile.active' | translate) : ('memberProfile.inactive' | translate) }}
         </span>
       }
     </div>
@@ -36,14 +36,14 @@
           <div class="info-item">
             <i class="far fa-calendar-alt"></i>
             <div class="info-text">
-              <span class="info-label">Started</span>
+              <span class="info-label">{{ 'memberProfile.started' | translate }}</span>
               <span class="info-value">{{ m.startDate | date:'mediumDate' }}</span>
             </div>
           </div>
           <div class="info-item">
             <i class="far fa-clock"></i>
             <div class="info-text">
-              <span class="info-label">Expires</span>
+              <span class="info-label">{{ 'memberProfile.expires' | translate }}</span>
               <span class="info-value">{{ m.endDate | date:'mediumDate' }}</span>
             </div>
           </div>
@@ -52,7 +52,7 @@
             <div class="info-item">
               <i class="fas fa-bolt"></i>
               <div class="info-text">
-                <span class="info-label">Remaining Sessions</span>
+                <span class="info-label">{{ 'memberProfile.remainingSessions' | translate }}</span>
                 <span class="info-value">{{ s.remainingSessions }}</span>
               </div>
             </div>
@@ -61,7 +61,7 @@
           <div class="info-item">
             <i class="fas fa-dollar-sign"></i>
             <div class="info-text">
-              <span class="info-label">Price</span>
+              <span class="info-label">{{ 'memberProfile.price' | translate }}</span>
               <span class="info-value">{{ m.price | currency }}</span>
             </div>
           </div>
@@ -69,7 +69,7 @@
 
         @if (m.features && m.features.length > 0) {
           <div class="features-section">
-            <span class="features-title">Plan Features</span>
+            <span class="features-title">{{ 'memberProfile.planFeatures' | translate }}</span>
             <ul class="features-list">
               @for (feature of m.features; track feature) {
                 <li>
@@ -84,7 +84,7 @@
     } @else {
       <div class="empty-state">
         <i class="fas fa-id-card"></i>
-        <p>No membership information available</p>
+        <p>{{ 'memberProfile.noMembership' | translate }}</p>
       </div>
     }
   </div>

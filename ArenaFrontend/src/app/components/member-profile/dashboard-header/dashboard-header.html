@@ -20,16 +20,16 @@
         }
       </div>
       <div class="welcome-text">
-        <span class="welcome-label">MEMBER DASHBOARD</span>
+        <span class="welcome-label">{{ 'memberProfile.dashboardLabel' | translate }}</span>
         <div class="greeting">
-          <h1>Good {{ timeOfDay() }}, {{ firstName() }}</h1>
+          <h1>{{ greetingKey() | translate:{firstName: firstName()} }}</h1>
         </div>
         <p class="motivational-tagline">{{ motivationalMessage() }}</p>
         <div class="member-meta">
           @if (isActive()) {
             <span class="status-badge">
               <span class="status-dot"></span>
-              Active
+              {{ 'memberProfile.active' | translate }}
             </span>
           }
           @if (memberSince()) {
