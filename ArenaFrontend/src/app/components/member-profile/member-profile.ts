@@ -4,14 +4,13 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MemberService } from '../../core/services/member.service';
 import { MemberProfile, UpdateProfileDto } from '../../core/models/member';
-import { TranslatePipe } from '../../shared/pipes/translate.pipe';
-import { TranslationService } from '../../core/services/translation.service';
+import { TranslateModule } from '@ngx-translate/core';
 import { SidebarComponent, SidebarSection } from '../../shared/sidebar/sidebar';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslatePipe, SidebarComponent],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, SidebarComponent],
   templateUrl: './member-profile.html',
   styleUrl: './member-profile.css',
   changeDetection: ChangeDetectionStrategy.OnPush

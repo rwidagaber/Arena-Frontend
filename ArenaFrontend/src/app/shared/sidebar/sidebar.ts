@@ -1,13 +1,13 @@
 import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslatePipe } from '../pipes/translate.pipe';
+import { TranslateModule } from '@ngx-translate/core';
 
 export type SidebarSection = 'profile' | 'workout' | 'nutrition' | 'bookings' | 'calendar' | 'attendance';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, TranslatePipe],
+  imports: [CommonModule, TranslateModule],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css'
 })

@@ -2,22 +2,21 @@ import { Component, signal, inject, OnInit, OnDestroy, HostListener } from '@ang
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { TranslationService, Lang } from '../../core/services/translation.service';
+import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth';
-import { TranslatePipe } from '../pipes/translate.pipe';
 
 export type DropdownSection = 'profile' | 'workout' | 'nutrition' | 'bookings' | 'calendar' | 'attendance';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, TranslatePipe],
+  imports: [CommonModule, RouterLink, RouterLinkActive, TranslateModule],
   templateUrl: './header.html',
   styleUrls: ['./header.css']
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   protected readonly router = inject(Router);
-  protected readonly t = inject(TranslationService);
+  protected readonly translate = inject(TranslateService);
   public    readonly auth = inject(AuthService);
 
   private userSub?: Subscription;
@@ -52,8 +51,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  get currentLang(): Lang {
-    return this.t.currentLang();
+  get currentLang(): string {
+    return this.translate.currentLang || this.translate.defaultLang || 'en';
   }
 
   get isLoggedIn(): boolean {
@@ -61,7 +60,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   toggleLang(): void {
-    this.t.switchLang(this.currentLang === 'en' ? 'ar' : 'en');
+    const newLang = this.currentLang === 'en' ? 'ar' : 'en';
+    this.translate.use(newLang);
+    document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = newLang;
+    localStorage.setItem('arena_lang', newLang);
   }
 
   toggleDropdown(): void {
