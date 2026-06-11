@@ -22,8 +22,8 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([
       loggingInterceptor,
       loadingInterceptor,
-      errorInterceptor,
       authInterceptor,
+      errorInterceptor,
     ])),
     provideTranslateService({
       lang: 'en',

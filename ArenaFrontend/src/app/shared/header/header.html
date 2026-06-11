@@ -1,61 +1,71 @@
 <header class="gympro-header-exact sticky-top px-4 py-3" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
-  <div class="container-fluid max-header-width d-flex align-items-center justify-content-between mx-auto">
+  <div
+    class="container-fluid max-header-width d-flex align-items-center justify-content-between mx-auto"
+  >
 
-    <div class="brand-v3-exact d-flex align-items-center gap-3.5">
-      <div class="logo-circle-exact">
-        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0c0f17" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <g>
-            <line x1="5" y1="5" x2="19" y2="19" />
-            <line x1="6.5" y1="9.5" x2="9.5" y2="6.5" />
-            <line x1="14.5" y1="17.5" x2="17.5" y2="14.5" />
-            <line x1="5" y1="8" x2="8" y2="5" />
-            <line x1="16" y1="19" x2="19" y2="16" />
-          </g>
-          <g>
-            <line x1="5" y1="19" x2="19" y2="5" />
-            <line x1="6.5" y1="14.5" x2="9.5" y2="17.5" />
-            <line x1="14.5" y1="6.5" x2="17.5" y2="9.5" />
-            <line x1="5" y1="16" x2="8" y2="19" />
-            <line x1="16" y1="5" x2="19" y2="8" />
-          </g>
-        </svg>
-      </div>
-      <span class="brand-text-exact font-display">{{ 'app.title' | translate }}<span class="dot-lime">.</span></span>
-    </div>
+<div class="brand-v3-exact d-flex align-items-center gap-3.5">
+  <div class="logo-circle-exact">
+    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0c0f17" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <g>
+        <line x1="5" y1="5" x2="19" y2="19" />
+        <line x1="6.5" y1="9.5" x2="9.5" y2="6.5" />
+        <line x1="14.5" y1="17.5" x2="17.5" y2="14.5" />
+        <line x1="5" y1="8" x2="8" y2="5" />
+        <line x1="16" y1="19" x2="19" y2="16" />
+      </g>
+      
+      <g>
+        <line x1="5" y1="19" x2="19" y2="5" />
+        <line x1="6.5" y1="14.5" x2="9.5" y2="17.5" />
+        <line x1="14.5" y1="6.5" x2="17.5" y2="9.5" />
+        <line x1="5" y1="16" x2="8" y2="19" />
+        <line x1="16" y1="5" x2="19" y2="8" />
+      </g>
+    </svg>
+  </div>
+  <span class="brand-text-exact font-display">{{ 'app.title' | translate }}<span class="dot-lime">.</span></span>
+</div>
 
     <nav class="d-none d-lg-block">
       <ul class="nav-links-exact d-flex align-items-center mb-0 list-unstyled">
         <li>
-          <a routerLink="/" routerLinkActive="text-lime-active" [routerLinkActiveOptions]="{exact: true}" class="nav-item-exact">
+          <a
+            routerLink="/"
+            routerLinkActive="text-lime-active"
+            [routerLinkActiveOptions]="{exact: true}"
+            class="nav-item-exact"
+          >
             {{ 'header.home' | translate }}
           </a>
         </li>
         <li>
-          <a routerLink="/about" routerLinkActive="text-lime-active" class="nav-item-exact">
+          <a
+            routerLink="/about"
+            routerLinkActive="text-lime-active"
+            class="nav-item-exact"
+          >
             {{ 'header.about' | translate }}
           </a>
         </li>
+
         <li *ngIf="auth.isSubscribed">
-          <a routerLink="/dashboard" class="nav-item-exact">
+          <a
+            routerLink="/dashboard"
+            class="nav-item-exact"
+          >
             {{ 'header.dashboard' | translate }}
           </a>
         </li>
+
         <li>
-          <a routerLink="/contact" routerLinkActive="text-lime-active" class="nav-item-exact">
+          <a
+            routerLink="/contact"
+            routerLinkActive="text-lime-active"
+            class="nav-item-exact"
+          >
             {{ 'header.contact' | translate }}
           </a>
         </li>
-
-         <li >
-          <a
-            routerLink="/chat"
-            class="nav-item-exact"
-            [class.text-lime-active]="activeTab === 'chat'"
-          >
-            Chat
-          </a>
-        </li>
-
       </ul>
     </nav>
 
@@ -64,67 +74,57 @@
         {{ currentLang === 'en' ? 'AR' : 'EN' }}
       </button>
 
-      <ng-container *ngIf="currentUser$ | async as user; else loginButtons">
-          <div class="user-dropdown-container">
+      @if (isLoggedIn) {
+        <div class="user-dropdown-container">
           <div class="user-trigger-wrapper" (click)="toggleDropdown()">
-            @if (user.firstName) {
-              <span class="user-name-pill">{{ user.firstName }} {{ user.lastName || '' }}</span>
-            } @else {
-              <div class="user-avatar-circle">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#0c0f17" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              </div>
-            }
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-chevron" [class.rotated]="dropdownOpen" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg>
+            <div class="user-avatar-circle">
+              <span class="user-avatar-text">{{ (displayName() || 'U')[0] }}</span>
+            </div>
+          </div>
 
-            @if (dropdownOpen) {
-              <div class="user-dropdown-menu">
-                <div class="dropdown-header-info">
-                  <div class="dropdown-header-avatar">
-                    @if (user.profileImage || user.profileImageUrl) {
-                      <img [src]="user.profileImage || user.profileImageUrl" [alt]="user.firstName" class="dropdown-header-img">
-                    } @else {
-                      <span class="dropdown-header-initials">{{ (user.firstName || 'U')[0] }}</span>
-                    }
-                  </div>
-                  <div class="dropdown-header-text">
-                    <span class="dropdown-header-name">{{ user.firstName || '' }} {{ user.lastName || '' }}</span>
-                    <span class="dropdown-header-plan">{{ 'memberProfile.platinumMember' | translate }}</span>
-                  </div>
-                </div>
-                <div class="dropdown-subscription-pill" (click)="goToSubscription($event)">
+          @if (dropdownOpen) {
+            <div class="user-dropdown-menu">
+              @if (!auth.isSubscribed) {
+                <div class="dropdown-subscription-pill" (click)="goToSubscription()">
                   {{ 'subscription.pill' | translate }}
                 </div>
                 <div class="dropdown-divider"></div>
+              }
 
-                @for (item of dropdownItems; track item.key) {
-                  <button
-                    class="dropdown-item"
-                    [class.disabled]="isItemDisabled(item)"
-                    [disabled]="isItemDisabled(item)"
-                    (click)="!isItemDisabled(item) && navigateToSection(item.key, $event)"
-                  >
-                    {{ item.label | translate }}
-                  </button>
-                }
-
-                <div class="dropdown-divider"></div>
-                <button class="dropdown-item dropdown-logout" (click)="logout($event)">
-                  {{ 'header.logout' | translate }}
+              @for (item of dropdownItems; track item.key) {
+                <button
+                  class="dropdown-item"
+                  [class.disabled]="!auth.isSubscribed"
+                  [disabled]="!auth.isSubscribed"
+                  (click)="auth.isSubscribed && navigateToSection(item.key)"
+                >
+                  {{ item.label | translate }}
                 </button>
-              </div>
-            }
-          </div>
+              }
+
+              <div class="dropdown-divider"></div>
+              <button class="dropdown-item dropdown-logout" (click)="logout()">
+                {{ 'header.logout' | translate }}
+              </button>
+            </div>
+          }
         </div>
-      </ng-container>
-      <ng-template #loginButtons>
-        <a routerLink="/login" class="btn-login-exact font-display text-decoration-none">
+      } @else {
+        <a
+          routerLink="/login"
+          class="btn-login-exact font-display text-decoration-none"
+        >
           {{ 'header.login' | translate }}
         </a>
-        <button type="button" routerLink="/register" class="btn-signup-exact font-display d-flex align-items-center justify-content-center gap-2">
+        <button
+          type="button"
+          routerLink="/register"
+          class="btn-signup-exact font-display d-flex align-items-center justify-content-center gap-2"
+        >
           <span>{{ 'header.signup' | translate }}</span>
           <i class="bi bi-arrow-up-right"></i>
         </button>
-      </ng-template>
+      }
     </div>
   </div>
 </header>
