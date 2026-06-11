@@ -39,7 +39,7 @@ export class CompleteProfileComponent {
     this.auth.completeProfile(this.form.getRawValue() as any).subscribe({
       next: () => {
         this.loading = false;
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/home']);
       },
       error: (err: Error) => {
         this.loading = false;

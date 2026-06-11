@@ -1,5 +1,4 @@
-// register.component.ts
-import { Component, inject, AfterViewInit, NgZone } from '@angular/core';
+import { Component, inject, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ReactiveFormsModule, FormBuilder, Validators,
@@ -31,10 +30,9 @@ export function passwordsMatch(): ValidatorFn {
 })
 export class RegisterComponent implements AfterViewInit {
 
-  private fb      = inject(FormBuilder);
-  private auth    = inject(AuthService);
-  private router  = inject(Router);
-  private ngZone  = inject(NgZone);
+  private fb     = inject(FormBuilder);
+  private auth   = inject(AuthService);
+  private router = inject(Router);
 
   showPw      = false;
   loading     = false;
@@ -49,14 +47,19 @@ export class RegisterComponent implements AfterViewInit {
       email:           ['', [Validators.required, Validators.email, strictEmailValidator()]],
       password:        ['', [Validators.required, Validators.minLength(8), strongPasswordValidator()]],
       confirmPassword: ['', Validators.required],
-      weight:          [null, [Validators.required, Validators.min(35), Validators.max(180)]],
+      weight:          [null, [Validators.required, Validators.min(35),  Validators.max(180)]],
       height:          [null, [Validators.required, Validators.min(130), Validators.max(210)]],
-      gender:          [null, Validators.required],
+      gender:       [null, Validators.required],
+
     },
     {
       validators: [passwordsMatch(), realisticBodyValidator()]
     }
   );
+
+  // =========================
+  // Lifecycle
+  // =========================
 
   ngAfterViewInit(): void {
     const waitForGoogle = setInterval(() => {
@@ -68,61 +71,68 @@ export class RegisterComponent implements AfterViewInit {
   }
 
   private initGoogleButton(): void {
-
     (window as any).google.accounts.id.initialize({
       client_id: '656089986689-anh4euktf142is1dmbeqq9ovank82cjc.apps.googleusercontent.com',
-      callback: (response: any) => {
-        this.ngZone.run(() => this.handleGoogleResponse(response));
-      }
+      callback: (response: any) => this.handleGoogleResponse(response)
     });
 
     (window as any).google.accounts.id.renderButton(
       document.getElementById('google-btn'),
-      { theme: 'outline', size: 'large', text: 'continue_with', width: 376 }
+      {
+        theme: 'outline',
+        size: 'large',
+        text: 'continue_with',
+        width: 376
+      }
     );
   }
 
+  // =========================
+  // Google Auth
+  // =========================
+
   handleGoogleResponse(response: any): void {
-    const idToken = response.credential;
-    this.loading = true;
-    this.serverError = '';
+  const idToken = response.credential;
 
-    this.auth.googleLogin(idToken).subscribe({
-      next: (res) => {
-        this.loading = false;
-        if (res.isGoogleUser) {
-          this.router.navigate(['/complete-profile']);
-        } else {
-          this.router.navigate(['/home']);
-        }
-      },
-      error: (err: Error) => {
-        this.loading = false;
-        this.serverError = err.message;
+  this.auth.googleLogin(idToken).subscribe({
+    next: (res) => {
+      if (res.isGoogleUser) {
+        // يوزر جديد — وديه يكمل البروفايل
+        this.router.navigate(['/complete-profile']);
+      } else {
+        // يوزر موجود — وديه الهوم
+        this.router.navigate(['/home']);
       }
-    });
+    },
+    error: (err: Error) => this.serverError = err.message
+  });
+}
+  // =========================
+  // Form
+  // =========================
+
+ onSubmit(): void {
+  if (this.form.invalid) { this.form.markAllAsTouched(); return; }
+  this.loading = true;
+  this.serverError = '';
+
+  this.auth.register(this.form.getRawValue() as any).subscribe({
+    next: (res) => {
+      this.loading = false;
+      this.router.navigate(['/confirm-email'], {
+        queryParams: {
+          userId: res.userId,
+          email: this.form.value.email
+        }
+      });
+    },
+    error: (err: Error) => { this.loading = false; this.serverError = err.message; },
+  });
+}
+
+  goToLogin(): void {
+    this.router.navigate(['/login']);
   }
-
-  onSubmit(): void {
-    if (this.form.invalid) { this.form.markAllAsTouched(); return; }
-    this.loading = true;
-    this.serverError = '';
-
-    this.auth.register(this.form.getRawValue() as any).subscribe({
-      next: (res) => {
-        this.loading = false;
-        this.router.navigate(['/confirm-email'], {
-          queryParams: {
-            userId: res.userId,
-            email: this.form.value.email
-          }
-        });
-      },
-      error: (err: Error) => { this.loading = false; this.serverError = err.message; },
-    });
-  }
-
-  goToLogin(): void { this.router.navigate(['/login']); }
 
   isInvalid(field: string): boolean {
     const c = this.form.get(field)!;

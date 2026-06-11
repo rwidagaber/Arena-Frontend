@@ -8,11 +8,14 @@ export interface UserRegisterDto {
   email: string;
   password: string;
   confirmPassword: string;
+
   phoneNumber: string;
   birthday: string;
+
+  // ✅ الجديد
   weight?: number;
   height?: number;
-  gender: number; // 0 = Male, 1 = Female
+gender: number; // 0 = Male, 1 = Female
   preferredLanguage?: string;
 }
 
@@ -24,10 +27,18 @@ export interface CompleteProfileDto {
   gender: number; // 0 = Male, 1 = Female
 }
 
+export interface AuthResponseDto {
+  accessToken:  string;
+  refreshToken: string;
+  expiresAt:    string;
+  role:         string;
+  isGoogleUser: boolean;
+  isSubscribed?: boolean;
+}
 export interface UserLoginDto {
   email: string;
   password: string;
-  RememberMe: boolean;
+  RememberMe:boolean;
 }
 
 export interface RefreshTokenDto {
@@ -56,17 +67,7 @@ export interface ResetPasswordDto {
 // Responses
 // ─────────────────────────────────────────
 
-// Combined main & dev properties cleanly
-export interface AuthResponseDto {
-  accessToken: string;
-  refreshToken: string;
-  expiresAt: string;
-  role: string;
-  isSubscribed: boolean;
-  isGoogleUser: boolean; // From main branch
-  firstName?: string;    // From dev branch
-  lastName?: string;     // From dev branch
-}
+
 
 export interface UserSummary {
   id: string;
@@ -76,32 +77,17 @@ export interface UserSummary {
   preferredLanguage: string;
 }
 
-export interface UserSubscriptionDto {
-  id: string;
-  planNameEn: string;
-  planNameAr: string;
-  startDate: string;
-  endDate: string;
-  status: string;
-  remainingSessions: number;
-  reminderSent: boolean;
-}
-
 export interface GetProfileDto {
   id: string;
   email: string;
   firstName: string;
   lastName: string;
-  phoneNumber?: string | null;
   preferredLanguage: string;
-  isActive?: boolean;
-  weight?: number | null;
-  height?: number | null;
-  bmi?: number | null;
-  gender?: string | null;
-  profileImage?: string | null;
-  birthday?: string | null;
   dateOfBirth?: string;
+  weight?: number;
+  height?: number;
+  bmi?: number;
+  gender?: number;        // 0 = Male, 1 = Female (حسب الـ Gender enum)
   profileImageUrl?: string;
-  activeSubscription?: UserSubscriptionDto | null;
+  activeSubscription?: any; // To check if they have an active subscription
 }
