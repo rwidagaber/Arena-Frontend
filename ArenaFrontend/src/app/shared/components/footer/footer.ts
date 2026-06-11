@@ -1,19 +1,18 @@
 import { Component, inject } from '@angular/core';
-import { TranslationService } from '../../../core/services/translation.service';
-import { TranslatePipe } from '../../pipes/translate.pipe';
+import { TranslateService, TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [TranslatePipe],
+  imports: [TranslateModule],
   templateUrl: './footer.html',
   styleUrls: ['./footer.css']
 })
 export class FooterComponent {
-  readonly t = inject(TranslationService);
+  private translate = inject(TranslateService);
   currentYear = new Date().getFullYear();
 
   get currentLang() {
-    return this.t.currentLang();
+    return this.translate.currentLang || this.translate.defaultLang || 'en';
   }
 }

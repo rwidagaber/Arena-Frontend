@@ -10,7 +10,7 @@ import { StatsOverview, StatItem } from './stats-overview/stats-overview';
 import { MembershipSection } from './membership-section/membership-section';
 import { RecentWorkouts } from './recent-workouts/recent-workouts';
 import { DashboardSidebar, DashboardSection } from './dashboard-sidebar/dashboard-sidebar';
-import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+import { TranslateModule } from '@ngx-translate/core';
 
 function mapAuthToProfile(dto: GetProfileDto): MemberProfileModel {
   return {
@@ -53,7 +53,7 @@ function mapSubscriptionToMembership(sub: UserSubscriptionDto): MembershipDetail
     MembershipSection,
     RecentWorkouts,
     DashboardSidebar,
-    TranslatePipe,
+    TranslateModule,
   ],
   templateUrl: './member-profile.html',
   styleUrl: './member-profile.css',

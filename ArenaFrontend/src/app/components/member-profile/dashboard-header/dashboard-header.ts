@@ -1,10 +1,10 @@
 import { Component, input } from '@angular/core';
-import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-dashboard-header',
   standalone: true,
-  imports: [TranslatePipe],
+  imports: [TranslateModule],
   templateUrl: './dashboard-header.html',
   styleUrl: './dashboard-header.css',
 })

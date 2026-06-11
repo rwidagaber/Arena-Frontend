@@ -1,14 +1,14 @@
 import { Component, inject, input, output } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth';
-import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { TranslateModule } from '@ngx-translate/core';
 
 export type DashboardSection = 'profile' | 'workout' | 'nutrition' | 'bookings' | 'calendar' | 'attendance' | 'chatbot';
 
 @Component({
   selector: 'app-dashboard-sidebar',
   standalone: true,
-  imports: [TranslatePipe],
+  imports: [TranslateModule],
   templateUrl: './dashboard-sidebar.html',
   styleUrl: './dashboard-sidebar.css',
 })
