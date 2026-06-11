@@ -6,7 +6,7 @@ import { MemberService } from '../../core/services/member.service';
 import type { GetProfileDto, UserSubscriptionDto } from '../../core/models/auth';
 import type { MemberProfile as MemberProfileModel, MembershipDetails } from '../../core/models/member';
 import { DashboardSidebar, DashboardSection } from './dashboard-sidebar/dashboard-sidebar';
-import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+import { TranslateModule } from '@ngx-translate/core';
 
 function mapAuthToProfile(dto: GetProfileDto): MemberProfileModel {
   return {
@@ -46,7 +46,7 @@ function mapSubscriptionToMembership(sub: UserSubscriptionDto): MembershipDetail
   imports: [
     CommonModule,
     DashboardSidebar,
-    TranslatePipe,
+    TranslateModule,
   ],
   templateUrl: './member-profile.html',
   styleUrl: './member-profile.css',
