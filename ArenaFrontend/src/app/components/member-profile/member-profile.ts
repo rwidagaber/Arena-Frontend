@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, computed, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { catchError, of } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
+import { catchError, of, switchMap } from 'rxjs';
 import { AuthService } from '../../core/services/auth';
 import { MemberService } from '../../core/services/member.service';
 import type { GetProfileDto, UserSubscriptionDto } from '../../core/models/auth';
@@ -54,6 +55,8 @@ function mapSubscriptionToMembership(sub: UserSubscriptionDto): MembershipDetail
 export class MemberProfile implements OnInit {
   private auth = inject(AuthService);
   private memberService = inject(MemberService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   profile = signal<MemberProfileModel | null>(null);
   loading = signal(true);
@@ -205,6 +208,11 @@ export class MemberProfile implements OnInit {
 
   onSectionChange(section: DashboardSection): void {
     this.activeSection.set(section);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { section },
+      queryParamsHandling: 'merge',
+    });
   }
 
   ngOnInit(): void {
@@ -214,7 +222,21 @@ export class MemberProfile implements OnInit {
       }
     });
     cached.unsubscribe();
+
+    this.route.queryParams.subscribe(params => {
+      const section = params['section'] as DashboardSection | undefined;
+      if (section && this.isValidSection(section)) {
+        this.activeSection.set(section);
+      } else {
+        this.activeSection.set('profile');
+      }
+    });
+
     this.loadData();
+  }
+
+  private isValidSection(s: string): s is DashboardSection {
+    return ['profile', 'workout', 'diet', 'membership', 'progress', 'settings'].includes(s);
   }
 
   loadData(): void {

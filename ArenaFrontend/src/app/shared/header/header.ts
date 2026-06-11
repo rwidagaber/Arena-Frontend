@@ -26,20 +26,27 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   protected dropdownOpen = false;
   protected readonly currentUser$ = this.auth.currentUser$;
-  protected readonly dropdownItems: { key: DropdownSection; label: string }[] = [
-    { key: 'profile',    label: 'sidebar.dashboard' },
-    { key: 'workout',    label: 'sidebar.myWorkouts' },
-    { key: 'diet',       label: 'sidebar.myDietPlan' },
-    { key: 'membership', label: 'sidebar.membershipBilling' },
-    { key: 'progress',   label: 'sidebar.progressReport' },
-    { key: 'settings',   label: 'sidebar.settings' },
+  protected readonly isSubscribed = signal(false);
+
+  protected readonly dropdownItems = [
+    { key: 'profile' as const,    label: 'sidebar.dashboard' },
+    { key: 'workout' as const,    label: 'sidebar.myWorkouts' },
+    { key: 'diet' as const,       label: 'sidebar.myDietPlan' },
+    { key: 'membership' as const, label: 'sidebar.membershipBilling' },
+    { key: 'progress' as const,   label: 'sidebar.progressReport' },
+    { key: 'settings' as const,   label: 'sidebar.settings' },
   ];
+
+  protected isItemDisabled(_item: typeof this.dropdownItems[number]): boolean {
+    return !this.isSubscribed();
+  }
 
   ngOnInit(): void {
     this.auth.getMe().subscribe();
     this.userSub = this.auth.currentUser$.subscribe(u => {
       this.displayName.set(u?.firstName ?? '');
       this.profileImage.set(u?.profileImage ?? u?.profileImageUrl ?? null);
+      this.isSubscribed.set(u?.isSubscribed ?? false);
     });
   }
 
@@ -71,17 +78,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.dropdownOpen = !this.dropdownOpen;
   }
 
-  navigateToSection(section: DropdownSection): void {
+  navigateToSection(section: DropdownSection, event: Event): void {
+    event.stopPropagation();
     this.dropdownOpen = false;
     this.router.navigate(['/dashboard'], { queryParams: { section } });
   }
 
-  goToSubscription(): void {
+  goToSubscription(event: Event): void {
+    event.stopPropagation();
     this.dropdownOpen = false;
-    this.router.navigate(['/subscription']);
+    this.router.navigate(['/checkout']);
   }
 
-  logout(): void {
+  logout(event: Event): void {
+    event.stopPropagation();
     this.dropdownOpen = false;
     this.auth.logout().subscribe({
       next: () => this.router.navigate(['/']),

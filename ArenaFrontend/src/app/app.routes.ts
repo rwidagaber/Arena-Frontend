@@ -2,7 +2,6 @@ import { Routes } from '@angular/router';
 import { RegisterComponent } from './features/Authentication/register/register';
 import { LoginComponent } from './features/Authentication/login/login';
 import { ProfileComponent } from './components/member-profile/member-profile';
-import { HomeComponent } from './features/home/home.component';
 import { Home } from './features/home/home';
 import { About } from './features/about/about';
 import { CheckoutComponent } from './features/pricing/checkout/checkout.component';
@@ -22,12 +21,8 @@ export const routes: Routes = [
   // Base / Home Routes
   {
     path: '',
-    component: HomeComponent,
+    component: Home,
     pathMatch: 'full'
-  },
-  {
-    path: 'home',
-    component: Home
   },
   
   // About Route (Kept the Main branch protected version, remove if you want the redirect instead)
