@@ -1,14 +1,13 @@
-<div class="dashboard-layout">
+<div class="dash-layout">
   <app-dashboard-sidebar
     [activeSection]="activeSection()"
     (sectionChange)="onSectionChange($event)"
   />
 
-  <main class="dashboard-content">
-    @if (error(); as err) {
-      <div class="dashboard-error">
-        <div class="error-card">
-          <i class="fas fa-exclamation-triangle"></i>
+  <main class="dash-main">
+    <div class="dash-content">
+      @if (error(); as err) {
+        <div class="empty-section">
           <h3>{{ 'memberProfile.somethingWentWrong' | translate }}</h3>
           <p>{{ err }}</p>
           <button class="retry-btn" (click)="loadData()">
@@ -16,208 +15,250 @@
             {{ 'memberProfile.retry' | translate }}
           </button>
         </div>
-      </div>
-    } @else {
-      @switch (activeSection()) {
-        @case ('profile') {
-          <div class="dashboard">
-            <app-dashboard-header
-              [firstName]="profile()?.firstName ?? ''"
-              [lastName]="profile()?.lastName ?? ''"
-              [profileImage]="(profile()?.profileImage) ?? null"
-              [isActive]="profile()?.isActive ?? false"
-              [loading]="loading()"
-              [motivationalMessage]="motivationalMessage()"
-            />
+      } @else {
+        @switch (activeSection()) {
+          @case ('profile') {
 
-            <app-stats-overview
-              [stats]="stats()"
-              [loading]="loading()"
-            />
+            <div class="dash-two-col">
+              <!-- ─── Left Column ─── -->
+              <div class="dash-col-left">
 
-            <div class="analytics-grid">
-              <div class="analytics-card">
-                <div class="analytics-card-header">
-                  <i class="fas fa-weight-scale"></i>
-                  <span>{{ 'memberProfile.bmiIndicator' | translate }}</span>
+                <!-- Focus Card -->
+                <div class="focus-card">
+                  <div class="focus-glow"></div>
+                  <div class="focus-tag">{{ 'memberProfile.todaysFocus' | translate }}</div>
+                  <h2 class="focus-title">{{ 'memberProfile.workoutHeadline' | translate }}</h2>
+                  <div class="focus-meta">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span>{{ 'memberProfile.estimatedTime' | translate }}</span>
+                  </div>
+                  <button class="focus-btn">{{ 'memberProfile.startWorkout' | translate }}</button>
                 </div>
-                @if (loading()) {
-                  <div class="analytics-skeleton-row">
-                    <div class="skeleton skeleton-bmi-gauge"></div>
-                  </div>
-                } @else {
-                  <div class="bmi-display">
-                    <div class="bmi-value">
-                      {{ profile()?.bmi?.toFixed(1) ?? '—' }}
+
+                <!-- AI Coach -->
+                <div class="ai-card">
+                  <div class="ai-header">
+                    <div class="ai-avatar">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 2a4 4 0 0 1 4 4v2a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z"/><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     </div>
-                    <span class="bmi-label">
-                      {{ bmiCategory().label }}
-                    </span>
+                    <div>
+                      <span class="ai-name">{{ 'memberProfile.arenaAssistant' | translate }}</span>
+                      <span class="ai-subtitle">{{ 'memberProfile.aiSubtitle' | translate }}</span>
+                    </div>
                   </div>
-                  <div class="bmi-track">
-                    <div class="bmi-fill" [style.width.%]="bmiProgress()"></div>
+                  <div class="ai-chips">
+                    <button class="ai-chip">{{ 'memberProfile.suggestMeal' | translate }}</button>
+                    <button class="ai-chip">{{ 'memberProfile.simplifyWorkout' | translate }}</button>
+                    <button class="ai-chip">{{ 'memberProfile.bookSession' | translate }}</button>
                   </div>
-                  <div class="bmi-ranges">
-                    <span>18.5</span>
-                    <span>25</span>
-                    <span>30</span>
+                  <div class="ai-input">
+                    <input type="text" [placeholder]="'memberProfile.askCoach' | translate" />
+                    <button class="ai-send">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                    </button>
                   </div>
-                }
+                </div>
+
+                <!-- Achievements + Tip -->
+                <div class="achievements-card">
+                  <div class="achievements-section">
+                    <h3 class="section-title">{{ 'memberProfile.achievements' | translate }}</h3>
+                    <div class="badge-row">
+                      <div class="badge-item achieved">
+                        <div class="badge-icon-wrap">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 7 7 7 7"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C17 4 17 7 17 7"/><path d="M4 22h16"/><path d="M10 22V6l-3-3 3.5-1.5L12 3l1.5-1.5L17 6v16"/></svg>
+                        </div>
+                        <span class="badge-name">{{ 'memberProfile.achievementFirstWorkoutBadge' | translate }}</span>
+                        <span class="badge-status achieved-text">{{ 'memberProfile.achieved' | translate }}</span>
+                      </div>
+                      <div class="badge-item achieved">
+                        <div class="badge-icon-wrap">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        </div>
+                        <span class="badge-name">{{ 'memberProfile.achievementGoalCrusherBadge' | translate }}</span>
+                        <span class="badge-status achieved-text">{{ 'memberProfile.achieved' | translate }}</span>
+                      </div>
+                      <div class="badge-item locked">
+                        <div class="badge-icon-wrap">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        </div>
+                        <span class="badge-name">{{ 'memberProfile.achievement7DayStreakBadge' | translate }}</span>
+                        <span class="badge-status locked-text">{{ 'memberProfile.lockText' | translate }}</span>
+                      </div>
+                      <div class="badge-item locked">
+                        <div class="badge-icon-wrap">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                        </div>
+                        <span class="badge-name">{{ 'memberProfile.achievementConsistentBadge' | translate }}</span>
+                        <span class="badge-status locked-text">{{ 'memberProfile.lockText' | translate }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="tip-section">
+                    <div class="tip-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                    </div>
+                    <div class="tip-text">
+                      <span class="tip-label">{{ 'memberProfile.tipTitle' | translate }}</span>
+                      <p class="tip-body">{{ 'memberProfile.tipText' | translate }}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div class="analytics-card">
-                <div class="analytics-card-header">
-                  <i class="fas fa-id-card"></i>
-                  <span>{{ 'memberProfile.membershipProgress' | translate }}</span>
-                </div>
-                @if (loading()) {
-                  <div class="analytics-skeleton-row">
-                    <div class="skeleton skeleton-bmi-gauge"></div>
-                  </div>
-                } @else {
-                  <div class="membership-progress-display">
-                    <div class="progress-percent">{{ membershipProgress() }}%</div>
-                    <span class="progress-label">{{ 'memberProfile.complete' | translate }}</span>
-                  </div>
-                    <div class="bmi-track">
-                    <div class="bmi-fill" [style.width.%]="membershipProgress()"></div>
-                  </div>
-                  @if (profile()?.activeSubscription; as sub) {
-                    <div class="membership-dates">
-                      <span>{{ sub.startDate | date:'MMM d' }}</span>
-                      <span>{{ sub.endDate | date:'MMM d, y' }}</span>
+              <!-- ─── Right Column ─── -->
+              <div class="dash-col-right">
+
+                <!-- Streak Rings -->
+                <div class="streak-card">
+                  <div class="streak-ring-wrap">
+                    <svg class="streak-ring" viewBox="0 0 140 140">
+                      <circle class="ring-bg" cx="70" cy="70" r="58" />
+                      <circle class="ring-fill" cx="70" cy="70" r="58"
+                        [style.stroke-dashoffset]="(1 - sessionsThisMonth() / monthlyTarget()) * 364.4"
+                      />
+                    </svg>
+                    <div class="streak-ring-center">
+                      <span class="streak-ring-num">{{ sessionsThisMonth() }}</span>
+                      <span class="streak-ring-label">{{ 'memberProfile.sessions' | translate }}</span>
                     </div>
-                  }
-                }
-              </div>
-            </div>
-
-            <div class="dashboard-grid">
-              <app-membership-section
-                [membership]="mappedMembership()"
-                [subscription]="profile()?.activeSubscription ?? null"
-                [loading]="loading()"
-              />
-
-              <div class="account-card">
-                <div class="section-header">
-                  <div class="section-header-left">
-                    <i class="fas fa-user"></i>
-                    <h2>{{ 'memberProfile.accountDetails' | translate }}</h2>
+                  </div>
+                  <div class="streak-stats">
+                    <div class="streak-stat">
+                      <span class="streak-stat-value">{{ currentStreak() }}</span>
+                      <span class="streak-stat-label">{{ 'memberProfile.dayStreak' | translate }}</span>
+                    </div>
+                    <div class="streak-stat">
+                      <span class="streak-stat-value">{{ totalWorkouts() }}</span>
+                      <span class="streak-stat-label">{{ 'memberProfile.workouts' | translate }}</span>
+                    </div>
+                  </div>
+                  <div class="streak-footer">
+                    <span class="streak-footer-label">{{ 'memberProfile.monthlyGoal' | translate }}</span>
+                    <span class="streak-footer-value">{{ 'memberProfile.sessionsTarget' | translate: { current: sessionsThisMonth(), target: monthlyTarget() } }}</span>
+                  </div>
+                  <div class="streak-bar">
+                    <div class="streak-bar-fill" [style.width.%]="(sessionsThisMonth() / monthlyTarget()) * 100"></div>
                   </div>
                 </div>
 
-                @if (loading()) {
-                  <div class="account-skeleton">
-                    @for (_ of [1,2,3,4]; track _) {
-                      <div class="skeleton-row-item">
-                        <div class="skeleton skeleton-acc-icon"></div>
-                        <div class="skeleton skeleton-acc-text"></div>
+                <!-- Attendance Calendar -->
+                <div class="calendar-card">
+                  <div class="cal-header">
+                    <span class="cal-month">{{ 'memberProfile.sessionsThisMonth' | translate }}</span>
+                  </div>
+                  <div class="cal-grid">
+                    @for (d of calendarDays(); track $index) {
+                      <div class="cal-cell"
+                        [class.cal-empty]="d.day === 0"
+                        [class.cal-today]="d.isToday"
+                        [class.cal-booked]="d.booked && !d.isToday">
+                        @if (d.day !== 0) {
+                          <span>{{ d.day }}</span>
+                          @if (d.booked) {
+                            <span class="cal-dot"></span>
+                          }
+                        }
                       </div>
                     }
                   </div>
-                } @else if (profile(); as p) {
-                  <div class="account-list">
-                    <div class="account-item">
-                      <i class="fas fa-envelope"></i>
-                      <div class="account-item-content">
-                        <span class="account-label">{{ 'profile.email' | translate }}</span>
-                        <span class="account-value">{{ p.email }}</span>
-                      </div>
-                    </div>
-                    <div class="account-item">
-                      <i class="fas fa-phone"></i>
-                      <div class="account-item-content">
-                        <span class="account-label">{{ 'profile.phone' | translate }}</span>
-                        <span class="account-value">{{ p.phoneNumber || '—' }}</span>
-                      </div>
-                    </div>
-                    <div class="account-item">
-                      <i class="fas fa-language"></i>
-                      <div class="account-item-content">
-                        <span class="account-label">{{ 'profile.language' | translate }}</span>
-                        <span class="account-value">{{ p.preferredLanguage }}</span>
-                      </div>
-                    </div>
-                    <div class="account-item">
-                      <i class="fas fa-venus-mars"></i>
-                      <div class="account-item-content">
-                        <span class="account-label">{{ 'profile.gender' | translate }}</span>
-                        <span class="account-value">{{ p.gender || '—' }}</span>
-                      </div>
-                    </div>
+                  <div class="cal-legend">
+                    <span><span class="cal-legend-dot today-dot"></span>{{ 'memberProfile.legendToday' | translate }}</span>
+                    <span><span class="cal-legend-dot booked-dot"></span>{{ 'memberProfile.booked' | translate }}</span>
                   </div>
-                }
+                </div>
               </div>
             </div>
+          }
 
-            <app-recent-workouts
-              [workouts]="[]"
-              [loading]="loading()"
-            />
-          </div>
-        }
-
-        @case ('workout') {
-          <div class="section-placeholder">
-            <div class="placeholder-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5 17.5 17.5M6.5 17.5 17.5 6.5"/><line x1="6" y1="12" x2="18" y2="12"/></svg>
+          @case ('workout') {
+            <div class="section-placeholder">
+              <div class="placeholder-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5 17.5 17.5M6.5 17.5 17.5 6.5"/><line x1="6" y1="12" x2="18" y2="12"/></svg>
+              </div>
+              <h2>{{ 'sidebar.myWorkouts' | translate }}</h2>
+              <p>{{ 'section.workoutPlaceholder' | translate }}</p>
             </div>
-            <h2>{{ 'sidebar.workout' | translate }}</h2>
-            <p>{{ 'section.workoutPlaceholder' | translate }}</p>
-          </div>
-        }
+          }
 
-        @case ('nutrition') {
-          <div class="section-placeholder">
-            <div class="placeholder-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+          @case ('diet') {
+            <div class="section-placeholder">
+              <div class="placeholder-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+              </div>
+              <h2>{{ 'sidebar.myDietPlan' | translate }}</h2>
+              <p>{{ 'section.nutritionPlaceholder' | translate }}</p>
             </div>
-            <h2>{{ 'sidebar.nutrition' | translate }}</h2>
-            <p>{{ 'section.nutritionPlaceholder' | translate }}</p>
-          </div>
-        }
+          }
 
-        @case ('bookings') {
-          <div class="section-placeholder">
-            <div class="placeholder-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          @case ('membership') {
+            <div class="section-placeholder">
+              <div class="placeholder-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg>
+              </div>
+              <h2>{{ 'sidebar.membershipBilling' | translate }}</h2>
+              <p>{{ 'section.workoutPlaceholder' | translate }}</p>
             </div>
-            <h2>{{ 'sidebar.bookings' | translate }}</h2>
-            <p>{{ 'section.bookingsPlaceholder' | translate }}</p>
-          </div>
-        }
+          }
 
-        @case ('calendar') {
-          <div class="section-placeholder">
-            <div class="placeholder-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          @case ('progress') {
+            <div class="section-placeholder">
+              <div class="placeholder-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              </div>
+              <h2>{{ 'sidebar.progressReport' | translate }}</h2>
+              <p>{{ 'section.attendancePlaceholder' | translate }}</p>
             </div>
-            <h2>{{ 'sidebar.calendar' | translate }}</h2>
-            <p>{{ 'section.calendarPlaceholder' | translate }}</p>
-          </div>
-        }
+          }
 
-        @case ('attendance') {
-          <div class="section-placeholder">
-            <div class="placeholder-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>
+          @case ('settings') {
+            <div class="section-placeholder">
+              <div class="placeholder-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              </div>
+              <h2>{{ 'sidebar.settings' | translate }}</h2>
+              <p>{{ 'section.settingsPlaceholder' | translate }}</p>
             </div>
-            <h2>{{ 'sidebar.attendance' | translate }}</h2>
-            <p>{{ 'section.attendancePlaceholder' | translate }}</p>
-          </div>
-        }
-
-        @case ('chatbot') {
-          <div class="section-placeholder">
-            <div class="placeholder-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>
-            </div>
-            <h2>{{ 'sidebar.chatbot' | translate }}</h2>
-            <p>{{ 'section.chatbotPlaceholder' | translate }}</p>
-          </div>
+          }
         }
       }
-    }
+    </div>
   </main>
 </div>
+
+<!-- Edit Profile Overlay -->
+@if (isEditing()) {
+  <div class="edit-overlay" (click)="closeEdit()">
+    <div class="edit-modal" (click)="$event.stopPropagation()">
+      <h3>{{ 'profile.editProfile' | translate }}</h3>
+      <div class="edit-fields">
+        <label>{{ 'profile.firstName' | translate }}
+          <input type="text" [value]="editFirstName()" (input)="editFirstName.set($any($event.target).value)" />
+        </label>
+        <label>{{ 'profile.lastName' | translate }}
+          <input type="text" [value]="editLastName()" (input)="editLastName.set($any($event.target).value)" />
+        </label>
+        <label>{{ 'profile.weight' | translate }}
+          <input type="number" [value]="editWeight()" (input)="editWeight.set(+$any($event.target).value || null)" />
+        </label>
+        <label>{{ 'profile.height' | translate }}
+          <input type="number" [value]="editHeight()" (input)="editHeight.set(+$any($event.target).value || null)" />
+        </label>
+        <label>{{ 'profile.phone' | translate }}
+          <input type="text" [value]="editPhone()" (input)="editPhone.set($any($event.target).value)" />
+        </label>
+        <label>{{ 'profile.gender' | translate }}
+          <select [value]="editGender()" (change)="editGender.set($any($event.target).value)">
+            <option value="">{{ 'profile.notSet' | translate }}</option>
+            <option value="male">{{ 'memberProfile.male' | translate }}</option>
+            <option value="female">{{ 'memberProfile.female' | translate }}</option>
+          </select>
+        </label>
+      </div>
+      <div class="edit-actions">
+        <button class="edit-cancel" (click)="closeEdit()">{{ 'profile.cancel' | translate }}</button>
+        <button class="edit-save" (click)="saveEdit()">{{ 'profile.saveChanges' | translate }}</button>
+      </div>
+    </div>
+  </div>
+}

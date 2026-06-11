@@ -53,19 +53,27 @@
         {{ currentLang === 'en' ? 'AR' : 'EN' }}
       </button>
 
-      <ng-container *ngIf="auth.currentUser$ | async; else loginButtons">
+      <ng-container *ngIf="currentUser$ | async as user; else loginButtons">
         <div class="user-dropdown-container">
           <div class="user-trigger-wrapper" (click)="toggleDropdown()">
-            <div class="user-avatar-circle">
-              @if (profileImage()) {
-                <img [src]="profileImage()" [alt]="displayName()" class="user-avatar-img">
-              } @else {
-                <i class="fas fa-user user-avatar-icon"></i>
-              }
-            </div>
+            <span class="user-name-pill">{{ user.firstName || '' }} {{ user.lastName || '' }}</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-chevron" [class.rotated]="dropdownOpen" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg>
 
             @if (dropdownOpen) {
               <div class="user-dropdown-menu">
+                <div class="dropdown-header-info">
+                  <div class="dropdown-header-avatar">
+                    @if (user.profileImage || user.profileImageUrl) {
+                      <img [src]="user.profileImage || user.profileImageUrl" [alt]="user.firstName" class="dropdown-header-img">
+                    } @else {
+                      <span class="dropdown-header-initials">{{ (user.firstName || 'U')[0] }}</span>
+                    }
+                  </div>
+                  <div class="dropdown-header-text">
+                    <span class="dropdown-header-name">{{ user.firstName || '' }} {{ user.lastName || '' }}</span>
+                    <span class="dropdown-header-plan">{{ 'memberProfile.platinumMember' | translate }}</span>
+                  </div>
+                </div>
                 <div class="dropdown-subscription-pill" (click)="goToSubscription()">
                   {{ 'subscription.pill' | translate }}
                 </div>
@@ -74,9 +82,7 @@
                 @for (item of dropdownItems; track item.key) {
                   <button
                     class="dropdown-item"
-                    [class.disabled]="!auth.isSubscribed"
-                    [disabled]="!auth.isSubscribed"
-                    (click)="auth.isSubscribed && navigateToSection(item.key)"
+                    (click)="navigateToSection(item.key)"
                   >
                     {{ item.label | translate }}
                   </button>

@@ -1,11 +1,12 @@
-import { Component, signal, inject, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, HostListener, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { TranslateService, TranslateModule } from '@ngx-translate/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { TranslationService, Lang } from '../../core/services/translation.service';
 import { AuthService } from '../../core/services/auth';
+import { TranslateModule } from '@ngx-translate/core';
 
-export type DropdownSection = 'profile' | 'workout' | 'nutrition' | 'bookings' | 'calendar' | 'attendance';
+export type DropdownSection = 'profile' | 'workout' | 'diet' | 'membership' | 'progress' | 'settings';
 
 @Component({
   selector: 'app-header',
@@ -16,25 +17,26 @@ export type DropdownSection = 'profile' | 'workout' | 'nutrition' | 'bookings' |
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   protected readonly router = inject(Router);
-  protected readonly translate = inject(TranslateService);
+  protected readonly t = inject(TranslationService);
   public    readonly auth = inject(AuthService);
 
   private userSub?: Subscription;
-
   protected readonly displayName = signal('');
   protected readonly profileImage = signal<string | null>(null);
-  protected dropdownOpen = false;
 
+  protected dropdownOpen = false;
+  protected readonly currentUser$ = this.auth.currentUser$;
   protected readonly dropdownItems: { key: DropdownSection; label: string }[] = [
-    { key: 'profile',    label: 'sidebar.profile' },
-    { key: 'workout',    label: 'sidebar.workout' },
-    { key: 'nutrition',  label: 'sidebar.nutrition' },
-    { key: 'bookings',   label: 'sidebar.bookings' },
-    { key: 'calendar',   label: 'sidebar.calendar' },
-    { key: 'attendance', label: 'sidebar.attendance' },
+    { key: 'profile',    label: 'sidebar.dashboard' },
+    { key: 'workout',    label: 'sidebar.myWorkouts' },
+    { key: 'diet',       label: 'sidebar.myDietPlan' },
+    { key: 'membership', label: 'sidebar.membershipBilling' },
+    { key: 'progress',   label: 'sidebar.progressReport' },
+    { key: 'settings',   label: 'sidebar.settings' },
   ];
 
   ngOnInit(): void {
+    this.auth.getMe().subscribe();
     this.userSub = this.auth.currentUser$.subscribe(u => {
       this.displayName.set(u?.firstName ?? '');
       this.profileImage.set(u?.profileImage ?? u?.profileImageUrl ?? null);
@@ -53,8 +55,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  get currentLang(): string {
-    return this.translate.currentLang || this.translate.defaultLang || 'en';
+  get currentLang(): Lang {
+    return this.t.currentLang();
   }
 
   get isLoggedIn(): boolean {
@@ -62,11 +64,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   toggleLang(): void {
-    const newLang = this.currentLang === 'en' ? 'ar' : 'en';
-    this.translate.use(newLang);
-    document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr';
-    document.documentElement.lang = newLang;
-    localStorage.setItem('arena_lang', newLang);
+    this.t.switchLang(this.currentLang === 'en' ? 'ar' : 'en');
   }
 
   toggleDropdown(): void {
@@ -90,5 +88,4 @@ export class HeaderComponent implements OnInit, OnDestroy {
       error: () => this.router.navigate(['/']),
     });
   }
-
 }

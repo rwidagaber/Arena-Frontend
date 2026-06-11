@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth';
 import { TranslateModule } from '@ngx-translate/core';
 
-export type DashboardSection = 'profile' | 'workout' | 'nutrition' | 'bookings' | 'calendar' | 'attendance' | 'chatbot';
+export type DashboardSection = 'profile' | 'workout' | 'diet' | 'membership' | 'progress' | 'settings';
 
 @Component({
   selector: 'app-dashboard-sidebar',
@@ -18,15 +18,26 @@ export class DashboardSidebar {
 
   readonly activeSection = input<DashboardSection>('profile');
   readonly sectionChange = output<DashboardSection>();
+  readonly renewPlan = output<void>();
+
+  readonly planName = input<string | null>(null);
+  readonly planLevel = input<string>('');
+  readonly expiryDate = input<string | null>(null);
+  readonly membershipProgress = input<number>(0);
+  readonly remainingSessions = input<number | null>(null);
+  readonly daysRemaining = input<number>(0);
+  readonly hasSubscription = input<boolean>(false);
+  readonly profileImage = input<string | null>(null);
+  readonly firstName = input<string>('');
+  readonly lastName = input<string>('');
 
   readonly items: { key: DashboardSection; icon: string; label: string }[] = [
-    { key: 'profile',    icon: 'user',         label: 'sidebar.profile' },
-    { key: 'workout',    icon: 'dumbbell',     label: 'sidebar.workout' },
-    { key: 'nutrition',  icon: 'utensils',     label: 'sidebar.nutrition' },
-    { key: 'bookings',   icon: 'calendar-alt', label: 'sidebar.bookings' },
-    { key: 'calendar',   icon: 'clock',        label: 'sidebar.calendar' },
-    { key: 'attendance', icon: 'clipboard',    label: 'sidebar.attendance' },
-    { key: 'chatbot',    icon: 'robot',        label: 'sidebar.chatbot' },
+    { key: 'profile',    icon: 'grid',       label: 'sidebar.dashboard' },
+    { key: 'workout',    icon: 'dumbbell',   label: 'sidebar.myWorkouts' },
+    { key: 'diet',       icon: 'utensils',   label: 'sidebar.myDietPlan' },
+    { key: 'membership', icon: 'shield',     label: 'sidebar.membershipBilling' },
+    { key: 'progress',   icon: 'chart',      label: 'sidebar.progressReport' },
+    { key: 'settings',   icon: 'settings',   label: 'sidebar.settings' },
   ];
 
   select(section: DashboardSection): void {
