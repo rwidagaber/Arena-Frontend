@@ -17,6 +17,8 @@ import { subGuard } from './core/guards/auth/sub-guard';
 import { guestGuard } from './core/guards/auth/guest-guard-guard';
 import { roleGuard } from './core/guards/role/role-guard';
 import { confirmEmailGuard } from './core/guards/auth/confirm-email-guard';
+import { ChatComponent } from './features/chat/chat.component';
+import { subscriptionGuard } from './core/guards/subscription/subscription-guard';
 export const routes: Routes = [
   // Base / Home Routes
   {
@@ -87,5 +89,11 @@ export const routes: Routes = [
   {
     path: 'contact',
     redirectTo: '/'
+  },
+
+  {
+    path: 'chat',
+    component: ChatComponent,
+    canActivate: [authGuard, subscriptionGuard]
   }
 ];

@@ -45,6 +45,17 @@
             {{ 'header.contact' | translate }}
           </a>
         </li>
+
+         <li >
+          <a
+            routerLink="/chat"
+            class="nav-item-exact"
+            [class.text-lime-active]="activeTab === 'chat'"
+          >
+            Chat
+          </a>
+        </li>
+
       </ul>
     </nav>
 
