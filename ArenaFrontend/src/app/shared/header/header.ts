@@ -26,20 +26,27 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   protected dropdownOpen = false;
   protected readonly currentUser$ = this.auth.currentUser$;
-  protected readonly dropdownItems: { key: DropdownSection; label: string }[] = [
-    { key: 'profile',    label: 'sidebar.dashboard' },
-    { key: 'workout',    label: 'sidebar.myWorkouts' },
-    { key: 'diet',       label: 'sidebar.myDietPlan' },
-    { key: 'membership', label: 'sidebar.membershipBilling' },
-    { key: 'progress',   label: 'sidebar.progressReport' },
-    { key: 'settings',   label: 'sidebar.settings' },
+  protected readonly isSubscribed = signal(false);
+
+  protected readonly dropdownItems = [
+    { key: 'profile' as const,    label: 'sidebar.dashboard' },
+    { key: 'workout' as const,    label: 'sidebar.myWorkouts' },
+    { key: 'diet' as const,       label: 'sidebar.myDietPlan' },
+    { key: 'membership' as const, label: 'sidebar.membershipBilling' },
+    { key: 'progress' as const,   label: 'sidebar.progressReport' },
+    { key: 'settings' as const,   label: 'sidebar.settings' },
   ];
+
+  protected isItemDisabled(_item: typeof this.dropdownItems[number]): boolean {
+    return !this.isSubscribed();
+  }
 
   ngOnInit(): void {
     this.auth.getMe().subscribe();
     this.userSub = this.auth.currentUser$.subscribe(u => {
       this.displayName.set(u?.firstName ?? '');
       this.profileImage.set(u?.profileImage ?? u?.profileImageUrl ?? null);
+      this.isSubscribed.set(u?.isSubscribed ?? false);
     });
   }
 
@@ -80,7 +87,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   goToSubscription(event: Event): void {
     event.stopPropagation();
     this.dropdownOpen = false;
-    this.router.navigate(['/subscription']);
+    this.router.navigate(['/checkout']);
   }
 
   logout(event: Event): void {

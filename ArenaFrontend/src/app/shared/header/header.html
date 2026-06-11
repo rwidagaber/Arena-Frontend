@@ -35,7 +35,7 @@
             {{ 'header.about' | translate }}
           </a>
         </li>
-        <li *ngIf="auth.isLoggedIn">
+        <li *ngIf="auth.isSubscribed">
           <a routerLink="/dashboard" class="nav-item-exact">
             {{ 'header.dashboard' | translate }}
           </a>
@@ -88,7 +88,9 @@
                 @for (item of dropdownItems; track item.key) {
                   <button
                     class="dropdown-item"
-                    (click)="navigateToSection(item.key, $event)"
+                    [class.disabled]="isItemDisabled(item)"
+                    [disabled]="isItemDisabled(item)"
+                    (click)="!isItemDisabled(item) && navigateToSection(item.key, $event)"
                   >
                     {{ item.label | translate }}
                   </button>
