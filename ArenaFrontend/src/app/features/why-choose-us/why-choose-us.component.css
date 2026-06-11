@@ -32,7 +32,6 @@
   gap: 40px;
 }
 
-/* Left Column */
 .left-column {
   flex: 1;
   max-width: 450px;
@@ -145,7 +144,6 @@
   color: var(--dark-bg);
 }
 
-/* Center Column */
 .center-column {
   flex: 1;
   display: flex;
@@ -163,7 +161,6 @@
   margin-bottom: -10px;
 }
 
-/* Right Column */
 .right-column {
   flex: 1;
   max-width: 450px;

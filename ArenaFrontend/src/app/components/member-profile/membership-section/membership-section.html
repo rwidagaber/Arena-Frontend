@@ -1,0 +1,91 @@
+@if (loading()) {
+  <div class="section-card">
+    <div class="skeleton skeleton-title"></div>
+    <div class="skeleton skeleton-body"></div>
+    <div class="skeleton skeleton-body" style="width: 60%"></div>
+  </div>
+} @else {
+  <div class="section-card">
+    <div class="section-header">
+      <div class="section-header-left">
+        <i class="fas fa-id-card"></i>
+        <h2>{{ 'memberProfile.membership' | translate }}</h2>
+      </div>
+      @if (membership(); as m) {
+        <span class="status-indicator" [class.active]="m.isActive">
+          <i class="fas fa-circle"></i>
+          {{ m.isActive ? ('memberProfile.active' | translate) : ('memberProfile.inactive' | translate) }}
+        </span>
+      }
+    </div>
+
+    @if (membership(); as m) {
+      <div class="membership-body">
+        <div class="plan-section">
+          <div class="plan-icon">
+            @if (m.type.toLowerCase().includes('premium')) {
+              <i class="fas fa-crown"></i>
+            } @else {
+              <i class="fas fa-dumbbell"></i>
+            }
+          </div>
+          <div class="plan-name">{{ m.type }}</div>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-item">
+            <i class="far fa-calendar-alt"></i>
+            <div class="info-text">
+              <span class="info-label">{{ 'memberProfile.started' | translate }}</span>
+              <span class="info-value">{{ m.startDate | date:'mediumDate' }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <i class="far fa-clock"></i>
+            <div class="info-text">
+              <span class="info-label">{{ 'memberProfile.expires' | translate }}</span>
+              <span class="info-value">{{ m.endDate | date:'mediumDate' }}</span>
+            </div>
+          </div>
+
+          @if (subscription(); as s) {
+            <div class="info-item">
+              <i class="fas fa-bolt"></i>
+              <div class="info-text">
+                <span class="info-label">{{ 'memberProfile.remainingSessions' | translate }}</span>
+                <span class="info-value">{{ s.remainingSessions }}</span>
+              </div>
+            </div>
+          }
+
+          <div class="info-item">
+            <i class="fas fa-dollar-sign"></i>
+            <div class="info-text">
+              <span class="info-label">{{ 'memberProfile.price' | translate }}</span>
+              <span class="info-value">{{ m.price | currency }}</span>
+            </div>
+          </div>
+        </div>
+
+        @if (m.features && m.features.length > 0) {
+          <div class="features-section">
+            <span class="features-title">{{ 'memberProfile.planFeatures' | translate }}</span>
+            <ul class="features-list">
+              @for (feature of m.features; track feature) {
+                <li>
+                  <i class="fas fa-check-circle"></i>
+                  {{ feature }}
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="empty-state">
+        <i class="fas fa-id-card"></i>
+        <p>{{ 'memberProfile.noMembership' | translate }}</p>
+      </div>
+    }
+  </div>
+}

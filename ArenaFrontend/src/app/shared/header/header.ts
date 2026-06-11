@@ -1,42 +1,54 @@
-import { Component, signal, inject, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, HostListener, signal, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslationService, Lang } from '../../core/services/translation.service';
 import { AuthService } from '../../core/services/auth';
-import { TranslatePipe } from '../pipes/translate.pipe';
+import { TranslateModule } from '@ngx-translate/core';
 
-
-export type DropdownSection = 'profile' | 'workout' | 'nutrition' | 'bookings' | 'calendar' | 'attendance';
+export type DropdownSection = 'profile' | 'workout' | 'diet' | 'membership' | 'progress' | 'settings';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, TranslatePipe],
+  imports: [CommonModule, RouterLink, RouterLinkActive, TranslateModule],
   templateUrl: './header.html',
   styleUrls: ['./header.css']
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   protected readonly router = inject(Router);
-  readonly t = inject(TranslationService);
-  readonly auth = inject(AuthService);
+  protected readonly t = inject(TranslationService);
+  public    readonly auth = inject(AuthService);
+
   private userSub?: Subscription;
-
   protected readonly displayName = signal('');
-  protected dropdownOpen = false;
+  protected readonly profileImage = signal<string | null>(null);
 
-  protected readonly dropdownItems: { key: DropdownSection; label: string }[] = [
-    { key: 'profile',   label: 'sidebar.profile' },
-    { key: 'workout',   label: 'sidebar.workout' },
-    { key: 'nutrition', label: 'sidebar.nutrition' },
-    { key: 'bookings',  label: 'sidebar.bookings' },
-    { key: 'calendar',  label: 'sidebar.calendar' },
-    { key: 'attendance', label: 'sidebar.attendance' },
+  protected dropdownOpen = false;
+   @Input() activeTab: string = 'home';
+
+  protected readonly currentUser$ = this.auth.currentUser$;
+  protected readonly isSubscribed = signal(false);
+
+  protected readonly dropdownItems = [
+    { key: 'profile' as const,    label: 'sidebar.dashboard' },
+    { key: 'workout' as const,    label: 'sidebar.myWorkouts' },
+    { key: 'diet' as const,       label: 'sidebar.myDietPlan' },
+    { key: 'membership' as const, label: 'sidebar.membershipBilling' },
+    { key: 'progress' as const,   label: 'sidebar.progressReport' },
+    { key: 'settings' as const,   label: 'sidebar.settings' },
   ];
 
+  protected isItemDisabled(_item: typeof this.dropdownItems[number]): boolean {
+    return !this.isSubscribed();
+  }
+
   ngOnInit(): void {
+    this.auth.getMe().subscribe();
     this.userSub = this.auth.currentUser$.subscribe(u => {
       this.displayName.set(u?.firstName ?? '');
+      this.profileImage.set(u?.profileImage ?? u?.profileImageUrl ?? null);
+      this.isSubscribed.set(u?.isSubscribed ?? false);
     });
   }
 
@@ -68,23 +80,24 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.dropdownOpen = !this.dropdownOpen;
   }
 
-  navigateToSection(section: DropdownSection): void {
+  navigateToSection(section: DropdownSection, event: Event): void {
+    event.stopPropagation();
     this.dropdownOpen = false;
     this.router.navigate(['/dashboard'], { queryParams: { section } });
   }
 
-  goToSubscription(): void {
+  goToSubscription(event: Event): void {
+    event.stopPropagation();
     this.dropdownOpen = false;
-    this.router.navigate(['/subscription']);
+    this.router.navigate(['/checkout']);
   }
 
-  logout(): void {
+  logout(event: Event): void {
+    event.stopPropagation();
     this.dropdownOpen = false;
     this.auth.logout().subscribe({
       next: () => this.router.navigate(['/']),
       error: () => this.router.navigate(['/']),
     });
   }
-  
-
 }
