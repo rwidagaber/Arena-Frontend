@@ -1,14 +1,10 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { catchError, of } from 'rxjs';
 import { AuthService } from '../../core/services/auth';
 import { MemberService } from '../../core/services/member.service';
 import type { GetProfileDto, UserSubscriptionDto } from '../../core/models/auth';
 import type { MemberProfile as MemberProfileModel, MembershipDetails } from '../../core/models/member';
-import { DashboardHeader } from './dashboard-header/dashboard-header';
-import { StatsOverview, StatItem } from './stats-overview/stats-overview';
-import { MembershipSection } from './membership-section/membership-section';
-import { RecentWorkouts } from './recent-workouts/recent-workouts';
 import { DashboardSidebar, DashboardSection } from './dashboard-sidebar/dashboard-sidebar';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
@@ -46,12 +42,9 @@ function mapSubscriptionToMembership(sub: UserSubscriptionDto): MembershipDetail
 @Component({
   selector: 'app-member-profile',
   standalone: true,
+  encapsulation: ViewEncapsulation.None,
   imports: [
     CommonModule,
-    DashboardHeader,
-    StatsOverview,
-    MembershipSection,
-    RecentWorkouts,
     DashboardSidebar,
     TranslatePipe,
   ],
@@ -73,45 +66,72 @@ export class MemberProfile implements OnInit {
     return sub ? mapSubscriptionToMembership(sub) : null;
   });
 
-  stats = computed<StatItem[]>(() => {
-    const p = this.profile();
-    return [
-      {
-        label: 'profile.weight',
-        value: p?.weight ? `${p.weight} kg` : '—',
-        icon: 'fas fa-weight-scale',
-      },
-      {
-        label: 'profile.height',
-        value: p?.height ? `${p.height} cm` : '—',
-        icon: 'fas fa-ruler',
-      },
-      {
-        label: 'profile.bmi',
-        value: p?.bmi ? p.bmi.toFixed(1) : '—',
-        icon: 'fas fa-heart-pulse',
-      },
-      {
-        label: 'memberProfile.workouts',
-        value: '—',
-        icon: 'fas fa-dumbbell',
-      },
-    ];
+  planLevel = computed(() => {
+    const sub = this.profile()?.activeSubscription;
+    if (!sub) return '';
+    return sub.planNameEn || '';
   });
 
-  bmiCategory = computed(() => {
-    const bmi = this.profile()?.bmi;
-    if (bmi == null) return { label: '—', percent: 0 };
-    if (bmi < 18.5) return { label: 'Underweight', percent: 25 };
-    if (bmi < 25) return { label: 'Normal', percent: 50 };
-    if (bmi < 30) return { label: 'Overweight', percent: 75 };
-    return { label: 'Obese', percent: 100 };
+  planName = computed(() => {
+    const level = this.planLevel();
+    return level || 'Member';
   });
 
-  bmiProgress = computed(() => {
-    const bmi = this.profile()?.bmi;
-    if (bmi == null) return 0;
-    return Math.min((bmi / 40) * 100, 100);
+  planMonthlyCap = computed(() => {
+    const level = this.planLevel();
+    if (level.toLowerCase().includes('platinum')) return 30;
+    if (level.toLowerCase().includes('gold')) return 20;
+    if (level.toLowerCase().includes('silver')) return 15;
+    if (level.toLowerCase().includes('bronze')) return 10;
+    return 20;
+  });
+
+  sessionsRemaining = computed(() => {
+    const sub = this.profile()?.activeSubscription;
+    if (!sub || sub.remainingSessions == null) return null;
+    return sub.remainingSessions;
+  });
+
+  sessionsThisMonth = computed(() => {
+    const cap = this.planMonthlyCap();
+    const rem = this.sessionsRemaining();
+    if (rem != null) return Math.max(0, cap - rem);
+    return 12;
+  });
+
+  monthlyTarget = computed(() => this.planMonthlyCap());
+
+  totalWorkouts = computed(() => 12);
+  currentStreak = computed(() => 12);
+
+  age = computed(() => {
+    const b = this.profile()?.birthday;
+    if (!b) return null;
+    const birth = new Date(b);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+    return age;
+  });
+
+  calendarDays = computed(() => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const today = now.getDate();
+    const booked: number[] = [5, 8, 12, 15, 19, 22, 26];
+
+    const days: { day: number; isToday: boolean; booked: boolean }[] = [];
+    for (let i = 0; i < firstDay; i++) {
+      days.push({ day: 0, isToday: false, booked: false });
+    }
+    for (let d = 1; d <= daysInMonth; d++) {
+      days.push({ day: d, isToday: d === today, booked: booked.includes(d) });
+    }
+    return days;
   });
 
   membershipProgress = computed(() => {
@@ -125,18 +145,63 @@ export class MemberProfile implements OnInit {
     return Math.round(((now - start) / (end - start)) * 100);
   });
 
-  motivationalMessage = computed(() => {
-    const subStart = this.profile()?.activeSubscription?.startDate;
-    if (subStart) {
-      const start = new Date(subStart).getTime();
-      const now = Date.now();
-      const weekMs = 7 * 24 * 60 * 60 * 1000;
-      const diff = start - now;
-      if (diff > -weekMs && diff < weekMs) return "Let's Grow Together!";
-      if (diff < -weekMs) return "You've grown so much since you started!";
-    }
-    return 'Push harder than yesterday.';
-  });
+  sessionsCompletedText = computed(() =>
+    `You've completed ${this.sessionsThisMonth()} sessions this month. You're doing amazing!`
+  );
+
+  isEditing = signal(false);
+  editFirstName = signal('');
+  editLastName = signal('');
+  editWeight = signal<number | null>(null);
+  editHeight = signal<number | null>(null);
+  editPhone = signal('');
+  editGender = signal('');
+
+  openEdit(): void {
+    const p = this.profile();
+    if (!p) return;
+    this.editFirstName.set(p.firstName || '');
+    this.editLastName.set(p.lastName || '');
+    this.editWeight.set(p.weight ?? null);
+    this.editHeight.set(p.height ?? null);
+    this.editPhone.set(p.phoneNumber || '');
+    this.editGender.set(p.gender || '');
+    this.isEditing.set(true);
+  }
+
+  closeEdit(): void {
+    this.isEditing.set(false);
+  }
+
+  saveEdit(): void {
+    const p = this.profile();
+    if (!p) return;
+    const updated: MemberProfileModel = {
+      ...p,
+      firstName: this.editFirstName(),
+      lastName: this.editLastName(),
+      weight: this.editWeight(),
+      height: this.editHeight(),
+      phoneNumber: this.editPhone(),
+      gender: this.editGender(),
+    };
+    this.profile.set(updated);
+    this.isEditing.set(false);
+  }
+
+  onImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = () => {
+      const p = this.profile();
+      if (p && reader.result) {
+        this.profile.set({ ...p, profileImage: reader.result as string });
+      }
+    };
+    reader.readAsDataURL(file);
+  }
 
   onSectionChange(section: DashboardSection): void {
     this.activeSection.set(section);
@@ -146,13 +211,9 @@ export class MemberProfile implements OnInit {
     const cached = this.auth.currentUser$.subscribe(user => {
       if (user && user.firstName) {
         this.profile.set(mapAuthToProfile(user));
-        console.log('[Dashboard] Profile set from cache:', user.firstName);
-      } else {
-        console.log('[Dashboard] Cache skipped - no firstName in cached user:', user);
       }
     });
     cached.unsubscribe();
-
     this.loadData();
   }
 
@@ -165,13 +226,10 @@ export class MemberProfile implements OnInit {
         let msg = 'Failed to load profile';
         if (err?.status) msg += ` (HTTP ${err.status})`;
         if (err?.message) msg += `: ${err.message}`;
-        msg += ' — Check that the backend is running on http://localhost:5095';
-        console.error('[Dashboard] getProfile failed:', err);
         this.error.set(msg);
         return of(null);
       })
     ).subscribe(data => {
-      console.log('[Dashboard] profile API response:', data);
       if (data) {
         this.profile.set(data);
       }

@@ -30,6 +30,10 @@
     "PROGRAM_3_TITLE": "Cardio & Endurance Training",
     "PROGRAM_3_DESC": "Our Cardio & Endurance Training program is designed to improve heart health, boost stamina, and enhance"
   },
+  "programs": {
+    "badge": "Our Programs & Training",
+    "title": "Personalized programs and training for stronger you"
+  },
   "WHAT_WE_DO": {
     "IMG_ALT": "Man working out with dumbbells",
     "BADGE": "What We Do",
