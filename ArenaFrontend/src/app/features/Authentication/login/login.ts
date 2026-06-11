@@ -88,7 +88,7 @@ export class LoginComponent implements AfterViewInit {
       next: () => {
         this.loading = false;
         if (this.auth.isSubscribed) return;
-        const ret = new URLSearchParams(window.location.search).get('returnUrl') ?? '/home';
+        const ret = new URLSearchParams(window.location.search).get('returnUrl') ?? 'home';
         this.router.navigateByUrl(ret);
       },
       error: (err: Error) => { this.loading = false; this.serverError = err.message; },

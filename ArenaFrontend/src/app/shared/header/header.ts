@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, HostListener, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, HostListener, signal, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
@@ -25,6 +25,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   protected readonly profileImage = signal<string | null>(null);
 
   protected dropdownOpen = false;
+   @Input() activeTab: string = 'home';
+
   protected readonly currentUser$ = this.auth.currentUser$;
   protected readonly isSubscribed = signal(false);
 
