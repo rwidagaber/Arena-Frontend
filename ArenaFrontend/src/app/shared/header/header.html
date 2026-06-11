@@ -56,18 +56,8 @@
       <ng-container *ngIf="currentUser$ | async as user; else loginButtons">
         <div class="user-dropdown-container">
           <div class="user-trigger-wrapper" (click)="toggleDropdown()">
-<<<<<<< HEAD
             <span class="user-name-pill">{{ user.firstName || '' }} {{ user.lastName || '' }}</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-chevron" [class.rotated]="dropdownOpen" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg>
-=======
-            <div class="user-avatar-circle">
-              @if (profileImage()) {
-                <img [src]="profileImage()" [alt]="displayName()" class="user-avatar-img">
-              } @else {
-                <i class="fas fa-user user-avatar-icon"></i>
-              }
-            </div>
->>>>>>> dev
 
             @if (dropdownOpen) {
               <div class="user-dropdown-menu">
