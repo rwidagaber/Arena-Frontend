@@ -1,5 +1,6 @@
-import { Component, inject, OnInit, HostListener } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, HostListener, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Subscription } from 'rxjs';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslationService, Lang } from '../../core/services/translation.service';
 import { AuthService } from '../../core/services/auth';
@@ -14,14 +15,17 @@ export type DropdownSection = 'profile' | 'workout' | 'diet' | 'membership' | 'p
   templateUrl: './header.html',
   styleUrls: ['./header.css']
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
   protected readonly router = inject(Router);
   protected readonly t = inject(TranslationService);
   public    readonly auth = inject(AuthService);
 
+  private userSub?: Subscription;
+  protected readonly displayName = signal('');
+  protected readonly profileImage = signal<string | null>(null);
+
   protected dropdownOpen = false;
   protected readonly currentUser$ = this.auth.currentUser$;
-
   protected readonly dropdownItems: { key: DropdownSection; label: string }[] = [
     { key: 'profile',    label: 'sidebar.dashboard' },
     { key: 'workout',    label: 'sidebar.myWorkouts' },
@@ -33,6 +37,14 @@ export class HeaderComponent implements OnInit {
 
   ngOnInit(): void {
     this.auth.getMe().subscribe();
+    this.userSub = this.auth.currentUser$.subscribe(u => {
+      this.displayName.set(u?.firstName ?? '');
+      this.profileImage.set(u?.profileImage ?? u?.profileImageUrl ?? null);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.userSub?.unsubscribe();
   }
 
   @HostListener('document:click', ['$event'])
