@@ -1,12 +1,12 @@
 import { Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WorkoutSession } from '../../../core/models/member';
-import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-recent-workouts',
   standalone: true,
-  imports: [CommonModule, TranslatePipe],
+  imports: [CommonModule, TranslateModule],
   templateUrl: './recent-workouts.html',
   styleUrl: './recent-workouts.css',
 })

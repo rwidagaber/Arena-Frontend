@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { TranslateModule } from '@ngx-translate/core';
 
 export interface StatItem {
   label: string;
@@ -10,7 +10,7 @@ export interface StatItem {
 @Component({
   selector: 'app-stats-overview',
   standalone: true,
-  imports: [TranslatePipe],
+  imports: [TranslateModule],
   templateUrl: './stats-overview.html',
   styleUrl: './stats-overview.css',
 })

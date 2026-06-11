@@ -3,11 +3,6 @@ import { CommonModule } from '@angular/common';
 import { catchError, of } from 'rxjs';
 import { AuthService } from '../../core/services/auth';
 import { MemberService } from '../../core/services/member.service';
-<<<<<<< HEAD
-import { MemberProfile, UpdateProfileDto } from '../../core/models/member';
-import { TranslateModule } from '@ngx-translate/core';
-import { SidebarComponent, SidebarSection } from '../../shared/sidebar/sidebar';
-=======
 import type { GetProfileDto, UserSubscriptionDto } from '../../core/models/auth';
 import type { MemberProfile as MemberProfileModel, MembershipDetails } from '../../core/models/member';
 import { DashboardHeader } from './dashboard-header/dashboard-header';
@@ -15,7 +10,7 @@ import { StatsOverview, StatItem } from './stats-overview/stats-overview';
 import { MembershipSection } from './membership-section/membership-section';
 import { RecentWorkouts } from './recent-workouts/recent-workouts';
 import { DashboardSidebar, DashboardSection } from './dashboard-sidebar/dashboard-sidebar';
-import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+import { TranslateModule } from '@ngx-translate/core';
 
 function mapAuthToProfile(dto: GetProfileDto): MemberProfileModel {
   return {
@@ -47,14 +42,10 @@ function mapSubscriptionToMembership(sub: UserSubscriptionDto): MembershipDetail
     features: [],
   };
 }
->>>>>>> 140b4d0509fb33f3b22cfc50d1ee3d7df6cf7775
 
 @Component({
   selector: 'app-member-profile',
   standalone: true,
-<<<<<<< HEAD
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, SidebarComponent],
-=======
   imports: [
     CommonModule,
     DashboardHeader,
@@ -62,9 +53,8 @@ function mapSubscriptionToMembership(sub: UserSubscriptionDto): MembershipDetail
     MembershipSection,
     RecentWorkouts,
     DashboardSidebar,
-    TranslatePipe,
+    TranslateModule,
   ],
->>>>>>> 140b4d0509fb33f3b22cfc50d1ee3d7df6cf7775
   templateUrl: './member-profile.html',
   styleUrl: './member-profile.css',
 })
