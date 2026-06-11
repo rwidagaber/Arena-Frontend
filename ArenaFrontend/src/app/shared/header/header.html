@@ -57,7 +57,11 @@
         <div class="user-dropdown-container">
           <div class="user-trigger-wrapper" (click)="toggleDropdown()">
             <div class="user-avatar-circle">
-              <span class="user-avatar-text">{{ (displayName() || 'U')[0] }}</span>
+              @if (profileImage()) {
+                <img [src]="profileImage()" [alt]="displayName()" class="user-avatar-img">
+              } @else {
+                <i class="fas fa-user user-avatar-icon"></i>
+              }
             </div>
 
             @if (dropdownOpen) {
