@@ -71,17 +71,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.dropdownOpen = !this.dropdownOpen;
   }
 
-  navigateToSection(section: DropdownSection): void {
+  navigateToSection(section: DropdownSection, event: Event): void {
+    event.stopPropagation();
     this.dropdownOpen = false;
     this.router.navigate(['/dashboard'], { queryParams: { section } });
   }
 
-  goToSubscription(): void {
+  goToSubscription(event: Event): void {
+    event.stopPropagation();
     this.dropdownOpen = false;
     this.router.navigate(['/subscription']);
   }
 
-  logout(): void {
+  logout(event: Event): void {
+    event.stopPropagation();
     this.dropdownOpen = false;
     this.auth.logout().subscribe({
       next: () => this.router.navigate(['/']),

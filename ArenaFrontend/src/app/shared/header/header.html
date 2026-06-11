@@ -35,7 +35,7 @@
             {{ 'header.about' | translate }}
           </a>
         </li>
-        <li *ngIf="auth.isSubscribed">
+        <li *ngIf="auth.isLoggedIn">
           <a routerLink="/dashboard" class="nav-item-exact">
             {{ 'header.dashboard' | translate }}
           </a>
@@ -54,9 +54,15 @@
       </button>
 
       <ng-container *ngIf="currentUser$ | async as user; else loginButtons">
-        <div class="user-dropdown-container">
+          <div class="user-dropdown-container">
           <div class="user-trigger-wrapper" (click)="toggleDropdown()">
-            <span class="user-name-pill">{{ user.firstName || '' }} {{ user.lastName || '' }}</span>
+            @if (user.firstName) {
+              <span class="user-name-pill">{{ user.firstName }} {{ user.lastName || '' }}</span>
+            } @else {
+              <div class="user-avatar-circle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#0c0f17" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+            }
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-chevron" [class.rotated]="dropdownOpen" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg>
 
             @if (dropdownOpen) {
@@ -74,7 +80,7 @@
                     <span class="dropdown-header-plan">{{ 'memberProfile.platinumMember' | translate }}</span>
                   </div>
                 </div>
-                <div class="dropdown-subscription-pill" (click)="goToSubscription()">
+                <div class="dropdown-subscription-pill" (click)="goToSubscription($event)">
                   {{ 'subscription.pill' | translate }}
                 </div>
                 <div class="dropdown-divider"></div>
@@ -82,14 +88,14 @@
                 @for (item of dropdownItems; track item.key) {
                   <button
                     class="dropdown-item"
-                    (click)="navigateToSection(item.key)"
+                    (click)="navigateToSection(item.key, $event)"
                   >
                     {{ item.label | translate }}
                   </button>
                 }
 
                 <div class="dropdown-divider"></div>
-                <button class="dropdown-item dropdown-logout" (click)="logout()">
+                <button class="dropdown-item dropdown-logout" (click)="logout($event)">
                   {{ 'header.logout' | translate }}
                 </button>
               </div>

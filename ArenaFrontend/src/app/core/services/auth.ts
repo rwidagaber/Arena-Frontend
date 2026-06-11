@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, tap, catchError, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, tap, catchError, throwError, switchMap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   AuthResponseDto,
@@ -76,12 +76,13 @@ export class AuthService {
     );
   }
 
-  login(dto: UserLoginDto, rememberMe = false): Observable<AuthResponseDto> {
-  return this.http.post<AuthResponseDto>(`${BASE}/login`, dto).pipe(
-    tap(res => this._persist(res, rememberMe)),
-    catchError(this._handleError)
-  );
-}
+  login(dto: UserLoginDto, rememberMe = false): Observable<GetProfileDto> {
+    return this.http.post<AuthResponseDto>(`${BASE}/login`, dto).pipe(
+      tap(res => this._persist(res, rememberMe)),
+      switchMap(() => this.getMe()),
+      catchError(this._handleError)
+    );
+  }
   refresh(): Observable<AuthResponseDto> {
     const dto: RefreshTokenDto = {
       accessToken: this.accessToken ?? '',
