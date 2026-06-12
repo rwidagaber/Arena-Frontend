@@ -4,3 +4,4 @@ export const environment = {
   apiUrl: 'http://arenagym.runasp.net/api'
   // 'http://localhost:5095/api'
 };
+
