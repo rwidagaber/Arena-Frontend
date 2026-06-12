@@ -1,5 +1,7 @@
 export const environment = {
   production: true,
   developerMode: false,
-  apiUrl: 'http://localhost:5095/api'
+  apiUrl: 'http://arenagym.runasp.net/api'
+  // 'http://localhost:5095/api'
 };
+
