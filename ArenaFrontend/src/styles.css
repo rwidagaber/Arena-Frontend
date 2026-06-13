@@ -41,3 +41,24 @@ html[dir="rtl"] .bi-arrow-up-right,
 html[dir="rtl"] .arrow-icon svg {
   transform: scaleX(-1);
 }
+
+
+/* ==========================================================================
+   إخفاء شريط التمرير الطولي والعرضي مع الحفاظ على عمل السكرول
+   ========================================================================== */
+
+/* 1. لمتصفحات Chrome, Safari, Opera, و Edge الحديثة */
+html::-webkit-scrollbar, 
+body::-webkit-scrollbar {
+  display: none !important; /* يخفي شريط السكرول تماماً */
+  width: 0 !important;       /* يتأكد أن العرض صفر تماماً */
+  height: 0 !important;      /* يتأكد أن الارتفاع صفر تماماً */
+}
+
+/* 2. لمتصفح Firefox */
+html, body {
+  scrollbar-width: none !important; /* يخفي الشريط في فايرفوكس */
+  
+  /* خاصية إضافية لإنترنت إكسبلورر القديم لو لسه حد بيستخدمه */
+  -ms-overflow-style: none !important; 
+}

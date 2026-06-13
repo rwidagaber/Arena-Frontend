@@ -1,4 +1,3 @@
-// login.component.ts
 import { Component, inject, AfterViewInit, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl } from '@angular/forms';
@@ -39,7 +38,6 @@ export class LoginComponent implements AfterViewInit {
   }
 
   private initGoogleButton(): void {
-
     (window as any).google.accounts.id.initialize({
       client_id: '656089986689-anh4euktf142is1dmbeqq9ovank82cjc.apps.googleusercontent.com',
       callback: (response: any) => {
@@ -64,9 +62,9 @@ export class LoginComponent implements AfterViewInit {
         if (res.isGoogleUser) {
           this.router.navigate(['/complete-profile']);
         } else if (res.isSubscribed) {
-          return;
+          this.router.navigate(['/dashboard']);
         } else {
-          const ret = new URLSearchParams(window.location.search).get('returnUrl') ?? '/home';
+          const ret = new URLSearchParams(window.location.search).get('returnUrl') ?? '/';
           this.router.navigateByUrl(ret);
         }
       },
@@ -87,11 +85,17 @@ export class LoginComponent implements AfterViewInit {
     this.auth.login(loginDto as any, rememberMe ?? false).subscribe({
       next: () => {
         this.loading = false;
-        if (this.auth.isSubscribed) return;
-        const ret = new URLSearchParams(window.location.search).get('returnUrl') ?? 'home';
-        this.router.navigateByUrl(ret);
+        if (this.auth.isSubscribed) {
+          this.router.navigate(['/dashboard']);
+        } else {
+          const ret = new URLSearchParams(window.location.search).get('returnUrl') ?? '/';
+          this.router.navigateByUrl(ret);
+        }
       },
-      error: (err: Error) => { this.loading = false; this.serverError = err.message; },
+      error: (err: Error) => {
+        this.loading = false;
+        this.serverError = err.message;
+      },
     });
   }
 
