@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth';
 import { TranslateModule } from '@ngx-translate/core';
 
-export type DashboardSection = 'profile' | 'workout' | 'diet' | 'membership' | 'progress' | 'settings';
+export type DashboardSection = 'profile' | 'qr' | 'workout' | 'diet' | 'membership' | 'progress' | 'settings';
 
 @Component({
   selector: 'app-dashboard-sidebar',
@@ -33,6 +33,7 @@ export class DashboardSidebar {
 
   readonly items: { key: DashboardSection; icon: string; label: string }[] = [
     { key: 'profile',    icon: 'grid',       label: 'sidebar.dashboard' },
+    { key: 'qr',         icon: 'qr',         label: 'sidebar.qrCodes' },
     { key: 'workout',    icon: 'dumbbell',   label: 'sidebar.myWorkouts' },
     { key: 'diet',       icon: 'utensils',   label: 'sidebar.myDietPlan' },
     { key: 'membership', icon: 'shield',     label: 'sidebar.membershipBilling' },

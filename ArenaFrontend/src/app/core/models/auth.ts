@@ -62,6 +62,7 @@ export interface AuthResponseDto {
   refreshToken: string;
   expiresAt: string;
   role: string;
+  memberProfileId?: string;
   isSubscribed: boolean;
   isGoogleUser: boolean; // From main branch
   firstName?: string;    // From dev branch
@@ -89,6 +90,7 @@ export interface UserSubscriptionDto {
 
 export interface GetProfileDto {
   id: string;
+  memberProfileId?: string;
   email: string;
   firstName: string;
   lastName: string;

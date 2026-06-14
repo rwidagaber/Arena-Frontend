@@ -508,6 +508,7 @@
   },
   "sidebar": {
     "dashboard": "لوحة التحكم",
+    "qrCodes": "رموز QR",
     "myWorkouts": "تماريني",
     "myDietPlan": "خطتي الغذائية",
     "membershipBilling": "العضوية والفوترة",

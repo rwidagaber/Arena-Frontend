@@ -171,6 +171,10 @@
             </div>
           }
 
+          @case ('qr') {
+            <app-qr-display [memberProfileId]="profile()?.memberProfileId || profile()?.id || ''" />
+          }
+
           @case ('workout') {
             <div class="section-placeholder">
               <div class="placeholder-icon">

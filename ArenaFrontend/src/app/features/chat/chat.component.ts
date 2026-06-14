@@ -57,7 +57,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
             return;
           }
 
-          this.memberProfileId = profile.id;
+          this.memberProfileId = profile.memberProfileId ?? profile.id;
           this.loadConversations();
         },
         error: () => {

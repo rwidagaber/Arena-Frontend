@@ -19,6 +19,7 @@ import { roleGuard } from './core/guards/role/role-guard';
 import { confirmEmailGuard } from './core/guards/auth/confirm-email-guard';
 import { ChatComponent } from './features/chat/chat.component';
 import { subscriptionGuard } from './core/guards/subscription/subscription-guard';
+import { QrDisplayComponent } from './features/QR/qr-display.component/qr-display.component';
 export const routes: Routes = [
   // Base / Home Routes
   {
@@ -95,5 +96,15 @@ export const routes: Routes = [
     path: 'chat',
     component: ChatComponent,
     canActivate: [authGuard, subscriptionGuard]
+  },
+  {
+    path: 'qr/scan',
+    component: QrDisplayComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'qr/:bookingId',
+    component: QrDisplayComponent,
+    canActivate: [authGuard, subGuard]
   }
 ];

@@ -512,6 +512,7 @@
   },
   "sidebar": {
     "dashboard": "Dashboard",
+    "qrCodes": "QR Codes",
     "myWorkouts": "My Workouts",
     "myDietPlan": "My Diet Plan",
     "membershipBilling": "Membership & Billing",
