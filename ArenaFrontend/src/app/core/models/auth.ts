@@ -62,10 +62,12 @@ export interface AuthResponseDto {
   refreshToken: string;
   expiresAt: string;
   role: string;
+   memberProfileId?: string;
   isSubscribed: boolean;
   isGoogleUser: boolean; // From main branch
   firstName?: string;    // From dev branch
   lastName?: string;     // From dev branch
+ 
 }
 
 export interface UserSummary {
@@ -104,4 +106,5 @@ export interface GetProfileDto {
   dateOfBirth?: string;
   profileImageUrl?: string;
   activeSubscription?: UserSubscriptionDto | null;
+   memberProfileId?: string;
 }

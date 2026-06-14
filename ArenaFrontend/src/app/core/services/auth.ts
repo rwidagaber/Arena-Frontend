@@ -204,6 +204,7 @@ export class AuthService {
        role: frontendRole,
     isSubscribed: res.isSubscribed ?? false,
     isGoogleUser: res.isGoogleUser ?? false,
+    memberProfileId: res.memberProfileId,
     firstName: res.firstName ?? '',
     lastName: res.lastName ?? ''
     };
