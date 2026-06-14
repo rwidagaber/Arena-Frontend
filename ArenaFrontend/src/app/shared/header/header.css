@@ -33,7 +33,7 @@
   --dropdown-divider: rgba(0, 0, 0, 0.06);
   --toggle-bg:        rgba(0, 0, 0, 0.06);
   --toggle-border:    rgba(0, 0, 0, 0.12);
-  --toggle-color:     #fff23c; /* لون الشمس */
+  --toggle-color:     #f8e807; /* لون الشمس */
 }
 
 /* ==========================================================================
@@ -301,3 +301,96 @@
 .dropdown-header-name { color: var(--dropdown-text); font-weight: 700; font-size: 0.95rem; }
 
 .dropdown-header-plan { color: var(--nav-text-muted); font-size: 0.8rem; font-weight: 600; }
+
+/* Container وتثبيت المؤشر */
+.user-dropdown-container {
+  position: relative;
+}
+.user-trigger-wrapper {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  user-select: none;
+}
+
+/* الهيكل الأساسي للـ Dropdown */
+.user-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 12px);
+  width: 250px;
+  padding: 12px !important;
+  z-index: 1100 !important;
+  box-sizing: border-box;
+  border-radius: 14px !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 0.2s ease-in-out;
+}
+
+/* 🌓 تنسيق الألوان للوضع الداكن (الافتراضي) */
+.user-dropdown-menu {
+  background-color: rgba(20, 21, 23, 0.96) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5) !important;
+}
+.user-dropdown-menu .dropdown-header-name { color: #ffffff !important; }
+.user-dropdown-menu .dropdown-item { color: #b3b3b3 !important; }
+.user-dropdown-menu .dropdown-item:hover:not(:disabled) { 
+  background-color: rgba(255, 255, 255, 0.06) !important; 
+  color: #ffffff !important; 
+}
+.user-dropdown-menu .dropdown-divider { background-color: rgba(255, 255, 255, 0.08) !important; }
+
+/* 🌓 تنسيق الألوان لوضع الـ Light Mode التلقائي */
+:host-context([data-theme="light"]) .user-dropdown-menu {
+  background-color: rgba(255, 255, 255, 0.98) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12) !important;
+}
+:host-context([data-theme="light"]) .user-dropdown-menu .dropdown-header-name { color: #141517 !important; }
+:host-context([data-theme="light"]) .user-dropdown-menu .dropdown-item { color: #4a4a4a !important; }
+:host-context([data-theme="light"]) .user-dropdown-menu .dropdown-item:hover:not(:disabled) { 
+  background-color: rgba(0, 0, 0, 0.05) !important; 
+  color: #000000 !important; 
+}
+:host-context([data-theme="light"]) .user-dropdown-menu .dropdown-divider { background-color: rgba(0, 0, 0, 0.06) !important; }
+
+/* 📍 التحكم في التموضع الأفقي والمحاذاة للجانبين */
+
+/* في حالة الإنجليزي (LTR): تفتح محاذية لليمين وتتجه يساراً */
+.dropdown-menu-ltr {
+  right: 0;
+  left: auto;
+}
+
+/* في حالة العربي (RTL): تلتصق تماماً بأقصى اليسار وتفتح لليمين داخل حدود الصفحة */
+.dropdown-menu-rtl {
+  left: 0 !important;
+  right: auto !important;
+}
+
+/* اتجاهات النصوص الداخلية للغات */
+.user-dropdown-menu[dir="ltr"] .dropdown-item,
+.user-dropdown-menu[dir="ltr"] .dropdown-header-text {
+  text-align: left !important;
+}
+.user-dropdown-menu[dir="rtl"] .dropdown-item,
+.user-dropdown-menu[dir="rtl"] .dropdown-header-text {
+  text-align: right !important;
+}
+
+/* باقي التنسيقات الداخلية للفصل وحواف الأزرار */
+.dropdown-header-info { display: flex !important; align-items: center !important; gap: 12px !important; padding: 6px 8px 10px 8px !important; }
+.user-dropdown-menu[dir="rtl"] .dropdown-header-info { flex-direction: row !important; }
+  .dropdown-header-text { display: flex !important; flex-direction: column !important; }
+.dropdown-header-plan { color: #4DA352 !important; font-size: 12px !important; font-weight: 500 !important; }
+.dropdown-subscription-pill { background: rgba(77, 163, 82, 0.15) !important; color: #4DA352 !important; text-align: center !important; padding: 8px !important; border-radius: 8px !important; font-size: 13px !important; font-weight: 600 !important; cursor: pointer; margin: 4px 0 8px 0 !important; }
+.dropdown-divider { height: 1px; margin: 6px 0 !important; width: 100%; }
+.dropdown-item { width: 100% !important; background: transparent !important; border: none !important; padding: 9px 12px !important; font-size: 13.5px !important; font-weight: 500 !important; border-radius: 8px !important; cursor: pointer; display: block !important; box-sizing: border-box !important; }
+.dropdown-logout { color: #ef4444 !important; }
+.dropdown-logout:hover { background-color: rgba(239, 68, 68, 0.1) !important; }
+
+/* تأثير دوران السهم اللطيف */
+.nav-chevron { transition: transform 0.2s ease; }
+.nav-chevron.rotated { transform: rotate(180deg); }

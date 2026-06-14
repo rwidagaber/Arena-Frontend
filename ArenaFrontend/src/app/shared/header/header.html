@@ -60,38 +60,17 @@
 
     <div class="d-flex align-items-center gap-3">
 
-      <!-- ✅ Theme Toggle — SVG واضح -->
       <button
         type="button"
         class="theme-toggle-btn"
         (click)="toggleTheme()"
         [attr.aria-label]="themeService.isDark ? 'Switch to light mode' : 'Switch to dark mode'"
       >
-        <!-- 🌙 هلال — يظهر في Dark mode -->
-        <svg
-          *ngIf="themeService.isDark"
-          class="theme-icon"
-          xmlns="http://www.w3.org/2000/svg"
-          width="18" height="18"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-        >
+        <svg *ngIf="themeService.isDark" class="theme-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
         </svg>
 
-        <!-- ☀️ شمس — يظهر في Light mode -->
-        <svg
-          *ngIf="!themeService.isDark"
-          class="theme-icon"
-          xmlns="http://www.w3.org/2000/svg"
-          width="18" height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
+        <svg *ngIf="!themeService.isDark" class="theme-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="5"/>
           <line x1="12" y1="1"  x2="12" y2="3"/>
           <line x1="12" y1="21" x2="12" y2="23"/>
@@ -110,7 +89,7 @@
 
       <ng-container *ngIf="currentUser$ | async as user; else loginButtons">
         <div class="user-dropdown-container">
-          <div class="user-trigger-wrapper" (click)="toggleDropdown()">
+          <div class="user-trigger-wrapper" (click)="toggleDropdown(); $event.stopPropagation()">
             @if (user.firstName) {
               <span class="user-name-pill">{{ user.firstName }} {{ user.lastName || '' }}</span>
             } @else {
@@ -124,45 +103,50 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-chevron" [class.rotated]="dropdownOpen" width="14" height="14">
               <polyline points="6 9 12 15 18 9"/>
             </svg>
-
-            @if (dropdownOpen) {
-              <div class="user-dropdown-menu">
-                <div class="dropdown-header-info">
-                  <div class="dropdown-header-avatar">
-                    @if (user.profileImage || user.profileImageUrl) {
-                      <img [src]="user.profileImage || user.profileImageUrl" [alt]="user.firstName" class="dropdown-header-img">
-                    } @else {
-                      <span class="dropdown-header-initials">{{ (user.firstName || 'U')[0] }}</span>
-                    }
-                  </div>
-                  <div class="dropdown-header-text">
-                    <span class="dropdown-header-name">{{ user.firstName || '' }} {{ user.lastName || '' }}</span>
-                    <span class="dropdown-header-plan">{{ 'memberProfile.platinumMember' | translate }}</span>
-                  </div>
-                </div>
-                <div class="dropdown-subscription-pill" (click)="goToSubscription($event)">
-                  {{ 'subscription.pill' | translate }}
-                </div>
-                <div class="dropdown-divider"></div>
-
-                @for (item of dropdownItems; track item.key) {
-                  <button
-                    class="dropdown-item"
-                    [class.disabled]="isItemDisabled(item)"
-                    [disabled]="isItemDisabled(item)"
-                    (click)="!isItemDisabled(item) && navigateToSection(item.key, $event)"
-                  >
-                    {{ item.label | translate }}
-                  </button>
-                }
-
-                <div class="dropdown-divider"></div>
-                <button class="dropdown-item dropdown-logout" (click)="logout($event)">
-                  {{ 'header.logout' | translate }}
-                </button>
-              </div>
-            }
           </div>
+
+          @if (dropdownOpen) {
+            <div class="user-dropdown-menu" 
+                 [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'"
+                 [ngClass]="currentLang === 'ar' ? 'dropdown-menu-rtl' : 'dropdown-menu-ltr'">
+              
+              <div class="dropdown-header-info">
+                <div class="dropdown-header-avatar">
+                  @if (user.profileImage || user.profileImageUrl) {
+                    <img [src]="user.profileImage || user.profileImageUrl" [alt]="user.firstName" class="dropdown-header-img">
+                  } @else {
+                    <span class="dropdown-header-initials">{{ (user.firstName || 'U')[0] }}</span>
+                  }
+                </div>
+                <div class="dropdown-header-text">
+                  <span class="dropdown-header-name">{{ user.firstName || '' }} {{ user.lastName || '' }}</span>
+                  <span class="dropdown-header-plan">{{ 'memberProfile.platinumMember' | translate }}</span>
+                </div>
+              </div>
+
+              <div class="dropdown-subscription-pill" (click)="goToSubscription($event)">
+                {{ 'subscription.pill' | translate }}
+              </div>
+              <div class="dropdown-divider"></div>
+
+              @for (item of dropdownItems; track item.key) {
+                <button
+                  class="dropdown-item"
+                  [class.disabled]="isItemDisabled(item)"
+                  [disabled]="isItemDisabled(item)"
+                  (click)="!isItemDisabled(item) && navigateToSection(item.key, $event)"
+                >
+                  {{ item.label | translate }}
+                </button>
+              }
+
+              <div class="dropdown-divider"></div>
+              <button class="dropdown-item dropdown-logout" (click)="logout($event)">
+                {{ 'header.logout' | translate }}
+              </button>
+            </div>
+          }
+
         </div>
       </ng-container>
 
