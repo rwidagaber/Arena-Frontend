@@ -15,7 +15,7 @@ export class MemberService {
     return this.http.get<GetProfileDto>(`${this.base}/auth/me`).pipe(
       map(dto => ({
         id: dto.id,
-        memberProfileId: dto.memberProfileId ?? dto.id,
+        memberProfileId: dto.id,
         firstName: dto.firstName,
         lastName: dto.lastName,
         email: dto.email,

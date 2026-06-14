@@ -188,8 +188,7 @@
     "progressReport": "تقرير التقدم",
     "settings": "الإعدادات",
     "logout": "تسجيل الخروج",
-    "chatbot": "المساعد الذكي",
-    "qrCodes": "رموز QR",
+    "chatbot": "المساعد الذكي"
   },
   "section": {
     "workoutPlaceholder": "ستظهر خطة التمرين المخصصة لك هنا.",

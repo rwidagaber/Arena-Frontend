@@ -188,8 +188,7 @@
     "progressReport": "Progress Report",
     "settings": "Settings",
     "logout": "Logout",
-    "chatbot": "ChatBot",
-    "qrCodes": "QR Codes",
+    "chatbot": "ChatBot"
   },
   "section": {
     "workoutPlaceholder": "Your personalized workout plan will appear here.",

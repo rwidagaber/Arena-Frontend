@@ -188,7 +188,6 @@ export class AuthService {
       ...res,
       role: frontendRole,
       isSubscribed: res.isSubscribed ?? false,
-      memberProfileId: res.memberProfileId,
       firstName: res.firstName ?? '',
       lastName: res.lastName ?? ''
     };

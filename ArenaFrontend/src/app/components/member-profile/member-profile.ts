@@ -8,12 +8,11 @@ import type { GetProfileDto, UserSubscriptionDto } from '../../core/models/auth'
 import type { MemberProfile as MemberProfileModel, MembershipDetails } from '../../core/models/member';
 import { DashboardSidebar, DashboardSection } from './dashboard-sidebar/dashboard-sidebar';
 import { TranslateModule } from '@ngx-translate/core';
-import { QrDisplayComponent } from '../../features/QR/qr-display.component/qr-display.component';
 
 function mapAuthToProfile(dto: GetProfileDto): MemberProfileModel {
   return {
     id: dto.id,
-    memberProfileId: dto.memberProfileId ?? dto.id,
+    memberProfileId: dto.id,
     firstName: dto.firstName,
     lastName: dto.lastName,
     email: dto.email,
@@ -49,7 +48,6 @@ function mapSubscriptionToMembership(sub: UserSubscriptionDto): MembershipDetail
     CommonModule,
     DashboardSidebar,
     TranslateModule,
-    QrDisplayComponent,
   ],
   templateUrl: './member-profile.html',
   styleUrl: './member-profile.css',
@@ -238,7 +236,7 @@ export class MemberProfile implements OnInit {
   }
 
   private isValidSection(s: string): s is DashboardSection {
-    return ['profile', 'qr', 'workout', 'diet', 'membership', 'progress', 'settings'].includes(s);
+    return ['profile', 'workout', 'diet', 'membership', 'progress', 'settings'].includes(s);
   }
 
   loadData(): void {
