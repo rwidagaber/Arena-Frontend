@@ -12,7 +12,8 @@
     "signup": "Sign Up",
     "logout": "Logout",
     "dashboard": "Dashboard",
-    "profile": "Profile"
+    "profile": "Profile",
+    "pricing": "Membership Plans"
   },
   "hero": {
     "badge": "Smart Training. Real Results.",
@@ -326,7 +327,8 @@
     "signup": "Sign Up",
     "logout": "Logout",
     "dashboard": "Dashboard",
-    "profile": "Profile"
+    "profile": "Profile",
+    "pricing": "Membership Plans"
   },
   "hero": {
     "badge": "Smart Training. Real Results.",
