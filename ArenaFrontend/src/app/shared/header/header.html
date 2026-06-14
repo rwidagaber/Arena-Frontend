@@ -35,6 +35,11 @@
             {{ 'header.about' | translate }}
           </a>
         </li>
+        <li>
+          <a routerLink="/pricing" routerLinkActive="text-lime-active" class="nav-item-exact">
+            {{ 'header.pricing' | translate }}
+          </a>
+        </li>
         <li *ngIf="auth.isSubscribed">
           <a routerLink="/dashboard" class="nav-item-exact">
             {{ 'header.dashboard' | translate }}
