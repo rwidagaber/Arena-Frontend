@@ -34,32 +34,44 @@ export const routes: Routes = [
   {
     path: 'login',
     component: LoginComponent,
-    canActivate: [guestGuard]         // ✅ logged in → /dashboard أو /
+    canActivate: [guestGuard] ,
+      data: { hideLayout: true }
+     
   },
   {
     path: 'register',
     component: RegisterComponent,
-    canActivate: [guestGuard]         // ✅ كان resetPasswordGuard بالغلط
+    canActivate: [guestGuard] ,
+      data: { hideLayout: true }
+        
   },
   {
     path: 'forgot-password',
-    component: ForgotPasswordComponent,
-    canActivate: [guestGuard]         // ✅ logged in → /
+      component: ForgotPasswordComponent,
+      canActivate: [guestGuard] ,
+        data: { hideLayout: true }
+
   },
   {
     path: 'reset-password',
     component: ResetPasswordComponent,
-    canActivate: [resetPasswordGuard] // ✅ يشيك على token+email في الـ URL
+    canActivate: [resetPasswordGuard] ,
+      data: { hideLayout: true }
+
   },
   {
     path: 'confirm-email',
     component: ConfirmEmailComponent,
-    canActivate: [confirmEmailGuard]  // ✅ يشيك على userId+email في الـ URL
+    canActivate: [confirmEmailGuard]  ,
+      data: { hideLayout: true }
+
   },
   {
     path: 'complete-profile',
     component: CompleteProfileComponent,
-    canActivate: [completeProfileGuard] // ✅ logged in بس، مش لازم subscribed
+    canActivate: [completeProfileGuard] ,
+      data: { hideLayout: true }
+
   },
 
   // ─── Protected (members only) ───

@@ -25,6 +25,11 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly themeService = inject(ThemeService);
   private translate = inject(TranslateService);
 
+  // ✅ تعديل: زر سهم الرجوع في الـ Login يُرجع المستخدم إلى الصفحة الرئيسية للموقع مباشرة لمنع الحلقات المفرغة
+  goBack(): void {
+    this.router.navigate(['/']);
+  }
+
   showPw      = false;
   loading     = false;
   serverError = '';
@@ -119,7 +124,11 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  goToSignup(): void { this.router.navigate(['/register']); }
+  // ✅ تعديل: الانتقال إلى الـ Register مع استبدال المسار الحالي لمنع الـ Infinity loop
+  goToSignup(): void { 
+    this.router.navigate(['/register'], { replaceUrl: true }); 
+  }
+  
   goToforgot(): void { this.router.navigate(['/forgot-password']); }
 
   isInvalid(field: string): boolean {

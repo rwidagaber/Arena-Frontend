@@ -1,4 +1,7 @@
 <div class="auth-card" [dir]="isRtl ? 'rtl' : 'ltr'" [class.rtl]="isRtl">
+  
+  
+
   <h2 class="auth-title">{{ 'auth.register.title' | translate }}</h2>
   <p class="auth-sub">{{ 'auth.register.subtitle' | translate }}</p>
 
@@ -38,22 +41,21 @@
       </div>
     </div>
 
-    <!-- ✅ field-row-3 مقسمة لـ 3 fields منفصلة بدل row واحد -->
     <div class="field-row-3">
       <div class="field" [class.invalid]="isInvalid('gender')">
-  <label>{{ 'auth.register.gender' | translate }}</label>
-  <div class="select-wrap">
-    <select formControlName="gender">
-      <option value="" disabled selected>—</option>
-      @for (opt of genderOptions; track opt.value) {
-        <option [ngValue]="opt.value">{{ opt.label }}</option>
-      }
-    </select>
-  </div>
-  @if (isInvalid('gender')) {
-    <span class="err">{{ 'auth.validation.required' | translate }}</span>
-  }
-</div>
+        <label>{{ 'auth.register.gender' | translate }}</label>
+        <div class="select-wrap">
+          <select formControlName="gender">
+            <option value="" disabled selected>—</option>
+            @for (opt of genderOptions; track opt.value) {
+              <option [ngValue]="opt.value">{{ opt.label }}</option>
+            }
+          </select>
+        </div>
+        @if (isInvalid('gender')) {
+          <span class="err">{{ 'auth.validation.required' | translate }}</span>
+        }
+      </div>
       <div class="field" [class.invalid]="isInvalid('height')">
         <label>{{ 'auth.register.height' | translate }}</label>
         <input type="number" formControlName="height" placeholder="170" />
@@ -85,11 +87,7 @@
     <div class="field" [class.invalid]="isInvalid('password')">
       <label>{{ 'auth.register.password' | translate }}</label>
       <div class="input-wrap">
-        <input
-          [type]="showPw ? 'text' : 'password'"
-          formControlName="password"
-          placeholder="••••••••"
-        />
+        <input [type]="showPw ? 'text' : 'password'" formControlName="password" placeholder="••••••••" />
         <button type="button" class="toggle-pw" (click)="showPw = !showPw">
           @if (showPw) {
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -114,11 +112,7 @@
     <div class="field" [class.invalid]="showMismatch">
       <label>{{ 'auth.register.confirmPassword' | translate }}</label>
       <div class="input-wrap">
-        <input
-          [type]="showPw ? 'text' : 'password'"
-          formControlName="confirmPassword"
-          placeholder="••••••••"
-        />
+        <input [type]="showPw ? 'text' : 'password'" formControlName="confirmPassword" placeholder="••••••••" />
       </div>
       @if (showMismatch) {
         <span class="err">{{ 'auth.validation.passwordMismatch' | translate }}</span>
@@ -130,16 +124,16 @@
     }
 
     <button type="submit" class="btn-submit" [disabled]="loading">
-      @if (loading) {
-        <span class="btn-text">{{ 'auth.register.create' | translate }}</span>
-        <div class="spinner"></div>
-      } @else {
-        <span class="btn-text">{{ 'auth.register.create' | translate }}</span>
-      }
+      <span class="btn-text-content">
+        @if (loading) {
+          <div class="spinner"></div>
+        } @else {
+          {{ 'auth.register.create' | translate }}
+        }
+      </span>
     </button>
 
     <div class="divider"><span>{{ 'auth.login.orContinueWith' | translate }}</span></div>
-
     <div id="google-btn"></div>
 
   </form>
@@ -150,6 +144,14 @@
       {{ 'auth.register.signIn' | translate }}
     </button>
   </p>
+  <button type="button" class="back-btn" (click)="goToLogin()" aria-label="Go back">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" 
+         fill="none" stroke="currentColor" stroke-width="2" 
+         stroke-linecap="round" stroke-linejoin="round">
+      <line x1="19" y1="12" x2="5" y2="12"></line>
+      <polyline points="12 19 5 12 12 5"></polyline>
+    </svg>
+  </button>
 </div>
 
 <div class="auth-visual-side"></div>

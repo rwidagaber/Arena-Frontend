@@ -6,14 +6,17 @@
 :host {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
   width: 100% !important;
   max-width: 100% !important;
   min-height: 100vh;
-  height: auto;
+  height: auto !important; /* السماح للارتفاع بالامتداد */
   box-sizing: border-box;
   margin: 0 !important;
   padding: 0 !important;
   overflow-x: hidden !important;
+  overflow-y: auto !important; /* تفعيل السكرول الخارجي للموقع بشكل انسيابي */
   position: relative;
   background-color: transparent !important;
 }
@@ -49,29 +52,34 @@
   background-position: left center;
 }
 
-/* ✅ بدل order: -1 */
+/* ✅ اتجاه الـ Flex في الـ RTL */
 :host:has(.auth-card.rtl) {
-  flex-direction: row-reverse; /* الكارت يروح اليمين والصورة اليسار */
+  flex-direction: row-reverse;
 }
 
 /* ✅ الصورة في RTL تتعكس */
 :host:has(.auth-card.rtl)::before {
   background-position: left center;
-  transform: scaleX(-1); /* ✅ الصورة نفسها بتتعكس */
+  transform: scaleX(-1);
 }
+
 /* ==========================================================================
-   Card
+   Card Layout (إعادة الانسيابية والارتفاع المرن للكارت)
    ========================================================================== */
 .auth-card {
-  padding: 40px 60px;
+  padding: 35px 45px !important; /* مساحة مريحة جداً أعلى وأسفل الكارت */
   width: 100%;
   max-width: 480px;
-  min-height: 100vh;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  overflow-y: auto;
+  justify-content: center; 
+  
+  height: auto !important;
+  min-height: 100vh !important;
+  max-height: none !important;
+  overflow-y: visible !important; /* إلغاء كتم العناصر وعرضها بالكامل */
+  
   position: relative;
   z-index: 2;
   background: var(--card-bg) !important;
@@ -98,62 +106,76 @@
 
 .auth-title {
   color: var(--text-primary) !important;
-  font-size: 32px;
+  font-size: 28px; /* عنوان فخم وجريء */
   font-weight: 700;
-  margin: 0 0 8px 0;
+  margin: 0 0 6px 0;
   letter-spacing: -0.5px;
 }
 
 .auth-sub {
   color: var(--text-secondary) !important;
-  font-size: 15px;
-  margin: 0 0 32px 0;
+  font-size: 14px;
+  margin: 0 0 24px 0; /* مسافة ممتازة تفصل العناوين عن الحقول */
 }
 
 /* ==========================================================================
-   Form Fields
+   Form Fields & Grid Support
    ========================================================================== */
 .field {
   display: flex;
   flex-direction: column;
-  margin-bottom: 18px;
+  margin-bottom: 22px !important; /* زيادة المسافة العمودية لمنع التكدس */
   width: 100%;
   box-sizing: border-box;
 }
 
 .field label {
   color: var(--text-primary) !important;
-  font-size: 14px;
-  font-weight: 500;
-  margin-bottom: 8px;
-  opacity: 0.9;
+  font-size: 14px !important; /* تكبير خط الـ Label */
+  font-weight: 600 !important; /* زيادة سُمك الخط للوضوح */
+  margin-bottom: 8px !important; /* مسافة مريحة تحت الـ Label */
+  opacity: 0.95;
+  letter-spacing: 0.3px;
 }
 
-.field-row { display: flex; gap: 16px; width: 100%; }
+.field-row { 
+  display: flex; 
+  gap: 16px !important; /* فراغ أفقي محترم بين الحقول المتجاورة */
+  width: 100%; 
+}
 .field-row .field { flex: 1; min-width: 0; }
-.field-row-3 { display: flex; gap: 12px; width: 100%; }
+
+.field-row-3 { 
+  display: flex; 
+  gap: 12px !important; 
+  width: 100%; 
+}
 .field-row-3 .field { flex: 1; min-width: 0; }
 
 /* ==========================================================================
-   Inputs
+   Inputs & Selects Customization (الحقول الفخمة الضخمة)
    ========================================================================== */
-.field input {
+.field input,
+.select-wrap select {
   background: var(--input-bg) !important;
   border: 1px solid var(--border-color) !important;
-  border-radius: 12px !important;
+  border-radius: 10px !important; /* حواف أنعم */
   color: var(--text-primary) !important;
-  padding: 12px 16px;
-  font-size: 15px;
+  padding: 13px 16px !important; /* الـ Padding الداخلي الذي يعطي ضخامة للحقل */
+  font-size: 15px !important; /* خط كتابة أكبر وأوضح */
+  line-height: 1.5 !important;
+  height: 52px !important; /* ارتفاع ضخم وثابت لراحة العين والكتابة */
   transition: all 0.25s ease;
   box-sizing: border-box;
   width: 100%;
   outline: none;
 }
 
-.field input:focus {
+.field input:focus,
+.select-wrap select:focus {
   background-color: var(--input-focus-bg, rgba(0, 0, 0, 0.5)) !important;
   border-color: #418C27 !important;
-  box-shadow: 0 0 0 4px rgba(212, 250, 36, 0.15) !important;
+  box-shadow: 0 0 0 2px rgba(65, 140, 39, 0.15) !important;
 }
 
 .field input::placeholder {
@@ -170,116 +192,160 @@
   transition: background-color 5000s ease-in-out 0s;
 }
 
+input[type="date"] {
+  display: flex;
+  align-items: center;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(55%) sepia(80%) saturate(450%) hue-rotate(60deg) brightness(95%) contrast(90%);
+  cursor: pointer; 
+  opacity: 0.8;
+}
+
 /* ==========================================================================
-   Select
+   Select Styling
    ========================================================================== */
 .select-wrap { position: relative; width: 100%; }
 
 .select-wrap select {
-  background: var(--input-bg) !important;
-  border: 1px solid var(--border-color) !important;
-  border-radius: 12px !important;
-  color: var(--text-primary) !important;
-  padding: 12px 32px 12px 12px;
-  font-size: 15px;
+  padding: 13px 36px 13px 16px !important;
   font-family: inherit;
-  transition: all 0.25s ease;
-  box-sizing: border-box;
-  width: 100%;
   cursor: pointer;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  outline: none;
 }
-
-.select-wrap select:focus { border-color: #418C27 !important; }
 
 .select-wrap::after {
   content: "";
   position: absolute;
-  right: 12px; top: 50%;
+  right: 16px; 
+  top: 50%;
   transform: translateY(-50%);
-  width: 12px; height: 12px;
+  width: 12px; 
+  height: 12px;
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23418C27" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
   background-size: contain;
   background-repeat: no-repeat;
   pointer-events: none;
 }
 
-/* ✅ RTL — السهم على اليسار */
+/* ✅ RTL — السهم على اليسار في الـ Select */
 .auth-card[dir="rtl"] .select-wrap::after {
   right: auto;
-  left: 12px;
+  left: 16px;
 }
 
 .auth-card[dir="rtl"] .select-wrap select {
-  padding: 12px 12px 12px 32px;
+  padding: 13px 16px 13px 36px !important;
 }
 
 .select-wrap select option {
-  background-color: var(--bg-secondary) !important;
+  background-color: var(--bg-secondary, #141515) !important;
   color: var(--text-primary) !important;
 }
 
-input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(55%) sepia(80%) saturate(450%) hue-rotate(60deg) brightness(95%) contrast(90%);
-  cursor: pointer; opacity: 0.8;
-}
-
 /* ==========================================================================
-   Password Toggle
+   Password Toggle Layout
    ========================================================================== */
 .input-wrap { position: relative; display: flex; align-items: center; width: 100%; }
-.input-wrap input { padding-right: 48px; }
+.input-wrap input { padding-right: 42px !important; }
 
-/* ✅ RTL — زرار الـ toggle على اليسار */
+/* ✅ RTL — مسافة الباسورد يمين ويسار */
 .auth-card[dir="rtl"] .input-wrap input {
-  padding-right: 16px;
-  padding-left: 48px;
+  padding-right: 16px !important;
+  padding-left: 42px !important;
 }
 
 .toggle-pw {
-  position: absolute; right: 12px;
-  background: none; border: none;
+  position: absolute; 
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%); /* محاذاة عمودية متناسقة تماماً مع الـ 52px */
+  background: none; 
+  border: none;
   color: var(--text-secondary);
-  cursor: pointer; display: flex;
-  align-items: center; justify-content: center;
-  padding: 6px; border-radius: 50%; outline: none;
+  cursor: pointer; 
+  display: flex;
+  align-items: center; 
+  justify-content: center;
+  padding: 6px; 
+  border-radius: 50%; 
+  outline: none;
+  z-index: 3;
 }
 
-/* ✅ RTL */
+/* ✅ RTL آيقونة العين */
 .auth-card[dir="rtl"] .toggle-pw {
   right: auto;
-  left: 12px;
+  left: 14px;
 }
 
 .toggle-pw:hover { color: #418C27; }
-.toggle-pw svg { stroke: var(--text-secondary); }
+.toggle-pw svg { stroke: var(--text-secondary); width: 18px; height: 18px; }
 .toggle-pw:hover svg { stroke: #418C27; }
 
 /* ==========================================================================
-   Buttons & Dividers
+   Buttons, Dividers & Back Arrow
    ========================================================================== */
+.back-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary, #8a8a8a);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  margin-top: 0px;
+  margin-bottom: 12px;
+  align-self: flex-start;
+  transition: all 0.25s ease;
+  padding: 0;
+  outline: none;
+}
+
+.back-btn:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #418C27;
+}
+
+.back-btn svg { width: 20px; height: 20px; }
+
+/* قلب اتجاه السهم في الـ RTL */
+.auth-card[dir="rtl"] .back-btn svg {
+  transform: scaleX(-1);
+}
+
 .btn-submit {
   background-color: #418C27 !important;
   color: #0b0c0c !important;
-  border: none; border-radius: 100px;
-  padding: 14px; font-size: 16px; font-weight: 700;
-  cursor: pointer; width: 100%;
+  border: none; 
+  border-radius: 100px;
+  padding: 14px !important; /* زر إرسال مريح وضخم يجاري الحقول */
+  font-size: 16px !important;
+  font-weight: 700;
+  cursor: pointer; 
+  width: 100%;
   transition: all 0.3s ease;
-  display: flex; justify-content: center; align-items: center;
-  gap: 8px; min-height: 52px;
+  display: flex; 
+  justify-content: center; 
+  align-items: center;
+  gap: 8px; 
+  height: 52px !important;
   box-shadow: 0 4px 14px rgba(65, 140, 39, 0.3);
-  margin-top: 15px;
+  margin-top: 18px !important;
 }
 
 .btn-submit:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(65, 140, 39, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px rgba(65, 140, 39, 0.4);
 }
 
-.divider { margin: 20px 0; text-align: center; position: relative; }
+.divider { margin: 16px 0; text-align: center; position: relative; }
 
 .divider::before {
   content: "";
@@ -289,20 +355,22 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .divider span {
   background: var(--bg-primary, #0b0c0c);
-  padding: 0 12px; position: relative; z-index: 1;
-  color: var(--text-secondary); font-size: 14px;
+  padding: 0 12px; 
+  position: relative; 
+  z-index: 1;
+  color: var(--text-secondary); 
+  font-size: 13px;
 }
 
-#google-btn { display: flex; justify-content: center; width: 100%; }
+#google-btn { display: flex; justify-content: center; width: 100%; min-height: 44px; }
 
-.switch-text { color: var(--text-secondary); text-align: center; font-size: 14px; margin-top: 20px; }
+.switch-text { color: var(--text-secondary); text-align: center; font-size: 13.5px; margin-top: 14px; margin-bottom: 0px; }
 
 .link-btn {
   background: none; border: none;
-  color: #418C27; font-size: 14px; font-weight: 700;
-  cursor: pointer; padding: 0 0 0 4px;
+  color: #418C27; font-size: 13.5px; font-weight: 700;
+  cursor: pointer; padding: 0 4px;
 }
-
 .link-btn:hover { text-decoration: underline; }
 
 /* ==========================================================================
@@ -310,7 +378,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
    ========================================================================== */
 .auth-visual-side { flex: 1; background: transparent !important; position: relative; z-index: 1; }
 
-/* ✅ RTL — الـ visual side على اليسار */
 .auth-card.rtl ~ .auth-visual-side {
   order: -1;
 }
@@ -318,23 +385,29 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 @media (max-width: 900px) {
   .auth-visual-side { display: none; }
   .auth-card {
-    max-width: 100%; padding: 40px 24px;
+    max-width: 100%; 
+    padding: 35px 24px !important;
     background: var(--card-bg-mobile, rgba(11, 12, 12, 0.90)) !important;
     border: none !important;
     margin: 0 !important;
+    height: auto !important; 
+    min-height: 100vh !important;
+    max-height: none !important;
+    overflow-y: auto !important;
   }
 }
 
 @media (max-width: 440px) {
   .field-row, .field-row-3 { flex-direction: column; gap: 0; }
+  .field-row-3 .field { width: 100%; }
 }
 
 /* ==========================================================================
-   Validation
+   Validation Elements
    ========================================================================== */
 .err {
-  color: #ef4444 !important; font-size: 13px !important;
-  margin-top: 6px !important; font-weight: 500 !important;
+  color: #ef4444 !important; font-size: 11.5px !important;
+  margin-top: 4px !important; font-weight: 500 !important;
   display: block !important;
 }
 
@@ -347,22 +420,22 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .field.invalid input:focus,
 .field.invalid select:focus {
   border-color: #f87171 !important;
-  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2) !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15) !important;
 }
 
 .banner.error {
   background-color: rgba(239, 68, 68, 0.1) !important;
   border: 1px solid rgba(239, 68, 68, 0.3) !important;
-  color: #ef4444 !important; padding: 12px !important;
-  border-radius: 10px !important; font-size: 14px !important;
-  margin-bottom: 20px !important; text-align: center !important;
+  color: #ef4444 !important; padding: 10px !important;
+  border-radius: 8px !important; font-size: 13px !important;
+  margin-bottom: 12px !important; text-align: center !important;
 }
 
 /* ==========================================================================
    Spinner
    ========================================================================== */
 .spinner {
-  width: 20px; height: 20px;
+  width: 18px; height: 18px;
   border: 2px solid rgba(11, 12, 12, 0.3);
   border-top-color: #0b0c0c;
   border-radius: 50%;

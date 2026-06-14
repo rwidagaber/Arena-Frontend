@@ -69,12 +69,10 @@ export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
   );
 
   ngOnInit(): void {
-    // ✅ حمّل الـ gender options بعد ما الترجمة تتحمل
     this.translate.get('auth.register.genderMale').subscribe(() => {
       this.buildGenderOptions();
     });
 
-    // ✅ حدّث الـ options لما اللغة تتغير
     this.langSub = this.translate.onLangChange.subscribe(() => {
       this.buildGenderOptions();
     });
@@ -151,7 +149,10 @@ export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  goToLogin(): void { this.router.navigate(['/login']); }
+  // ✅ تعديل: الانتقال إلى الـ login مع حذف شاشة الـ register الحالية من الـ History
+  goToLogin(): void { 
+    this.router.navigate(['/login'], { replaceUrl: true }); 
+  }
 
   isInvalid(field: string): boolean {
     const c = this.form.get(field)!;
