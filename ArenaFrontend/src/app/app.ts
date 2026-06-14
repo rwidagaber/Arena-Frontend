@@ -3,6 +3,8 @@ import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './shared/header/header';
 import { FooterComponent } from './shared/components/footer/footer';
 import { TranslateService } from '@ngx-translate/core';
+import { ThemeService } from '../app/core/services/themeservice';
+
 
 @Component({
   selector: 'app-root',
@@ -16,6 +18,7 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class App implements OnInit {
   private translate = inject(TranslateService);
+   private theme = inject(ThemeService);
 
   ngOnInit(): void {
     const storedLang = localStorage.getItem('arena_lang') || 'en';

@@ -45,6 +45,9 @@ export class ResetPasswordComponent implements OnInit {
     this.token = this.route.snapshot.queryParamMap.get('token') ?? '';
     this.email = this.route.snapshot.queryParamMap.get('email') ?? '';
 
+      console.log('resetPasswordGuard:', { token: this.token, email: this.email, isLoggedIn: this.auth.isLoggedIn });
+    
+
     if (!this.token || !this.email) {
       this.router.navigate(['/forgot-password']);
     }

@@ -1,178 +1,202 @@
-/* استيراد خط Inter المتناسق مع الهوم وباقي الصفحات */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+/* ==========================================================================
+   1. Imports & Host Styles
+   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght=400;500;600;700&display=swap');
 
 :host {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  width: 100% !important;
+  max-width: 100% !important;
   min-height: 100vh;
-  width: 100%;
+  height: auto;
   box-sizing: border-box;
-  
-  /* هوية وألوان الهوم الثابتة */
-  --neon-green: #d4fa24;
-  --dark-bg: #0b0c0c;
-  --text-primary: #ffffff;
-  --text-secondary: #a0a0a0;
-  --card-bg: rgba(255, 255, 255, 0.03);
-  --border-color: rgba(255, 255, 255, 0.08);
-
-  background-color: var(--dark-bg);
-  /* الخلفية الشبكية الفخمة للهوم */
-  background-image: repeating-linear-gradient(135deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 2px, transparent 2px, transparent 24px),
-                    repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 2px, transparent 2px, transparent 24px);
-  background-size: 60px 60px;
-  background-position: center top;
-  padding: 40px 20px;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: hidden !important;
+  position: relative;
+  background-color: transparent !important;
 }
 
-/* كارد إكمال البيانات */
+:host::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url('../../../assets/images/man.png');
+  background-size: cover;
+  background-position: right center;
+  background-repeat: no-repeat;
+  z-index: 0;
+  pointer-events: none;
+}
+
+:host-context([data-theme="light"])::before {
+  background-image: url('../../../assets/images/man-light.png');
+}
+
+/* ==========================================================================
+   2. Card Layout & Typography
+   ========================================================================== */
 .auth-card {
-  background: var(--card-bg); 
-  border: 1px solid var(--border-color); 
-  border-radius: 20px; 
-  padding: 40px 32px;
+  background: var(--card-bg) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border-right: 1px solid var(--card-border, rgba(255, 255, 255, 0.08)) !important;
+  border-left: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  border-radius: 0 !important;
+  padding: 40px 60px;
   width: 100%;
-  max-width: 440px; 
-  backdrop-filter: blur(12px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 50px rgba(212, 250, 36, 0.03);
+  max-width: 480px;
+  min-height: 100vh;
   box-sizing: border-box;
-  margin: 0;
-}
-
-/* سطر الوزن والطول */
-.field-row {
   display: flex;
-  gap: 16px; 
-  width: 100%;
+  flex-direction: column;
+  justify-content: center;
+  overflow-y: auto;
+  position: relative;
+  z-index: 2;
+  box-shadow: none !important;
 }
 
-.field-row .field {
-  flex: 1; 
-  min-width: 0; 
-}
-
-/* العناوين الرئيسي والفرعي */
 .auth-title {
-  color: var(--text-primary);
-  font-size: 28px;
+  color: var(--text-primary) !important;
+  font-size: 32px;
   font-weight: 700;
   margin: 0 0 8px 0;
-  text-align: center;
+  text-align: left;
   letter-spacing: -0.5px;
 }
 
 .auth-sub {
-  color: var(--text-secondary);
+  color: var(--text-secondary) !important;
   font-size: 15px;
   margin: 0 0 32px 0;
-  text-align: center;
+  text-align: left;
 }
 
-/* بنية الحقول */
+/* ==========================================================================
+   3. Form Fields & Rows Layout
+   ========================================================================== */
 .field {
   display: flex;
   flex-direction: column;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .field label {
-  color: var(--text-primary); 
+  color: var(--text-primary) !important;
   font-size: 14px;
   font-weight: 500;
   margin-bottom: 8px;
   opacity: 0.9;
+  text-align: left;
 }
 
-/* تصميم المدخلات الداكنة */
+.field-row { display: flex; gap: 16px; width: 100%; }
+.field-row .field { flex: 1; min-width: 0; }
+
+/* ==========================================================================
+   4. Inputs & Custom Dropdowns
+   ========================================================================== */
 .field input {
-  background-color: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
-  color: var(--text-primary);
+  background: var(--input-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 10px !important;
+  color: var(--text-primary) !important;
   padding: 12px 16px;
   font-size: 15px;
   transition: all 0.25s ease;
   box-sizing: border-box;
   width: 100%;
+  outline: none;
 }
 
 .field input:focus {
-  outline: none;
-  background-color: rgba(0, 0, 0, 0.4);
-  border-color: var(--neon-green);
-  box-shadow: 0 0 0 4px rgba(212, 250, 36, 0.15);
+  background-color: var(--input-focus-bg, rgba(0, 0, 0, 0.4)) !important;
+  border-color: #8BF520 !important;
+  box-shadow: 0 0 0 4px rgba(212, 250, 36, 0.15) !important;
 }
 
-/* غلاف وتنسيق حقل الاختيار (Select) الاحترافي */
-.select-wrap {
-  position: relative;
-  width: 100%;
+.field input::placeholder {
+  color: var(--text-secondary) !important;
+  opacity: 0.6;
 }
+
+.field input:-webkit-autofill,
+.field input:-webkit-autofill:hover,
+.field input:-webkit-autofill:focus,
+.field input:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--text-primary) !important;
+  box-shadow: 0 0 0 1000px var(--autofill-bg, rgba(15, 16, 16, 0.95)) inset !important;
+  border: 1px solid var(--border-color) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.select-wrap { position: relative; width: 100%; }
 
 .select-wrap select {
-  background-color: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
-  color: var(--text-primary);
-  padding: 12px 40px 12px 16px; /* مساحة جهة اليمين للسهم المخصص */
+  background: var(--input-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 10px !important;
+  color: var(--text-primary) !important;
+  padding: 12px 32px 12px 12px;
   font-size: 15px;
   font-family: inherit;
   transition: all 0.25s ease;
   box-sizing: border-box;
   width: 100%;
   cursor: pointer;
-  -webkit-appearance: none; /* إلغاء سهم المتصفح الافتراضي للـ Mac/Chrome */
-  -moz-appearance: none;    /* إلغاء سهم المتصفح الافتراضي لـ Firefox */
-  appearance: none;         /* إلغاء السهم الأساسي */
-}
-
-/* سهم نيون فسفوري ديناميكي بديل للسهم الافتراضي */
-.select-wrap::after {
-  content: "";
-  position: absolute;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 12px;
-  height: 12px;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23d4fa24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
-  background-size: contain;
-  background-repeat: no-repeat;
-  pointer-events: none; /* السماح بالضغط من خلال السهم للخيارات */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  outline: none;
 }
 
 .select-wrap select:focus {
-  outline: none;
-  background-color: rgba(0, 0, 0, 0.4);
-  border-color: var(--neon-green);
-  box-shadow: 0 0 0 4px rgba(212, 250, 36, 0.15);
+  border-color: #8BF520 !important;
+  background-color: var(--input-focus-bg, rgba(0, 0, 0, 0.4)) !important;
+  box-shadow: 0 0 0 4px rgba(212, 250, 36, 0.15) !important;
 }
 
-/* تنسيق خيارات الـ select لتظهر بخلفية داكنة داخل المتصفحات */
+.select-wrap::after {
+  content: "";
+  position: absolute;
+  right: 12px; top: 50%;
+  transform: translateY(-50%);
+  width: 12px; height: 12px;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23d4fa24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
+  background-size: contain;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+
 .select-wrap select option {
-  background-color: #111212;
-  color: var(--text-primary);
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
 }
 
-/* زر الحفظ والمتابعة النيوني الطائر */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(85%) sepia(45%) saturate(850%) hue-rotate(20deg) brightness(100%) contrast(100%);
+  cursor: pointer; opacity: 0.8;
+}
+
+/* ==========================================================================
+   5. Submit Button & Spinner
+   ========================================================================== */
 .btn-submit {
-  background-color: var(--neon-green);
-  color: var(--dark-bg);
-  border: none;
-  border-radius: 100px; 
-  padding: 14px;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  width: 100%;
+  background-color: #418C27 !important;
+  color: #0b0c0c !important;
+  border: none; border-radius: 100px;
+  padding: 14px; font-size: 16px; font-weight: 700;
+  cursor: pointer; width: 100%;
   transition: all 0.3s ease;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  display: flex; justify-content: center; align-items: center;
   box-shadow: 0 4px 14px rgba(212, 250, 36, 0.2);
-  margin-top: 12px;
+  margin-top: 15px;
 }
 
 .btn-submit:hover:not(:disabled) {
@@ -181,74 +205,53 @@
 }
 
 .btn-submit:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-  background: var(--text-secondary);
-  color: var(--dark-bg);
-  box-shadow: none;
+  opacity: 0.5; cursor: not-allowed; box-shadow: none;
 }
 
-/* تخصيص أيقونة التاريخ النيون */
-input[type="date"]::-webkit-calendar-picker-indicator {
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23d4fa24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>');
-  cursor: pointer;
-  opacity: 0.8;
-  transition: opacity 0.2s;
-}
-
-input[type="date"]::-webkit-calendar-picker-indicator:hover {
-  opacity: 1;
-}
-
-/* الأخطاء والبانر */
-.field.invalid input,
-.field.invalid select {
-  border-color: #ef4444;
-  background-color: rgba(239, 68, 68, 0.05);
-}
-
-.err {
-  color: #ef4444;
-  font-size: 12px;
-  margin-top: 6px;
-  font-weight: 500;
-}
-
-.banner.error {
-  background-color: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  color: #ef4444;
-  padding: 12px;
-  border-radius: 10px;
-  font-size: 14px;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-/* اللودر */
 .spinner {
-  width: 20px;
-  height: 20px;
-  border: 2px solid rgba(11, 12, 12, 0.3);
-  border-top-color: var(--dark-bg);
+  width: 20px; height: 20px;
+  border: 2px solid #0b0c0c;
+  border-top-color: transparent;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ==========================================================================
+   6. Error Validation Styles
+   ========================================================================== */
+.err {
+  color: #ef4444 !important; font-size: 13px !important;
+  margin-top: 6px !important; font-weight: 500 !important;
+  display: block !important; text-align: left !important;
 }
 
-/* استجابة ريسبونسيف كاملة للهواتف */
-@media (max-width: 400px) {
-  .field-row {
-    flex-direction: column;
-    gap: 0;
-  }
+.field.invalid input,
+.field.invalid select {
+  border-color: #ef4444 !important;
+  background-color: rgba(239, 68, 68, 0.05) !important;
+}
+
+.banner.error {
+  background-color: rgba(239, 68, 68, 0.1) !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+  color: #ef4444 !important; padding: 12px !important;
+  border-radius: 10px !important; font-size: 14px !important;
+  margin-top: 15px;
+  display: flex; align-items: center; gap: 8px; justify-content: center;
+}
+
+/* ==========================================================================
+   7. Responsive
+   ========================================================================== */
+@media (max-width: 900px) {
   .auth-card {
-    padding: 30px 20px;
+    max-width: 100%; padding: 40px 24px;
+    background: var(--card-bg-mobile, rgba(11, 12, 12, 0.80)) !important;
   }
+}
+
+@media (max-width: 440px) {
+  .field-row { flex-direction: column; gap: 0; }
 }

@@ -62,8 +62,8 @@
         <div class="select-wrap">
           <select formControlName="gender">
             <option value="" disabled selected>Select</option>
-           <option [ngValue]="0">Male</option>
-           <option [ngValue]="1">Female</option>
+            <option [ngValue]="0">Male</option>
+            <option [ngValue]="1">Female</option>
           </select>
         </div>
         @if (isInvalid('gender')) {
@@ -133,13 +133,14 @@
       <div class="banner error">{{ serverError }}</div>
     }
 
-    <button type="submit" class="btn-submit" [disabled]="loading || form.invalid">
-      @if (loading) {
-        <div class="spinner"></div>
-      } @else {
-        Create Account
-      }
-    </button>
+    <button type="submit" class="btn-submit" [disabled]="loading">
+  @if (loading) {
+    <span class="btn-text">Creating Account</span>
+    <div class="spinner"></div>
+  } @else {
+    <span class="btn-text">Create Account</span>
+  }
+</button>
 
     <div class="divider"><span>OR</span></div>
 
@@ -152,3 +153,5 @@
     <button type="button" class="link-btn" (click)="goToLogin()">Sign in</button>
   </p>
 </div>
+
+<div class="auth-visual-side"></div>

@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth';
 import { minAgeValidator } from '../../../shared/utils/validators/min-age.validator';
 import { phoneValidator } from '../../../shared/utils/validators/phoneValidator';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-complete-profile',
@@ -19,6 +20,9 @@ export class CompleteProfileComponent {
   private fb     = inject(FormBuilder);
   private auth   = inject(AuthService);
   private router = inject(Router);
+    private location = inject(Location);
+
+
 
   loading     = false;
   serverError = '';
@@ -31,22 +35,36 @@ export class CompleteProfileComponent {
     gender:       [null, Validators.required],
   });
 
-  onSubmit(): void {
-    if (this.form.invalid) { this.form.markAllAsTouched(); return; }
-    this.loading = true;
-    this.serverError = '';
-
-    this.auth.completeProfile(this.form.getRawValue() as any).subscribe({
-      next: () => {
-        this.loading = false;
-        this.router.navigate(['/dashboard']);
-      },
-      error: (err: Error) => {
-        this.loading = false;
-        this.serverError = err.message;
-      }
-    });
+  ngOnInit(): void {
+    // ✅ امسح الـ history عشان الـ back button ميرجعش
+    history.pushState(null, '', location.href);
+    window.addEventListener('popstate', this.preventBack);
   }
+
+  ngOnDestroy(): void {
+    window.removeEventListener('popstate', this.preventBack);
+  }
+
+  private preventBack = (): void => {
+    history.pushState(null, '', location.href);
+  }
+
+  onSubmit(): void {
+  if (this.form.invalid) { this.form.markAllAsTouched(); return; }
+  this.loading = true;
+  this.serverError = '';
+
+  this.auth.completeProfile(this.form.getRawValue() as any).subscribe({
+    next: () => {
+      this.loading = false;
+      this.router.navigate(['/home']);
+    },
+    error: (err: Error) => {
+      this.loading = false;
+      this.serverError = err.message;
+    }
+  });
+}
 
   isInvalid(field: string): boolean {
     const c = this.form.get(field)!;
