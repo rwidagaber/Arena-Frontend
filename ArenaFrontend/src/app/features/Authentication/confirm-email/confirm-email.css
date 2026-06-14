@@ -1,130 +1,128 @@
 /* ==========================================================================
-   1. Imports & Host Styles (تثبيت الصورة على اليمين وتغطية الشاشة بالكامل)
+   1. Imports & Host Styles
    ========================================================================== */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-/* تأمين أن الحاوية الأساسية للمتصفح سوداء تماماً وتلغي أي ألوان رمادية باهتة */
 :host-context(html), :host-context(body) {
   margin: 0 !important;
   padding: 0 !important;
-  background-color: #0b0c0c !important;
+  background-color: transparent !important;
 }
 
 :host {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   display: flex;
-  justify-content: flex-start;  /* سحب الفورم لتبدأ من اليسار تماماً */
-  align-items: stretch;         /* جعل الكارد يمتد بكامل الطول رأساً */
-  
+  justify-content: flex-start;
+  align-items: stretch;
   width: 100% !important;
   max-width: 100% !important;
   min-height: 100vh;
   height: auto;
-  
   box-sizing: border-box;
   margin: 0 !important;
-  padding: 0 !important; 
+  padding: 0 !important;
   overflow-x: hidden !important;
-  position: relative;           
-  background-color: #0b0c0c;   
+  position: relative;
+  background-color: transparent !important;
 }
 
-/* تثبيت صورة الخلفية الموحدة ومحاذاتها لليمين بشكل فوري */
 :host::before {
   content: '';
   position: fixed;
-  inset: 0;                     
-  background-image: url('../../../assets/images/man.png') !important; 
-  background-size: cover !important; 
-  background-position: right center !important; 
-  background-repeat: no-repeat !important;
+  inset: 0;
+  background-image: url('../../../assets/images/man.png');
+  background-size: cover;
+  background-position: right center;
+  background-repeat: no-repeat;
   z-index: 0;
   pointer-events: none;
 }
 
+:host-context([data-theme="light"])::before {
+  background-image: url('../../../assets/images/man-light.png');
+}
+
 /* ==========================================================================
-   2. Card Layout & Typography (رفع المحتوى للأعلى وتعديل الـ Padding)
+   2. Card Layout & Typography
    ========================================================================== */
 .auth-card {
-  background: rgba(11, 12, 12, 0.55) !important; 
-  backdrop-filter: blur(16px) !important;         
+  background: var(--card-bg) !important;
+  backdrop-filter: blur(16px) !important;
   -webkit-backdrop-filter: blur(16px) !important;
-  
-  border-right: 1px solid rgba(255, 255, 255, 0.08) !important; 
+  border-right: 1px solid var(--card-border, rgba(255, 255, 255, 0.08)) !important;
   border-left: none !important;
   border-top: none !important;
   border-bottom: none !important;
-  border-radius: 0 !important; 
-  
-  padding: 80px 60px 40px 60px; /* ✅ زيادة الحشوة العلوية لضبط بداية العناصر */
+  border-radius: 0 !important;
+  padding: 80px 60px 40px 60px;
   width: 100%;
-  max-width: 480px; 
-  min-height: 100vh; 
+  max-width: 480px;
+  min-height: 100vh;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start; /* ✅ تغيير التوسيط المباشر إلى البداية لرفع المحتوى */
-  overflow-y: auto; 
-  position: relative;     
+  justify-content: flex-start;
+  overflow-y: auto;
+  position: relative;
   z-index: 2;
-  box-shadow: none !important; 
+  box-shadow: none !important;
   margin: 0;
-  text-align: left; 
+  text-align: left;
 }
 
 .auth-icon-wrap {
   width: 80px;
   height: 80px;
-  background: rgba(65, 140, 39, 0.05) !important; 
+  background: rgba(65, 140, 39, 0.05) !important;
   border: 1px solid rgba(65, 140, 39, 0.15) !important;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 0 24px 0; 
+  margin: 0 0 24px 0;
   box-shadow: 0 8px 24px rgba(65, 140, 39, 0.05) !important;
 }
 
 .auth-title {
-  color: #ffffff !important;
-  font-size: 32px; 
+  color: var(--text-primary) !important;
+  font-size: 32px;
   font-weight: 700;
   margin: 0 0 8px 0;
-  text-align: left; 
+  text-align: left;
   letter-spacing: -0.5px;
 }
 
 .auth-sub {
-  color: #a0a0a0 !important;
+  color: var(--text-secondary) !important;
   font-size: 15px;
   margin: 0 0 32px 0;
-  text-align: left; 
+  text-align: left;
   line-height: 1.6;
 }
 
 .highlight-email {
-  color: #ffffff !important;
+  color: var(--text-primary) !important;
   font-weight: 600;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--input-bg);
   padding: 2px 8px;
   border-radius: 6px;
   display: inline-block;
   margin-top: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
 }
 
 /* ==========================================================================
-   3. OTP Boxes & Custom Input Fields
+   3. OTP Boxes
    ========================================================================== */
 .field {
   display: flex;
   flex-direction: column;
   margin-bottom: 24px;
-  align-items: flex-start; 
+  align-items: flex-start;
 }
 
 .field label {
-  color: #ffffff !important; 
+  color: var(--text-primary) !important;
   font-size: 13px;
   font-weight: 600;
   text-transform: uppercase;
@@ -137,7 +135,7 @@
 .otp-boxes-container {
   display: flex;
   gap: 10px;
-  justify-content: flex-start; 
+  justify-content: flex-start;
   width: 100%;
   max-width: 360px;
   margin-bottom: 8px;
@@ -146,10 +144,10 @@
 .otp-box {
   width: 48px;
   height: 56px;
-  background-color: rgba(255, 255, 255, 0.03) !important; 
-  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  background-color: var(--input-bg) !important;
+  border: 1px solid var(--border-color) !important;
   border-radius: 12px !important;
-  color: #ffffff !important; 
+  color: var(--text-primary) !important;
   font-size: 24px;
   font-weight: 700;
   text-align: center;
@@ -160,34 +158,33 @@
 
 .otp-box:focus {
   border-color: #418C27 !important;
-  background-color: rgba(0, 0, 0, 0.5) !important;
+  background-color: var(--input-focus-bg, rgba(0, 0, 0, 0.5)) !important;
   box-shadow: 0 0 0 4px rgba(212, 250, 36, 0.15) !important;
-  color: #ffffff !important;
 }
 
 .otp-box:-webkit-autofill,
-.otp-box:-webkit-autofill:hover, 
-.otp-box:-webkit-autofill:focus, 
+.otp-box:-webkit-autofill:hover,
+.otp-box:-webkit-autofill:focus,
 .otp-box:-webkit-autofill:active {
-  -webkit-text-fill-color: #ffffff !important;
-  box-shadow: 0 0 0 1000px rgba(15, 16, 16, 0.95) inset !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  -webkit-text-fill-color: var(--text-primary) !important;
+  box-shadow: 0 0 0 1000px var(--autofill-bg, rgba(15, 16, 16, 0.95)) inset !important;
+  border: 1px solid var(--border-color) !important;
   transition: background-color 5000s ease-in-out 0s;
 }
 
 /* ==========================================================================
-   4. Protected Submit Button
+   4. Submit Button
    ========================================================================== */
 .btn-submit {
   display: flex !important;
   justify-content: center !important;
   align-items: center !important;
   width: 100% !important;
-  height: 50px !important; 
-  background-color: #418C27 !important; 
+  height: 50px !important;
+  background-color: #418C27 !important;
   color: #0b0c0c !important;
   border: none !important;
-  border-radius: 100px !important; 
+  border-radius: 100px !important;
   padding: 0 !important;
   font-size: 16px !important;
   font-weight: 700 !important;
@@ -205,14 +202,14 @@
 .btn-submit:disabled {
   opacity: 0.5 !important;
   cursor: not-allowed !important;
-  background-color: #4a4a4a !important; 
+  background-color: #4a4a4a !important;
   color: #ffffff !important;
   box-shadow: none !important;
   transform: none !important;
 }
 
 /* ==========================================================================
-   5. Validation Errors & Footer Resend Section
+   5. Errors & Resend
    ========================================================================== */
 .banner.error {
   background-color: rgba(239, 68, 68, 0.1) !important;
@@ -239,13 +236,13 @@
 
 .resend-section {
   margin-top: 28px;
-  border-top: 1px solid rgba(255, 255, 255, 0.10) !important;
+  border-top: 1px solid var(--border-color) !important;
   padding-top: 20px;
   width: 100%;
 }
 
 .switch-text {
-  color: #a0a0a0 !important;
+  color: var(--text-secondary) !important;
   font-size: 14px;
   margin: 0;
   text-align: left;
@@ -254,7 +251,7 @@
 .link-btn {
   background: none;
   border: none;
-  color: #418C27 !important; 
+  color: #418C27 !important;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
@@ -269,7 +266,7 @@
 }
 
 .link-btn:disabled {
-  color: #a0a0a0 !important;
+  color: var(--text-secondary) !important;
   cursor: not-allowed;
   text-decoration: none;
   opacity: 0.5;
@@ -284,18 +281,16 @@
   animation: spin 0.8s linear infinite !important;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 /* ==========================================================================
    6. Responsive
    ========================================================================== */
 @media (max-width: 900px) {
   .auth-card {
-    max-width: 100%; 
-    padding: 60px 24px 40px 24px; /* مواءمة المساحة العلوية على الشاشات الأصغر */
-    background: rgba(11, 12, 12, 0.90) !important; 
+    max-width: 100%;
+    padding: 60px 24px 40px 24px;
+    background: var(--card-bg-mobile, rgba(11, 12, 12, 0.90)) !important;
   }
 }
 
@@ -306,7 +301,5 @@
     font-size: 20px !important;
     border-radius: 8px !important;
   }
-  .otp-boxes-container {
-    gap: 6px !important;
-  }
+  .otp-boxes-container { gap: 6px !important; }
 }

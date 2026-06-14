@@ -3,11 +3,10 @@
    ========================================================================== */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght=400;500;600;700&display=swap');
 
-/* تأمين أن الحاوية الأساسية للمتصفح سوداء تماماً وتلغي أي ألوان رمادية باهتة */
 :host-context(html), :host-context(body) {
   margin: 0 !important;
   padding: 0 !important;
-  background-color: #0b0c0c !important;
+  background-color: var(--bg-primary, #0b0c0c) !important;
 }
 
 :host {
@@ -21,31 +20,36 @@
   margin: 0 !important;
   padding: 0 !important;
   overflow-x: hidden !important;
-  position: relative;           /* ✅ مهم للـ ::before */
-  background-color: #0b0c0c;   /* لون احتياطي يظهر فوراً */
+  position: relative;
+    background-color: transparent !important;
 }
 
-/* ✅ الصورة على pseudo-element منفصل — بيتحمل فوراً ومش بيتأخر */
+/* Dark background image */
 :host::before {
   content: '';
   position: fixed;
-  inset: 0;                     /* top:0 right:0 bottom:0 left:0 */
-  background-image: url('../../../assets/images/man.png'); /* 💡 مسار مباشر وسريع لـ Angular */
+  inset: 0;
+  background-image: url('../../../assets/images/man.png');
   background-size: cover;
   background-position: right center;
   background-repeat: no-repeat;
   z-index: 0;
   pointer-events: none;
+  transition: opacity 0.3s ease;
+   background-color: transparent !important;
+}
+
+/* Light background image */
+:host-context([data-theme="light"])::before {
+  background-image: url('../../../assets/images/man-light.png');
 }
 
 /* ==========================================================================
    2. Card Layout & Typography
    ========================================================================== */
 .auth-card {
-  background: rgba(11, 12, 12, 0.55) !important; /* زيادة التعتيم قليلاً لضمان قراءة النصوص البيضاء */
-  backdrop-filter: blur(16px) !important;
-  -webkit-backdrop-filter: blur(16px) !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  
+  border-right: 1px solid var(--border-color);
   border-left: none;
   border-top: none;
   border-bottom: none;
@@ -59,12 +63,19 @@
   flex-direction: column;
   justify-content: center;
   overflow-y: auto;
-  position: relative; /* ✅ مهم عشان يبقى فوق الـ ::before */
+  position: relative;
   z-index: 2;
+   background: var(--card-bg) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-right: 1px solid var(--card-border, rgba(255, 255, 255, 0.2)) !important;
+  box-shadow: 
+    inset 1px 0 0 rgba(255, 255, 255, 0.1),
+    4px 0 24px rgba(0, 0, 0, 0.15) !important;
 }
 
 .auth-title {
-  color: #ffffff !important;
+  color: var(--text-primary) !important;
   font-size: 32px;
   font-weight: 700;
   margin: 0 0 8px 0;
@@ -73,7 +84,7 @@
 }
 
 .auth-sub {
-  color: #a0a0a0 !important;
+  color: var(--text-secondary) !important;
   font-size: 15px;
   margin: 0 0 32px 0;
   text-align: left;
@@ -91,7 +102,7 @@
 }
 
 .field label {
-  color: #ffffff !important;
+  color: var(--text-primary) !important;
   font-size: 14px;
   font-weight: 500;
   margin-bottom: 8px;
@@ -99,36 +110,19 @@
   text-align: left;
 }
 
-.field-row {
-  display: flex;
-  gap: 16px;
-  width: 100%;
-}
-
-.field-row .field {
-  flex: 1;
-  min-width: 0;
-}
-
-.field-row-3 {
-  display: flex;
-  gap: 12px;
-  width: 100%;
-}
-
-.field-row-3 .field {
-  flex: 1;
-  min-width: 0;
-}
+.field-row { display: flex; gap: 16px; width: 100%; }
+.field-row .field { flex: 1; min-width: 0; }
+.field-row-3 { display: flex; gap: 12px; width: 100%; }
+.field-row-3 .field { flex: 1; min-width: 0; }
 
 /* ==========================================================================
-   4. Inputs & Custom Dropdowns (تم إضافة حل الـ Autofill الرمادي هنا)
+   4. Inputs & Custom Dropdowns
    ========================================================================== */
 .field input {
-  background: rgba(255, 255, 255, 0.03) !important;
-  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  background: var(--input-bg) !important;
+  border: 1px solid var(--border-color) !important;
   border-radius: 12px !important;
-  color: #ffffff !important;
+  color: var(--text-primary) !important;
   padding: 12px 16px;
   font-size: 15px;
   transition: all 0.25s ease;
@@ -138,37 +132,33 @@
 }
 
 .field input:focus {
-  background-color: rgba(0, 0, 0, 0.5) !important;
+  background-color: var(--input-focus-bg, rgba(0, 0, 0, 0.5)) !important;
   border-color: #418C27 !important;
   box-shadow: 0 0 0 4px rgba(212, 250, 36, 0.15) !important;
 }
 
 .field input::placeholder {
-  color: #a0a0a0 !important;
+  color: var(--text-secondary) !important;
   opacity: 0.6;
 }
 
-/* ✨ حل سحري لمنع تحول الحقل للون الرمادي عند تعبئة الداتا تلقائياً من المتصفح ✨ */
 .field input:-webkit-autofill,
-.field input:-webkit-autofill:hover, 
-.field input:-webkit-autofill:focus, 
+.field input:-webkit-autofill:hover,
+.field input:-webkit-autofill:focus,
 .field input:-webkit-autofill:active {
-  -webkit-text-fill-color: #ffffff !important;
-  box-shadow: 0 0 0 1000px rgba(15, 16, 16, 0.95) inset !important; /* ظل داخلي داكن يغطي الرمادي المتطفل */
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  -webkit-text-fill-color: var(--text-primary) !important;
+  box-shadow: 0 0 0 1000px var(--autofill-bg, rgba(15, 16, 16, 0.95)) inset !important;
+  border: 1px solid var(--border-color) !important;
   transition: background-color 5000s ease-in-out 0s;
 }
 
-.select-wrap {
-  position: relative;
-  width: 100%;
-}
+.select-wrap { position: relative; width: 100%; }
 
 .select-wrap select {
-  background: rgba(255, 255, 255, 0.03) !important;
-  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  background: var(--input-bg) !important;
+  border: 1px solid var(--border-color) !important;
   border-radius: 12px !important;
-  color: #ffffff !important;
+  color: var(--text-primary) !important;
   padding: 12px 32px 12px 12px;
   font-size: 15px;
   font-family: inherit;
@@ -182,18 +172,14 @@
   outline: none;
 }
 
-.select-wrap select:focus {
-  border-color: #418C27 !important;
-}
+.select-wrap select:focus { border-color: #418C27 !important; }
 
 .select-wrap::after {
   content: "";
   position: absolute;
-  right: 12px;
-  top: 50%;
+  right: 12px; top: 50%;
   transform: translateY(-50%);
-  width: 12px;
-  height: 12px;
+  width: 12px; height: 12px;
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23418C27" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
   background-size: contain;
   background-repeat: no-repeat;
@@ -201,47 +187,32 @@
 }
 
 .select-wrap select option {
-  background-color: #111212 !important;
-  color: #ffffff !important;
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(55%) sepia(80%) saturate(450%) hue-rotate(60deg) brightness(95%) contrast(90%); /* متناسق مع الأخضر */
-  cursor: pointer;
-  opacity: 0.8;
+  filter: invert(55%) sepia(80%) saturate(450%) hue-rotate(60deg) brightness(95%) contrast(90%);
+  cursor: pointer; opacity: 0.8;
 }
 
 /* ==========================================================================
    5. Password Toggle
    ========================================================================== */
-.input-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-}
-
-.input-wrap input {
-  padding-right: 48px;
-}
+.input-wrap { position: relative; display: flex; align-items: center; width: 100%; }
+.input-wrap input { padding-right: 48px; }
 
 .toggle-pw {
-  position: absolute;
-  right: 12px;
-  background: none;
-  border: none;
-  color: #a0a0a0;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px;
-  border-radius: 50%;
-  outline: none;
+  position: absolute; right: 12px;
+  background: none; border: none;
+  color: var(--text-secondary);
+  cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+  padding: 6px; border-radius: 50%; outline: none;
 }
 
 .toggle-pw:hover { color: #418C27; }
-.toggle-pw svg { stroke: #a0a0a0; }
+.toggle-pw svg { stroke: var(--text-secondary); }
 .toggle-pw:hover svg { stroke: #418C27; }
 
 /* ==========================================================================
@@ -250,17 +221,12 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .btn-submit {
   background-color: #418C27 !important;
   color: #0b0c0c !important;
-  border: none;
-  border-radius: 100px;
-  padding: 14px;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  width: 100%;
+  border: none; border-radius: 100px;
+  padding: 14px; font-size: 16px; font-weight: 700;
+  cursor: pointer; width: 100%;
   transition: all 0.3s ease;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  display: flex; justify-content: center; align-items: center;
+  gap: 8px; min-height: 52px;
   box-shadow: 0 4px 14px rgba(65, 140, 39, 0.3);
   margin-top: 15px;
 }
@@ -270,94 +236,56 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   box-shadow: 0 6px 20px rgba(65, 140, 39, 0.5);
 }
 
-.divider {
-  margin: 20px 0;
-  text-align: center;
-  position: relative;
-}
+.divider { margin: 20px 0; text-align: center; position: relative; }
 
 .divider::before {
   content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  position: absolute; left: 0; right: 0; top: 50%;
+  border-top: 1px solid var(--border-color);
 }
 
 .divider span {
-  background: #0b0c0c;
-  padding: 0 12px;
-  position: relative;
-  z-index: 1;
-  color: #a0a0a0;
-  font-size: 14px;
+  background: var(--bg-primary);
+  padding: 0 12px; position: relative; z-index: 1;
+  color: var(--text-secondary); font-size: 14px;
 }
 
-#google-btn {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-}
+#google-btn { display: flex; justify-content: center; width: 100%; }
 
-.switch-text {
-  color: #a0a0a0;
-  text-align: center;
-  font-size: 14px;
-  margin-top: 20px;
-}
+.switch-text { color: var(--text-secondary); text-align: center; font-size: 14px; margin-top: 20px; }
 
 .link-btn {
-  background: none;
-  border: none;
-  color: #418C27;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  padding: 0 0 0 4px;
+  background: none; border: none;
+  color: #418C27; font-size: 14px; font-weight: 700;
+  cursor: pointer; padding: 0 0 0 4px;
 }
 
-.link-btn:hover {
-  text-decoration: underline;
-}
+.link-btn:hover { text-decoration: underline; }
 
 /* ==========================================================================
    7. Visual Side & Responsive
    ========================================================================== */
-.auth-visual-side {
-  flex: 1;
-  background: transparent !important;
-  position: relative;
-  z-index: 1;
-}
+.auth-visual-side { flex: 1; background: transparent !important; position: relative; z-index: 1; }
 
 @media (max-width: 900px) {
   .auth-visual-side { display: none; }
   .auth-card {
-    max-width: 100%;
-    padding: 40px 24px;
-    background: rgba(11, 12, 12, 0.90) !important; /* تعتيم أعلى في الموبايل لتسهيل القراءة */
+    max-width: 100%; padding: 40px 24px;
+    background: var(--card-bg-mobile, rgba(11, 12, 12, 0.90)) !important;
   }
 }
 
 @media (max-width: 440px) {
-  .field-row,
-  .field-row-3 {
-    flex-direction: column;
-    gap: 0;
-  }
+  .field-row, .field-row-3 { flex-direction: column; gap: 0; }
 }
 
 /* ==========================================================================
    8. Validation & Error Styles
    ========================================================================== */
 .err {
-  color: #ef4444 !important;
-  font-size: 13px !important;
-  margin-top: 6px !important;
-  font-weight: 500 !important;
-  display: block !important;
-  text-align: left !important;
+  color: #ef4444 !important; font-size: 13px !important;
+  margin-top: 6px !important; font-weight: 500 !important;
+  display: block !important; text-align: left !important;
 }
 
 .field.invalid input,
@@ -375,10 +303,21 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .banner.error {
   background-color: rgba(239, 68, 68, 0.1) !important;
   border: 1px solid rgba(239, 68, 68, 0.3) !important;
-  color: #ef4444 !important;
-  padding: 12px !important;
-  border-radius: 10px !important;
-  font-size: 14px !important;
-  margin-bottom: 20px !important;
-  text-align: center !important;
+  color: #ef4444 !important; padding: 12px !important;
+  border-radius: 10px !important; font-size: 14px !important;
+  margin-bottom: 20px !important; text-align: center !important;
 }
+
+/* ==========================================================================
+   9. Spinner
+   ========================================================================== */
+.spinner {
+  width: 20px; height: 20px;
+  border: 2px solid rgba(11, 12, 12, 0.3);
+  border-top-color: #0b0c0c;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
