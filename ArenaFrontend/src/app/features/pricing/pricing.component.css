@@ -204,3 +204,45 @@
 .error-state {
   color: #dc3545;
 }
+
+/* Dark Mode Overrides */
+@media (prefers-color-scheme: dark) {
+  .pricing-section {
+    background-color: #0c0f17;
+  }
+  
+  .pricing-title {
+    color: #ffffff;
+  }
+  
+  .pricing-badge {
+    background: #1a1f2c;
+    color: #e2e8f0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+  
+  .pricing-card {
+    background: #151a24;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  }
+  
+  .plan-name,
+  .currency,
+  .amount,
+  .features-title {
+    color: #ffffff;
+  }
+  
+  .period,
+  .session-limit,
+  .plan-description,
+  .features-list li,
+  .info-item,
+  .loading-state {
+    color: #a0aec0;
+  }
+  
+  .plan-description {
+    border-bottom: 1px solid #2d3748;
+  }
+}
