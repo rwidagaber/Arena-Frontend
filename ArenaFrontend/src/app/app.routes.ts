@@ -6,6 +6,7 @@ import { Home } from './features/home/home';
 import { About } from './features/about/about';
 import { CheckoutComponent } from './features/pricing/checkout/checkout.component';
 import { MyPaymentsComponent } from './features/pricing/my-payments/my-payments.component';
+import { PricingComponent } from './features/pricing/pricing.component';
 import { ConfirmEmailComponent } from './features/Authentication/confirm-email/confirm-email';
 import { CompleteProfileComponent } from './features/Authentication/complete-profile/complete-profile';
 import { ForgotPasswordComponent } from './features/Authentication/forgot-password/forgot-password';
@@ -72,6 +73,10 @@ export const routes: Routes = [
   {
     path: 'checkout',
     component: CheckoutComponent
+  },
+  {
+    path: 'pricing',
+    component: PricingComponent
   },
   {
     path: 'dashboard',
