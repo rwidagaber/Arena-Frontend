@@ -1,36 +1,77 @@
 @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css');
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&display=swap');
-@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css');
 
+/* ==========================================================================
+   CSS Variables — Dark / Light Theme
+   ========================================================================== */
+:host {
+  --header-bg:        #0c0f17;
+  --header-border:    rgba(255, 255, 255, 0.05);
+  --header-glow:      rgba(207, 254, 33, 0.12);
+  --nav-text:         #ffffff;
+  --nav-text-muted:   #94a3b8;
+  --dropdown-bg:      #1a1f2e;
+  --dropdown-border:  rgba(255, 255, 255, 0.08);
+  --dropdown-hover:   rgba(255, 255, 255, 0.06);
+  --dropdown-text:    #e2e8f0;
+  --dropdown-divider: rgba(255, 255, 255, 0.06);
+  --toggle-bg:        rgba(255, 255, 255, 0.06);
+  --toggle-border:    rgba(255, 255, 255, 0.12);
+  --toggle-color:     #ffffff; /* لون الهلال */
+}
+
+:host-context([data-theme="light"]) {
+  --header-bg:        #ffffff;
+  --header-border:    rgba(0, 0, 0, 0.08);
+  --header-glow:      rgba(207, 254, 33, 0.08);
+  --nav-text:         #0c0f17;
+  --nav-text-muted:   #64748b;
+  --dropdown-bg:      #ffffff;
+  --dropdown-border:  rgba(0, 0, 0, 0.08);
+  --dropdown-hover:   rgba(0, 0, 0, 0.04);
+  --dropdown-text:    #0c0f17;
+  --dropdown-divider: rgba(0, 0, 0, 0.06);
+  --toggle-bg:        rgba(0, 0, 0, 0.06);
+  --toggle-border:    rgba(0, 0, 0, 0.12);
+  --toggle-color:     #fff23c; /* لون الشمس */
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
 :host {
   display: block;
-  background-color: #0c0f17;
+  background-color: var(--header-bg);
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease;
 }
 
 .font-display { font-family: 'Plus Jakarta Sans', sans-serif; }
-.fs-micro-arrow { font-size: 0.65rem; -webkit-text-stroke: 0.5px; }
 
+/* ==========================================================================
+   Header
+   ========================================================================== */
 .gympro-header-exact {
-  background-color: #0c0f17;
-  background-image: 
-    linear-gradient(135deg, rgba(255,255,255,0.015) 25%, transparent 25%), 
-    linear-gradient(225deg, rgba(255,255,255,0.015) 25%, transparent 25%), 
-    linear-gradient(45deg, rgba(255,255,255,0.015) 25%, transparent 25%), 
-    linear-gradient(315deg, rgba(255,255,255,0.015) 25%, #0c0f17 25%);
+  background-color: var(--header-bg);
+  background-image:
+    linear-gradient(135deg, rgba(255,255,255,0.015) 25%, transparent 25%),
+    linear-gradient(225deg, rgba(255,255,255,0.015) 25%, transparent 25%),
+    linear-gradient(45deg,  rgba(255,255,255,0.015) 25%, transparent 25%),
+    linear-gradient(315deg, rgba(255,255,255,0.015) 25%, var(--header-bg) 25%);
   background-position: 20px 0, 20px 0, 0 0, 0 0;
   background-size: 40px 40px;
   background-repeat: repeat;
   position: relative;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--header-border);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .gympro-header-exact::before {
   content: '';
   position: absolute;
   top: 0; left: 0; width: 450px; height: 100%;
-  background: radial-gradient(circle at 15% 50%, rgba(207, 254, 33, 0.12) 0%, rgba(207, 254, 33, 0) 70%);
+  background: radial-gradient(circle at 15% 50%, var(--header-glow) 0%, transparent 70%);
   pointer-events: none;
   z-index: 1;
 }
@@ -41,101 +82,105 @@
   z-index: 2;
 }
 
-.brand-v3-exact {
-  gap: 0.95rem !important; 
-}
+/* ==========================================================================
+   Brand
+   ========================================================================== */
+.brand-v3-exact { gap: 0.95rem !important; }
 
 .logo-circle-exact {
-  width: 48px;
-  height: 48px;
+  width: 48px; height: 48px;
   border-radius: 50%;
   background-color: #cffe21;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   box-shadow: 0 0 20px rgba(207, 254, 33, 0.15);
   flex-shrink: 0;
 }
 
-.logo-circle-exact svg {
-  display: block;
-  width: 28px;
-  height: 28px;
-  overflow: visible;
-}
+.logo-circle-exact svg { display: block; width: 28px; height: 28px; overflow: visible; }
 
 .brand-text-exact {
-  font-size: 1.6rem;
-  font-weight: 800;
-  color: #ffffff;
+  font-size: 1.6rem; font-weight: 800;
+  color: var(--nav-text);
   letter-spacing: -0.02em;
+  transition: color 0.3s ease;
 }
 
-.dot-lime { 
-  color: #cffe21; 
-}
+.dot-lime { color: #cffe21; }
 
-.nav-links-exact {
-  gap: 2.5rem;
-}
+/* ==========================================================================
+   Nav
+   ========================================================================== */
+.nav-links-exact { gap: 2.5rem; }
 
 .nav-item-exact {
-  color: #ffffff;
-  font-weight: 700;
-  font-size: 0.95rem;
+  color: var(--nav-text);
+  font-weight: 700; font-size: 0.95rem;
   text-decoration: none;
   transition: color 0.2s ease;
-  background: transparent;
-  border: none;
+  background: transparent; border: none;
 }
 
-.nav-item-exact:hover {
-  color: #cffe21;
-}
+.nav-item-exact:hover { color: #cffe21; }
+.text-lime-active { color: #cffe21 !important; }
 
-.text-lime-active {
-  color: #cffe21 !important;
-}
-
-.btn-lang-exact {
-  color: #94a3b8;
-  font-weight: 700;
-  font-size: 0.8rem;
+/* ==========================================================================
+   Theme Toggle — زر بسيط بـ SVG
+   ========================================================================== */
+.theme-toggle-btn {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--toggle-bg);
+  border: 1px solid var(--toggle-border);
+  display: flex; align-items: center; justify-content: center;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 6px 14px;
-  border-radius: 50px;
+  transition: all 0.2s ease;
+  padding: 0;
+  color: var(--toggle-color);
+}
+
+.theme-toggle-btn:hover {
+  border-color: #cffe21;
+  background: rgba(207, 254, 33, 0.1);
+  color: #cffe21;
+  transform: scale(1.05);
+}
+
+.theme-icon {
+  display: block;
+  transition: all 0.3s ease;
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+.btn-lang-exact {
+  color: var(--nav-text-muted);
+  font-weight: 700; font-size: 0.8rem;
+  cursor: pointer;
+  background: var(--toggle-bg);
+  border: 1px solid var(--toggle-border);
+  padding: 6px 14px; border-radius: 50px;
   transition: all 0.2s ease;
   letter-spacing: 0.02em;
 }
 
 .btn-lang-exact:hover {
   background: rgba(207, 254, 33, 0.12);
-  border-color: #cffe21;
-  color: #cffe21;
+  border-color: #cffe21; color: #cffe21;
 }
 
 .btn-login-exact {
-  color: #ffffff;
-  font-weight: 700;
-  font-size: 0.95rem;
-  transition: color 0.2s ease;
-  cursor: pointer;
+  color: var(--nav-text);
+  font-weight: 700; font-size: 0.95rem;
+  transition: color 0.2s ease; cursor: pointer;
 }
 
-.btn-login-exact:hover {
-  color: #cffe21;
-}
+.btn-login-exact:hover { color: #cffe21; }
 
 .btn-signup-exact {
-  background-color: #cffe21;
-  color: #0c0f17;
-  font-weight: 800;
-  font-size: 0.95rem;
-  padding: 0.75rem 1.6rem;
-  border-radius: 50px;
-  border: none;
+  background-color: #cffe21; color: #0c0f17;
+  font-weight: 800; font-size: 0.95rem;
+  padding: 0.75rem 1.6rem; border-radius: 50px; border: none;
   transition: all 0.2s ease-in-out;
   box-shadow: 0 4px 20px rgba(207, 254, 33, 0.15);
 }
@@ -146,30 +191,21 @@
   box-shadow: 0 6px 24px rgba(207, 254, 33, 0.25);
 }
 
-.btn-signup-exact i {
-  font-size: 0.85rem;
-  -webkit-text-stroke: 0.8px;
-}
+.btn-signup-exact i { font-size: 0.85rem; -webkit-text-stroke: 0.8px; }
 
-.user-dropdown-container {
-  position: relative;
-}
+/* ==========================================================================
+   User Dropdown
+   ========================================================================== */
+.user-dropdown-container { position: relative; }
 
 .user-trigger-wrapper {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  cursor: pointer; display: flex; align-items: center; gap: 8px;
 }
 
 .user-avatar-circle {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
+  width: 36px; height: 36px; border-radius: 50%;
   background: linear-gradient(135deg, #cffe21, #a3e635);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   transition: all 0.2s ease;
   box-shadow: 0 2px 8px rgba(207, 254, 33, 0.2);
   overflow: hidden;
@@ -180,129 +216,57 @@
   box-shadow: 0 4px 16px rgba(207, 254, 33, 0.35);
 }
 
-.user-avatar-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.user-avatar-icon {
-  font-size: 16px;
-  color: #0c0f17;
-}
-
-.user-avatar-text {
-  color: #0c0f17;
-  font-weight: 800;
-  font-size: 0.9rem;
-  line-height: 1;
-  text-transform: uppercase;
-}
-
 .user-dropdown-menu {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
+  position: absolute; top: calc(100% + 8px); right: 0;
   min-width: 220px;
-  background: #1a1f2e;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  padding: 8px;
+  background: var(--dropdown-bg);
+  border: 1px solid var(--dropdown-border);
+  border-radius: 12px; padding: 8px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
   z-index: 1000;
+  transition: background 0.3s ease;
 }
 
 .dropdown-subscription-pill {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 16px;
-  margin-bottom: 4px;
-  border-radius: 8px;
-  background: rgba(234, 179, 8, 0.15);
-  color: #eab308;
-  font-weight: 700;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: background 0.2s ease;
-  text-align: center;
+  display: flex; align-items: center; justify-content: center;
+  padding: 10px 16px; margin-bottom: 4px; border-radius: 8px;
+  background: rgba(234, 179, 8, 0.15); color: #eab308;
+  font-weight: 700; font-size: 0.85rem;
+  cursor: pointer; transition: background 0.2s ease; text-align: center;
 }
 
-.dropdown-subscription-pill:hover {
-  background: rgba(234, 179, 8, 0.25);
-}
+.dropdown-subscription-pill:hover { background: rgba(234, 179, 8, 0.25); }
 
-.dropdown-divider {
-  height: 1px;
-  background: rgba(255, 255, 255, 0.06);
-  margin: 4px 0;
-}
+.dropdown-divider { height: 1px; background: var(--dropdown-divider); margin: 4px 0; }
 
 .dropdown-item {
-  display: block;
-  width: 100%;
-  padding: 10px 16px;
-  border: none;
-  border-radius: 8px;
-  background: transparent;
-  color: #e2e8f0;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  text-align: left;
-  transition: background 0.15s ease;
+  display: block; width: 100%; padding: 10px 16px;
+  border: none; border-radius: 8px; background: transparent;
+  color: var(--dropdown-text);
+  font-size: 0.9rem; font-weight: 500;
+  cursor: pointer; text-align: left; transition: background 0.15s ease;
 }
 
-.dropdown-item:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.06);
-}
+.dropdown-item:hover:not(:disabled) { background: var(--dropdown-hover); }
 
 .dropdown-item.disabled,
-.dropdown-item:disabled {
-  color: #475569;
-  cursor: not-allowed;
-}
+.dropdown-item:disabled { color: #475569; cursor: not-allowed; }
 
-.dropdown-logout {
-  color: #f87171;
-}
+.dropdown-logout { color: #f87171; }
 
 .dropdown-logout:hover:not(:disabled) {
   background: rgba(248, 113, 113, 0.1) !important;
   color: #f87171 !important;
 }
 
-.btn-logout-exact {
-  background: transparent;
-  color: #f87171;
-  font-weight: 700;
-  font-size: 0.9rem;
-  padding: 0.5rem 1.2rem;
-  border-radius: 50px;
-  border: 1px solid rgba(248, 113, 113, 0.3);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-logout-exact:hover {
-  background: rgba(248, 113, 113, 0.12);
-  border-color: #f87171;
-  transform: translateY(-1px);
-}
-
 .user-name-pill {
-  display: inline-flex;
-  align-items: center;
-  padding: 9px 20px;
-  border-radius: 100px;
+  display: inline-flex; align-items: center;
+  padding: 9px 20px; border-radius: 100px;
   background: linear-gradient(135deg, #cffe21, #a3e635);
   color: #0c0f17;
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 15px;
-  font-weight: 800;
-  white-space: nowrap;
-  line-height: 1;
-  letter-spacing: -0.01em;
+  font-size: 15px; font-weight: 800;
+  white-space: nowrap; line-height: 1; letter-spacing: -0.01em;
   box-shadow: 0 2px 12px rgba(207, 254, 33, 0.25);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -312,61 +276,28 @@
   box-shadow: 0 4px 20px rgba(207, 254, 33, 0.35);
 }
 
-.nav-chevron {
-  color: #94a3b8;
-  transition: transform 0.2s ease;
-}
-
-.nav-chevron.rotated {
-  transform: rotate(180deg);
-}
+.nav-chevron { color: var(--nav-text-muted); transition: transform 0.2s ease; }
+.nav-chevron.rotated { transform: rotate(180deg); }
 
 .dropdown-header-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 12px 12px;
+  display: flex; align-items: center; gap: 12px; padding: 8px 12px 12px;
 }
 
 .dropdown-header-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+  width: 40px; height: 40px; border-radius: 50%;
   background: linear-gradient(135deg, #cffe21, #a3e635);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; flex-shrink: 0;
 }
 
-.dropdown-header-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+.dropdown-header-img { width: 100%; height: 100%; object-fit: cover; }
 
 .dropdown-header-initials {
-  color: #0c0f17;
-  font-weight: 800;
-  font-size: 1rem;
-  text-transform: uppercase;
+  color: #0c0f17; font-weight: 800; font-size: 1rem; text-transform: uppercase;
 }
 
-.dropdown-header-text {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.3;
-}
+.dropdown-header-text { display: flex; flex-direction: column; line-height: 1.3; }
 
-.dropdown-header-name {
-  color: #fff;
-  font-weight: 700;
-  font-size: 0.95rem;
-}
+.dropdown-header-name { color: var(--dropdown-text); font-weight: 700; font-size: 0.95rem; }
 
-.dropdown-header-plan {
-  color: #94a3b8;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
+.dropdown-header-plan { color: var(--nav-text-muted); font-size: 0.8rem; font-weight: 600; }

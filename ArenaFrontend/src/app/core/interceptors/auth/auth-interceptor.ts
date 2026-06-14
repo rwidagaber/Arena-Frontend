@@ -17,7 +17,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       }
     });
 
-  // Combined endpoints from main and dev, fixing the broken semicolon syntax error
   const isPublicEndpoint =
     req.url.includes('/auth/login') ||
     req.url.includes('/auth/register') ||
@@ -25,41 +24,39 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     req.url.includes('/auth/confirm-email') ||
     req.url.includes('/auth/google-login') ||
     req.url.includes('/auth/reset-password') ||
-    req.url.includes('/auth/logout');
+    req.url.includes('/auth/logout') ||
+    req.url.includes('/auth/resend-confirmation');
 
-  let authReq = req;
-
-  if (!isPublicEndpoint && token) {
-    authReq = addToken(token);
-  }
+  const authReq = (!isPublicEndpoint && token) ? addToken(token) : req;
 
   return next(authReq).pipe(
     catchError((err: HttpErrorResponse) => {
-      
-      // Dev branch fix: If it's not 401, OR it's a failing refresh/logout request, pass the error through
+
+      // مش 401 أو endpoint مش محتاج refresh → ابعت الـ error عادي
       if (
-        err.status !== 401 || 
-        req.url.includes('/auth/refresh') || 
-        req.url.includes('/auth/logout')
+        err.status !== 401 ||
+        req.url.includes('/auth/refresh') ||
+        req.url.includes('/auth/logout') ||
+        req.url.includes('/auth/login')
       ) {
         return throwError(() => err);
       }
 
       const refreshToken = auth.refreshToken;
 
+      // مفيش refresh token → امسح الـ session وروح الـ home
       if (!refreshToken) {
-        auth.logout().subscribe({ complete: () => router.navigate(['/']) });
+        auth.clearSession();
+        router.navigate(['/']);
         return throwError(() => err);
       }
 
-      // Attempt to refresh the token gracefully
+      // حاول تعمل refresh للـ token
       return auth.refresh().pipe(
-        switchMap((res) => {
-          const newReq = addToken(res.accessToken);
-          return next(newReq);
-        }),
+        switchMap((res) => next(addToken(res.accessToken))),
         catchError((refreshErr) => {
-          auth.logout().subscribe({ complete: () => router.navigate(['/']) });
+          auth.clearSession();
+          router.navigate(['/']);
           return throwError(() => refreshErr);
         })
       );

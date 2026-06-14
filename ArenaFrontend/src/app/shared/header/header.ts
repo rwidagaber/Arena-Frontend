@@ -5,6 +5,7 @@ import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslationService, Lang } from '../../core/services/translation.service';
 import { AuthService } from '../../core/services/auth';
 import { TranslateModule } from '@ngx-translate/core';
+import { ThemeService } from '../../core/services/themeservice';
 
 export type DropdownSection = 'profile' | 'workout' | 'diet' | 'membership' | 'progress' | 'settings';
 
@@ -19,6 +20,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   protected readonly router = inject(Router);
   protected readonly t = inject(TranslationService);
   public    readonly auth = inject(AuthService);
+  readonly themeService = inject(ThemeService);
 
   private userSub?: Subscription;
   protected readonly displayName = signal('');
@@ -100,4 +102,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
       error: () => this.router.navigate(['/']),
     });
   }
+
+  toggleTheme(): void {
+  const isDark = this.themeService.isDark;
+  this.themeService.setTheme(isDark ? 'light' : 'dark');
+}
 }

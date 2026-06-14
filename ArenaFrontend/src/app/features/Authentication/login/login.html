@@ -1,26 +1,24 @@
-<div class="auth-card">
-  <h2 class="auth-title">Welcome Back</h2>
-  <p class="auth-sub">Sign in to your Arena account</p>
+<div class="auth-card" [dir]="isRtl ? 'rtl' : 'ltr'">
+  <h2 class="auth-title">{{ 'auth.login.title' | translate }}</h2>
+  <p class="auth-sub">{{ 'auth.login.subtitle' | translate }}</p>
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
 
     <div class="field" [class.invalid]="isInvalid('email')">
-      <label for="login-email">Email</label>
+      <label for="login-email">{{ 'auth.login.email' | translate }}</label>
       <input id="login-email" type="email" formControlName="email"
              placeholder="you@example.com" autocomplete="email" />
-      
       @if (isInvalid('email')) {
         <span class="err">{{ getError('email') }}</span>
       }
     </div>
 
     <div class="field" [class.invalid]="isInvalid('password')">
-      <label for="login-pw">Password</label>
+      <label for="login-pw">{{ 'auth.login.password' | translate }}</label>
       <div class="input-wrap">
         <input id="login-pw" [type]="showPw ? 'text' : 'password'"
                formControlName="password" placeholder="••••••••"
                autocomplete="current-password" />
-        
         <button type="button" class="toggle-pw" (click)="showPw = !showPw"
                 [attr.aria-label]="showPw ? 'Hide password' : 'Show password'">
           @if (showPw) {
@@ -40,7 +38,6 @@
           }
         </button>
       </div>
-
       @if (isInvalid('password')) {
         <span class="err">{{ getError('password') }}</span>
       }
@@ -50,39 +47,45 @@
       <label class="remember-me">
         <input type="checkbox" formControlName="rememberMe" />
         <span class="custom-checkbox"></span>
-        <span class="label-text">Remember me</span>
+        <span class="label-text">{{ 'auth.login.rememberMe' | translate }}</span>
       </label>
-      
       <button type="button" class="link-btn" (click)="goToforgot()">
-        Forgot password?
+        {{ 'auth.login.forgot' | translate }}
       </button>
     </div>
 
     @if (serverError) {
       <div class="banner error">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
         {{ serverError }}
       </div>
     }
 
-   <button class="btn-submit" type="submit" [disabled]="loading">
-  <span class="btn-text-content">
-    @if (loading) {
-      <div class="spinner"></div>
-    } @else {
-      Sign In
-    }
-  </span>
-</button>
+    <button class="btn-submit" type="submit" [disabled]="loading">
+      <span class="btn-text-content">
+        @if (loading) {
+          <div class="spinner"></div>
+        } @else {
+          {{ 'auth.login.signIn' | translate }}
+        }
+      </span>
+    </button>
+
   </form>
 
-  <div class="divider"><span>OR</span></div>
+  <div class="divider"><span>{{ 'auth.login.orContinueWith' | translate }}</span></div>
   <div id="google-btn"></div>
 
   <p class="switch-text">
-    Don't have an account?
+    {{ 'auth.login.noAccount' | translate }}
     <button type="button" class="link-btn" (click)="goToSignup()">
-      Sign up
+      {{ 'auth.login.signUp' | translate }}
     </button>
   </p>
 </div>

@@ -33,12 +33,12 @@ export class AuthService {
   readonly currentUser$ = this._user$.asObservable();
 
   get isLoggedIn(): boolean {
-    return !!localStorage.getItem(KEYS.access) || 
+    return !!localStorage.getItem(KEYS.access) ||
            !!sessionStorage.getItem(KEYS.access);
   }
 
   get isSubscribed(): boolean {
-    return localStorage.getItem(KEYS.subscribed) === 'true' || 
+    return localStorage.getItem(KEYS.subscribed) === 'true' ||
            sessionStorage.getItem(KEYS.subscribed) === 'true';
   }
 
@@ -83,6 +83,7 @@ export class AuthService {
       catchError(this._handleError)
     );
   }
+
   refresh(): Observable<AuthResponseDto> {
     const dto: RefreshTokenDto = {
       accessToken: this.accessToken ?? '',
@@ -90,7 +91,6 @@ export class AuthService {
     };
 
     return this.http.post<AuthResponseDto>(`${BASE}/refresh`, dto).pipe(
-      // Keep existing storage choice by checking where the current token lives
       tap(res => {
         const isUsingLocal = !!localStorage.getItem(KEYS.access);
         this._persist(res, isUsingLocal);
@@ -120,27 +120,32 @@ export class AuthService {
   }
 
   getMe(): Observable<GetProfileDto> {
-    return this.http.get<GetProfileDto>(`${BASE}/me`).pipe(
-      tap(profile => {
-        const isSubscribed = !!profile.activeSubscription;
-        const frontendRole = isSubscribed ? 'Member' : 'User';
+  return this.http.get<GetProfileDto>(`${BASE}/me`).pipe(
+    tap(profile => {
+      const isSubscribed = !!profile.activeSubscription;
+      const frontendRole = isSubscribed ? 'Member' : 'User';
 
-        const updatedUser = { 
-          ...profile, 
-          role: frontendRole, 
-          isSubscribed,
-          firstName: profile.firstName,
-          lastName: profile.lastName 
-        };
+      // ✅ جيب الـ current user عشان تحتفظ بالـ flags
+      const currentUser = this._user$.value;
 
-        this._user$.next(updatedUser);
-        const storage = localStorage.getItem(KEYS.access) ? localStorage : sessionStorage;
-        storage.setItem(KEYS.user, JSON.stringify(updatedUser));
-        storage.setItem(KEYS.subscribed, String(isSubscribed));
-      }),
-      catchError(this._handleError)
-    );
-  }
+      const updatedUser = {
+        ...profile,
+        role: frontendRole,
+        isSubscribed,
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        // ✅ حافظ على الـ flags من الـ persist
+        isGoogleUser: currentUser?.isGoogleUser ?? false,
+      };
+
+      this._user$.next(updatedUser);
+      const storage = localStorage.getItem(KEYS.access) ? localStorage : sessionStorage;
+      storage.setItem(KEYS.user, JSON.stringify(updatedUser));
+      storage.setItem(KEYS.subscribed, String(isSubscribed));
+    }),
+    catchError(this._handleError)
+  );
+}
 
   confirmEmail(userId: string, otp: string): Observable<AuthResponseDto> {
     return this.http.post<AuthResponseDto>(`${BASE}/confirm-email`, { userId, otp }).pipe(
@@ -168,12 +173,22 @@ export class AuthService {
   }
 
   resendConfirmation(userId: string): Observable<void> {
-  return this.http.post<void>(`${BASE}/resend-confirmation`, { userId }).pipe(
-    catchError(this._handleError)
-  );
-}
+    return this.http.post<void>(`${BASE}/resend-confirmation`, { userId }).pipe(
+      catchError(this._handleError)
+    );
+  }
 
+ 
   // ───────────────────────── Helpers ─────────────────────────
+
+  // ✅ Public - للـ interceptor يستخدمه بدل logout() عشان يتجنب الـ loop
+  clearSession(): void {
+    Object.values(KEYS).forEach(k => {
+      localStorage.removeItem(k);
+      sessionStorage.removeItem(k);
+    });
+    this._user$.next(null);
+  }
 
   private _persist(res: AuthResponseDto, rememberMe = false): void {
     const storage = rememberMe ? localStorage : sessionStorage;
@@ -181,31 +196,25 @@ export class AuthService {
     storage.setItem(KEYS.access, res.accessToken);
     storage.setItem(KEYS.refresh, res.refreshToken);
     storage.setItem(KEYS.subscribed, String(res.isSubscribed ?? false));
-      
+
     const frontendRole = res.isSubscribed ? 'Member' : 'User';
 
     const user = {
       ...res,
-      role: frontendRole,
-      isSubscribed: res.isSubscribed ?? false,
-      firstName: res.firstName ?? '',
-      lastName: res.lastName ?? ''
+       role: frontendRole,
+    isSubscribed: res.isSubscribed ?? false,
+    isGoogleUser: res.isGoogleUser ?? false,
+    firstName: res.firstName ?? '',
+    lastName: res.lastName ?? ''
     };
 
     storage.setItem(KEYS.user, JSON.stringify(user));
     this._user$.next(user);
-
-    if (!res.isGoogleUser && res.isSubscribed) {
-      setTimeout(() => this.router.navigate(['/profile']));
-    }
+    // ✅ مفيش navigate هنا - الـ navigate في الـ component بس
   }
 
   private _clear(): void {
-    Object.values(KEYS).forEach(k => {
-      localStorage.removeItem(k);
-      sessionStorage.removeItem(k);
-    });
-    this._user$.next(null);
+    this.clearSession();
     this.router.navigate(['/']);
   }
 
@@ -220,6 +229,12 @@ export class AuthService {
 
  private _handleError = (err: any): Observable<never> => {
   let msg = 'Something went wrong';
+
+  // لو جه من الـ interceptor كـ Error object
+  if (err instanceof Error && !(err as any).error) {
+    return throwError(() => err); // ابعته زي ما هو
+  }
+
   const error = err?.error;
 
   if (Array.isArray(error)) {
@@ -227,11 +242,15 @@ export class AuthService {
   } else if (typeof error === 'string') {
     msg = error;
   } else if (error?.message) {
-    msg = error.message;
+    msg = Array.isArray(error.message)
+      ? error.message.join(', ')
+      : error.message;
   } else if (Array.isArray(error?.errors)) {
     msg = error.errors.join(', ');
   } else if (error?.errors && typeof error.errors === 'object') {
     msg = Object.values(error.errors).flat().join(', ');
+  } else if (error?.title) {
+    msg = error.title;
   } else if (err?.message) {
     msg = err.message;
   }
