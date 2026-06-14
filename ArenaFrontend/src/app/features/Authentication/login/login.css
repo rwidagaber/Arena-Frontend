@@ -405,3 +405,46 @@
     align-items: flex-start;
   }
 }
+
+/* في نهاية الملف الموجود ضيف ده */
+
+/* RTL Support */
+.auth-card[dir="rtl"] .auth-title,
+.auth-card[dir="rtl"] .auth-sub,
+.auth-card[dir="rtl"] .field label,
+.auth-card[dir="rtl"] .err,
+.auth-card[dir="rtl"] .switch-text {
+  text-align: right;
+}
+
+.auth-card[dir="rtl"] {
+  border-right: none !important;
+  border-left: 1px solid var(--card-border, rgba(255, 255, 255, 0.2)) !important;
+  box-shadow:
+    inset -1px 0 0 rgba(255, 255, 255, 0.1),
+    -4px 0 24px rgba(0, 0, 0, 0.15) !important;
+}
+
+.auth-card[dir="rtl"] .input-wrap input {
+  padding-right: 16px;
+  padding-left: 48px;
+}
+
+.auth-card[dir="rtl"] .toggle-pw {
+  right: auto;
+  left: 12px;
+}
+
+.auth-card[dir="rtl"] .options-row {
+  flex-direction: row-reverse;
+}
+
+.auth-card[dir="rtl"] .link-btn {
+  padding: 0 4px 0 0;
+}
+
+/* وحطه كده */
+:host:has([dir="rtl"])::before {
+  background-position: left center;
+  transform: scaleX(-1);
+}

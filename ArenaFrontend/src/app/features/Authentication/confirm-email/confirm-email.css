@@ -303,3 +303,30 @@
   }
   .otp-boxes-container { gap: 6px !important; }
 }
+
+/* RTL Support */
+.auth-card[dir="rtl"] .auth-title,
+.auth-card[dir="rtl"] .auth-sub,
+.auth-card[dir="rtl"] .field label,
+.auth-card[dir="rtl"] .err,
+.auth-card[dir="rtl"] .switch-text {
+  text-align: right;
+}
+
+.auth-card[dir="rtl"] {
+  border-right: none !important;
+  border-left: 1px solid var(--card-border, rgba(255, 255, 255, 0.08)) !important;
+}
+
+.auth-card[dir="rtl"] .otp-boxes-container {
+  direction: ltr; /* الـ OTP يفضل LTR دايماً */
+}
+
+.auth-card[dir="rtl"] .link-btn {
+  padding: 0 4px 0 0;
+}
+
+:host:has([dir="rtl"])::before {
+  background-position: left center;
+  transform: scaleX(-1);
+}

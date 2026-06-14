@@ -255,3 +255,30 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 @media (max-width: 440px) {
   .field-row { flex-direction: column; gap: 0; }
 }
+
+/* RTL Support */
+.auth-card[dir="rtl"] .auth-title,
+.auth-card[dir="rtl"] .auth-sub,
+.auth-card[dir="rtl"] .field label,
+.auth-card[dir="rtl"] .err {
+  text-align: right;
+}
+
+.auth-card[dir="rtl"] {
+  border-right: none !important;
+  border-left: 1px solid var(--card-border, rgba(255, 255, 255, 0.08)) !important;
+}
+
+.auth-card[dir="rtl"] .select-wrap::after {
+  right: auto;
+  left: 12px;
+}
+
+.auth-card[dir="rtl"] .select-wrap select {
+  padding: 12px 12px 12px 32px;
+}
+
+:host:has([dir="rtl"])::before {
+  background-position: left center;
+  transform: scaleX(-1);
+}

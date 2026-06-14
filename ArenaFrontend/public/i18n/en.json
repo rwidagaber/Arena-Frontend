@@ -84,31 +84,96 @@
     "copyright": "Copyright © {{year}} ArenaGym. All rights reserved."
   },
   "auth": {
-    "login": {
-      "title": "Welcome Back",
-      "subtitle": "Sign in to your Arena account",
-      "email": "Email",
-      "password": "Password",
-      "forgot": "Forgot password?",
-      "signIn": "Sign In",
-      "noAccount": "Don't have an account?",
-      "signUp": "Sign up"
-    },
-    "register": {
-      "title": "Create Account",
-      "subtitle": "Join Arena and start your fitness journey",
-      "firstName": "First Name",
-      "lastName": "Last Name",
-      "phone": "Phone Number",
-      "birthday": "Birthday",
-      "email": "Email",
-      "password": "Password",
-      "confirmPassword": "Confirm Password",
-      "create": "Create Account",
-      "hasAccount": "Already have an account?",
-      "signIn": "Sign in"
-    }
+  "login": {
+    "title": "Welcome Back",
+    "subtitle": "Sign in to your Arena account",
+    "email": "Email",
+    "password": "Password",
+    "rememberMe": "Remember me",
+    "forgot": "Forgot password?",
+    "signIn": "Sign In",
+    "noAccount": "Don't have an account?",
+    "signUp": "Sign up",
+    "orContinueWith": "OR"
   },
+  "register": {
+    "title": "Create Account",
+    "subtitle": "Join Arena and start your fitness journey",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "phone": "Phone Number",
+    "birthday": "Birthday",
+    "weight": "Weight (kg)",
+    "height": "Height (cm)",
+    "gender": "Gender",
+    "genderMale": "Male",
+    "genderFemale": "Female",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "create": "Create Account",
+    "hasAccount": "Already have an account?",
+    "signIn": "Sign in"
+  },
+  "confirmEmail": {
+    "title": "Confirm Your Email",
+    "subtitle": "Enter the verification code sent to your email",
+    "otp": "Verification Code",
+    "confirm": "Confirm",
+    "resend": "Resend Code",
+    "resendIn": "Resend in {{seconds}}s",
+    "backToLogin": "Back to Sign In"
+  },
+  "completeProfile": {
+    "title": "Complete Your Profile",
+    "subtitle": "We need a few more details to get you started",
+    "phone": "Phone Number",
+    "birthday": "Date of Birth",
+    "weight": "Weight (kg)",
+    "height": "Height (cm)",
+    "gender": "Gender",
+    "genderMale": "Male",
+    "genderFemale": "Female",
+    "submit": "Save & Continue",
+    "skip": "Skip for now"
+  },
+  "forgotPassword": {
+    "title": "Forgot Password?",
+    "subtitle": "Enter your email and we'll send you a reset link",
+    "email": "Email",
+    "send": "Send Reset Link",
+    "backToLogin": "Back to Sign In",
+    "successTitle": "Check your inbox!",
+    "successMessage": "We sent a reset link to"
+  },
+  "resetPassword": {
+    "title": "Reset Password",
+    "subtitle": "Enter your new password below",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "submit": "Reset Password",
+    "successMessage": "Password changed successfully, redirecting...",
+    "backToLogin": "Back to Sign In"
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalidEmail": "Enter a valid email address",
+    "minPassword": "Password must be at least {{min}} characters",
+    "passwordMismatch": "Passwords do not match",
+    "invalidPhone": "Enter a valid phone number",
+    "minAge": "You must be at least {{age}} years old",
+    "minWeight": "Weight must be at least {{min}} kg",
+    "maxWeight": "Weight must not exceed {{max}} kg",
+    "minHeight": "Height must be at least {{min}} cm",
+    "maxHeight": "Height must not exceed {{max}} cm"
+  },
+  "errors": {
+    "invalidCredentials": "Invalid email or password",
+    "emailExists": "This email is already registered",
+    "accountNotFound": "No account found with this email",
+    "somethingWrong": "Something went wrong, please try again"
+  }
+},
   "dashboard": {
     "title": "Dashboard",
     "welcome": "Welcome back! Here's your gym overview.",
@@ -397,32 +462,7 @@
     "saturday": "Saturday: 7:00 AM - 9:00 PM",
     "copyright": "Copyright © {{year}} ArenaGym. All rights reserved."
   },
-  "auth": {
-    "login": {
-      "title": "Welcome Back",
-      "subtitle": "Sign in to your Arena account",
-      "email": "Email",
-      "password": "Password",
-      "forgot": "Forgot password?",
-      "signIn": "Sign In",
-      "noAccount": "Don't have an account?",
-      "signUp": "Sign up"
-    },
-    "register": {
-      "title": "Create Account",
-      "subtitle": "Join Arena and start your fitness journey",
-      "firstName": "First Name",
-      "lastName": "Last Name",
-      "phone": "Phone Number",
-      "birthday": "Birthday",
-      "email": "Email",
-      "password": "Password",
-      "confirmPassword": "Confirm Password",
-      "create": "Create Account",
-      "hasAccount": "Already have an account?",
-      "signIn": "Sign in"
-    }
-  },
+  
   "dashboard": {
     "title": "Dashboard",
     "welcome": "Welcome back! Here's your gym overview.",

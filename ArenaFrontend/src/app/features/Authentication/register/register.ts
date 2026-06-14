@@ -1,5 +1,4 @@
-// register.component.ts
-import { Component, inject, AfterViewInit, NgZone } from '@angular/core';
+import { Component, inject, AfterViewInit, NgZone, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ReactiveFormsModule, FormBuilder, Validators,
@@ -12,6 +11,10 @@ import { strongPasswordValidator } from '../../../shared/utils/validators/passwo
 import { minAgeValidator } from '../../../shared/utils/validators/min-age.validator';
 import { phoneValidator } from '../../../shared/utils/validators/phoneValidator';
 import { realisticBodyValidator } from '../../../shared/utils/validators/realisticBodyValidator';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslationService } from '../../../core/services/translation.service';
+import { ThemeService } from '../../../core/services/themeservice';
+import { Subscription } from 'rxjs';
 
 export function passwordsMatch(): ValidatorFn {
   return (group: AbstractControl): ValidationErrors | null => {
@@ -25,20 +28,29 @@ export function passwordsMatch(): ValidatorFn {
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule],
   templateUrl: './register.html',
   styleUrl: './register.css'
 })
-export class RegisterComponent implements AfterViewInit {
+export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  private fb      = inject(FormBuilder);
-  private auth    = inject(AuthService);
-  private router  = inject(Router);
-  private ngZone  = inject(NgZone);
+  private fb        = inject(FormBuilder);
+  private auth      = inject(AuthService);
+  private router    = inject(Router);
+  private ngZone    = inject(NgZone);
+  readonly t        = inject(TranslationService);
+  readonly themeService = inject(ThemeService);
+  private translate = inject(TranslateService);
 
   showPw      = false;
   loading     = false;
   serverError = '';
+  genderOptions: { value: number; label: string }[] = [];
+
+  private langSub?: Subscription;
+
+  get currentLang() { return this.t.currentLang(); }
+  get isRtl() { return this.currentLang === 'ar'; }
 
   form = this.fb.group(
     {
@@ -53,10 +65,31 @@ export class RegisterComponent implements AfterViewInit {
       height:          [null, [Validators.required, Validators.min(130), Validators.max(210)]],
       gender:          [null, Validators.required],
     },
-    {
-      validators: [passwordsMatch(), realisticBodyValidator()]
-    }
+    { validators: [passwordsMatch(), realisticBodyValidator()] }
   );
+
+  ngOnInit(): void {
+    // ✅ حمّل الـ gender options بعد ما الترجمة تتحمل
+    this.translate.get('auth.register.genderMale').subscribe(() => {
+      this.buildGenderOptions();
+    });
+
+    // ✅ حدّث الـ options لما اللغة تتغير
+    this.langSub = this.translate.onLangChange.subscribe(() => {
+      this.buildGenderOptions();
+    });
+  }
+
+  private buildGenderOptions(): void {
+    this.genderOptions = [
+      { value: 0, label: this.translate.instant('auth.register.genderMale') },
+      { value: 1, label: this.translate.instant('auth.register.genderFemale') },
+    ];
+  }
+
+  ngOnDestroy(): void {
+    this.langSub?.unsubscribe();
+  }
 
   ngAfterViewInit(): void {
     const waitForGoogle = setInterval(() => {
@@ -68,7 +101,6 @@ export class RegisterComponent implements AfterViewInit {
   }
 
   private initGoogleButton(): void {
-
     (window as any).google.accounts.id.initialize({
       client_id: '656089986689-anh4euktf142is1dmbeqq9ovank82cjc.apps.googleusercontent.com',
       callback: (response: any) => {
@@ -93,7 +125,7 @@ export class RegisterComponent implements AfterViewInit {
         if (res.isGoogleUser) {
           this.router.navigate(['/complete-profile']);
         } else {
-          this.router.navigate(['/home']);
+          this.router.navigate(['/']);
         }
       },
       error: (err: Error) => {
@@ -112,10 +144,7 @@ export class RegisterComponent implements AfterViewInit {
       next: (res) => {
         this.loading = false;
         this.router.navigate(['/confirm-email'], {
-          queryParams: {
-            userId: res.userId,
-            email: this.form.value.email
-          }
+          queryParams: { userId: res.userId, email: this.form.value.email }
         });
       },
       error: (err: Error) => { this.loading = false; this.serverError = err.message; },
@@ -136,20 +165,20 @@ export class RegisterComponent implements AfterViewInit {
 
   getError(field: string): string {
     const c = this.form.get(field)!;
-    if (c.hasError('required'))     return 'Required';
-    if (c.hasError('weakPassword')) return 'Password must include uppercase, lowercase, number, and special character';
-    if (c.hasError('minlength'))    return `Min ${c.errors?.['minlength'].requiredLength} chars`;
-    if (c.hasError('invalidEmail')) return 'Invalid email format';
-    if (c.hasError('minAge'))       return `You must be at least ${c.errors?.['minAge'].requiredAge} years old`;
-    if (c.hasError('invalidPhone')) return 'Enter a valid phone number (10-15 digits)';
-    if (c.hasError('min'))          return `Minimum value is ${c.errors?.['min'].min}`;
-    if (c.hasError('max'))          return `Maximum value is ${c.errors?.['max'].max}`;
+    if (c.hasError('required'))     return this.translate.instant('auth.validation.required');
+    if (c.hasError('weakPassword')) return this.translate.instant('auth.validation.minPassword', { min: 8 });
+    if (c.hasError('minlength'))    return this.translate.instant('auth.validation.minPassword', { min: c.errors?.['minlength'].requiredLength });
+    if (c.hasError('invalidEmail')) return this.translate.instant('auth.validation.invalidEmail');
+    if (c.hasError('minAge'))       return this.translate.instant('auth.validation.minAge', { age: c.errors?.['minAge'].requiredAge });
+    if (c.hasError('invalidPhone')) return this.translate.instant('auth.validation.invalidPhone');
+    if (c.hasError('min'))          return this.translate.instant('auth.validation.minWeight', { min: c.errors?.['min'].min });
+    if (c.hasError('max'))          return this.translate.instant('auth.validation.maxWeight', { max: c.errors?.['max'].max });
     return '';
   }
 
   get bodyError(): string {
-    if (this.form.hasError('unrealisticWeight')) return 'Weight must be between 35 and 180 kg';
-    if (this.form.hasError('unrealisticHeight')) return 'Height must be between 130 and 210 cm';
+    if (this.form.hasError('unrealisticWeight')) return this.translate.instant('auth.validation.minWeight', { min: 35 });
+    if (this.form.hasError('unrealisticHeight')) return this.translate.instant('auth.validation.minHeight', { min: 130 });
     if (this.form.hasError('unrealisticBMI'))    return 'Weight and height combination is not realistic';
     return '';
   }

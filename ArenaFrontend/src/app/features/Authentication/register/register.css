@@ -1,14 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 /* ==========================================================================
-   1. Imports & Host Styles
+   Host & Background
    ========================================================================== */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght=400;500;600;700&display=swap');
-
-:host-context(html), :host-context(body) {
-  margin: 0 !important;
-  padding: 0 !important;
-  background-color: var(--bg-primary, #0b0c0c) !important;
-}
-
 :host {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   display: flex;
@@ -21,10 +15,10 @@
   padding: 0 !important;
   overflow-x: hidden !important;
   position: relative;
-    background-color: transparent !important;
+  background-color: transparent !important;
 }
 
-/* Dark background image */
+/* ✅ Dark background — صورة على اليمين */
 :host::before {
   content: '';
   position: fixed;
@@ -35,25 +29,40 @@
   background-repeat: no-repeat;
   z-index: 0;
   pointer-events: none;
-  transition: opacity 0.3s ease;
-   background-color: transparent !important;
+  transition: background-image 0.3s ease, background-position 0.3s ease;
 }
 
-/* Light background image */
+/* ✅ Light — صورة مختلفة */
 :host-context([data-theme="light"])::before {
   background-image: url('../../../assets/images/man-light.png');
 }
 
+/* ✅ RTL — الصورة على اليسار */
+:host-context([dir="rtl"])::before,
+:host-context(:has(.auth-card[dir="rtl"]))::before {
+  background-position: left center;
+}
+
+/* ✅ RTL + Light */
+:host-context([data-theme="light"]):host-context([dir="rtl"])::before {
+  background-image: url('../../../assets/images/man-light.png');
+  background-position: left center;
+}
+
+/* ✅ بدل order: -1 */
+:host:has(.auth-card.rtl) {
+  flex-direction: row-reverse; /* الكارت يروح اليمين والصورة اليسار */
+}
+
+/* ✅ الصورة في RTL تتعكس */
+:host:has(.auth-card.rtl)::before {
+  background-position: left center;
+  transform: scaleX(-1); /* ✅ الصورة نفسها بتتعكس */
+}
 /* ==========================================================================
-   2. Card Layout & Typography
+   Card
    ========================================================================== */
 .auth-card {
-  
-  border-right: 1px solid var(--border-color);
-  border-left: none;
-  border-top: none;
-  border-bottom: none;
-  border-radius: 0;
   padding: 40px 60px;
   width: 100%;
   max-width: 480px;
@@ -65,13 +74,26 @@
   overflow-y: auto;
   position: relative;
   z-index: 2;
-   background: var(--card-bg) !important;
+  background: var(--card-bg) !important;
   backdrop-filter: blur(20px) !important;
   -webkit-backdrop-filter: blur(20px) !important;
+
+  /* LTR — border على اليمين */
   border-right: 1px solid var(--card-border, rgba(255, 255, 255, 0.2)) !important;
-  box-shadow: 
-    inset 1px 0 0 rgba(255, 255, 255, 0.1),
-    4px 0 24px rgba(0, 0, 0, 0.15) !important;
+  border-left: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  border-radius: 0;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* ✅ RTL — الكارت على اليمين والـ border على اليسار */
+.auth-card.rtl {
+  margin-left: auto;
+  margin-right: 0;
+  border-right: none !important;
+  border-left: 1px solid var(--card-border, rgba(255, 255, 255, 0.2)) !important;
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15) !important;
 }
 
 .auth-title {
@@ -79,7 +101,6 @@
   font-size: 32px;
   font-weight: 700;
   margin: 0 0 8px 0;
-  text-align: left;
   letter-spacing: -0.5px;
 }
 
@@ -87,11 +108,10 @@
   color: var(--text-secondary) !important;
   font-size: 15px;
   margin: 0 0 32px 0;
-  text-align: left;
 }
 
 /* ==========================================================================
-   3. Form Fields & Rows Layout
+   Form Fields
    ========================================================================== */
 .field {
   display: flex;
@@ -107,7 +127,6 @@
   font-weight: 500;
   margin-bottom: 8px;
   opacity: 0.9;
-  text-align: left;
 }
 
 .field-row { display: flex; gap: 16px; width: 100%; }
@@ -116,7 +135,7 @@
 .field-row-3 .field { flex: 1; min-width: 0; }
 
 /* ==========================================================================
-   4. Inputs & Custom Dropdowns
+   Inputs
    ========================================================================== */
 .field input {
   background: var(--input-bg) !important;
@@ -144,14 +163,16 @@
 
 .field input:-webkit-autofill,
 .field input:-webkit-autofill:hover,
-.field input:-webkit-autofill:focus,
-.field input:-webkit-autofill:active {
+.field input:-webkit-autofill:focus {
   -webkit-text-fill-color: var(--text-primary) !important;
   box-shadow: 0 0 0 1000px var(--autofill-bg, rgba(15, 16, 16, 0.95)) inset !important;
   border: 1px solid var(--border-color) !important;
   transition: background-color 5000s ease-in-out 0s;
 }
 
+/* ==========================================================================
+   Select
+   ========================================================================== */
 .select-wrap { position: relative; width: 100%; }
 
 .select-wrap select {
@@ -186,6 +207,16 @@
   pointer-events: none;
 }
 
+/* ✅ RTL — السهم على اليسار */
+.auth-card[dir="rtl"] .select-wrap::after {
+  right: auto;
+  left: 12px;
+}
+
+.auth-card[dir="rtl"] .select-wrap select {
+  padding: 12px 12px 12px 32px;
+}
+
 .select-wrap select option {
   background-color: var(--bg-secondary) !important;
   color: var(--text-primary) !important;
@@ -197,10 +228,16 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 /* ==========================================================================
-   5. Password Toggle
+   Password Toggle
    ========================================================================== */
 .input-wrap { position: relative; display: flex; align-items: center; width: 100%; }
 .input-wrap input { padding-right: 48px; }
+
+/* ✅ RTL — زرار الـ toggle على اليسار */
+.auth-card[dir="rtl"] .input-wrap input {
+  padding-right: 16px;
+  padding-left: 48px;
+}
 
 .toggle-pw {
   position: absolute; right: 12px;
@@ -211,12 +248,18 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   padding: 6px; border-radius: 50%; outline: none;
 }
 
+/* ✅ RTL */
+.auth-card[dir="rtl"] .toggle-pw {
+  right: auto;
+  left: 12px;
+}
+
 .toggle-pw:hover { color: #418C27; }
 .toggle-pw svg { stroke: var(--text-secondary); }
 .toggle-pw:hover svg { stroke: #418C27; }
 
 /* ==========================================================================
-   6. Buttons & Dividers
+   Buttons & Dividers
    ========================================================================== */
 .btn-submit {
   background-color: #418C27 !important;
@@ -245,7 +288,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .divider span {
-  background: var(--bg-primary);
+  background: var(--bg-primary, #0b0c0c);
   padding: 0 12px; position: relative; z-index: 1;
   color: var(--text-secondary); font-size: 14px;
 }
@@ -263,15 +306,22 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .link-btn:hover { text-decoration: underline; }
 
 /* ==========================================================================
-   7. Visual Side & Responsive
+   Visual Side & Responsive
    ========================================================================== */
 .auth-visual-side { flex: 1; background: transparent !important; position: relative; z-index: 1; }
+
+/* ✅ RTL — الـ visual side على اليسار */
+.auth-card.rtl ~ .auth-visual-side {
+  order: -1;
+}
 
 @media (max-width: 900px) {
   .auth-visual-side { display: none; }
   .auth-card {
     max-width: 100%; padding: 40px 24px;
     background: var(--card-bg-mobile, rgba(11, 12, 12, 0.90)) !important;
+    border: none !important;
+    margin: 0 !important;
   }
 }
 
@@ -280,12 +330,12 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 /* ==========================================================================
-   8. Validation & Error Styles
+   Validation
    ========================================================================== */
 .err {
   color: #ef4444 !important; font-size: 13px !important;
   margin-top: 6px !important; font-weight: 500 !important;
-  display: block !important; text-align: left !important;
+  display: block !important;
 }
 
 .field.invalid input,
@@ -309,7 +359,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 /* ==========================================================================
-   9. Spinner
+   Spinner
    ========================================================================== */
 .spinner {
   width: 20px; height: 20px;

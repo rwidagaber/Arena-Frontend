@@ -1,67 +1,51 @@
-<div class="auth-card">
+<div class="auth-card" [dir]="isRtl ? 'rtl' : 'ltr'">
   <div class="auth-icon-wrap">
-    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--neon-green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24"
+         fill="none" stroke="#418C27" stroke-width="1.5"
+         stroke-linecap="round" stroke-linejoin="round">
       <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
       <polyline points="22,6 12,13 2,6"></polyline>
     </svg>
   </div>
 
-  <h2 class="auth-title">Check Your Mail</h2>
+  <h2 class="auth-title">{{ 'auth.confirmEmail.title' | translate }}</h2>
   <p class="auth-sub">
-    We sent a 6-digit verification code to <br>
-    <span class="highlight-email">please check your inbox</span>
+    {{ 'auth.confirmEmail.subtitle' | translate }}<br>
+    <span class="highlight-email">{{ email }}</span>
   </p>
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
 
     <div class="field">
-      <label>Verification Code</label>
-      
+      <label>{{ 'auth.confirmEmail.otp' | translate }}</label>
+
       <div class="otp-boxes-container">
-  <input #otpBox type="text" maxlength="1" class="otp-box"
-    inputmode="numeric" pattern="[0-9]*"
-    (input)="onOtpInput($event, 0)"
-    (keydown)="onOtpKeydown($event, 0)"
-    (paste)="onOtpPaste($event)" />
+        @for (i of [0,1,2,3,4,5]; track i) {
+          <input #otpBox type="text" maxlength="1" class="otp-box"
+            inputmode="numeric" pattern="[0-9]*"
+            (input)="onOtpInput($event, i)"
+            (keydown)="onOtpKeydown($event, i)"
+            [attr.data-index]="i"
+            (paste)="i === 0 ? onOtpPaste($event) : null" />
+        }
+      </div>
 
-  <input #otpBox type="text" maxlength="1" class="otp-box"
-    inputmode="numeric" pattern="[0-9]*"
-    (input)="onOtpInput($event, 1)"
-    (keydown)="onOtpKeydown($event, 1)" />
-
-  <input #otpBox type="text" maxlength="1" class="otp-box"
-    inputmode="numeric" pattern="[0-9]*"
-    (input)="onOtpInput($event, 2)"
-    (keydown)="onOtpKeydown($event, 2)" />
-
-  <input #otpBox type="text" maxlength="1" class="otp-box"
-    inputmode="numeric" pattern="[0-9]*"
-    (input)="onOtpInput($event, 3)"
-    (keydown)="onOtpKeydown($event, 3)" />
-
-  <input #otpBox type="text" maxlength="1" class="otp-box"
-    inputmode="numeric" pattern="[0-9]*"
-    (input)="onOtpInput($event, 4)"
-    (keydown)="onOtpKeydown($event, 4)" />
-
-  <input #otpBox type="text" maxlength="1" class="otp-box"
-    inputmode="numeric" pattern="[0-9]*"
-    (input)="onOtpInput($event, 5)"
-    (keydown)="onOtpKeydown($event, 5)" />
-</div>
-
-<input type="hidden" formControlName="otp" />
-      
       <input type="hidden" formControlName="otp" />
-      
+
       @if (form.get('otp')?.invalid && form.get('otp')?.touched) {
-        <span class="err">Please enter a valid 6-digit code</span>
+        <span class="err">{{ 'auth.confirmEmail.otpError' | translate }}</span>
       }
     </div>
 
     @if (serverError) {
       <div class="banner error">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
         {{ serverError }}
       </div>
     }
@@ -70,22 +54,24 @@
       @if (loading) {
         <div class="spinner"></div>
       } @else {
-        Verify Email
+        {{ 'auth.confirmEmail.confirm' | translate }}
       }
     </button>
 
   </form>
 
   <div class="resend-section">
-  <p class="switch-text">
-    Didn't receive the code?
-    <button 
-      type="button" 
-      class="link-btn" 
-      (click)="onResendCode()" 
-      [disabled]="loading || resendCooldown > 0">
-      {{ resendCooldown > 0 ? 'Resend in ' + resendCooldown + 's' : 'Resend' }}
-    </button>
-  </p>
-</div>
+    <p class="switch-text">
+      {{ 'auth.confirmEmail.didntReceive' | translate }}
+      <button
+        type="button"
+        class="link-btn"
+        (click)="onResendCode()"
+        [disabled]="loading || resendCooldown > 0">
+        {{ resendCooldown > 0
+          ? ('auth.confirmEmail.resendIn' | translate: { seconds: resendCooldown })
+          : ('auth.confirmEmail.resend' | translate) }}
+      </button>
+    </p>
+  </div>
 </div>

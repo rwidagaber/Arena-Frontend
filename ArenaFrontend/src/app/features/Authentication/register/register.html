@@ -1,38 +1,36 @@
-<div class="auth-card">
-  <h2 class="auth-title">Create Account</h2>
-  <p class="auth-sub">Join Arena and start your fitness journey</p>
+<div class="auth-card" [dir]="isRtl ? 'rtl' : 'ltr'" [class.rtl]="isRtl">
+  <h2 class="auth-title">{{ 'auth.register.title' | translate }}</h2>
+  <p class="auth-sub">{{ 'auth.register.subtitle' | translate }}</p>
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
 
     <div class="field-row">
       <div class="field" [class.invalid]="isInvalid('firstName')">
-        <label>First Name</label>
+        <label>{{ 'auth.register.firstName' | translate }}</label>
         <input formControlName="firstName" placeholder="John" />
         @if (isInvalid('firstName')) {
-          <span class="err">Required</span>
+          <span class="err">{{ 'auth.validation.required' | translate }}</span>
         }
       </div>
-
       <div class="field" [class.invalid]="isInvalid('lastName')">
-        <label>Last Name</label>
+        <label>{{ 'auth.register.lastName' | translate }}</label>
         <input formControlName="lastName" placeholder="Doe" />
         @if (isInvalid('lastName')) {
-          <span class="err">Required</span>
+          <span class="err">{{ 'auth.validation.required' | translate }}</span>
         }
       </div>
     </div>
 
     <div class="field-row">
       <div class="field" [class.invalid]="isInvalid('birthday')">
-        <label>Birthday</label>
+        <label>{{ 'auth.register.birthday' | translate }}</label>
         <input type="date" formControlName="birthday" />
         @if (isInvalid('birthday')) {
           <span class="err">{{ getError('birthday') }}</span>
         }
       </div>
-
       <div class="field" [class.invalid]="isInvalid('phoneNumber')">
-        <label>Phone Number</label>
+        <label>{{ 'auth.register.phone' | translate }}</label>
         <input type="tel" formControlName="phoneNumber" placeholder="01012345678" />
         @if (isInvalid('phoneNumber')) {
           <span class="err">{{ getError('phoneNumber') }}</span>
@@ -40,34 +38,34 @@
       </div>
     </div>
 
-    <div class="field-row field-row-3">
-      <div class="field" [class.invalid]="isInvalid('weight')">
-        <label>Weight (kg)</label>
-        <input type="number" formControlName="weight" placeholder="70" />
-        @if (isInvalid('weight')) {
-          <span class="err">{{ getError('weight') }}</span>
-        }
-      </div>
-
+    <!-- ✅ field-row-3 مقسمة لـ 3 fields منفصلة بدل row واحد -->
+    <div class="field-row-3">
+      <div class="field" [class.invalid]="isInvalid('gender')">
+  <label>{{ 'auth.register.gender' | translate }}</label>
+  <div class="select-wrap">
+    <select formControlName="gender">
+      <option value="" disabled selected>—</option>
+      @for (opt of genderOptions; track opt.value) {
+        <option [ngValue]="opt.value">{{ opt.label }}</option>
+      }
+    </select>
+  </div>
+  @if (isInvalid('gender')) {
+    <span class="err">{{ 'auth.validation.required' | translate }}</span>
+  }
+</div>
       <div class="field" [class.invalid]="isInvalid('height')">
-        <label>Height (cm)</label>
+        <label>{{ 'auth.register.height' | translate }}</label>
         <input type="number" formControlName="height" placeholder="170" />
         @if (isInvalid('height')) {
           <span class="err">{{ getError('height') }}</span>
         }
       </div>
-
-      <div class="field" [class.invalid]="isInvalid('gender')">
-        <label>Gender</label>
-        <div class="select-wrap">
-          <select formControlName="gender">
-            <option value="" disabled selected>Select</option>
-            <option [ngValue]="0">Male</option>
-            <option [ngValue]="1">Female</option>
-          </select>
-        </div>
-        @if (isInvalid('gender')) {
-          <span class="err">Required</span>
+      <div class="field" [class.invalid]="isInvalid('weight')">
+        <label>{{ 'auth.register.weight' | translate }}</label>
+        <input type="number" formControlName="weight" placeholder="70" />
+        @if (isInvalid('weight')) {
+          <span class="err">{{ getError('weight') }}</span>
         }
       </div>
     </div>
@@ -77,7 +75,7 @@
     }
 
     <div class="field" [class.invalid]="isInvalid('email')">
-      <label>Email</label>
+      <label>{{ 'auth.register.email' | translate }}</label>
       <input type="email" formControlName="email" placeholder="example@mail.com" />
       @if (isInvalid('email')) {
         <span class="err">{{ getError('email') }}</span>
@@ -85,7 +83,7 @@
     </div>
 
     <div class="field" [class.invalid]="isInvalid('password')">
-      <label>Password</label>
+      <label>{{ 'auth.register.password' | translate }}</label>
       <div class="input-wrap">
         <input
           [type]="showPw ? 'text' : 'password'"
@@ -95,15 +93,13 @@
         <button type="button" class="toggle-pw" (click)="showPw = !showPw">
           @if (showPw) {
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-              fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
               <circle cx="12" cy="12" r="3"></circle>
             </svg>
           } @else {
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-              fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
               <line x1="1" y1="1" x2="23" y2="23"></line>
             </svg>
@@ -116,7 +112,7 @@
     </div>
 
     <div class="field" [class.invalid]="showMismatch">
-      <label>Confirm Password</label>
+      <label>{{ 'auth.register.confirmPassword' | translate }}</label>
       <div class="input-wrap">
         <input
           [type]="showPw ? 'text' : 'password'"
@@ -125,7 +121,7 @@
         />
       </div>
       @if (showMismatch) {
-        <span class="err">Passwords do not match</span>
+        <span class="err">{{ 'auth.validation.passwordMismatch' | translate }}</span>
       }
     </div>
 
@@ -134,23 +130,25 @@
     }
 
     <button type="submit" class="btn-submit" [disabled]="loading">
-  @if (loading) {
-    <span class="btn-text">Creating Account</span>
-    <div class="spinner"></div>
-  } @else {
-    <span class="btn-text">Create Account</span>
-  }
-</button>
+      @if (loading) {
+        <span class="btn-text">{{ 'auth.register.create' | translate }}</span>
+        <div class="spinner"></div>
+      } @else {
+        <span class="btn-text">{{ 'auth.register.create' | translate }}</span>
+      }
+    </button>
 
-    <div class="divider"><span>OR</span></div>
+    <div class="divider"><span>{{ 'auth.login.orContinueWith' | translate }}</span></div>
 
     <div id="google-btn"></div>
 
   </form>
 
   <p class="switch-text">
-    Already have account?
-    <button type="button" class="link-btn" (click)="goToLogin()">Sign in</button>
+    {{ 'auth.register.hasAccount' | translate }}
+    <button type="button" class="link-btn" (click)="goToLogin()">
+      {{ 'auth.register.signIn' | translate }}
+    </button>
   </p>
 </div>
 
