@@ -22,6 +22,7 @@ import { confirmEmailGuard } from './core/guards/auth/confirm-email-guard';
 import { completeProfileGuard } from './core/guards/auth/complete-profile-guard';
 import { resetPasswordGuard } from './core/guards/auth/reset-password-guard';
 import { subscriptionGuard } from './core/guards/subscription/subscription-guard';
+import { QrDisplayComponent } from './features/QR/qr-display.component/qr-display.component';
 
 export const routes: Routes = [
   // ─── Public ───
@@ -120,5 +121,16 @@ export const routes: Routes = [
   {
     path: '**',
     redirectTo: ''                     // ✅ أي route غلط → home
+  },
+
+  {
+    path: 'qr/scan',
+    component: QrDisplayComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'qr/:bookingId',
+    component: QrDisplayComponent,
+    canActivate: [authGuard, subGuard]
   }
 ];
