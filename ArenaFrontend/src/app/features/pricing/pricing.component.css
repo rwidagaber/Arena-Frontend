@@ -1,10 +1,11 @@
 .pricing-section {
   padding: 80px 20px;
-  background-color: #F8F9FA;
+  background-color: var(--bg-secondary);
   font-family: 'Inter', sans-serif;
   display: flex;
   flex-direction: column;
   align-items: center;
+  transition: background-color 0.3s ease;
 }
 
 .pricing-header {
@@ -15,14 +16,16 @@
 .pricing-badge {
   display: inline-flex;
   align-items: center;
-  background: white;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
   padding: 8px 16px;
   border-radius: 20px;
   font-size: 14px;
   font-weight: 500;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 20px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 .pricing-badge .dot {
@@ -36,9 +39,10 @@
 .pricing-title {
   font-size: 42px;
   font-weight: 700;
-  color: #0B0E14;
+  color: var(--text-primary);
   line-height: 1.2;
   margin: 0;
+  transition: color 0.3s ease;
 }
 
 .pricing-grid {
@@ -51,12 +55,13 @@
 }
 
 .pricing-card {
-  background: white;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
   border-radius: 24px;
   padding: 40px;
   width: 350px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .pricing-card:hover {
@@ -85,8 +90,9 @@
 .plan-name {
   font-size: 20px;
   font-weight: 600;
-  color: #0B0E14;
+  color: var(--text-primary);
   margin: 0;
+  transition: color 0.3s ease;
 }
 
 .price-container {
@@ -98,42 +104,48 @@
 .currency {
   font-size: 32px;
   font-weight: 700;
-  color: #0B0E14;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
 }
 
 .amount {
   font-size: 48px;
   font-weight: 700;
-  color: #0B0E14;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
 }
 
 .period {
   font-size: 16px;
-  color: #666;
+  color: var(--text-secondary);
   font-weight: 500;
   margin-left: 5px;
+  transition: color 0.3s ease;
 }
 
 .session-limit {
   font-size: 14px;
-  color: #888;
+  color: var(--text-secondary);
   margin-bottom: 30px;
+  transition: color 0.3s ease;
 }
 
 .plan-description {
   font-size: 15px;
-  color: #666;
+  color: var(--text-secondary);
   line-height: 1.6;
   margin-bottom: 30px;
   padding-bottom: 30px;
-  border-bottom: 1px solid #EEE;
+  border-bottom: 1px solid var(--border-color);
+  transition: color 0.3s ease, border-bottom-color 0.3s ease;
 }
 
 .features-title {
   font-size: 16px;
   font-weight: 600;
-  color: #0B0E14;
+  color: var(--text-primary);
   margin-bottom: 20px;
+  transition: color 0.3s ease;
 }
 
 .features-list {
@@ -148,8 +160,9 @@
   gap: 12px;
   margin-bottom: 16px;
   font-size: 14px;
-  color: #555;
+  color: var(--text-secondary);
   line-height: 1.4;
+  transition: color 0.3s ease;
 }
 
 .check-icon {
@@ -186,8 +199,9 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #555;
+  color: var(--text-secondary);
   font-size: 15px;
+  transition: color 0.3s ease;
 }
 
 .info-item i {
@@ -199,50 +213,9 @@
 .loading-state, .error-state {
   margin: 40px 0;
   font-size: 18px;
-  color: #555;
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
 }
 .error-state {
   color: #dc3545;
-}
-
-/* Dark Mode Overrides */
-@media (prefers-color-scheme: dark) {
-  .pricing-section {
-    background-color: #0c0f17;
-  }
-  
-  .pricing-title {
-    color: #ffffff;
-  }
-  
-  .pricing-badge {
-    background: #1a1f2c;
-    color: #e2e8f0;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  }
-  
-  .pricing-card {
-    background: #151a24;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-  }
-  
-  .plan-name,
-  .currency,
-  .amount,
-  .features-title {
-    color: #ffffff;
-  }
-  
-  .period,
-  .session-limit,
-  .plan-description,
-  .features-list li,
-  .info-item,
-  .loading-state {
-    color: #a0aec0;
-  }
-  
-  .plan-description {
-    border-bottom: 1px solid #2d3748;
-  }
 }
