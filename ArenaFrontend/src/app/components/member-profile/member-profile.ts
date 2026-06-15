@@ -9,6 +9,7 @@ import type { MemberProfile as MemberProfileModel, MembershipDetails } from '../
 import { DashboardSidebar, DashboardSection } from './dashboard-sidebar/dashboard-sidebar';
 import { TranslateModule } from '@ngx-translate/core';
 import { QrDisplayComponent } from '../../features/QR/qr-display.component/qr-display.component';
+import { Nutritionplan } from "./nutritionplan/nutritionplan";
 
 function mapAuthToProfile(dto: GetProfileDto): MemberProfileModel {
   return {
@@ -49,8 +50,9 @@ function mapSubscriptionToMembership(sub: UserSubscriptionDto): MembershipDetail
     CommonModule,
     DashboardSidebar,
     TranslateModule,
-     QrDisplayComponent
-  ],
+    QrDisplayComponent,
+    Nutritionplan
+],
   templateUrl: './member-profile.html',
   styleUrl: './member-profile.css',
 })
