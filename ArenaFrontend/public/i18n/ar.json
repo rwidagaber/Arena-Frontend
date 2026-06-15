@@ -450,5 +450,14 @@
     "workouts": "التمارين",
     "retry": "إعادة المحاولة",
     "somethingWentWrong": "حدث خطأ ما"
-  }
+  },
+  "myBookings": "حجوزاتي",
+  "upcoming": "الحجوزات القادمة",
+  "past": "الحجوزات السابقة",
+  "noBookings": "لم يتم العثور على حجوزات",
+  "loading": "جارٍ التحميل...",
+  "error": "فشل تحميل الحجوزات",
+  "calendar": "التقويم",
+  "bookingDetails": "تفاصيل الحجز",
+  "totalBookings": "إجمالي الحجوزات"
 }

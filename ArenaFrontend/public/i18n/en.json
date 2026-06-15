@@ -449,5 +449,14 @@
     "workouts": "Workouts",
     "retry": "Retry",
     "somethingWentWrong": "Something went wrong"
-  }
+  },
+  "myBookings": "My Bookings",
+  "upcoming": "Upcoming Bookings",
+  "past": "Past Bookings",
+  "noBookings": "No bookings found",
+  "loading": "Loading...",
+  "error": "Failed to load bookings",
+  "calendar": "Calendar",
+  "bookingDetails": "Booking Details",
+  "totalBookings": "Total Bookings"
 }

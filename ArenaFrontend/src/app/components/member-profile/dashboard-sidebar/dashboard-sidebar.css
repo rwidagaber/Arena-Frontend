@@ -207,9 +207,51 @@
   color: #ef4444 !important;
 }
 
-@media (max-width: 768px) {
+.sidebar-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  animation: backdropFade 250ms ease-out;
+}
+
+@keyframes backdropFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (max-width: 767px) {
   .dash-sidebar {
-    width: 100%;
-    height: auto;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1000;
+    width: 260px;
+    height: 100%;
+    transform: translateX(-100%);
+    transition: transform 250ms ease-in-out;
+    background: var(--surface);
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .dash-sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
+  :host-context([dir="rtl"]) .dash-sidebar {
+    left: auto;
+    right: 0;
+    transform: translateX(100%);
+    box-shadow: -4px 0 15px rgba(0, 0, 0, 0.2);
+  }
+
+  :host-context([dir="rtl"]) .dash-sidebar.mobile-open {
+    transform: translateX(0);
   }
 }
+

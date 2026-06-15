@@ -9,6 +9,11 @@ import type { MemberProfile as MemberProfileModel, MembershipDetails } from '../
 import { DashboardSidebar, DashboardSection } from './dashboard-sidebar/dashboard-sidebar';
 import { TranslateModule } from '@ngx-translate/core';
 import { QrDisplayComponent } from '../../features/QR/qr-display.component/qr-display.component';
+import { QrService } from '../../features/QR/qr.service';
+import { BookingDto } from '../../features/QR/qr.model';
+import { BookingCardComponent } from './booking-card/booking-card';
+import { BookingCalendarComponent } from './booking-calendar/booking-calendar';
+import { StatsOverview } from './stats-overview/stats-overview';
 
 function mapAuthToProfile(dto: GetProfileDto): MemberProfileModel {
   return {
@@ -49,7 +54,10 @@ function mapSubscriptionToMembership(sub: UserSubscriptionDto): MembershipDetail
     CommonModule,
     DashboardSidebar,
     TranslateModule,
-     QrDisplayComponent
+    QrDisplayComponent,
+    BookingCardComponent,
+    BookingCalendarComponent,
+    StatsOverview
   ],
   templateUrl: './member-profile.html',
   styleUrl: './member-profile.css',
@@ -59,12 +67,66 @@ export class MemberProfile implements OnInit {
   private memberService = inject(MemberService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private qrService = inject(QrService);
 
   profile = signal<MemberProfileModel | null>(null);
   loading = signal(true);
   error = signal<string | null>(null);
 
   activeSection = signal<DashboardSection>('profile');
+
+  bookings = signal<BookingDto[]>([]);
+  loadingBookings = signal(false);
+  errorBookings = signal<string | null>(null);
+  isMobileSidebarOpen = signal(false);
+
+  upcomingBookings = computed(() => {
+    const now = Date.now();
+    return this.bookings().filter(b => {
+      const isConfirmed = b.status === 1 || b.status === '1' || b.status === 'Confirmed';
+      if (!isConfirmed) return false;
+      try {
+        const bDateTime = new Date(`${b.bookingDate.split('T')[0]}T${b.startTime}`);
+        return bDateTime.getTime() > now;
+      } catch {
+        return true;
+      }
+    });
+  });
+
+  pastBookings = computed(() => {
+    const now = Date.now();
+    return this.bookings().filter(b => {
+      const isConfirmed = b.status === 1 || b.status === '1' || b.status === 'Confirmed';
+      if (!isConfirmed) return true;
+      try {
+        const bDateTime = new Date(`${b.bookingDate.split('T')[0]}T${b.startTime}`);
+        return bDateTime.getTime() <= now;
+      } catch {
+        return false;
+      }
+    });
+  });
+
+  bookingStats = computed(() => {
+    return [
+      {
+        label: 'totalBookings',
+        value: this.bookings().length.toString(),
+        icon: 'fas fa-calendar-check'
+      },
+      {
+        label: 'upcoming',
+        value: this.upcomingBookings().length.toString(),
+        icon: 'fas fa-clock'
+      },
+      {
+        label: 'past',
+        value: this.pastBookings().length.toString(),
+        icon: 'fas fa-history'
+      }
+    ];
+  });
 
   mappedMembership = computed<MembershipDetails | null>(() => {
     const sub = this.profile()?.activeSubscription;
@@ -210,11 +272,23 @@ export class MemberProfile implements OnInit {
 
   onSectionChange(section: DashboardSection): void {
     this.activeSection.set(section);
+    this.isMobileSidebarOpen.set(false);
+    if (section === 'mybookings') {
+      this.loadBookings();
+    }
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { section },
       queryParamsHandling: 'merge',
     });
+  }
+
+  toggleMobileSidebar(): void {
+    this.isMobileSidebarOpen.set(!this.isMobileSidebarOpen());
+  }
+
+  closeMobileSidebar(): void {
+    this.isMobileSidebarOpen.set(false);
   }
 
   ngOnInit(): void {
@@ -229,6 +303,9 @@ export class MemberProfile implements OnInit {
       const section = params['section'] as DashboardSection | undefined;
       if (section && this.isValidSection(section)) {
         this.activeSection.set(section);
+        if (section === 'mybookings') {
+          this.loadBookings();
+        }
       } else {
         this.activeSection.set('profile');
       }
@@ -238,7 +315,37 @@ export class MemberProfile implements OnInit {
   }
 
   private isValidSection(s: string): s is DashboardSection {
-    return ['profile','qr', 'workout', 'diet', 'membership', 'progress', 'settings'].includes(s);
+    return ['profile','qr', 'workout', 'diet', 'membership', 'progress', 'settings', 'mybookings'].includes(s);
+  }
+
+  loadBookings(): void {
+    const profileId = this.profile()?.memberProfileId || this.profile()?.id;
+    if (!profileId) return;
+
+    this.loadingBookings.set(true);
+    this.errorBookings.set(null);
+
+    this.qrService.getBookings(profileId).pipe(
+      catchError(err => {
+        this.errorBookings.set('error');
+        return of([]);
+      })
+    ).subscribe(data => {
+      this.bookings.set(data || []);
+      this.loadingBookings.set(false);
+    });
+  }
+
+  onCancelBooking(bookingId: string): void {
+    this.qrService.cancelBooking(bookingId).pipe(
+      catchError(err => {
+        return of(null);
+      })
+    ).subscribe(res => {
+      if (res) {
+        this.loadBookings();
+      }
+    });
   }
 
   loadData(): void {
@@ -256,6 +363,9 @@ export class MemberProfile implements OnInit {
     ).subscribe(data => {
       if (data) {
         this.profile.set(data);
+        if (this.activeSection() === 'mybookings') {
+          this.loadBookings();
+        }
       }
       this.loading.set(false);
     });
