@@ -5,11 +5,12 @@ import { SubscriptionPlan } from '../../core/models/subscription-plan';
 import { AuthService } from '../../core/services/auth';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { ScrollRevealDirective } from '../../shared/directives/scroll-reveal.directive';
 
 @Component({
   selector: 'app-pricing',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [CommonModule, TranslateModule, ScrollRevealDirective],
   templateUrl: './pricing.component.html',
   styleUrls: ['./pricing.component.css']
 })

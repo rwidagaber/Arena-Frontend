@@ -1,5 +1,5 @@
 <section class="pricing-section">
-  <div class="pricing-header">
+  <div class="pricing-header" appScrollReveal [revealDelay]="0">
     <div class="pricing-badge">
       <span class="dot"></span> {{ 'PRICING.BADGE' | translate }}
     </div>
@@ -18,7 +18,7 @@
 
   <!-- Plans Grid -->
   <div *ngIf="!loading && !error" class="pricing-grid">
-    <div class="pricing-card" *ngFor="let plan of plans; let i = index">
+    <div class="pricing-card" *ngFor="let plan of plans; let i = index" appScrollReveal [revealDelay]="i * 150">
       <div class="card-header">
         <!-- We use an index or generic icon since we don't have icons in DB yet -->
         <div class="icon-circle">
