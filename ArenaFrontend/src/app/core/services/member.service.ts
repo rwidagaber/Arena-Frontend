@@ -25,6 +25,8 @@ export class MemberService {
         weight: dto.weight ?? null,
         height: dto.height ?? null,
         bmi: dto.bmi ?? null,
+        targetWeight: dto.targetWeight ?? null,
+        goal: dto.goal ?? null,
         gender: dto.gender ?? null,
         profileImage: dto.profileImage ?? null,
         birthday: dto.birthday ?? null,

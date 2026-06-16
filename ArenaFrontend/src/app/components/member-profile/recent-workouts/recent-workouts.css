@@ -43,7 +43,7 @@
   z-index: 1;
 }
 
-[data-theme="dark"] .section-card {
+:host-context([data-theme="dark"]) .section-card {
   background: linear-gradient(180deg, #232b3f 0%, #1c2333 100%);
   border-color: rgba(255,255,255,0.08);
   box-shadow:
@@ -51,7 +51,7 @@
     0 18px 40px -20px rgba(0,0,0,0.7);
 }
 
-[data-theme="dark"] .section-card:hover {
+:host-context([data-theme="dark"]) .section-card:hover {
   box-shadow:
     0 22px 56px -18px rgba(0,0,0,0.8),
     0 0 0 1px rgba(198,239,46,0.20),
@@ -59,11 +59,11 @@
   border-color: rgba(198,239,46,0.40);
 }
 
-[data-theme="dark"] .section-card::before {
+:host-context([data-theme="dark"]) .section-card::before {
   background: linear-gradient(90deg, #C6EF2E 0%, rgba(198,239,46,0.15) 50%, transparent 100%);
 }
 
-[data-theme="dark"] .section-card::after {
+:host-context([data-theme="dark"]) .section-card::after {
   background: radial-gradient(circle at 100% 100%, rgba(198,239,46,0.08) 0%, transparent 70%);
 }
 
@@ -107,7 +107,7 @@
   margin: 0;
 }
 
-[data-theme="dark"] .section-header h2 {
+:host-context([data-theme="dark"]) .section-header h2 {
   color: #f1f5f9;
 }
 
@@ -145,7 +145,7 @@
 .workout-item:nth-child(4) { animation-delay: 0.24s; }
 .workout-item:nth-child(5) { animation-delay: 0.30s; }
 
-[data-theme="dark"] .workout-item {
+:host-context([data-theme="dark"]) .workout-item {
   background: rgba(255,255,255,0.02);
 }
 
@@ -230,7 +230,7 @@
   text-overflow: ellipsis;
 }
 
-[data-theme="dark"] .workout-name {
+:host-context([data-theme="dark"]) .workout-name {
   color: #e2e8f0;
 }
 
@@ -242,7 +242,7 @@
   color: var(--text-secondary, #64748b);
 }
 
-[data-theme="dark"] .workout-meta {
+:host-context([data-theme="dark"]) .workout-meta {
   color: #94a3b8;
 }
 
@@ -292,7 +292,7 @@
   transform: scale(1.05);
 }
 
-[data-theme="dark"] .workout-date {
+:host-context([data-theme="dark"]) .workout-date {
   color: #f1f5f9;
 }
 
@@ -325,7 +325,7 @@
   color: var(--text-primary, #0f172a);
 }
 
-[data-theme="dark"] .empty-state p {
+:host-context([data-theme="dark"]) .empty-state p {
   color: #e2e8f0;
 }
 
@@ -334,7 +334,7 @@
   color: var(--text-secondary, #64748b);
 }
 
-[data-theme="dark"] .empty-hint {
+:host-context([data-theme="dark"]) .empty-hint {
   color: #94a3b8;
 }
 
@@ -352,7 +352,7 @@
   border-radius: 6px;
 }
 
-[data-theme="dark"] .skeleton {
+:host-context([data-theme="dark"]) .skeleton {
   background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.01) 50%, rgba(255,255,255,0.05) 75%);
   background-size: 200% 100%;
 }

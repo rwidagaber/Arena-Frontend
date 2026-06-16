@@ -21,6 +21,8 @@ export interface MemberProfile {
   weight: number | null;
   height: number | null;
   bmi: number | null;
+  targetWeight: number | null;
+  goal: string | null;
   gender: string | null;
   profileImage: string | null;
   birthday: string | null;
@@ -36,6 +38,8 @@ export interface UpdateProfileDto {
   height?: number;
   gender?: string;
   profileImage?: string;
+  goal?: string;
+  targetWeight?: number;
 }
 
 export interface WorkoutSession {

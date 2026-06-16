@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, effect, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -7,7 +7,7 @@ import { AuthService } from '../../core/services/auth';
 import { MemberService } from '../../core/services/member.service';
 import { ProgressReportService, AttendanceRecord, ProgressSummaryDto } from '../../core/services/progress-report.service';
 import type { GetProfileDto, UserSubscriptionDto } from '../../core/models/auth';
-import type { MemberProfile as MemberProfileModel, MembershipDetails } from '../../core/models/member';
+import type { MemberProfile as MemberProfileModel, MembershipDetails, UpdateProfileDto, WorkoutSession } from '../../core/models/member';
 import { DashboardSidebar, DashboardSection } from './dashboard-sidebar/dashboard-sidebar';
 import { RecentWorkouts } from './recent-workouts/recent-workouts';
 import { MembershipSection } from './membership-section/membership-section';
@@ -31,6 +31,8 @@ function mapAuthToProfile(dto: GetProfileDto): MemberProfileModel {
     weight: dto.weight ?? null,
     height: dto.height ?? null,
     bmi: dto.bmi ?? null,
+    targetWeight: dto.targetWeight ?? null,
+    goal: dto.goal ?? null,
     gender: dto.gender ?? null,
     profileImage: dto.profileImage ?? null,
     birthday: dto.birthday ?? null,
@@ -81,7 +83,7 @@ export class MemberProfile implements OnInit {
   isDarkMode = computed(() => this.themeService.isDark);
 
   private readonly svgIcons: Record<string, string> = {
-    fire: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c-3.866 0-7-3.134-7-7 0-3.866 3.134-7 7-7s7 3.134 7 7c0 3.866-3.134 7-7 7z"/></svg>',
+    fire: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>',
     bolt: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
     star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
     shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
@@ -227,6 +229,23 @@ export class MemberProfile implements OnInit {
 
   totalWorkouts = computed(() => {
     return this.getDatesFromAttendance(this.attendances()).length;
+  });
+
+  // Recent gym visits (from real attendance/check-in data) shaped as workout sessions
+  recentWorkouts = computed<WorkoutSession[]>(() => {
+    return this.attendances()
+      .filter(a => a.checkInTime)
+      .slice()
+      .sort((a, b) => new Date(b.checkInTime!).getTime() - new Date(a.checkInTime!).getTime())
+      .slice(0, 6)
+      .map(a => ({
+        id: a.id,
+        name: 'Gym Session',
+        date: a.checkInTime!,
+        durationMinutes: 0,
+        caloriesBurned: 0,
+        type: 'Check-in',
+      }));
   });
 
   currentStreak = computed(() => {
@@ -486,6 +505,34 @@ export class MemberProfile implements OnInit {
   editHeight = signal<number | null>(null);
   editPhone = signal('');
   editGender = signal('');
+  savingEdit = signal(false);
+  editError = signal<string | null>(null);
+  editImage = signal<string | null>(null);
+  editGoal = signal('');
+  editTargetWeight = signal<number | null>(null);
+
+  // Fitness goal options (values match the backend MemberProfile.Goal)
+  readonly goalOptions = [
+    { value: 'WeightLoss', label: 'Weight Loss' },
+    { value: 'MuscleGain', label: 'Muscle Gain' },
+    { value: 'Endurance', label: 'Endurance' },
+    { value: 'GeneralFitness', label: 'General Fitness' },
+  ];
+
+  goalLabel = computed(() => {
+    const g = this.profile()?.goal;
+    return this.goalOptions.find(o => o.value === g)?.label ?? g ?? null;
+  });
+
+  goalDelta = computed(() => {
+    const w = this.profile()?.weight;
+    const t = this.profile()?.targetWeight;
+    if (w == null || t == null) return null;
+    const diff = Math.round((w - t) * 10) / 10;
+    if (Math.abs(diff) <= 0.5) return { state: 'reached', text: 'Goal reached!' };
+    if (diff > 0) return { state: 'lose', text: `${diff} kg to go` };
+    return { state: 'gain', text: `${Math.abs(diff)} kg to gain` };
+  });
 
   openEdit(): void {
     const p = this.profile();
@@ -496,28 +543,185 @@ export class MemberProfile implements OnInit {
     this.editHeight.set(p.height ?? null);
     this.editPhone.set(p.phoneNumber || '');
     this.editGender.set(p.gender || '');
+    this.editImage.set(p.profileImage ?? null);
+    this.editGoal.set(p.goal || '');
+    this.editTargetWeight.set(p.targetWeight ?? null);
+    this.editError.set(null);
     this.isEditing.set(true);
   }
 
+  onEditImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      this.editError.set('Please choose an image file.');
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      this.editError.set('Image is too large (max 2MB).');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.editImage.set(reader.result as string);
+      this.editError.set(null);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  removeEditImage(): void {
+    this.editImage.set(null);
+  }
+
   closeEdit(): void {
+    if (this.savingEdit()) return;
     this.isEditing.set(false);
+    this.editError.set(null);
   }
 
   saveEdit(): void {
     const p = this.profile();
-    if (!p) return;
-    const updated: MemberProfileModel = {
-      ...p,
-      firstName: this.editFirstName(),
-      lastName: this.editLastName(),
-      weight: this.editWeight(),
-      height: this.editHeight(),
-      phoneNumber: this.editPhone(),
-      gender: this.editGender(),
+    if (!p || this.savingEdit()) return;
+
+    const dto: UpdateProfileDto = {
+      firstName: this.editFirstName().trim(),
+      lastName: this.editLastName().trim(),
+      phoneNumber: this.editPhone().trim() || undefined,
+      weight: this.editWeight() ?? undefined,
+      height: this.editHeight() ?? undefined,
+      gender: this.editGender() || undefined,
+      profileImage: this.editImage() ?? undefined,
+      goal: this.editGoal() || undefined,
+      targetWeight: this.editTargetWeight() ?? undefined,
     };
-    this.profile.set(updated);
-    this.isEditing.set(false);
+
+    this.savingEdit.set(true);
+    this.editError.set(null);
+
+    this.memberService.updateProfile(dto).subscribe({
+      next: () => {
+        // Re-fetch the canonical profile so server-derived fields (e.g. BMI) stay accurate
+        this.memberService.getProfile().subscribe({
+          next: fresh => {
+            this.profile.set(fresh);
+            this.savingEdit.set(false);
+            this.isEditing.set(false);
+          },
+          error: () => {
+            // Save succeeded but refresh failed — apply what we sent
+            this.profile.set({
+              ...p,
+              firstName: dto.firstName ?? p.firstName,
+              lastName: dto.lastName ?? p.lastName,
+              phoneNumber: dto.phoneNumber ?? p.phoneNumber,
+              weight: dto.weight ?? p.weight,
+              height: dto.height ?? p.height,
+              gender: dto.gender ?? p.gender,
+              profileImage: dto.profileImage ?? p.profileImage,
+              goal: dto.goal ?? p.goal,
+              targetWeight: dto.targetWeight ?? p.targetWeight,
+            });
+            this.savingEdit.set(false);
+            this.isEditing.set(false);
+          },
+        });
+      },
+      error: (err) => {
+        this.savingEdit.set(false);
+        this.editError.set(err?.error?.message || 'Failed to save changes. Please try again.');
+      },
+    });
   }
+
+  // ════════ Celebration modal (streak / achievement) ════════
+  showCelebration = signal(false);
+  confettiPieces = Array.from({ length: 32 }, (_, i) => ({
+    left: (i * 7 + (i % 5) * 11) % 100,
+    delay: (i % 8) * 0.13,
+    duration: 2.3 + (i % 5) * 0.45,
+    color: ['#C6EF2E', '#38BDF8', '#A78BFA', '#FB7185', '#FBBF24'][i % 5],
+    size: 6 + (i % 4) * 3,
+    round: i % 3 === 0,
+  }));
+
+  openCelebration(): void { this.showCelebration.set(true); }
+  closeCelebration(): void { this.showCelebration.set(false); }
+
+  // Auto-pop once when a new streak milestone is reached
+  private celebrationEffect = effect(() => {
+    const s = this.currentStreak();
+    const milestones = [1, 2, 3, 7, 14, 21, 30, 60, 100];
+    if (!milestones.includes(s)) return;
+    try {
+      const seen = Number(localStorage.getItem('arena_celebrated_streak') || '0');
+      if (s > seen) {
+        localStorage.setItem('arena_celebrated_streak', String(s));
+        setTimeout(() => this.showCelebration.set(true), 700);
+      }
+    } catch { /* localStorage unavailable — ignore */ }
+  });
+
+  // ════════ Stat detail modal ════════
+  activeStat = signal<string | null>(null);
+  openStat(key: string): void { this.activeStat.set(key); }
+  closeStat(): void { this.activeStat.set(null); }
+
+  private daysAgoLabel(): string {
+    const d = this.daysSinceLastWorkout();
+    if (d == null) return '—';
+    if (d === 0) return 'Today';
+    if (d === 1) return 'Yesterday';
+    return `${d} days ago`;
+  }
+
+  statDetail = computed(() => {
+    const key = this.activeStat();
+    if (!key) return null;
+    const rem = this.subscriptionDaysRemaining();
+    const map: Record<string, { title: string; value: string; accent: string; rows: { label: string; value: string }[] }> = {
+      workouts: {
+        title: 'Total Workouts', value: `${this.totalWorkouts()}`, accent: '#C6EF2E',
+        rows: [
+          { label: 'This month', value: `${this.sessionsThisMonth()}` },
+          { label: 'Current streak', value: `${this.currentStreak()} days` },
+          { label: 'Best streak', value: `${this.bestStreak()} days` },
+        ],
+      },
+      streak: {
+        title: 'Current Streak', value: `${this.currentStreak()}d`, accent: '#FB7185',
+        rows: [
+          { label: 'Best streak', value: `${this.bestStreak()} days` },
+          { label: 'Last visit', value: this.daysAgoLabel() },
+          { label: 'Total workouts', value: `${this.totalWorkouts()}` },
+        ],
+      },
+      best: {
+        title: 'Best Streak', value: `${this.bestStreak()}d`, accent: '#A78BFA',
+        rows: [
+          { label: 'Current streak', value: `${this.currentStreak()} days` },
+          { label: 'Total workouts', value: `${this.totalWorkouts()}` },
+          { label: 'Last visit', value: this.daysAgoLabel() },
+        ],
+      },
+      month: {
+        title: 'This Month', value: `${this.sessionsThisMonth()}/${this.monthlyTarget()}`, accent: '#38BDF8',
+        rows: [
+          { label: 'Completed', value: `${this.sessionsThisMonth()}` },
+          { label: 'Monthly target', value: `${this.monthlyTarget()}` },
+          { label: 'Remaining', value: `${Math.max(0, this.monthlyTarget() - this.sessionsThisMonth())}` },
+        ],
+      },
+      plan: {
+        title: 'Plan', value: rem != null ? `${rem}d` : '—', accent: '#FBBF24',
+        rows: [
+          { label: 'Days remaining', value: rem != null ? `${rem}` : '—' },
+          { label: 'This month', value: `${this.sessionsThisMonth()} / ${this.monthlyTarget()}` },
+        ],
+      },
+    };
+    return map[key] ?? null;
+  });
 
   onImageSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
