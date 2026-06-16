@@ -1,22 +1,81 @@
-[dir="rtl"] .ms-1 { margin-left: 0 !important; margin-right: 0.25rem !important; }
-[dir="rtl"] .me-1 { margin-right: 0 !important; margin-left: 0.25rem !important; }
-[dir="rtl"] .ms-2 { margin-left: 0 !important; margin-right: 0.5rem !important; }
-[dir="rtl"] .me-2 { margin-right: 0 !important; margin-left: 0.5rem !important; }
-[dir="rtl"] .ms-3 { margin-left: 0 !important; margin-right: 1rem !important; }
-[dir="rtl"] .me-3 { margin-right: 0 !important; margin-left: 1rem !important; }
-[dir="rtl"] .ps-0 { padding-left: 0 !important; padding-right: 0 !important; }
-[dir="rtl"] .pe-0 { padding-right: 0 !important; padding-left: 0 !important; }
-[dir="rtl"] .text-start { text-align: right !important; }
-[dir="rtl"] .text-end { text-align: left !important; }
+[dir="rtl"] .ms-1 {
+  margin-left: 0 !important;
+  margin-right: 0.25rem !important;
+}
 
-[dir="rtl"] .nav-links-exact { padding-right: 0; }
-[dir="rtl"] .benefits-list { padding-right: 0; }
-[dir="rtl"] .stats-list { padding-right: 0; }
-[dir="rtl"] ul, [dir="rtl"] ol { padding-right: 0; }
+[dir="rtl"] .me-1 {
+  margin-right: 0 !important;
+  margin-left: 0.25rem !important;
+}
 
-[dir="rtl"] .program-card .image-wrapper { right: auto; left: -20px; }
-[dir="rtl"] .member-meta { align-items: flex-start !important; }
-[dir="rtl"] .info-row { flex-direction: row-reverse; }
+[dir="rtl"] .ms-2 {
+  margin-left: 0 !important;
+  margin-right: 0.5rem !important;
+}
+
+[dir="rtl"] .me-2 {
+  margin-right: 0 !important;
+  margin-left: 0.5rem !important;
+}
+
+[dir="rtl"] .ms-3 {
+  margin-left: 0 !important;
+  margin-right: 1rem !important;
+}
+
+[dir="rtl"] .me-3 {
+  margin-right: 0 !important;
+  margin-left: 1rem !important;
+}
+
+[dir="rtl"] .ps-0 {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+[dir="rtl"] .pe-0 {
+  padding-right: 0 !important;
+  padding-left: 0 !important;
+}
+
+[dir="rtl"] .text-start {
+  text-align: right !important;
+}
+
+[dir="rtl"] .text-end {
+  text-align: left !important;
+}
+
+[dir="rtl"] .nav-links-exact {
+  padding-right: 0;
+}
+
+[dir="rtl"] .benefits-list {
+  padding-right: 0;
+}
+
+[dir="rtl"] .stats-list {
+  padding-right: 0;
+}
+
+[dir="rtl"] ul,
+[dir="rtl"] ol {
+  padding-right: 0;
+}
+
+[dir="rtl"] .program-card .image-wrapper {
+  right: auto;
+  left: -20px;
+}
+
+[dir="rtl"] .member-meta {
+  align-items: flex-start !important;
+}
+
+[dir="rtl"] .info-row {
+  flex-direction: row-reverse;
+}
+
 /* You can add global styles to this file, and also import other style files */
 /* @import 'bootstrap-icons/font/bootstrap-icons.css'; */
 
@@ -36,7 +95,7 @@ html[dir="rtl"] .ms-auto {
 }
 
 /* Flip any arrows in RTL */
-html[dir="rtl"] .bi-arrow-right, 
+html[dir="rtl"] .bi-arrow-right,
 html[dir="rtl"] .bi-arrow-up-right,
 html[dir="rtl"] .arrow-icon svg {
   transform: scaleX(-1);
@@ -48,76 +107,149 @@ html[dir="rtl"] .arrow-icon svg {
    ========================================================================== */
 
 /* 1. لمتصفحات Chrome, Safari, Opera, و Edge الحديثة */
-html::-webkit-scrollbar, 
+html::-webkit-scrollbar,
 body::-webkit-scrollbar {
-  display: none !important; /* يخفي شريط السكرول تماماً */
-  width: 0 !important;       /* يتأكد أن العرض صفر تماماً */
-  height: 0 !important;      /* يتأكد أن الارتفاع صفر تماماً */
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 /* 2. لمتصفح Firefox */
-html, body {
-  scrollbar-width: none !important; /* يخفي الشريط في فايرفوكس */
-  
-  /* خاصية إضافية لإنترنت إكسبلورر القديم لو لسه حد بيستخدمه */
-  -ms-overflow-style: none !important; 
+html,
+body {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
 }
 
+/* ==========================================================================
+   CSS DESIGN TOKENS (Light theme defaults)
+   ========================================================================== */
 :root {
-  /* Light Theme */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f5f5f5;
-  --text-primary: #0b0c0c;
-  --text-secondary: #6b7280;
-  --border-color: rgba(0, 0, 0, 0.1);
-  --card-bg: rgba(255, 255, 255, 0.9);
-  --input-bg: rgba(0, 0, 0, 0.03);
-  --accent: #418C27;
+  --bg-primary:    #E6E7E2;
+  --bg-secondary:  #FEFFFF;
+  --text-primary:  #0b0c0c;
+  --text-secondary:#6b7280;
+  --border-color:  rgba(0, 0, 0, 0.1);
+  --card-bg:       #FEFFFF;
+  --input-bg:      rgba(0, 0, 0, 0.03);
+  --accent:        #C6EF2E;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg-primary: #0b0c0c;
-    --bg-secondary: #111212;
-    --text-primary: #ffffff;
-    --text-secondary: #a0a0a0;
-    --border-color: rgba(255, 255, 255, 0.1);
-    --card-bg: rgba(11, 12, 12, 0.55);
-    --input-bg: rgba(255, 255, 255, 0.03);
-    --accent: #418C27;
-    /* ✅ ضيف دول */
-    --input-focus-bg: rgba(0, 0, 0, 0.5);
-    --autofill-bg: rgba(15, 16, 16, 0.95);
-    --card-bg-mobile: rgba(11, 12, 12, 0.90);
+    --bg-primary:    #0b0c0c;
+    --bg-secondary:  #111212;
+    --text-primary:  #ffffff;
+    --text-secondary:#a0a0a0;
+    --border-color:  rgba(255, 255, 255, 0.1);
+    --card-bg:       rgba(11, 12, 12, 0.55);
+    --input-bg:      rgba(255, 255, 255, 0.03);
+    --accent:        #C6EF2E;
+    --input-focus-bg:rgba(0, 0, 0, 0.5);
+    --autofill-bg:   rgba(15, 16, 16, 0.95);
+    --card-bg-mobile:rgba(11, 12, 12, 0.90);
   }
 }
 
 [data-theme="dark"] {
-  --bg-primary: #0b0c0c;
-  --bg-secondary: #111212;
-  --text-primary: #ffffff;
-  --text-secondary: #a0a0a0;
-  --border-color: rgba(255, 255, 255, 0.1);
-  --card-bg: rgba(11, 12, 12, 0.45); /* ✅ داكن للدارك */
-  --card-border: rgba(255, 255, 255, 0.08);
-  --input-bg: rgba(255, 255, 255, 0.03);
-  --accent: #418C27;
-  --input-focus-bg: rgba(0, 0, 0, 0.5);
-  --autofill-bg: rgba(15, 16, 16, 0.95);
-  --card-bg-mobile: rgba(11, 12, 12, 0.90);
+  --bg-primary:    #0b0c0c;
+  --bg-secondary:  #111212;
+  --text-primary:  #ffffff;
+  --text-secondary:#a0a0a0;
+  --border-color:  rgba(255, 255, 255, 0.1);
+  --card-bg:       rgba(11, 12, 12, 0.45);
+  --card-border:   rgba(255, 255, 255, 0.08);
+  --input-bg:      rgba(255, 255, 255, 0.03);
+  --accent:        #C6EF2E;
+  --input-focus-bg:rgba(0, 0, 0, 0.5);
+  --autofill-bg:   rgba(15, 16, 16, 0.95);
+  --card-bg-mobile:rgba(11, 12, 12, 0.90);
 }
 
 [data-theme="light"] {
-  --bg-primary: #ffffff;
-  --bg-secondary: #f5f5f5;
-  --text-primary: #0b0c0c;
-  --text-secondary: #6b7280;
-  --border-color: rgba(0, 0, 0, 0.1);
-  --card-bg: rgba(255, 255, 255, 0.15); /* ✅ فاتح شفاف للايت */
-  --card-border: rgba(255, 255, 255, 0.3);
-  --input-bg: rgba(0, 0, 0, 0.03);
-  --accent: #418C27;
-  --input-focus-bg: rgba(255, 255, 255, 0.8);
-  --autofill-bg: rgba(240, 240, 240, 0.95);
-  --card-bg-mobile: rgba(255, 255, 255, 0.95);
+  --bg-primary:    #E6E7E2;
+  --bg-secondary:  #FEFFFF;
+  --text-primary:  #0b0c0c;
+  --text-secondary:#6b7280;
+  --border-color:  rgba(0, 0, 0, 0.1);
+  --card-bg:       #FEFFFF;
+  --card-border:   rgba(0, 0, 0, 0.08);
+  --input-bg:      rgba(0, 0, 0, 0.03);
+  --accent:        #C6EF2E;
+  --input-focus-bg:rgba(255, 255, 255, 0.8);
+  --autofill-bg:   rgba(240, 240, 240, 0.95);
+  --card-bg-mobile:#FEFFFF;
+}
+
+/* ==========================================================================
+   GLOBAL LIGHT MODE OVERRIDE — Highest priority layer
+   Placed at the bottom of this global file so it beats any component-level
+   hardcoded colors. Uses !important only where conflicts are confirmed.
+   ========================================================================== */
+
+/* ── Page & layout background ─────────────────────────────────────────── */
+[data-theme="light"] body,
+[data-theme="light"] .dash-layout {
+  background:       #E6E7E2 !important;
+  background-color: #E6E7E2 !important;
+}
+
+/* ── Mybookings page ───────────────────────────────────────────────────── */
+[data-theme="light"] .dash-layout.mybookings-active {
+  background-color: #E6E7E2 !important;
+}
+
+[data-theme="light"] .dash-layout.mybookings-active .dash-sidebar {
+  background-color: #FEFFFF !important;
+}
+
+/* ── Card backgrounds ──────────────────────────────────────────────────── */
+[data-theme="light"] .ai-card,
+[data-theme="light"] .achievements-card,
+[data-theme="light"] .streak-card,
+[data-theme="light"] .calendar-card,
+[data-theme="light"] .focus-card,
+[data-theme="light"] .empty-section,
+[data-theme="light"] .section-placeholder,
+[data-theme="light"] .booking-empty-state,
+[data-theme="light"] .booking-card-skeleton,
+[data-theme="light"] .edit-modal {
+  background:       #FEFFFF !important;
+  background-color: #FEFFFF !important;
+}
+
+/* ── Primary accent — buttons ──────────────────────────────────────────── */
+[data-theme="light"] .focus-btn,
+[data-theme="light"] .ai-send,
+[data-theme="light"] .edit-save,
+[data-theme="light"] .retry-btn,
+[data-theme="light"] .empty-state-cta {
+  background: #C6EF2E !important;
+}
+
+/* ── Primary accent — icon/text highlights ─────────────────────────────── */
+[data-theme="light"] .focus-tag,
+[data-theme="light"] .ai-avatar,
+[data-theme="light"] .tip-icon,
+[data-theme="light"] .placeholder-icon {
+  color: #C6EF2E !important;
+}
+
+[data-theme="light"] .focus-tag {
+  color: #7abe00 !important;   /* slightly darker so it reads on white */
+}
+
+/* ── Booking section CSS variable reset ────────────────────────────────── */
+[data-theme="light"] .bookings-two-col {
+  --primary:      #C6EF2E;
+  --surface:      #FEFFFF;
+  --text:         #111111;
+  --border:       #e5e5e5;
+  --text-muted:   #666666;
+  --primary-light:rgba(198, 239, 46, 0.15);
+  --success-light:rgba(16, 185, 129, 0.08);
+  --danger-light: rgba(225, 29, 72, 0.08);
+  --shimmer-start:rgba(17, 17, 17, 0.02);
+  --shimmer-mid:  rgba(17, 17, 17, 0.06);
+  --shimmer-end:  rgba(17, 17, 17, 0.02);
 }

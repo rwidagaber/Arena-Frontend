@@ -5,31 +5,29 @@
   </div>
 
   <div class="cal-weekdays">
-    @for (dayName of daysOfWeek; track $index) {
-      <span class="weekday-label">{{ dayName }}</span>
+    @for (dayName of daysOfWeek(); track $index) {
+    <span class="weekday-label">{{ dayName }}</span>
     }
   </div>
 
   <div class="cal-days-grid">
     @for (day of calendarDays(); track $index) {
-      <div class="cal-day-cell"
-        [class.empty]="day.day === 0"
-        [class.today]="day.isToday"
-        [class.has-upcoming]="day.hasUpcoming && !day.isToday"
-        [class.has-past]="day.hasPast && !day.hasUpcoming && !day.isToday">
-        
-        @if (day.day !== 0) {
-          <span class="day-number">{{ day.day }}</span>
-          <div class="day-dots">
-            @if (day.hasUpcoming) {
-              <span class="dot upcoming-dot"></span>
-            }
-            @if (day.hasPast) {
-              <span class="dot past-dot"></span>
-            }
-          </div>
+    <div class="cal-day-cell" [class.empty]="day.day === 0" [class.today]="day.isToday"
+      [class.has-upcoming]="day.hasUpcoming && !day.isToday"
+      [class.has-past]="day.hasPast && !day.hasUpcoming && !day.isToday">
+
+      @if (day.day !== 0) {
+      <span class="day-number">{{ day.day }}</span>
+      <div class="day-dots">
+        @if (day.hasUpcoming) {
+        <span class="dot upcoming-dot"></span>
+        }
+        @if (day.hasPast) {
+        <span class="dot past-dot"></span>
         }
       </div>
+      }
+    </div>
     }
   </div>
 

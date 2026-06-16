@@ -80,6 +80,17 @@ export class MemberProfile implements OnInit {
   errorBookings = signal<string | null>(null);
   isMobileSidebarOpen = signal(false);
 
+  upcomingExpanded = signal(true);
+  pastExpanded = signal(false);
+
+  toggleUpcoming(): void {
+    this.upcomingExpanded.set(!this.upcomingExpanded());
+  }
+
+  togglePast(): void {
+    this.pastExpanded.set(!this.pastExpanded());
+  }
+
   upcomingBookings = computed(() => {
     const now = Date.now();
     return this.bookings().filter(b => {

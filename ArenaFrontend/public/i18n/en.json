@@ -455,8 +455,8 @@
   "past": "Past Bookings",
   "noBookings": "No bookings found",
   "loading": "Loading...",
-  "error": "Failed to load bookings",
+  "error": "Booking canceled",
   "calendar": "Calendar",
-  "bookingDetails": "Booking Details",
+  "cancelBooking": "Cancel Booking",
   "totalBookings": "Total Bookings"
 }
