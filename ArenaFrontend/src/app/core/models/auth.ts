@@ -86,6 +86,8 @@ export interface UserSubscriptionDto {
   endDate: string;
   status: string;
   remainingSessions: number;
+  totalSessions: number;
+  paymentAmount: number;
   reminderSent: boolean;
 }
 
@@ -100,6 +102,8 @@ export interface GetProfileDto {
   weight?: number | null;
   height?: number | null;
   bmi?: number | null;
+  targetWeight?: number | null;
+  goal?: string | null;
   gender?: string | null;
   profileImage?: string | null;
   birthday?: string | null;

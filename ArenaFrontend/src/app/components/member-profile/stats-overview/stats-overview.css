@@ -85,21 +85,12 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  font-size: 18px;
-  background: var(--primary-light);
-  transition: transform 0.25s ease;
-}
-
-.stat-card:hover .stat-icon-wrapper {
-  transform: scale(1.08);
+  font-size: 20px;
+  background: rgba(198,239,46,0.12) !important;
 }
 
 .stat-icon-wrapper i {
-  color: var(--primary);
-}
-
-:host-context([data-theme="light"]) .stat-icon-wrapper i {
-  color: #72b500;
+  color: #C6EF2E !important;
 }
 
 .stat-info {
