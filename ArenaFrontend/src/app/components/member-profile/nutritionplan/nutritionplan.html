@@ -1,8 +1,11 @@
 <div class="nutrition-section">
   <div class="nutrition-page-header">
+  @if (isDarkMode()) {
+    <img src="assets/images/nutritionheaderdark.png" alt="Nutrition Header" class="header-bg-img" />
+  } @else {
     <img src="assets/images/nutritionplanheader.png" alt="Nutrition Header" class="header-bg-img" />
-  </div>
-
+  }
+</div>
   <div class="nutrition-content">
 
     @if (view() === 'plans') {
@@ -13,7 +16,7 @@
         </svg>
         <input
           type="text"
-          placeholder="Search for diet plans or meals..."
+          [placeholder]="t.translate('nutrition.searchPlaceholder')"
           class="search-input"
           [value]="searchQuery()"
           (input)="searchQuery.set($any($event.target).value)"
@@ -27,7 +30,7 @@
             <circle cx="12" cy="12" r="10"/>
             <polyline points="9 11 12 14 22 4"/>
           </svg>
-          Active
+          {{ t.translate('nutrition.active') }}
         </button>
         @if (searchQuery()) {
           <button class="search-clear" (click)="searchQuery.set('')">
@@ -60,7 +63,7 @@
           <line x1="12" y1="16" x2="12.01" y2="16"/>
         </svg>
         <p>{{ error() }}</p>
-        <button class="btn-retry" (click)="loadPlans()">Try Again</button>
+        <button class="btn-retry" (click)="loadPlans()">{{ t.translate('nutrition.tryAgain') }}</button>
       </div>
     }
 
@@ -70,7 +73,7 @@
         <div class="nutrition-header">
           @if (searchQuery()) {
             <span class="search-results-count">
-              {{ filteredPlans().length }} result{{ filteredPlans().length !== 1 ? 's' : '' }} for "{{ searchQuery() }}"
+              {{ filteredPlans().length }} {{ t.translate('nutrition.resultsFor') }} "{{ searchQuery() }}"
             </span>
           }
         </div>
@@ -85,12 +88,12 @@
               <line x1="14" y1="1" x2="14" y2="4"/>
             </svg>
             @if (searchQuery()) {
-              <h3>No results for "{{ searchQuery() }}"</h3>
-              <p>Try searching with different keywords</p>
-              <button class="btn-retry" (click)="searchQuery.set('')">Clear Search</button>
+              <h3>{{ t.translate('nutrition.noResults') }} "{{ searchQuery() }}"</h3>
+              <p>{{ t.translate('nutrition.tryDifferentKeywords') }}</p>
+              <button class="btn-retry" (click)="searchQuery.set('')">{{ t.translate('nutrition.clearSearch') }}</button>
             } @else {
-              <h3>No nutrition plans yet</h3>
-              <p>Chat with your AI coach to generate a personalized nutrition plan</p>
+              <h3>{{ t.translate('nutrition.noPlans') }}</h3>
+              <p>{{ t.translate('nutrition.generatePlan') }}</p>
             }
           </div>
         } @else {
@@ -100,21 +103,21 @@
                 <div class="card-info-side">
                   <div class="card-status-row">
                     @if (plan.isActive) {
-                      <span class="custom-active-badge">Active</span>
+                      <span class="custom-active-badge">{{ t.translate('nutrition.active') }}</span>
                     } @else {
-                      <span class="custom-inactive-badge">Plan</span>
+                      <span class="custom-inactive-badge">{{ t.translate('nutrition.plan') }}</span>
                     }
                   </div>
-                  <h3 class="card-plan-title">Diet Plan {{ plan.dailyCalories }}</h3>
+                  <h3 class="card-plan-title">{{ t.translate('nutrition.dietPlan') }} {{ plan.dailyCalories }}</h3>
                   <div class="card-stats-grid">
                     <div class="stat-box calories-box">
                       <span class="stat-num-hero">{{ plan.dailyCalories }}</span>
                       <span class="stat-label-hero">kcal</span>
                     </div>
                     <div class="stat-box macros-summary-box">
-                      <div class="mini-macro"><span class="p-dot"></span> P: {{ plan.proteinGrams }}g</div>
-                      <div class="mini-macro"><span class="c-dot"></span> C: {{ plan.carbsGrams }}g</div>
-                      <div class="mini-macro"><span class="f-dot"></span> F: {{ plan.fatGrams }}g</div>
+                      <div class="mini-macro"><span class="p-dot"></span> {{ t.translate('nutrition.protein') }}: {{ plan.proteinGrams }}g</div>
+                      <div class="mini-macro"><span class="c-dot"></span> {{ t.translate('nutrition.carbs') }}: {{ plan.carbsGrams }}g</div>
+                      <div class="mini-macro"><span class="f-dot"></span> {{ t.translate('nutrition.fat') }}: {{ plan.fatGrams }}g</div>
                     </div>
                   </div>
                 </div>
@@ -133,10 +136,10 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
               <polyline points="15 18 9 12 15 6"/>
             </svg>
-            Back to Plans
+            {{ t.translate('nutrition.backToPlans') }}
           </button>
           @if (plan.isActive) {
-            <span class="custom-active-badge">Active Plan</span>
+            <span class="custom-active-badge">{{ t.translate('nutrition.activePlan') }}</span>
           }
         </div>
 
@@ -147,21 +150,21 @@
                  [style.--c]="(plan.carbsGrams / (plan.proteinGrams + plan.carbsGrams + plan.fatGrams) * 100) + '%'">
               <div class="donut-center-content">
                 <span class="modern-daily-cal-num">{{ plan.dailyCalories }}</span>
-                <span class="modern-daily-cal-label">Total Calories</span>
+                <span class="modern-daily-cal-label">{{ t.translate('nutrition.totalCalories') }}</span>
               </div>
             </div>
           </div>
 
           <div class="modern-macro-details-side">
             <div class="macro-table-header">
-              <span class="col-left">Macro Name</span>
-              <span>Quantity</span>
+              <span class="col-left">{{ t.translate('nutrition.macroName') }}</span>
+              <span>{{ t.translate('nutrition.quantity') }}</span>
             </div>
 
             <div class="macro-table-row protein">
               <div class="macro-name-with-dot" style="display: flex; align-items: center; gap: 10px;">
                 <span class="macro-badge-dot"></span>
-                <span class="macro-name-text">Protein</span>
+                <span class="macro-name-text">{{ t.translate('nutrition.protein') }}</span>
               </div>
               <span class="macro-value-text">{{ plan.proteinGrams }}g</span>
             </div>
@@ -169,7 +172,7 @@
             <div class="macro-table-row carbs">
               <div class="macro-name-with-dot" style="display: flex; align-items: center; gap: 10px;">
                 <span class="macro-badge-dot"></span>
-                <span class="macro-name-text">Carbs</span>
+                <span class="macro-name-text">{{ t.translate('nutrition.carbs') }}</span>
               </div>
               <span class="macro-value-text">{{ plan.carbsGrams }}g</span>
             </div>
@@ -177,7 +180,7 @@
             <div class="macro-table-row fat">
               <div class="macro-name-with-dot" style="display: flex; align-items: center; gap: 10px;">
                 <span class="macro-badge-dot"></span>
-                <span class="macro-name-text">Fat</span>
+                <span class="macro-name-text">{{ t.translate('nutrition.fat') }}</span>
               </div>
               <span class="macro-value-text">{{ plan.fatGrams }}g</span>
             </div>
@@ -185,22 +188,21 @@
         </div>
 
         <div class="meals-section-wrapper">
-          <div class="meals-filter-tabs">
-            @for (tab of mealTabs(); track tab) {
-              <button
-                class="meal-tab"
-                [class.active]="activeMealTab() === tab"
-                (click)="activeMealTab.set(tab)"
-              >
-                {{ tab === 'all' ? 'All' : tab }}
-              </button>
-            }
-          </div>
-
+  <div class="meals-filter-tabs">
+    @for (tab of mealTabs(); track tab) {
+      <button
+        class="meal-tab"
+        [class.active]="activeMealTab() === tab"
+        (click)="activeMealTab.set(tab)"
+      >
+        {{ tab === 'all' ? t.translate('nutrition.all') : translateMealType(tab) }}
+      </button>
+    }
+  </div>
           <div class="modern-meals-grid">
             @if (filteredMeals().length === 0) {
               <div class="meals-empty">
-                <p>No {{ activeMealTab() }} meals in this plan</p>
+                <p>{{ t.translate('nutrition.noMeals', { mealType: activeMealTab() }) }}</p>
               </div>
             }
 
@@ -219,8 +221,8 @@
                     }
                   </div>
                   <span class="meal-badge-tag-type" [class]="getMealTypeColor(meal.mealType)">
-                    {{ meal.mealType }}
-                  </span>
+  {{ translateMealType(meal.mealType) }}
+</span>
                 </div>
 
                 <div class="meal-card-main-content">
@@ -229,7 +231,7 @@
                   <div class="meal-calories-badge-row">
                     <img src="assets/images/calories.png" class="meal-cal-icon-img" alt="Calories" />
                     <span class="meal-cal-val-num">{{ meal.calories }}</span>
-                    <span class="meal-cal-lbl-text">kcal</span>
+<span class="meal-cal-lbl-text">{{ t.translate('nutrition.kcal') }}</span>
                   </div>
 
                   <div class="meal-macros-horizontal-pills">
@@ -237,7 +239,7 @@
                       <img src="assets/images/steack.png" alt="Protein" />
                       <div class="macro-pill-meta">
                         <span class="pill-amount">{{ meal.proteinGrams }}g</span>
-                        <span class="pill-label">Protein</span>
+                        <span class="pill-label">{{ t.translate('nutrition.protein') }}</span>
                       </div>
                     </div>
 
@@ -245,7 +247,7 @@
                       <img src="assets/images/bread.png" alt="Carbs" />
                       <div class="macro-pill-meta">
                         <span class="pill-amount">{{ meal.carbsGrams }}g</span>
-                        <span class="pill-label">Carbs</span>
+                        <span class="pill-label">{{ t.translate('nutrition.carbs') }}</span>
                       </div>
                     </div>
 
@@ -253,7 +255,7 @@
                       <img src="assets/images/trans-fat.png" alt="Fat" />
                       <div class="macro-pill-meta">
                         <span class="pill-amount">{{ meal.fatGrams }}g</span>
-                        <span class="pill-label">Fat</span>
+                        <span class="pill-label">{{ t.translate('nutrition.fat') }}</span>
                       </div>
                     </div>
                   </div>
@@ -280,7 +282,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
               <polyline points="15 18 9 12 15 6"/>
             </svg>
-            Back to Plan
+            {{ t.translate('nutrition.backToPlan') }}
           </button>
         </div>
 
@@ -294,21 +296,21 @@
 
           <div class="meal-cal-hero">
             <span class="meal-cal-num">{{ meal.calories }}</span>
-            <span class="meal-cal-label">kcal</span>
+            <span class="meal-cal-label">{{ t.translate('nutrition.kcal') }}</span>
           </div>
 
           <div class="meal-macro-grid">
             <div class="meal-macro-card protein-card">
               <span class="meal-macro-val">{{ meal.proteinGrams }}g</span>
-              <span class="meal-macro-lbl">Protein</span>
+              <span class="meal-macro-lbl">{{ t.translate('nutrition.protein') }}</span>
             </div>
             <div class="meal-macro-card carbs-card">
               <span class="meal-macro-val">{{ meal.carbsGrams }}g</span>
-              <span class="meal-macro-lbl">Carbs</span>
+              <span class="meal-macro-lbl">{{ t.translate('nutrition.carbs') }}</span>
             </div>
             <div class="meal-macro-card fat-card">
               <span class="meal-macro-val">{{ meal.fatGrams }}g</span>
-              <span class="meal-macro-lbl">Fat</span>
+              <span class="meal-macro-lbl">{{ t.translate('nutrition.fat') }}</span>
             </div>
           </div>
 
@@ -319,7 +321,7 @@
                   <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
                   <rect x="9" y="3" width="6" height="4" rx="2"/>
                 </svg>
-                Ingredients
+                {{ t.translate('nutrition.ingredients') }}
               </h3>
               <div class="ingredients-list">
                 @for (item of meal.ingredients.split(','); track item) {

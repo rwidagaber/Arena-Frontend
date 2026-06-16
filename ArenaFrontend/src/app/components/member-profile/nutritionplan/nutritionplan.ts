@@ -2,10 +2,10 @@ import { Component, computed, inject, input, OnInit, signal, effect } from '@ang
 import { CommonModule } from '@angular/common';
 import { NutritionService } from '../../../core/services/nutrition';
 import { NutritionPlanDto, MealDto } from '../../../core/models/nutrition';
-import { TranslateModule } from '@ngx-translate/core';
 import { ThemeService } from '../../../core/services/themeservice';
-
 type View = 'plans' | 'plan-detail' | 'meal-detail';
+import { TranslationService } from '../../../core/services/translation.service';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-nutritionplan',
@@ -17,12 +17,12 @@ type View = 'plans' | 'plan-detail' | 'meal-detail';
 export class Nutritionplan implements OnInit {
   private nutritionService = inject(NutritionService);
   private themeservice = inject(ThemeService);
+  private translate = inject(TranslationService);
+  readonly t        = inject(TranslationService);
 
   memberProfileId = input<string>('');
 
-  // Dark Mode Support
-  isDarkMode = signal(this.getSystemDarkMode());
-
+  
   plans        = signal<NutritionPlanDto[]>([]);
   selectedPlan = signal<NutritionPlanDto | null>(null);
   selectedMeal = signal<MealDto | null>(null);
@@ -83,6 +83,7 @@ export class Nutritionplan implements OnInit {
     'assets/images/nut.png',
     'assets/images/fruit.png'
   ];
+  langSub: any;
 
   getPlanImage(index: number): string {
     return this.planImages[index % this.planImages.length];
@@ -91,19 +92,11 @@ export class Nutritionplan implements OnInit {
   // ── Lifecycle ──────────────────────────────────────
   ngOnInit(): void {
     this.loadPlans();
-    this.setupDarkModeListener();
   }
 
-  private getSystemDarkMode(): boolean {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
-  }
+ 
 
-  private setupDarkModeListener(): void {
-    const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    darkModeQuery.addEventListener('change', (e) => {
-      this.isDarkMode.set(e.matches);
-    });
-  }
+ isDarkMode = computed(() => this.themeservice.isDark);
 
   loadPlans(): void {
     this.loading.set(true);
@@ -152,5 +145,16 @@ console.log('Loaded nutrition plans:', JSON.stringify(plans, null, 2));        t
     if (t === 'dinner')    return 'meal-dinner';
     return 'meal-snack';
   }
+private mealTypeKeyMap: Record<string, string> = {
+    breakfast: 'nutrition.breakfast',
+    lunch:     'nutrition.lunch',
+    dinner:    'nutrition.dinner',
+    snack:     'nutrition.snack',
+  };
 
+  translateMealType(type: string): string {
+    if (!type) return type;
+    const key = this.mealTypeKeyMap[type.toLowerCase()];
+    return key ? this.t.translate(key) : type;
+  }
 }
