@@ -17,7 +17,7 @@ export class PricingComponent implements OnInit {
   plans: SubscriptionPlan[] = [];
   loading = true;
   error = '';
-  paymentLoading = false; // Add state to show loading during payment initiation
+  loadingPlanId: string | null = null; // Track which plan is loading during payment initiation
 
   // Translation keys for included features
   includedFeatures = [
@@ -55,11 +55,11 @@ export class PricingComponent implements OnInit {
       return;
     }
 
-    this.paymentLoading = true;
+    this.loadingPlanId = planId;
     // 4 = Paymob payment method
     this.pricingService.createPayment(planId, 4).subscribe({
       next: (response) => {
-        this.paymentLoading = false;
+        this.loadingPlanId = null;
         if (response && response.iframeUrl) {
           // Navigate to checkout and pass the URL
           this.router.navigate(['/checkout'], {
@@ -68,7 +68,7 @@ export class PricingComponent implements OnInit {
         }
       },
       error: (err) => {
-        this.paymentLoading = false;
+        this.loadingPlanId = null;
         const errMsg = err.error?.message || err.message || this.translate.instant('PRICING.ERROR_UNKNOWN');
         alert(this.translate.instant('PRICING.ERROR_PAYMENT') + errMsg);
         console.error('Payment Error:', err);

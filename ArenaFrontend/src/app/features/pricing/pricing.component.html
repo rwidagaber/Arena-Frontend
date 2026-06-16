@@ -58,8 +58,8 @@
 
       <button class="join-btn" 
               (click)="onJoinNow(plan.id || $any(plan).Id)" 
-              [disabled]="paymentLoading">
-        {{ paymentLoading ? ('PRICING.BTN_PROCESSING' | translate) : ('PRICING.BTN_JOIN' | translate) }}
+              [disabled]="loadingPlanId !== null">
+        {{ loadingPlanId === (plan.id || $any(plan).Id) ? ('PRICING.BTN_PROCESSING' | translate) : ('PRICING.BTN_JOIN' | translate) }}
       </button>
     </div>
   </div>
