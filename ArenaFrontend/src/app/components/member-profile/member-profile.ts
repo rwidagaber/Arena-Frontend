@@ -17,7 +17,6 @@ import { ProgressReportComponent } from '../progress-report/progress-report.comp
 import { RevealDirective } from '../progress-report/reveal.directive';
 import { Nutritionplan } from './nutritionplan/nutritionplan';
 import { ThemeService } from '../../core/services/themeservice';
-import { MembershipSection } from './membership-section/membership-section';
 
 function mapAuthToProfile(dto: GetProfileDto): MemberProfileModel {
   return {
