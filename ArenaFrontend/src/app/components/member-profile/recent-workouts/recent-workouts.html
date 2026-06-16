@@ -16,7 +16,7 @@
   <div class="section-card">
     <div class="section-header">
       <div class="section-header-left">
-        <i class="fas fa-dumbbell"></i>
+        <span class="section-icon" [innerHTML]="getSvgIcon('dumbbell')"></span>
         <h2>{{ 'memberProfile.recentWorkouts' | translate }}</h2>
       </div>
       @if (workouts().length > 0) {
@@ -29,18 +29,18 @@
         @for (workout of workouts(); track workout.id) {
           <div class="workout-item">
             <div class="workout-icon-wrapper">
-              <i [class]="getTypeIcon(workout.type)"></i>
+              <span class="workout-icon" [innerHTML]="getSvgIcon(getTypeIcon(workout.type))"></span>
             </div>
             <div class="workout-info">
               <span class="workout-name">{{ workout.name }}</span>
               <span class="workout-meta">
                 <span class="meta-item">
-                  <i class="far fa-clock"></i>
+                  <span class="meta-icon" [innerHTML]="getSvgIcon('clock')"></span>
                   {{ workout.durationMinutes }} {{ 'memberProfile.min' | translate }}
                 </span>
                 <span class="meta-divider"></span>
                 <span class="meta-item">
-                  <i class="fas fa-fire"></i>
+                  <span class="meta-icon" [innerHTML]="getSvgIcon('fire')"></span>
                   {{ workout.caloriesBurned }} {{ 'memberProfile.cal' | translate }}
                 </span>
               </span>
@@ -53,7 +53,7 @@
       </div>
     } @else {
       <div class="empty-state">
-        <i class="fas fa-dumbbell"></i>
+        <span class="empty-icon" [innerHTML]="getSvgIcon('dumbbell')"></span>
         <p>{{ 'memberProfile.noWorkouts' | translate }}</p>
         <span class="empty-hint">{{ 'memberProfile.startJourney' | translate }}</span>
       </div>

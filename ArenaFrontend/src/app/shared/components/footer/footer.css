@@ -1,11 +1,25 @@
 footer {
-  background-color: #0f0f0f !important;
-  color: #d1d1d1 !important;
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border-color);
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 
-  h5 { color: #ffffff; margin-bottom: 1.5rem; }
+  h2.h4, p.h3, h5 {
+    color: var(--text-primary);
+    transition: color 0.3s ease;
+  }
+
+  h5 {
+    margin-bottom: 1.5rem;
+  }
   
   ul li {
     margin-bottom: 0.5rem;
     cursor: pointer;
-    &:hover { color: #ccff00; }
-}}
+    transition: color 0.2s ease;
+    
+    &:hover {
+      color: #cffe21;
+    }
+  }
+}

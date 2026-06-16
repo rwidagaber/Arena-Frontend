@@ -25,6 +25,8 @@ export class MemberService {
         weight: dto.weight ?? null,
         height: dto.height ?? null,
         bmi: dto.bmi ?? null,
+        targetWeight: dto.targetWeight ?? null,
+        goal: dto.goal ?? null,
         gender: dto.gender ?? null,
         profileImage: dto.profileImage ?? null,
         birthday: dto.birthday ?? null,
@@ -35,5 +37,9 @@ export class MemberService {
 
   updateProfile(dto: UpdateProfileDto): Observable<MemberProfile> {
     return this.http.put<MemberProfile>(`${this.base}/profile`, dto);
+  }
+
+  getUserSubscriptions(memberProfileId: string): Observable<import('../models/auth').UserSubscriptionDto[]> {
+    return this.http.get<import('../models/auth').UserSubscriptionDto[]>(`${this.base}/user-subscriptions/member/${memberProfileId}`);
   }
 }
