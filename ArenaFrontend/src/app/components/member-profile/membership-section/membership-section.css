@@ -1,11 +1,26 @@
+.membership-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
+}
+
 .section-card {
   background: #FFFFFF;
   border-radius: 16px;
   padding: 24px;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04);
-  height: 100%;
   display: flex;
   flex-direction: column;
+}
+
+[data-theme='dark'] .section-card {
+  background: #1E293B;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.mt-4 {
+  margin-top: 20px;
 }
 
 .section-header {
@@ -33,6 +48,10 @@
   margin: 0;
 }
 
+[data-theme='dark'] .section-header h2 {
+  color: #F8FAFC;
+}
+
 .status-indicator {
   display: inline-flex;
   align-items: center;
@@ -46,6 +65,12 @@
   opacity: 0.5;
 }
 
+[data-theme='dark'] .status-indicator {
+  color: #F8FAFC;
+  background: rgba(248, 250, 252, 0.1);
+  opacity: 0.7;
+}
+
 .status-indicator i {
   font-size: 7px;
 }
@@ -56,8 +81,19 @@
   opacity: 1;
 }
 
+[data-theme='dark'] .status-indicator.active {
+  color: #F8FAFC;
+  background: rgba(212, 250, 36, 0.2);
+}
+
 .status-indicator.active i {
   color: #D4FA24;
+}
+
+.status-indicator.cancelled {
+  color: #EF4444;
+  background: rgba(239, 68, 68, 0.1);
+  opacity: 1;
 }
 
 .membership-body {
@@ -74,6 +110,10 @@
   padding: 16px;
   background: rgba(212, 250, 36, 0.06);
   border-radius: 12px;
+}
+
+[data-theme='dark'] .plan-section {
+  background: rgba(212, 250, 36, 0.05);
 }
 
 .plan-icon {
@@ -93,6 +133,10 @@
   font-size: 16px;
   font-weight: 700;
   color: #0F172A;
+}
+
+[data-theme='dark'] .plan-name {
+  color: #F8FAFC;
 }
 
 .info-grid {
@@ -129,49 +173,82 @@
   letter-spacing: 0.05em;
 }
 
+[data-theme='dark'] .info-label {
+  color: #94A3B8;
+  opacity: 1;
+}
+
 .info-value {
   font-size: 14px;
   color: #0F172A;
   font-weight: 600;
 }
 
-.features-section {
-  margin-top: auto;
-  padding-top: 16px;
-  border-top: 1px solid rgba(15, 23, 42, 0.08);
+[data-theme='dark'] .info-value {
+  color: #F8FAFC;
 }
 
-.features-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: #0F172A;
-  opacity: 0.5;
-  margin-bottom: 10px;
-  display: block;
+.history-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
 }
 
-.features-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.history-card {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.features-list li {
+[data-theme='dark'] .history-card {
+  background: #0F172A;
+  border: 1px solid #334155;
+}
+
+.history-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.history-card-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: #0F172A;
-  opacity: 0.75;
+  border-bottom: 1px solid #E2E8F0;
+  padding-bottom: 8px;
 }
 
-.features-list li i {
-  color: #D4FA24;
+[data-theme='dark'] .history-card-header {
+  border-bottom: 1px solid #334155;
+}
+
+.history-info-row {
+  display: flex;
+  justify-content: space-between;
   font-size: 13px;
-  opacity: 1;
+}
+
+.history-info-row .label {
+  color: #64748B;
+  font-weight: 500;
+}
+
+[data-theme='dark'] .history-info-row .label {
+  color: #94A3B8;
+}
+
+.history-info-row .value {
+  color: #0F172A;
+  font-weight: 600;
+}
+
+[data-theme='dark'] .history-info-row .value {
+  color: #F8FAFC;
 }
 
 .empty-state {
@@ -197,11 +274,20 @@
   opacity: 0.5;
 }
 
+[data-theme='dark'] .empty-state p {
+  color: #94A3B8;
+  opacity: 1;
+}
+
 .skeleton {
   background: linear-gradient(90deg, rgba(15, 23, 42, 0.06) 25%, rgba(15, 23, 42, 0.02) 50%, rgba(15, 23, 42, 0.06) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
   border-radius: 6px;
+}
+
+[data-theme='dark'] .skeleton {
+  background: linear-gradient(90deg, rgba(248, 250, 252, 0.06) 25%, rgba(248, 250, 252, 0.02) 50%, rgba(248, 250, 252, 0.06) 75%);
 }
 
 .skeleton-title {

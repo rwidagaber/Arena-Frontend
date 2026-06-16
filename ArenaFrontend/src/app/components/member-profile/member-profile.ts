@@ -9,6 +9,7 @@ import type { MemberProfile as MemberProfileModel, MembershipDetails } from '../
 import { DashboardSidebar, DashboardSection } from './dashboard-sidebar/dashboard-sidebar';
 import { TranslateModule } from '@ngx-translate/core';
 import { QrDisplayComponent } from '../../features/QR/qr-display.component/qr-display.component';
+import { MembershipSection } from './membership-section/membership-section';
 
 function mapAuthToProfile(dto: GetProfileDto): MemberProfileModel {
   return {
@@ -49,7 +50,8 @@ function mapSubscriptionToMembership(sub: UserSubscriptionDto): MembershipDetail
     CommonModule,
     DashboardSidebar,
     TranslateModule,
-     QrDisplayComponent
+    QrDisplayComponent,
+    MembershipSection
   ],
   templateUrl: './member-profile.html',
   styleUrl: './member-profile.css',
@@ -241,6 +243,9 @@ export class MemberProfile implements OnInit {
     return ['profile','qr', 'workout', 'diet', 'membership', 'progress', 'settings'].includes(s);
   }
 
+  userSubscriptions = signal<UserSubscriptionDto[]>([]);
+  loadingSubscriptions = signal(false);
+
   loadData(): void {
     this.loading.set(true);
     this.error.set(null);
@@ -256,8 +261,22 @@ export class MemberProfile implements OnInit {
     ).subscribe(data => {
       if (data) {
         this.profile.set(data);
+        this.loadSubscriptions(data.memberProfileId);
       }
       this.loading.set(false);
+    });
+  }
+
+  loadSubscriptions(memberProfileId: string): void {
+    this.loadingSubscriptions.set(true);
+    this.memberService.getUserSubscriptions(memberProfileId).pipe(
+      catchError(err => {
+        console.error('Failed to load subscriptions', err);
+        return of([]);
+      })
+    ).subscribe(subs => {
+      this.userSubscriptions.set(subs);
+      this.loadingSubscriptions.set(false);
     });
   }
 }
