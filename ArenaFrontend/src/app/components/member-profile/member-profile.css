@@ -31,8 +31,8 @@ app-footer { display: none !important; }
 
   --ink-dark: #10131B;           /* brand dark (used for dark UI accents in light theme too) */
   --lux-graphite: #10131B;       /* dark canvas */
-  --lux-graphite-2: #191d29;     /* card surface (dark) */
-  --lux-graphite-3: #232839;     /* elevated surface (dark) */
+  --lux-graphite-2: #20273a;     /* card surface (dark) — clearly lighter than canvas */
+  --lux-graphite-3: #2b334a;     /* elevated surface (dark) */
   --lux-cream: #eef1f6;          /* cool off-white text (dark) */
   --lux-cream-soft: rgba(238,241,246,0.60);
   --lux-line-dk: rgba(255,255,255,0.09);
@@ -646,7 +646,7 @@ app-footer { display: none !important; }
 }
 
 [data-theme="dark"] .quote-card {
-  background: #191d29;
+  background: #20273a;
   border-color: rgba(255,255,255,0.06);
 }
 
@@ -981,7 +981,7 @@ app-footer { display: none !important; }
 }
 
 [data-theme="dark"] .action-btn {
-  background: linear-gradient(150deg, var(--lux-graphite-3, #232839) 0%, var(--lux-graphite-2, #191d29) 100%);
+  background: linear-gradient(150deg, var(--lux-graphite-3, #232839) 0%, var(--lux-graphite-2, #20273a) 100%);
   border-color: rgba(255,255,255,0.08);
   box-shadow: 0 8px 18px -10px rgba(0,0,0,0.5);
 }
@@ -1482,7 +1482,7 @@ app-footer { display: none !important; }
 }
 
 [data-theme="dark"] .ach-badge {
-  background: #191d29;
+  background: #20273a;
   border-color: rgba(255,255,255,0.06);
   box-shadow: none;
 }
@@ -1536,7 +1536,7 @@ app-footer { display: none !important; }
 }
 
 [data-theme="dark"] .wm-chip {
-  background: #191d29;
+  background: #20273a;
   border-color: rgba(255,255,255,0.06);
 }
 
@@ -1902,7 +1902,7 @@ app-footer { display: none !important; }
 }
 
 [data-theme="dark"] .ws-day.ws-today .ws-dot {
-  box-shadow: 0 0 0 2px #191d29, 0 0 0 4px rgba(198,239,46,0.30);
+  box-shadow: 0 0 0 2px #20273a, 0 0 0 4px rgba(198,239,46,0.30);
 }
 
 .ws-lbl {
@@ -2174,7 +2174,7 @@ app-footer { display: none !important; }
 }
 
 [data-theme="dark"] .skeleton-metric {
-  background: #191d29 !important;
+  background: #20273a !important;
   border-color: rgba(255,255,255,0.06) !important;
 }
 
@@ -2547,7 +2547,7 @@ app-footer { display: none !important; }
 [data-theme="dark"] .empty-section p { color: #94a3b8; }
 
 [data-theme="dark"] .edit-modal {
-  background: #191d29;
+  background: #20273a;
   box-shadow: 0 20px 60px rgba(0,0,0,0.4);
 }
 
