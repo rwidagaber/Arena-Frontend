@@ -12,7 +12,10 @@ export class MemberService {
   private base = `${environment.apiUrl}`;
 
   getProfile(): Observable<MemberProfile> {
-    return this.http.get<GetProfileDto>(`${this.base}/auth/me`).pipe(
+    // Read from /profile (ProfileController) — it returns goal & targetWeight,
+    // which /auth/me omits. The member dashboard is subscription-gated, so the
+    // subscription-locked fields on this endpoint are never hit here.
+    return this.http.get<GetProfileDto>(`${this.base}/profile`).pipe(
       map(dto => ({
         id: dto.id,
          memberProfileId: dto.memberProfileId ?? dto.id,

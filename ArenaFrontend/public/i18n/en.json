@@ -728,7 +728,13 @@
       "q15": "Champions keep playing until they get it right.",
       "q16": "Take care of your body. It's the only place you have to live.",
       "q17": "The best project you'll ever work on is you."
-    }
+    },
+    "activeMembership": "Active Membership",
+    "membershipHistory": "Membership History",
+    "totalSessions": "Total Sessions",
+    "paymentAmount": "Payment Amount",
+    "noActiveMembership": "No active membership found",
+    "noHistoryFound": "No membership history found"
   },
   "nutrition": {
     "searchPlaceholder": "Search for diet plans or meals...",

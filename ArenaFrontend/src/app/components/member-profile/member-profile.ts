@@ -642,7 +642,13 @@ export class MemberProfile implements OnInit {
       },
       error: (err) => {
         this.savingEdit.set(false);
-        this.editError.set(err?.error?.message || this.translate.instant('memberProfile.dash.saveFailed'));
+        const e = err?.error;
+        const msg = Array.isArray(e) ? e.join(', ')
+          : typeof e === 'string' ? e
+          : e?.message ?? e?.title ?? err?.message;
+        // Surface the real backend reason (e.g. validation / DB errors) instead of a generic message
+        console.error('Profile save failed:', err?.status, e);
+        this.editError.set(msg || this.translate.instant('memberProfile.dash.saveFailed'));
       },
     });
   }
@@ -662,17 +668,15 @@ export class MemberProfile implements OnInit {
   closeCelebration(): void { this.showCelebration.set(false); }
 
   // Auto-pop once when a new streak milestone is reached
+  private celebratedStreak = 0;
   private celebrationEffect = effect(() => {
     const s = this.currentStreak();
     const milestones = [1, 2, 3, 7, 14, 21, 30, 60, 100];
     if (!milestones.includes(s)) return;
-    try {
-      const seen = Number(localStorage.getItem('arena_celebrated_streak') || '0');
-      if (s > seen) {
-        localStorage.setItem('arena_celebrated_streak', String(s));
-        setTimeout(() => this.showCelebration.set(true), 700);
-      }
-    } catch { /* localStorage unavailable — ignore */ }
+    if (s > this.celebratedStreak) {
+      this.celebratedStreak = s;
+      setTimeout(() => this.showCelebration.set(true), 700);
+    }
   });
 
   // ════════ Stat detail modal ════════
