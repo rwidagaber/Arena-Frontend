@@ -1,12 +1,15 @@
 :host {
   display: block;
-  --accent: #D4FA24;
-  --accent-soft: rgba(212,250,36,0.12);
-  --accent-glow: rgba(212,250,36,0.25);
+  --accent: #C6EF2E;
+  --accent-soft: rgba(198,239,46,0.12);
+  --accent-glow: rgba(198,239,46,0.25);
+  --hide-x: -100%;
   height: 100vh;
   position: sticky;
   top: 0;
 }
+
+:host-context([dir="rtl"]) { --hide-x: 100%; }
 
 .dash-sidebar {
   width: 240px;
@@ -37,7 +40,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(212,250,36,0.3);
+  box-shadow: 0 2px 12px rgba(198,239,46,0.35);
 }
 
 .brand-logo svg {
@@ -171,20 +174,36 @@
 }
 
 .btn-renew {
-  padding: 8px 14px;
+  padding: 5px 5px 5px 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   border-radius: 100px;
   background: var(--accent);
-  color: #1a1a1a;
+  color: #000000;
   font-size: 12px;
   font-weight: 700;
   border: none;
   cursor: pointer;
-  transition: opacity 0.2s ease;
+  transition: background 600ms cubic-bezier(0.4, 0, 0.2, 1);
   text-align: center;
 }
 
+.btn-renew::after {
+  content: '→';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.08);
+  font-size: 12px;
+  line-height: 1;
+}
+
 .btn-renew:hover {
-  opacity: 0.85;
+  background: #b8e018;
 }
 
 .no-plan-text {
@@ -212,4 +231,140 @@
     width: 100%;
     height: auto;
   }
+}
+
+/* ══════════════════════════════════════════════
+   Hover-reveal drawer (pointer/desktop only)
+   Sidebar stays off-canvas; a thin edge hot-zone +
+   pull-handle reveal it when the cursor nears the edge.
+   ══════════════════════════════════════════════ */
+@media (hover: hover) and (min-width: 769px) {
+  :host {
+    position: fixed;
+    inset-block: 0;
+    inset-inline-start: 0;
+    top: 0;
+    height: 100vh;
+    width: 24px;            /* collapsed hover hot-zone */
+    z-index: 1000;
+  }
+
+  :host(:hover) { width: 240px; }
+
+  .dash-sidebar {
+    position: fixed;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: 240px;
+    transform: translateX(var(--hide-x));
+    transition: transform 0.34s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.34s ease;
+  }
+
+  :host(:hover) .dash-sidebar {
+    transform: translateX(0);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+  }
+
+  /* Pull-handle hint, visible only while collapsed */
+  :host::after {
+    content: "";
+    position: fixed;
+    top: 50%;
+    inset-inline-start: 0;
+    width: 22px;
+    height: 96px;
+    transform: translateY(-50%);
+    border-start-end-radius: 12px;
+    border-end-end-radius: 12px;
+    background: #10131B;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.30), 0 0 0 1px rgba(198,239,46,0.30), 0 0 18px rgba(198,239,46,0.18);
+    opacity: 1;
+    z-index: 1;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+    animation: handleNudge 1.8s ease-in-out infinite;
+  }
+
+  /* Lime chevron cue ("open me") sitting on the dark handle */
+  :host::before {
+    content: "";
+    position: fixed;
+    top: 50%;
+    inset-inline-start: 7px;
+    width: 7px;
+    height: 7px;
+    border: solid var(--accent);
+    border-width: 2.5px 2.5px 0 0;
+    transform: translateY(-50%) rotate(45deg);
+    z-index: 2;
+    opacity: 0.95;
+    pointer-events: none;
+    animation: chevronNudge 1.8s ease-in-out infinite;
+  }
+
+  :host(:hover)::after,
+  :host(:hover)::before { opacity: 0; }
+}
+
+@media (hover: hover) and (min-width: 769px) and (prefers-reduced-motion: reduce) {
+  .dash-sidebar { transition: transform 0.001ms; }
+  :host::after, :host::before { animation: none; }
+}
+
+@keyframes handleNudge {
+  0%, 100% { transform: translateY(-50%) translateX(0); }
+  50%      { transform: translateY(-50%) translateX(4px); }
+}
+
+@keyframes chevronNudge {
+  0%, 100% { transform: translateY(-50%) translateX(0) rotate(45deg); }
+  50%      { transform: translateY(-50%) translateX(4px) rotate(45deg); }
+}
+
+/* ── Dark theme ── */
+:host-context([data-theme="dark"]) .dash-sidebar {
+  background: #131722;
+  border-right-color: rgba(255,255,255,0.06);
+}
+
+:host-context([data-theme="dark"]) .sidebar-brand {
+  border-bottom-color: rgba(255,255,255,0.06);
+}
+
+:host-context([data-theme="dark"]) .brand-text {
+  color: #f1f5f9;
+}
+
+:host-context([data-theme="dark"]) .sidebar-item {
+  color: #94a3b8;
+}
+
+:host-context([data-theme="dark"]) .sidebar-item:hover {
+  background: rgba(255,255,255,0.05);
+  color: #f1f5f9;
+}
+
+:host-context([data-theme="dark"]) .sidebar-item.active {
+  background: rgba(198,239,46,0.12);
+  color: #C6EF2E;
+}
+
+:host-context([data-theme="dark"]) .sidebar-membership {
+  border-top-color: rgba(255,255,255,0.06);
+}
+
+:host-context([data-theme="dark"]) .sidebar-footer {
+  border-top-color: rgba(255,255,255,0.06);
+}
+
+:host-context([data-theme="dark"]) .plan-name {
+  color: #f1f5f9;
+}
+
+:host-context([data-theme="dark"]) .plan-progress-bar {
+  background: rgba(255,255,255,0.06);
+}
+
+:host-context([data-theme="dark"]) .sidebar-logout:hover {
+  background: rgba(239,68,68,0.10) !important;
 }

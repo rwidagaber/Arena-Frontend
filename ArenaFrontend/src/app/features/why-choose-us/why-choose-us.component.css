@@ -1,18 +1,29 @@
 :host {
   display: block;
   --neon-green: #d4fa24;
-  --dark-bg: #0b0c0c;
-  --text-primary: #ffffff;
-  --text-secondary: #a0a0a0;
+  --dark-bg: var(--bg-primary);
+  --text-primary: var(--text-primary);
+  --text-secondary: var(--text-secondary);
+  --grid-line-color: rgba(255, 255, 255, 0.02);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   background-color: var(--dark-bg);
-  background-image: repeating-linear-gradient(135deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 2px, transparent 2px, transparent 24px),
-                    repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 2px, transparent 2px, transparent 24px);
+  background-image: repeating-linear-gradient(135deg, var(--grid-line-color) 0px, var(--grid-line-color) 2px, transparent 2px, transparent 24px),
+                    repeating-linear-gradient(45deg, var(--grid-line-color) 0px, var(--grid-line-color) 2px, transparent 2px, transparent 24px);
   background-size: 60px 60px;
   background-position: center top;
   padding: 100px 24px 0;
   position: relative;
   overflow: hidden;
+  transition: background-color 0.3s ease;
+}
+
+:host-context([data-theme="light"]) {
+  --grid-line-color: rgba(0, 0, 0, 0.03);
+}
+
+:host-context([data-theme="light"]) .badge {
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 * {
@@ -107,7 +118,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--dark-bg);
+  color: #0b0c0c;
   flex-shrink: 0;
 }
 
@@ -141,7 +152,7 @@
 
 .btn-primary {
   background-color: var(--neon-green);
-  color: var(--dark-bg);
+  color: #0b0c0c;
 }
 
 .center-column {
@@ -181,7 +192,8 @@
   align-items: center;
   gap: 20px;
   padding: 32px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--border-color);
+  transition: border-bottom-color 0.3s ease;
 }
 
 .stat-item:first-child {
