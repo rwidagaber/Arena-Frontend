@@ -11,6 +11,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { QrDisplayComponent } from '../../features/QR/qr-display.component/qr-display.component';
 import { Nutritionplan } from "./nutritionplan/nutritionplan";
 import { ThemeService } from '../../core/services/themeservice';
+import { Workout } from "./workout/workout";
 function mapAuthToProfile(dto: GetProfileDto): MemberProfileModel {
   return {
     id: dto.id,
@@ -51,7 +52,8 @@ function mapSubscriptionToMembership(sub: UserSubscriptionDto): MembershipDetail
     DashboardSidebar,
     TranslateModule,
     QrDisplayComponent,
-    Nutritionplan
+    Nutritionplan,
+    Workout
 ],
   templateUrl: './member-profile.html',
   styleUrl: './member-profile.css',
