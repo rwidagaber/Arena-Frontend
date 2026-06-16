@@ -61,7 +61,10 @@ function mapSubscriptionToMembership(sub: UserSubscriptionDto): MembershipDetail
     RecentWorkouts,
     MembershipSection,
     TranslateModule,
-    QrDisplayComponent
+    QrDisplayComponent,
+    ProgressReportComponent,
+    RevealDirective,
+    Nutritionplan,
   ],
   templateUrl: './member-profile.html',
   styleUrl: './member-profile.css',
