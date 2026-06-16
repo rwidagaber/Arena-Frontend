@@ -2987,3 +2987,57 @@ app-footer { display: none !important; }
   .mp-pct { font-size: 18px; }
   .mp-stats { align-items: center; }
 }
+
+/* ═══════════════════════════════════════════════
+   MOBILE LAYOUT — stack the sidebar above content
+   (desktop uses the hover-reveal drawer instead)
+   ═══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .dash-layout { flex-direction: column; }
+  .hero-metrics { flex-wrap: wrap; }
+  .stats-strip { flex-wrap: wrap; }
+  .stats-strip .ss-card { flex: 1 0 40%; }
+  .body-stats-grid { grid-template-columns: 1fr 1fr; }
+  .edit-modal { padding: 20px 18px; border-radius: 18px; }
+}
+
+@media (max-width: 380px) {
+  .body-stats-grid { grid-template-columns: 1fr; }
+  .stats-strip .ss-card { flex: 1 0 100%; }
+}
+
+/* ═══════════════════════════════════════════════
+   RTL (Arabic) — mirror the few physical-direction
+   rules; flex/grid auto-mirror from the document dir
+   ═══════════════════════════════════════════════ */
+[dir="rtl"] .hm-item {
+  border-left: none;
+  border-right: 1px solid var(--lux-line, rgba(20,20,20,0.10));
+}
+[dir="rtl"] .hm-item:first-child {
+  border-right: none;
+}
+[data-theme="dark"][dir="rtl"] .hm-item,
+[dir="rtl"] [data-theme="dark"] .hm-item {
+  border-right-color: var(--lux-line-dk, rgba(255,255,255,0.10));
+}
+[dir="rtl"] .sb-milestone {
+  border-left: none;
+  padding-left: 0;
+  border-right: 1px solid rgba(20,20,20,0.07);
+  padding-right: 18px;
+}
+[data-theme="dark"][dir="rtl"] .sb-milestone {
+  border-right-color: rgba(255,255,255,0.08);
+}
+[dir="rtl"] .bs-trend svg,
+[dir="rtl"] .pulse-cta-arrow svg,
+[dir="rtl"] .action-icon svg {
+  transform: scaleX(-1);
+}
+[dir="rtl"] .edit-actions { justify-content: flex-start; }
+[dir="rtl"] .edit-fields label { text-align: right; }
+[dir="rtl"] .q-text { text-align: right; }
+@media (max-width: 768px) {
+  [dir="rtl"] .hm-item { border-right: none; }
+}

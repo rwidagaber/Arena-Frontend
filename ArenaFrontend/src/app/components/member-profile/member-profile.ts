@@ -5,13 +5,14 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, of, forkJoin } from 'rxjs';
 import { AuthService } from '../../core/services/auth';
 import { MemberService } from '../../core/services/member.service';
-import { ProgressReportService, AttendanceRecord, ProgressSummaryDto } from '../../core/services/progress-report.service';
+import { ProgressReportService, AttendanceRecord, ProgressSummaryDto, CreateProgressLogDto } from '../../core/services/progress-report.service';
+import { switchMap } from 'rxjs/operators';
 import type { GetProfileDto, UserSubscriptionDto } from '../../core/models/auth';
 import type { MemberProfile as MemberProfileModel, MembershipDetails, UpdateProfileDto, WorkoutSession } from '../../core/models/member';
 import { DashboardSidebar, DashboardSection } from './dashboard-sidebar/dashboard-sidebar';
 import { RecentWorkouts } from './recent-workouts/recent-workouts';
 import { MembershipSection } from './membership-section/membership-section';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { QrDisplayComponent } from '../../features/QR/qr-display.component/qr-display.component';
 import { ProgressReportComponent } from '../progress-report/progress-report.component';
 import { RevealDirective } from '../progress-report/reveal.directive';
@@ -77,6 +78,7 @@ export class MemberProfile implements OnInit {
   private route = inject(ActivatedRoute);
   private sanitizer = inject(DomSanitizer);
   private themeService = inject(ThemeService);
+  private translate = inject(TranslateService);
 
   protected Math = Math;
 
@@ -114,32 +116,14 @@ export class MemberProfile implements OnInit {
   attendances = signal<AttendanceRecord[]>([]);
   progressSummary = signal<ProgressSummaryDto | null>(null);
 
-  private quotes = [
-    { text: 'The only bad workout is the one that didn\'t happen.' },
-    { text: 'Strength does not come from the body. It comes from the will.' },
-    { text: 'Don\'t limit your challenges. Challenge your limits.' },
-    { text: 'The pain you feel today will be the strength you feel tomorrow.' },
-    { text: 'Success starts with self-discipline.' },
-    { text: 'Your body can stand almost anything. It\'s your mind you have to convince.' },
-    { text: 'Believe in yourself and you will be unstoppable.' },
-    { text: 'The harder you work, the luckier you get.' },
-    { text: 'Wake up with determination. Go to bed with satisfaction.' },
-    { text: 'You are stronger than you think.' },
-    { text: 'Push yourself because no one else is going to do it for you.' },
-    { text: 'The secret of getting ahead is getting started.' },
-    { text: 'Great things never come from comfort zones.' },
-    { text: 'Dream big. Work hard. Stay focused.' },
-    { text: 'Your only limit is your mind.' },
-    { text: 'Champions keep playing until they get it right.' },
-    { text: 'Take care of your body. It\'s the only place you have to live.' },
-    { text: 'The best project you\'ll ever work on is you.' },
-  ];
+  private readonly quoteCount = 18;
 
-  dailyQuote = computed(() => {
+  /** Translation key for today's rotating motivational quote (memberProfile.quotes.q0..q17). */
+  dailyQuoteKey = computed(() => {
     const n = new Date();
     const diff = n.getTime() - new Date(n.getFullYear(), 0, 0).getTime();
     const dayOfYear = Math.floor(diff / 86400000);
-    return this.quotes[dayOfYear % this.quotes.length];
+    return `memberProfile.quotes.q${dayOfYear % this.quoteCount}`;
   });
 
   mappedMembership = computed<MembershipDetails | null>(() => {
@@ -174,11 +158,11 @@ export class MemberProfile implements OnInit {
   });
 
   streakMilestones = computed(() => [
-    { days: 3, label: '3 Days', icon: 'calendar-check', unlocked: this.currentStreak() >= 3 },
-    { days: 7, label: '7 Days', icon: 'star', unlocked: this.currentStreak() >= 7 },
-    { days: 14, label: '2 Weeks', icon: 'shield', unlocked: this.currentStreak() >= 14 },
-    { days: 21, label: '3 Weeks', icon: 'trophy', unlocked: this.currentStreak() >= 21 },
-    { days: 30, label: '30 Days', icon: 'crown', unlocked: this.currentStreak() >= 30 },
+    { days: 3, labelKey: 'memberProfile.dash.ms3Days', icon: 'calendar-check', unlocked: this.currentStreak() >= 3 },
+    { days: 7, labelKey: 'memberProfile.dash.ms7Days', icon: 'star', unlocked: this.currentStreak() >= 7 },
+    { days: 14, labelKey: 'memberProfile.dash.ms2Weeks', icon: 'shield', unlocked: this.currentStreak() >= 14 },
+    { days: 21, labelKey: 'memberProfile.dash.ms3Weeks', icon: 'trophy', unlocked: this.currentStreak() >= 21 },
+    { days: 30, labelKey: 'memberProfile.dash.ms30Days', icon: 'crown', unlocked: this.currentStreak() >= 30 },
   ]);
 
   nextStreakMilestone = computed(() => {
@@ -199,15 +183,15 @@ export class MemberProfile implements OnInit {
 
   streakMessage = computed(() => {
     const s = this.currentStreak();
-    if (s === 0) return { icon: 'bolt', title: 'Ready to start?', subtitle: 'Come in today and begin your streak!' };
-    if (s === 1) return { icon: 'fire', title: 'Day 1 — Let\'s go!', subtitle: 'One day down. Make it two!' };
-    if (s === 2) return { icon: 'fire', title: '2-Day Streak!', subtitle: 'Momentum is building. Keep showing up!' };
-    if (s >= 3 && s < 7) return { icon: 'fire', title: `${s}-Day Streak!`, subtitle: 'You\'re on fire! Consistency is key.' };
-    if (s >= 7 && s < 14) return { icon: 'star', title: `${s}-Day Streak!`, subtitle: 'A full week! That\'s championship mindset.' };
-    if (s >= 14 && s < 21) return { icon: 'shield', title: `${s}-Day Streak!`, subtitle: 'Two weeks of excellence! Unstoppable.' };
-    if (s >= 21 && s < 30) return { icon: 'trophy', title: `${s}-Day Streak!`, subtitle: 'Three weeks! You\'re in the elite zone.' };
-    if (s >= 30) return { icon: 'crown', title: `${s}-Day Streak!`, subtitle: '30+ days! Absolutely legendary consistency!' };
-    return { icon: 'fire', title: `${s}-Day Streak!`, subtitle: 'Keep the momentum going!' };
+    if (s === 0) return { icon: 'bolt', titleKey: 'memberProfile.dash.streakReadyTitle', subKey: 'memberProfile.dash.streakReadySub', n: s };
+    if (s === 1) return { icon: 'fire', titleKey: 'memberProfile.dash.streakDay1Title', subKey: 'memberProfile.dash.streakDay1Sub', n: s };
+    if (s === 2) return { icon: 'fire', titleKey: 'memberProfile.dash.streakTitle', subKey: 'memberProfile.dash.streak2Sub', n: s };
+    if (s >= 3 && s < 7) return { icon: 'fire', titleKey: 'memberProfile.dash.streakTitle', subKey: 'memberProfile.dash.streakFireSub', n: s };
+    if (s >= 7 && s < 14) return { icon: 'star', titleKey: 'memberProfile.dash.streakTitle', subKey: 'memberProfile.dash.streakWeekSub', n: s };
+    if (s >= 14 && s < 21) return { icon: 'shield', titleKey: 'memberProfile.dash.streakTitle', subKey: 'memberProfile.dash.streak2WeekSub', n: s };
+    if (s >= 21 && s < 30) return { icon: 'trophy', titleKey: 'memberProfile.dash.streakTitle', subKey: 'memberProfile.dash.streak3WeekSub', n: s };
+    if (s >= 30) return { icon: 'crown', titleKey: 'memberProfile.dash.streakTitle', subKey: 'memberProfile.dash.streak30Sub', n: s };
+    return { icon: 'fire', titleKey: 'memberProfile.dash.streakTitle', subKey: 'memberProfile.dash.streakKeepSub', n: s };
   });
 
   sessionsRemaining = computed(() => {
@@ -328,16 +312,17 @@ export class MemberProfile implements OnInit {
     return points.join(' ');
   });
 
+  private readonly dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+
   mostActiveDay = computed(() => {
     const dates = this.getDatesFromAttendance(this.attendances());
     if (!dates.length) return null;
     const dayCounts = [0, 0, 0, 0, 0, 0, 0];
-    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     for (const d of dates) {
       dayCounts[d.getDay()]++;
     }
     const maxIdx = dayCounts.indexOf(Math.max(...dayCounts));
-    return { name: dayNames[maxIdx], count: dayCounts[maxIdx] };
+    return { nameKey: `memberProfile.dash.days.${this.dayKeys[maxIdx]}`, count: dayCounts[maxIdx] };
   });
 
   weeklyActivity = computed(() => {
@@ -403,12 +388,12 @@ export class MemberProfile implements OnInit {
     return Math.round(((now - start) / (end - start)) * 100);
   });
 
-  sessionsCompletedText = computed(() => {
+  sessionsCompleted = computed(() => {
     const s = this.sessionsThisMonth();
-    if (s === 0) return "Ready to crush your first workout today? Let's go!";
-    if (s <= 3) return `${s} sessions done this month. Keep building momentum!`;
-    if (s <= 10) return `${s} sessions this month. You're on fire!`;
-    return `${s} sessions this month. Elite performance!`;
+    if (s === 0) return { key: 'memberProfile.dash.sessionsNone', n: s };
+    if (s <= 3) return { key: 'memberProfile.dash.sessionsFew', n: s };
+    if (s <= 10) return { key: 'memberProfile.dash.sessionsMid', n: s };
+    return { key: 'memberProfile.dash.sessionsElite', n: s };
   });
 
   /* ── Progress Summary derived ── */
@@ -457,13 +442,13 @@ export class MemberProfile implements OnInit {
   weekdayDistribution = computed(() => {
     const dates = this.getDatesFromAttendance(this.attendances());
     const counts = [0, 0, 0, 0, 0, 0, 0];
-    const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const keys = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
     for (const d of dates) {
       const idx = d.getDay();
       counts[idx === 0 ? 6 : idx - 1]++;
     }
     const max = Math.max(...counts, 1);
-    return labels.map((label, i) => ({ label, count: counts[i], pct: (counts[i] / max) * 100 }));
+    return keys.map((k, i) => ({ labelKey: `memberProfile.dash.days.${k}`, count: counts[i], pct: (counts[i] / max) * 100 }));
   });
 
   weightLogData = computed(() => {
@@ -510,18 +495,20 @@ export class MemberProfile implements OnInit {
   editImage = signal<string | null>(null);
   editGoal = signal('');
   editTargetWeight = signal<number | null>(null);
+  editBodyFat = signal<number | null>(null);
+  editMuscle = signal<number | null>(null);
 
   // Fitness goal options (values match the backend MemberProfile.Goal)
   readonly goalOptions = [
-    { value: 'WeightLoss', label: 'Weight Loss' },
-    { value: 'MuscleGain', label: 'Muscle Gain' },
-    { value: 'Endurance', label: 'Endurance' },
-    { value: 'GeneralFitness', label: 'General Fitness' },
+    { value: 'WeightLoss', labelKey: 'memberProfile.dash.goalWeightLoss' },
+    { value: 'MuscleGain', labelKey: 'memberProfile.dash.goalMuscleGain' },
+    { value: 'Endurance', labelKey: 'memberProfile.dash.goalEndurance' },
+    { value: 'GeneralFitness', labelKey: 'memberProfile.dash.goalGeneralFitness' },
   ];
 
-  goalLabel = computed(() => {
+  goalLabelKey = computed(() => {
     const g = this.profile()?.goal;
-    return this.goalOptions.find(o => o.value === g)?.label ?? g ?? null;
+    return this.goalOptions.find(o => o.value === g)?.labelKey ?? null;
   });
 
   goalDelta = computed(() => {
@@ -529,9 +516,9 @@ export class MemberProfile implements OnInit {
     const t = this.profile()?.targetWeight;
     if (w == null || t == null) return null;
     const diff = Math.round((w - t) * 10) / 10;
-    if (Math.abs(diff) <= 0.5) return { state: 'reached', text: 'Goal reached!' };
-    if (diff > 0) return { state: 'lose', text: `${diff} kg to go` };
-    return { state: 'gain', text: `${Math.abs(diff)} kg to gain` };
+    if (Math.abs(diff) <= 0.5) return { state: 'reached', key: 'memberProfile.dash.goalReached', n: 0 };
+    if (diff > 0) return { state: 'lose', key: 'memberProfile.dash.kgToGo', n: diff };
+    return { state: 'gain', key: 'memberProfile.dash.kgToGain', n: Math.abs(diff) };
   });
 
   openEdit(): void {
@@ -546,6 +533,8 @@ export class MemberProfile implements OnInit {
     this.editImage.set(p.profileImage ?? null);
     this.editGoal.set(p.goal || '');
     this.editTargetWeight.set(p.targetWeight ?? null);
+    this.editBodyFat.set(this.currentBodyFat());
+    this.editMuscle.set(this.currentMuscleMass());
     this.editError.set(null);
     this.isEditing.set(true);
   }
@@ -596,20 +585,39 @@ export class MemberProfile implements OnInit {
       targetWeight: this.editTargetWeight() ?? undefined,
     };
 
+    // Body-composition fields (weight/body fat/muscle) live in the progress log.
+    // If any changed, append a new measurement so the dashboard AND the
+    // Progress Report page stay in sync with the database.
+    const newWeight = this.editWeight();
+    const newBodyFat = this.editBodyFat();
+    const newMuscle = this.editMuscle();
+    const bodyCompChanged =
+      (newWeight != null && newWeight !== (p.weight ?? null)) ||
+      newBodyFat !== this.currentBodyFat() ||
+      newMuscle !== this.currentMuscleMass();
+    const logWeight = newWeight ?? p.weight ?? null;
+    const progressDto: CreateProgressLogDto | null =
+      bodyCompChanged && logWeight != null
+        ? { weight: logWeight, bodyFat: newBodyFat, muscleMass: newMuscle }
+        : null;
+
     this.savingEdit.set(true);
     this.editError.set(null);
 
-    this.memberService.updateProfile(dto).subscribe({
+    // 1) Persist profile fields, then 2) optionally append a progress log.
+    this.memberService.updateProfile(dto).pipe(
+      switchMap(() => progressDto ? this.progressService.createProgressEntry(progressDto) : of(null))
+    ).subscribe({
       next: () => {
-        // Re-fetch the canonical profile so server-derived fields (e.g. BMI) stay accurate
-        this.memberService.getProfile().subscribe({
-          next: fresh => {
-            this.profile.set(fresh);
-            this.savingEdit.set(false);
-            this.isEditing.set(false);
-          },
-          error: () => {
-            // Save succeeded but refresh failed — apply what we sent
+        // Re-fetch the canonical profile + progress so derived fields stay accurate
+        forkJoin({
+          profile: this.memberService.getProfile().pipe(catchError(() => of(null))),
+          progress: this.progressService.getProgress().pipe(catchError(() => of(null as ProgressSummaryDto | null))),
+        }).subscribe(result => {
+          if (result.profile) {
+            this.profile.set(result.profile);
+          } else {
+            // Refresh failed — apply what we sent
             this.profile.set({
               ...p,
               firstName: dto.firstName ?? p.firstName,
@@ -622,14 +630,15 @@ export class MemberProfile implements OnInit {
               goal: dto.goal ?? p.goal,
               targetWeight: dto.targetWeight ?? p.targetWeight,
             });
-            this.savingEdit.set(false);
-            this.isEditing.set(false);
-          },
+          }
+          if (result.progress) this.progressSummary.set(result.progress);
+          this.savingEdit.set(false);
+          this.isEditing.set(false);
         });
       },
       error: (err) => {
         this.savingEdit.set(false);
-        this.editError.set(err?.error?.message || 'Failed to save changes. Please try again.');
+        this.editError.set(err?.error?.message || this.translate.instant('memberProfile.dash.saveFailed'));
       },
     });
   }
