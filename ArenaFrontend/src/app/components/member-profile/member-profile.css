@@ -2908,9 +2908,13 @@ app-footer { display: none !important; }
   .hero-title { font-size: 23px; }
   .hero-glow { width: 360px; height: 360px; top: -100px; right: -60px; }
   .hm-value { font-size: 20px; }
-  .profile-cards { gap: 16px; }
-  .pc-left { flex: 1.3; }
-  .pc-right { flex: 1.7; }
+  /* Single column below ~1024px — two narrow columns crammed "Your Body" and
+     "Quick Actions"; full width keeps the 3-card grid and action row readable. */
+  .profile-cards { gap: 16px; flex-direction: column; align-items: stretch; }
+  .pc-left, .pc-right { flex: 1 1 auto; width: 100%; }
+  /* Let the stat cards wrap instead of squeezing five across (numbers stay legible) */
+  .stats-strip { flex-wrap: wrap; }
+  .stats-strip .ss-card { flex: 1 1 30%; }
   .streak-banner { flex-wrap: wrap; gap: 16px; padding: 18px 22px; }
   .sb-title { font-size: 18px; }
 }
