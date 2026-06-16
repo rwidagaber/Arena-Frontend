@@ -4,23 +4,23 @@
   --accent-soft: rgba(198,239,46,0.12);
   --accent-glow: rgba(198,239,46,0.25);
   --hide-x: -100%;
-  height: 100vh;
+  height: calc(100vh - var(--header-h, 80px));
   position: sticky;
-  top: 0;
+  top: var(--header-h, 80px);
 }
 
 :host-context([dir="rtl"]) { --hide-x: 100%; }
 
 .dash-sidebar {
   width: 240px;
-  height: 100vh;
+  height: calc(100vh - var(--header-h, 80px));
   background: #ffffff;
   padding: 0;
   display: flex;
   flex-direction: column;
   border-right: 1px solid rgba(0,0,0,0.06);
   position: sticky;
-  top: 0;
+  top: var(--header-h, 80px);
 }
 
 .sidebar-brand {
