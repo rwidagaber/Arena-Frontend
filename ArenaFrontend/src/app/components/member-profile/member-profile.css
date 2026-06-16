@@ -159,10 +159,10 @@ app-footer { display: none !important; }
 
 .dash-content {
   flex: 1;
-  max-width: 1140px;
-  margin: 0 auto;
+  max-width: 100%;
+  margin: 0;
   width: 100%;
-  padding: 24px 28px 64px;
+  padding: 20px 28px 56px;
   display: flex;
   flex-direction: column;
   gap: 18px;

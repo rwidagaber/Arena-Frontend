@@ -34,9 +34,11 @@
 }
 
 .progress-report {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 24px 16px 80px;
+  max-width: 100%;
+  margin: 0;
+  /* Rendered inside the dashboard content area, which already supplies the
+     horizontal gutter — so no side padding here (avoids a double gutter). */
+  padding: 0 0 32px;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -2198,14 +2200,14 @@
 
 /* ── Responsive ── */
 @media (max-width: 1024px) {
-  .progress-report { padding: 20px 16px 60px; }
+  .progress-report { padding: 0 0 60px; }
   .hero-main { gap: 16px; }
   .hero-chart-card { width: 180px; }
 }
 
 @media (max-width: 768px) {
   .progress-report {
-    padding: 12px 12px 60px;
+    padding: 0 0 60px;
     gap: 20px;
   }
   .hero { min-height: 280px; border-radius: 16px; }
@@ -2241,7 +2243,7 @@
 }
 
 @media (max-width: 480px) {
-  .progress-report { padding: 8px 8px 48px; gap: 16px; }
+  .progress-report { padding: 0 0 48px; gap: 16px; }
   .hero { min-height: auto; border-radius: 12px; }
   .hero-inner { padding: 18px 16px; gap: 14px; }
   .hero-stat-value { font-size: 20px; }
