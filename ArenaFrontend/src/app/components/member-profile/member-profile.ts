@@ -15,7 +15,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { QrDisplayComponent } from '../../features/QR/qr-display.component/qr-display.component';
 import { ProgressReportComponent } from '../progress-report/progress-report.component';
 import { RevealDirective } from '../progress-report/reveal.directive';
-
+import { Nutritionplan } from './nutritionplan/nutritionplan';
+import { ThemeService } from '../../core/services/themeservice';
 
 function mapAuthToProfile(dto: GetProfileDto): MemberProfileModel {
   return {
@@ -61,6 +62,7 @@ function mapSubscriptionToMembership(sub: UserSubscriptionDto): MembershipDetail
     QrDisplayComponent,
     ProgressReportComponent,
     RevealDirective,
+    Nutritionplan,
   ],
   templateUrl: './member-profile.html',
   styleUrl: './member-profile.css',
@@ -72,8 +74,11 @@ export class MemberProfile implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private sanitizer = inject(DomSanitizer);
+  private themeService = inject(ThemeService);
 
   protected Math = Math;
+
+  isDarkMode = computed(() => this.themeService.isDark);
 
   private readonly svgIcons: Record<string, string> = {
     fire: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c-3.866 0-7-3.134-7-7 0-3.866 3.134-7 7-7s7 3.134 7 7c0 3.866-3.134 7-7 7z"/></svg>',

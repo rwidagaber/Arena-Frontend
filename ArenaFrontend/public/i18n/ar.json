@@ -450,5 +450,43 @@
     "workouts": "التمارين",
     "retry": "إعادة المحاولة",
     "somethingWentWrong": "حدث خطأ ما"
+  },
+  "nutrition": {
+    "searchPlaceholder": "ابحث عن خطة غذائية أو وجبة...",
+    "active": "نشطة",
+    "tryAgain": "إعادة المحاولة",
+    "resultsFor": "نتيجة للبحث عن",
+    "noResults": "لا توجد نتائج لـ",
+    "tryDifferentKeywords": "جرّب كلمات بحث أخرى",
+    "clearSearch": "مسح البحث",
+    "noPlans": "لا توجد خطط غذائية حالياً",
+    "generatePlan": "تحدث مع المدرب الذكي لإنشاء خطة غذائية مخصصة",
+
+    "plan": "خطة",
+    "dietPlan": "خطة غذائية",
+    "activePlan": "الخطة النشطة",
+
+    "backToPlans": "العودة للخطط",
+    "backToPlan": "العودة للخطة",
+
+    "totalCalories": "إجمالي السعرات",
+
+    "macroName": "العنصر الغذائي",
+    "quantity": "الكمية",
+"kcal": "سعرة",
+    "protein": "بروتين",
+    "carbs": "كربوهيدرات",
+    "fat": "دهون",
+
+    "all": "الكل",
+
+    "noMeals": "لا توجد وجبات {{mealType}} في هذه الخطة",
+
+    "ingredients": "المكونات",
+    "breakfast": "فطار",
+"lunch": "غداء",
+"dinner": "عشاء",
+"snack": "سناك"
   }
+
 }

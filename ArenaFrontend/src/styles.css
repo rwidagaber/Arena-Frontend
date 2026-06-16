@@ -63,6 +63,12 @@ html, body {
   -ms-overflow-style: none !important; 
 }
 
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
 :root {
   /* Light Theme */
   --bg-primary: #ffffff;
@@ -72,7 +78,7 @@ html, body {
   --border-color: rgba(0, 0, 0, 0.1);
   --card-bg: rgba(255, 255, 255, 0.9);
   --input-bg: rgba(0, 0, 0, 0.03);
-  --accent: #418C27;
+  --accent: #D4FA24;;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -84,7 +90,7 @@ html, body {
     --border-color: rgba(255, 255, 255, 0.1);
     --card-bg: rgba(11, 12, 12, 0.55);
     --input-bg: rgba(255, 255, 255, 0.03);
-    --accent: #418C27;
+    --accent: #D4FA24;
     /* ✅ ضيف دول */
     --input-focus-bg: rgba(0, 0, 0, 0.5);
     --autofill-bg: rgba(15, 16, 16, 0.95);
@@ -101,7 +107,7 @@ html, body {
   --card-bg: rgba(11, 12, 12, 0.45); /* ✅ داكن للدارك */
   --card-border: rgba(255, 255, 255, 0.08);
   --input-bg: rgba(255, 255, 255, 0.03);
-  --accent: #418C27;
+  --accent: #D4FA24;;
   --input-focus-bg: rgba(0, 0, 0, 0.5);
   --autofill-bg: rgba(15, 16, 16, 0.95);
   --card-bg-mobile: rgba(11, 12, 12, 0.90);
@@ -116,8 +122,9 @@ html, body {
   --card-bg: rgba(255, 255, 255, 0.15); /* ✅ فاتح شفاف للايت */
   --card-border: rgba(255, 255, 255, 0.3);
   --input-bg: rgba(0, 0, 0, 0.03);
-  --accent: #418C27;
+  --accent: ##D4FA24;;
   --input-focus-bg: rgba(255, 255, 255, 0.8);
   --autofill-bg: rgba(240, 240, 240, 0.95);
   --card-bg-mobile: rgba(255, 255, 255, 0.95);
 }
+
