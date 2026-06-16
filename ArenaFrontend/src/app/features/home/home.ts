@@ -5,7 +5,7 @@ import { WhatWeDoComponent } from "../what-we-do/what-we-do.component";
 import { WhyChooseUsComponent } from "../why-choose-us/why-choose-us.component";
 import { PricingComponent } from '../pricing/pricing.component';
 import { HeaderComponent } from "../../shared/header/header";
-import { FooterComponent } from "../../shared/components/footer/footer";    
+import { FooterComponent } from "../../shared/components/footer/footer";
 @Component({
   selector: 'app-home',
   imports: [HeroComponent, ProgramsComponent, WhatWeDoComponent, WhyChooseUsComponent, PricingComponent, HeaderComponent, FooterComponent],
