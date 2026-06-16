@@ -17,11 +17,8 @@ import { ProgressReportComponent } from '../progress-report/progress-report.comp
 import { RevealDirective } from '../progress-report/reveal.directive';
 import { Nutritionplan } from './nutritionplan/nutritionplan';
 import { ThemeService } from '../../core/services/themeservice';
-import { QrService } from '../../features/QR/qr.service';
-import { BookingDto } from '../../features/QR/qr.model';
-import { BookingCardComponent } from './booking-card/booking-card';
-import { BookingCalendarComponent } from './booking-calendar/booking-calendar';
-import { StatsOverview } from './stats-overview/stats-overview';
+import { BookingSection } from './booking-section/booking-section';
+
 
 function mapAuthToProfile(dto: GetProfileDto): MemberProfileModel {
   return {
@@ -70,9 +67,7 @@ function mapSubscriptionToMembership(sub: UserSubscriptionDto): MembershipDetail
     ProgressReportComponent,
     RevealDirective,
     Nutritionplan,
-    BookingCardComponent,
-    BookingCalendarComponent,
-    StatsOverview
+    BookingSection,
   ],
   templateUrl: './member-profile.html',
   styleUrl: './member-profile.css',
@@ -83,9 +78,8 @@ export class MemberProfile implements OnInit {
   private progressService = inject(ProgressReportService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  private qrService = inject(QrService);
-  private sanitizer = inject(DomSanitizer);
   private themeService = inject(ThemeService);
+  private sanitizer = inject(DomSanitizer);
 
   protected Math = Math;
 
@@ -113,69 +107,7 @@ export class MemberProfile implements OnInit {
 
   activeSection = signal<DashboardSection>('profile');
 
-  bookings = signal<BookingDto[]>([]);
-  loadingBookings = signal(false);
-  errorBookings = signal<string | null>(null);
   isMobileSidebarOpen = signal(false);
-
-  upcomingExpanded = signal(true);
-  pastExpanded = signal(false);
-
-  toggleUpcoming(): void {
-    this.upcomingExpanded.set(!this.upcomingExpanded());
-  }
-
-  togglePast(): void {
-    this.pastExpanded.set(!this.pastExpanded());
-  }
-
-  upcomingBookings = computed(() => {
-    const now = Date.now();
-    return this.bookings().filter(b => {
-      const isConfirmed = b.status === 1 || b.status === '1' || b.status === 'Confirmed';
-      if (!isConfirmed) return false;
-      try {
-        const bDateTime = new Date(`${b.bookingDate.split('T')[0]}T${b.startTime}`);
-        return bDateTime.getTime() > now;
-      } catch {
-        return true;
-      }
-    });
-  });
-
-  pastBookings = computed(() => {
-    const now = Date.now();
-    return this.bookings().filter(b => {
-      const isConfirmed = b.status === 1 || b.status === '1' || b.status === 'Confirmed';
-      if (!isConfirmed) return true;
-      try {
-        const bDateTime = new Date(`${b.bookingDate.split('T')[0]}T${b.startTime}`);
-        return bDateTime.getTime() <= now;
-      } catch {
-        return false;
-      }
-    });
-  });
-
-  bookingStats = computed(() => {
-    return [
-      {
-        label: 'totalBookings',
-        value: this.bookings().length.toString(),
-        icon: 'fas fa-calendar-check'
-      },
-      {
-        label: 'upcoming',
-        value: this.upcomingBookings().length.toString(),
-        icon: 'fas fa-clock'
-      },
-      {
-        label: 'past',
-        value: this.pastBookings().length.toString(),
-        icon: 'fas fa-history'
-      }
-    ];
-  });
 
   timeOfDay = computed(() => {
     const h = new Date().getHours();
@@ -813,9 +745,6 @@ export class MemberProfile implements OnInit {
   onSectionChange(section: DashboardSection): void {
     this.activeSection.set(section);
     this.isMobileSidebarOpen.set(false);
-    if (section === 'mybookings') {
-      this.loadBookings();
-    }
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { section },
@@ -843,9 +772,6 @@ export class MemberProfile implements OnInit {
       const section = params['section'] as DashboardSection | undefined;
       if (section && this.isValidSection(section)) {
         this.activeSection.set(section);
-        if (section === 'mybookings') {
-          this.loadBookings();
-        }
       } else {
         this.activeSection.set('profile');
       }
@@ -856,36 +782,6 @@ export class MemberProfile implements OnInit {
 
   private isValidSection(s: string): s is DashboardSection {
     return ['profile', 'qr', 'workout', 'diet', 'membership', 'progress', 'settings', 'mybookings'].includes(s);
-  }
-
-  loadBookings(): void {
-    const profileId = this.profile()?.memberProfileId || this.profile()?.id;
-    if (!profileId) return;
-
-    this.loadingBookings.set(true);
-    this.errorBookings.set(null);
-
-    this.qrService.getBookings(profileId).pipe(
-      catchError(err => {
-        this.errorBookings.set('error');
-        return of([]);
-      })
-    ).subscribe(data => {
-      this.bookings.set(data || []);
-      this.loadingBookings.set(false);
-    });
-  }
-
-  onCancelBooking(bookingId: string): void {
-    this.qrService.cancelBooking(bookingId).pipe(
-      catchError(err => {
-        return of(null);
-      })
-    ).subscribe(res => {
-      if (res) {
-        this.loadBookings();
-      }
-    });
   }
 
   userSubscriptions = signal<UserSubscriptionDto[]>([]);
@@ -909,9 +805,6 @@ export class MemberProfile implements OnInit {
         return;
       }
       this.profile.set(data);
-        if (this.activeSection() === 'mybookings') {
-          this.loadBookings();
-        }
       this.loadSubscriptions(data.memberProfileId);
       const memberProfileId = data.memberProfileId || data.id || '';
       if (!memberProfileId) {

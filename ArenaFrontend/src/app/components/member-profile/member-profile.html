@@ -2,24 +2,6 @@
   <app-dashboard-sidebar [activeSection]="activeSection()" (sectionChange)="onSectionChange($event)" />
 
   <main class="dash-main">
-    <!-- Mobile Hamburger Header -->
-    <header class="mobile-header">
-      <button class="hamburger-btn" (click)="toggleMobileSidebar()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-          stroke-linejoin="round" width="22" height="22">
-          <line x1="3" y1="12" x2="21" y2="12"></line>
-          <line x1="3" y1="6" x2="21" y2="6"></line>
-          <line x1="3" y1="18" x2="21" y2="18"></line>
-        </svg>
-      </button>
-      <span class="mobile-title">
-        @if (activeSection() === 'mybookings') {
-        {{ 'myBookings' | translate }}
-        } @else {
-        {{ 'memberProfile.dashboardLabel' | translate }}
-        }
-      </span>
-    </header>
 
     <div class="dash-content">
       <div class="dot-indigo"></div>
@@ -869,6 +851,11 @@
         <p>{{ 'section.settingsPlaceholder' | translate }}</p>
       </div>
       }
+
+      @case ('mybookings') {
+      <app-booking-section
+        [memberProfileId]="profile()?.memberProfileId || profile()?.id || ''" />
+      }
       }
       }
     </div>
@@ -885,7 +872,7 @@
         @if (editImage()) {
         <img [src]="editImage()" alt="Profile photo" />
         } @else {
-        <span class="edit-avatar-ph">{{ editFirstName()?.[0] }}{{ editLastName()?.[0] }}</span>
+        <span class="edit-avatar-ph">{{ editFirstName()[0] }}{{ editLastName()[0] }}</span>
         }
       </div>
       <div class="edit-avatar-actions">

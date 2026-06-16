@@ -1,0 +1,260 @@
+/* ──────────────────────────────────────────────────────────────────
+   booking-section.css
+   Scoped styles for the booking-section component.
+   Theme tokens are declared on :host so child selectors inherit them.
+   ────────────────────────────────────────────────────────────────── */
+
+:host {
+  display: block;
+  width: 100%;
+
+  /* Dark theme tokens (default) */
+  --primary:         #d4fa24;
+  --success:         #00d68f;
+  --danger:          #ff4d6d;
+  --surface:         #1a1a24;
+  --text:            #ffffff;
+  --primary-light:   rgba(212, 250, 36, 0.12);
+  --success-light:   rgba(0, 214, 143, 0.15);
+  --danger-light:    rgba(255, 77, 109, 0.15);
+  --border:          rgba(255, 255, 255, 0.05);
+  --text-muted:      rgba(255, 255, 255, 0.65);
+  --shimmer-start:   rgba(255, 255, 255, 0.02);
+  --shimmer-mid:     rgba(255, 255, 255, 0.07);
+  --shimmer-end:     rgba(255, 255, 255, 0.02);
+}
+
+:host-context([data-theme="light"]) {
+  --primary:         #C6EF2E;
+  --success:         #10b981;
+  --danger:          #e11d48;
+  --surface:         #f5f5f5;
+  --text:            #111111;
+  --primary-light:   rgba(198, 239, 46, 0.10);
+  --success-light:   rgba(16, 185, 129, 0.08);
+  --danger-light:    rgba(225, 29, 72, 0.08);
+  --border:          #e5e5e5;
+  --text-muted:      #666666;
+  --shimmer-start:   rgba(17, 17, 17, 0.02);
+  --shimmer-mid:     rgba(17, 17, 17, 0.06);
+  --shimmer-end:     rgba(17, 17, 17, 0.02);
+}
+
+/* ── Two-column grid ─────────────────────────────────────────────── */
+.bookings-two-col {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 28px;
+  align-items: start;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+@media (max-width: 767px) {
+  .bookings-two-col {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .bookings-two-col {
+    gap: 16px;
+  }
+}
+
+/* ── Left column ─────────────────────────────────────────────────── */
+.dash-col-left {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+/* ── Right column (sticky calendar) ─────────────────────────────── */
+.dash-col-right.calendar-sidebar-fixed {
+  position: sticky;
+  top: 24px;
+}
+
+/* ── Section header ─────────────────────────────────────────────── */
+.booking-section-header h2 {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+/* ── Accordion wrapper ───────────────────────────────────────────── */
+.booking-section-wrapper {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+  transition: border-color 0.25s ease;
+}
+
+.booking-section-wrapper:hover {
+  border-color: rgba(212, 250, 36, 0.18);
+}
+
+:host-context([data-theme="light"]) .booking-section-wrapper:hover {
+  border-color: rgba(198, 239, 46, 0.35);
+}
+
+/* ── Toggle button ───────────────────────────────────────────────── */
+.booking-section-toggle-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: none;
+  border: none;
+  padding: 18px 22px;
+  cursor: pointer;
+  color: var(--text);
+  gap: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.booking-section-toggle-btn:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+:host-context([data-theme="light"]) .booking-section-toggle-btn:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.booking-section-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+
+.toggle-chevron {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Content collapsible ─────────────────────────────────────────── */
+.booking-section-content-wrapper {
+  overflow: hidden;
+  max-height: 2000px;
+  transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.3s ease;
+  opacity: 1;
+}
+
+.booking-section-wrapper.collapsed .booking-section-content-wrapper {
+  max-height: 0;
+  opacity: 0;
+}
+
+.booking-section-wrapper.collapsed .toggle-chevron {
+  transform: rotate(-90deg);
+}
+
+.booking-section-content {
+  padding: 0 22px 22px;
+}
+
+/* ── Bookings grid ───────────────────────────────────────────────── */
+.bookings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .bookings-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Empty state ─────────────────────────────────────────────────── */
+.booking-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 32px 0;
+  color: var(--text-muted);
+}
+
+.empty-icon-wrapper {
+  opacity: 0.4;
+}
+
+.empty-text {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* ── Error state ─────────────────────────────────────────────────── */
+.booking-error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px;
+  color: var(--danger);
+  text-align: center;
+}
+
+.booking-error-state svg {
+  stroke: var(--danger);
+  opacity: 0.7;
+}
+
+.booking-error-state span {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.retry-btn {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: 1px solid var(--danger);
+  background: var(--danger-light);
+  color: var(--danger);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.retry-btn:hover {
+  opacity: 0.8;
+}
+
+/* ── Loading skeleton ────────────────────────────────────────────── */
+.bookings-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.booking-skeleton-card {
+  height: 110px;
+  border-radius: 16px;
+  background: linear-gradient(
+    90deg,
+    var(--shimmer-start) 25%,
+    var(--shimmer-mid) 50%,
+    var(--shimmer-end) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
