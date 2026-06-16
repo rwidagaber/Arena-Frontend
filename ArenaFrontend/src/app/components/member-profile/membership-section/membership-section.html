@@ -1,85 +1,129 @@
-@if (loading()) {
-  <div class="section-card">
-    <div class="skeleton skeleton-title"></div>
-    <div class="skeleton skeleton-body"></div>
-    <div class="skeleton skeleton-body" style="width: 60%"></div>
-  </div>
-} @else {
-  <div class="section-card">
-    <div class="section-header">
-      <div class="section-header-left">
-        <span class="section-icon" [innerHTML]="getSvgIcon('id-card')"></span>
-        <h2>{{ 'memberProfile.membership' | translate }}</h2>
+<div class="membership-container">
+  @if (loading()) {
+    <div class="section-card">
+      <div class="skeleton skeleton-title"></div>
+      <div class="skeleton skeleton-body"></div>
+      <div class="skeleton skeleton-body" style="width: 60%"></div>
+    </div>
+  } @else {
+    <!-- Active Membership Section -->
+    <div class="section-card active-membership-section">
+      <div class="section-header">
+        <div class="section-header-left">
+          <i class="fas fa-id-card"></i>
+          <h2>{{ 'memberProfile.activeMembership' | translate }}</h2>
+        </div>
+        @if (activeSubscription(); as m) {
+          <span class="status-indicator active">
+            <i class="fas fa-circle"></i>
+            {{ 'memberProfile.active' | translate }}
+          </span>
+        }
       </div>
-      @if (membership(); as m) {
-        <span class="status-indicator" [class.active]="m.isActive">
-          <span class="status-dot" [innerHTML]="getSvgIcon('circle')"></span>
-          {{ m.isActive ? ('memberProfile.active' | translate) : ('memberProfile.inactive' | translate) }}
-        </span>
+
+      @if (activeSubscription(); as m) {
+        <div class="membership-body">
+          <div class="plan-section">
+            <div class="plan-icon">
+              @if (getPlanName(m).toLowerCase().includes('premium')) {
+                <i class="fas fa-crown"></i>
+              } @else {
+                <i class="fas fa-dumbbell"></i>
+              }
+            </div>
+            <div class="plan-name">{{ getPlanName(m) }}</div>
+          </div>
+
+          <div class="info-grid">
+            <div class="info-item">
+              <i class="far fa-calendar-alt"></i>
+              <div class="info-text">
+                <span class="info-label">{{ 'memberProfile.started' | translate }}</span>
+                <span class="info-value">{{ m.startDate | date: 'dd/MM/yyyy' }}</span>
+              </div>
+            </div>
+            <div class="info-item">
+              <i class="far fa-clock"></i>
+              <div class="info-text">
+                <span class="info-label">{{ 'memberProfile.expires' | translate }}</span>
+                <span class="info-value">{{ m.endDate | date: 'dd/MM/yyyy' }}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <i class="fas fa-bolt"></i>
+              <div class="info-text">
+                <span class="info-label">{{ 'memberProfile.sessions' | translate }}</span>
+                <span class="info-value">{{ m.remainingSessions }} / {{ m.totalSessions }}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <i class="fas fa-dollar-sign"></i>
+              <div class="info-text">
+                <span class="info-label">{{ 'memberProfile.paymentAmount' | translate }}</span>
+                <span class="info-value">{{ m.paymentAmount | currency: 'EGP' | translate }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      } @else {
+        <div class="empty-state">
+          <i class="fas fa-id-card"></i>
+          <p>{{ 'memberProfile.noActiveMembership' | translate }}</p>
+        </div>
       }
     </div>
 
-    @if (membership(); as m) {
-      <div class="membership-body">
-        <div class="plan-section">
-          <div class="plan-icon" [innerHTML]="getSvgIcon(m.type.toLowerCase().includes('premium') ? 'crown' : 'dumbbell')"></div>
-          <div class="plan-name">{{ m.type }}</div>
+    <!-- Membership History Section -->
+    <div class="section-card history-membership-section mt-4">
+      <div class="section-header">
+        <div class="section-header-left">
+          <i class="fas fa-history"></i>
+          <h2>{{ 'memberProfile.membershipHistory' | translate }}</h2>
         </div>
+      </div>
 
-        <div class="info-grid">
-          <div class="info-item">
-            <span class="info-item-icon" [innerHTML]="getSvgIcon('calendar')"></span>
-            <div class="info-text">
-              <span class="info-label">{{ 'memberProfile.started' | translate }}</span>
-              <span class="info-value">{{ m.startDate | date:'mediumDate' }}</span>
-            </div>
-          </div>
-          <div class="info-item">
-            <span class="info-item-icon" [innerHTML]="getSvgIcon('clock')"></span>
-            <div class="info-text">
-              <span class="info-label">{{ 'memberProfile.expires' | translate }}</span>
-              <span class="info-value">{{ m.endDate | date:'mediumDate' }}</span>
-            </div>
-          </div>
-
-          @if (subscription(); as s) {
-            <div class="info-item">
-              <span class="info-item-icon" [innerHTML]="getSvgIcon('bolt')"></span>
-              <div class="info-text">
-                <span class="info-label">{{ 'memberProfile.remainingSessions' | translate }}</span>
-                <span class="info-value">{{ s.remainingSessions }}</span>
+      @if (historySubscriptions().length > 0) {
+        <div class="history-grid">
+          @for (sub of historySubscriptions(); track sub.id) {
+            <div class="history-card">
+              <div class="history-card-header">
+                <div class="plan-name">{{ getPlanName(sub) }}</div>
+                <span
+                  class="status-indicator"
+                  [class.cancelled]="sub.status.toLowerCase() === 'cancelled'"
+                >
+                  {{ sub.status | uppercase }}
+                </span>
+              </div>
+              <div class="history-card-body">
+                <div class="history-info-row">
+                  <span class="label">{{ 'memberProfile.started' | translate }}:</span>
+                  <span class="value">{{ sub.startDate | date: 'dd/MM/yyyy' }}</span>
+                </div>
+                <div class="history-info-row">
+                  <span class="label">{{ 'memberProfile.expires' | translate }}:</span>
+                  <span class="value">{{ sub.endDate | date: 'dd/MM/yyyy' }}</span>
+                </div>
+                <div class="history-info-row">
+                  <span class="label">{{ 'memberProfile.totalSessions' | translate }}:</span>
+                  <span class="value">{{ sub.totalSessions }}</span>
+                </div>
+                <div class="history-info-row">
+                  <span class="label">{{ 'memberProfile.paymentAmount' | translate }}:</span>
+                  <span class="value">{{ sub.paymentAmount | currency: 'EGP' | translate }}</span>
+                </div>
               </div>
             </div>
           }
-
-          <div class="info-item">
-            <span class="info-item-icon" [innerHTML]="getSvgIcon('dollar')"></span>
-            <div class="info-text">
-              <span class="info-label">{{ 'memberProfile.price' | translate }}</span>
-              <span class="info-value">{{ m.price | currency }}</span>
-            </div>
-          </div>
         </div>
-
-        @if (m.features && m.features.length > 0) {
-          <div class="features-section">
-            <span class="features-title">{{ 'memberProfile.planFeatures' | translate }}</span>
-            <ul class="features-list">
-              @for (feature of m.features; track feature) {
-                <li>
-                  <span class="feature-icon" [innerHTML]="getSvgIcon('check-circle')"></span>
-                  {{ feature }}
-                </li>
-              }
-            </ul>
-          </div>
-        }
-      </div>
-    } @else {
-      <div class="empty-state">
-        <span class="empty-icon" [innerHTML]="getSvgIcon('id-card')"></span>
-        <p>{{ 'memberProfile.noMembership' | translate }}</p>
-      </div>
-    }
-  </div>
-}
+      } @else {
+        <div class="empty-state">
+          <i class="fas fa-history"></i>
+          <p>{{ 'memberProfile.noHistoryFound' | translate }}</p>
+        </div>
+      }
+    </div>
+  }
+</div>

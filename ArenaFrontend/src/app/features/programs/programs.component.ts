@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { ScrollRevealDirective } from '../../shared/directives/scroll-reveal.directive';
 
 @Component({
   selector: 'app-programs',
   standalone: true,
-  imports: [TranslateModule],
+  imports: [TranslateModule, ScrollRevealDirective],
   templateUrl: './programs.component.html',
   styleUrl: './programs.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush

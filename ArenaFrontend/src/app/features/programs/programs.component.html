@@ -1,5 +1,5 @@
 <section class="programs-section">
-  <div class="section-header">
+  <div class="section-header" appScrollReveal [revealDelay]="0">
     <div class="badge">
       <span class="dot"></span>
       {{ 'PROGRAMS.BADGE' | translate }}
@@ -10,8 +10,8 @@
   </div>
 
   <div class="programs-grid">
-    @for (program of programs; track program.title) {
-      <div class="program-card">
+    @for (program of programs; track program.title; let i = $index) {
+      <div class="program-card" appScrollReveal [revealDelay]="i * 150">
         <div class="card-header">
           <div class="icon-wrapper">
             @if (program.icon === 'weight-loss') {
