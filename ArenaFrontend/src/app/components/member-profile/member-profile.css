@@ -577,7 +577,7 @@ app-footer { display: none !important; }
   font-size: 13px;
   font-weight: 600;
   color: var(--c-accent-deep, #4d7c0f);
-  margin-left: 2px;
+  margin-inline-start: 4px;
   font-family: var(--font-ui);
 }
 
@@ -1255,7 +1255,7 @@ app-footer { display: none !important; }
   font-weight: 600;
   color: var(--lux-ink-soft, #5f5f5c);
   font-family: var(--font-ui);
-  margin-left: 1px;
+  margin-inline-start: 4px;
 }
 
 [data-theme="dark"] .pulse-stat-val { color: var(--lux-cream, #f1f1ef); }
@@ -2177,7 +2177,7 @@ app-footer { display: none !important; }
   font-size: 12px;
   font-weight: 600;
   color: var(--c-accent-deep, #4d7c0f);
-  margin-left: 2px;
+  margin-inline-start: 4px;
   font-family: var(--font-ui);
 }
 

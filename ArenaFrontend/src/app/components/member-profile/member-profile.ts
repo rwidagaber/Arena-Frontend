@@ -224,7 +224,7 @@ export class MemberProfile implements OnInit {
       .slice(0, 6)
       .map(a => ({
         id: a.id,
-        name: 'Gym Session',
+        name: 'memberProfile.dash.gymSession',
         date: a.checkInTime!,
         durationMinutes: 0,
         caloriesBurned: 0,
@@ -322,7 +322,11 @@ export class MemberProfile implements OnInit {
       dayCounts[d.getDay()]++;
     }
     const maxIdx = dayCounts.indexOf(Math.max(...dayCounts));
-    return { nameKey: `memberProfile.dash.days.${this.dayKeys[maxIdx]}`, count: dayCounts[maxIdx] };
+    // Most recent calendar date that falls on the peak weekday
+    const peakDate = dates
+      .filter(d => d.getDay() === maxIdx)
+      .sort((a, b) => b.getTime() - a.getTime())[0] ?? null;
+    return { nameKey: `memberProfile.dash.daysFull.${this.dayKeys[maxIdx]}`, date: peakDate };
   });
 
   weeklyActivity = computed(() => {
