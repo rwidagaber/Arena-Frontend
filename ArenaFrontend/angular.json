@@ -19,11 +19,16 @@
             ],
             "tsConfig": "tsconfig.app.json",
             "assets": [
-              {
-                "glob": "**/*",
-                "input": "public"
-              }
-            ],
+  {
+    "glob": "**/*",
+    "input": "public"
+  },
+  {
+    "glob": "**/*",
+    "input": "src/app/assets",
+    "output": "assets"
+  }
+],
            "styles": [
             "node_modules/bootstrap/dist/css/bootstrap.min.css",
             "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
@@ -86,12 +91,17 @@
               "zone.js/testing"
             ],
             "tsConfig": "tsconfig.spec.json",
-            "assets": [
-              {
-                "glob": "**/*",
-                "input": "public"
-              }
-            ],
+           "assets": [
+  {
+    "glob": "**/*",
+    "input": "public"
+  },
+  {
+    "glob": "**/*",
+    "input": "src/app/assets",
+    "output": "assets"
+  }
+],
             "styles": [
               "src/styles.css"
             ],       

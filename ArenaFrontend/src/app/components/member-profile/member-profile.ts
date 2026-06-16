@@ -9,7 +9,8 @@ import type { MemberProfile as MemberProfileModel, MembershipDetails } from '../
 import { DashboardSidebar, DashboardSection } from './dashboard-sidebar/dashboard-sidebar';
 import { TranslateModule } from '@ngx-translate/core';
 import { QrDisplayComponent } from '../../features/QR/qr-display.component/qr-display.component';
-
+import { Nutritionplan } from "./nutritionplan/nutritionplan";
+import { ThemeService } from '../../core/services/themeservice';
 function mapAuthToProfile(dto: GetProfileDto): MemberProfileModel {
   return {
     id: dto.id,
@@ -49,8 +50,9 @@ function mapSubscriptionToMembership(sub: UserSubscriptionDto): MembershipDetail
     CommonModule,
     DashboardSidebar,
     TranslateModule,
-     QrDisplayComponent
-  ],
+    QrDisplayComponent,
+    Nutritionplan
+],
   templateUrl: './member-profile.html',
   styleUrl: './member-profile.css',
 })
@@ -59,6 +61,7 @@ export class MemberProfile implements OnInit {
   private memberService = inject(MemberService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private themeService = inject(ThemeService);
 
   profile = signal<MemberProfileModel | null>(null);
   loading = signal(true);
@@ -90,6 +93,8 @@ export class MemberProfile implements OnInit {
     if (level.toLowerCase().includes('bronze')) return 10;
     return 20;
   });
+
+   isDarkMode = computed(() => this.themeService.isDark);
 
   sessionsRemaining = computed(() => {
     const sub = this.profile()?.activeSubscription;

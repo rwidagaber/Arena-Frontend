@@ -1,0 +1,337 @@
+<div class="nutrition-section">
+  <div class="nutrition-page-header">
+  @if (isDarkMode()) {
+    <img src="assets/images/nutritionheaderdark.png" alt="Nutrition Header" class="header-bg-img" />
+  } @else {
+    <img src="assets/images/nutritionplanheader.png" alt="Nutrition Header" class="header-bg-img" />
+  }
+</div>
+  <div class="nutrition-content">
+
+    @if (view() === 'plans') {
+      <div class="search-container">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input
+          type="text"
+          [placeholder]="t.translate('nutrition.searchPlaceholder')"
+          class="search-input"
+          [value]="searchQuery()"
+          (input)="searchQuery.set($any($event.target).value)"
+        />
+        <button
+          class="btn-active-filter"
+          [class.is-active]="showActiveOnly()"
+          (click)="showActiveOnly.set(!showActiveOnly())"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="9 11 12 14 22 4"/>
+          </svg>
+          {{ t.translate('nutrition.active') }}
+        </button>
+        @if (searchQuery()) {
+          <button class="search-clear" (click)="searchQuery.set('')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        }
+      </div>
+    }
+
+    @if (loading()) {
+      <div class="nutrition-loading">
+        @for (_ of [1,2,3]; track _) {
+          <div class="plan-skeleton">
+            <div class="skeleton sk-title"></div>
+            <div class="skeleton sk-body"></div>
+            <div class="skeleton sk-body" style="width: 60%"></div>
+          </div>
+        }
+      </div>
+    }
+
+    @else if (error()) {
+      <div class="nutrition-error">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <p>{{ error() }}</p>
+        <button class="btn-retry" (click)="loadPlans()">{{ t.translate('nutrition.tryAgain') }}</button>
+      </div>
+    }
+
+    @else {
+
+      @if (view() === 'plans') {
+        <div class="nutrition-header">
+          @if (searchQuery()) {
+            <span class="search-results-count">
+              {{ filteredPlans().length }} {{ t.translate('nutrition.resultsFor') }} "{{ searchQuery() }}"
+            </span>
+          }
+        </div>
+
+        @if (filteredPlans().length === 0) {
+          <div class="nutrition-empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="56" height="56">
+              <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
+              <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+              <line x1="6" y1="1" x2="6" y2="4"/>
+              <line x1="10" y1="1" x2="10" y2="4"/>
+              <line x1="14" y1="1" x2="14" y2="4"/>
+            </svg>
+            @if (searchQuery()) {
+              <h3>{{ t.translate('nutrition.noResults') }} "{{ searchQuery() }}"</h3>
+              <p>{{ t.translate('nutrition.tryDifferentKeywords') }}</p>
+              <button class="btn-retry" (click)="searchQuery.set('')">{{ t.translate('nutrition.clearSearch') }}</button>
+            } @else {
+              <h3>{{ t.translate('nutrition.noPlans') }}</h3>
+              <p>{{ t.translate('nutrition.generatePlan') }}</p>
+            }
+          </div>
+        } @else {
+          <div class="plans-grid">
+            @for (plan of filteredPlans(); track plan.id; let i = $index) {
+              <div class="custom-plan-card" [class.plan-card-active]="plan.isActive" (click)="openPlan(plan)">
+                <div class="card-info-side">
+                  <div class="card-status-row">
+                    @if (plan.isActive) {
+                      <span class="custom-active-badge">{{ t.translate('nutrition.active') }}</span>
+                    } @else {
+                      <span class="custom-inactive-badge">{{ t.translate('nutrition.plan') }}</span>
+                    }
+                  </div>
+                  <h3 class="card-plan-title">{{ t.translate('nutrition.dietPlan') }} {{ plan.dailyCalories }}</h3>
+                  <div class="card-stats-grid">
+                    <div class="stat-box calories-box">
+                      <span class="stat-num-hero">{{ plan.dailyCalories }}</span>
+                      <span class="stat-label-hero">kcal</span>
+                    </div>
+                    <div class="stat-box macros-summary-box">
+                      <div class="mini-macro"><span class="p-dot"></span> {{ t.translate('nutrition.protein') }}: {{ plan.proteinGrams }}g</div>
+                      <div class="mini-macro"><span class="c-dot"></span> {{ t.translate('nutrition.carbs') }}: {{ plan.carbsGrams }}g</div>
+                      <div class="mini-macro"><span class="f-dot"></span> {{ t.translate('nutrition.fat') }}: {{ plan.fatGrams }}g</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-image-side">
+                  <img [src]="getPlanImage(i)" alt="Diet Plan Food" class="plan-hero-img" />
+                </div>
+              </div>
+            }
+          </div>
+        }
+      }
+
+      @else if (view() === 'plan-detail' && selectedPlan(); as plan) {
+        <div class="detail-header">
+          <button class="btn-back" (click)="goBack()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            {{ t.translate('nutrition.backToPlans') }}
+          </button>
+          @if (plan.isActive) {
+            <span class="custom-active-badge">{{ t.translate('nutrition.activePlan') }}</span>
+          }
+        </div>
+
+        <div class="modern-macro-summary-card">
+          <div class="modern-cal-hero-box">
+            <div class="macro-donut-chart" 
+                 [style.--p]="(plan.proteinGrams / (plan.proteinGrams + plan.carbsGrams + plan.fatGrams) * 100) + '%'"
+                 [style.--c]="(plan.carbsGrams / (plan.proteinGrams + plan.carbsGrams + plan.fatGrams) * 100) + '%'">
+              <div class="donut-center-content">
+                <span class="modern-daily-cal-num">{{ plan.dailyCalories }}</span>
+                <span class="modern-daily-cal-label">{{ t.translate('nutrition.totalCalories') }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="modern-macro-details-side">
+            <div class="macro-table-header">
+              <span class="col-left">{{ t.translate('nutrition.macroName') }}</span>
+              <span>{{ t.translate('nutrition.quantity') }}</span>
+            </div>
+
+            <div class="macro-table-row protein">
+              <div class="macro-name-with-dot" style="display: flex; align-items: center; gap: 10px;">
+                <span class="macro-badge-dot"></span>
+                <span class="macro-name-text">{{ t.translate('nutrition.protein') }}</span>
+              </div>
+              <span class="macro-value-text">{{ plan.proteinGrams }}g</span>
+            </div>
+
+            <div class="macro-table-row carbs">
+              <div class="macro-name-with-dot" style="display: flex; align-items: center; gap: 10px;">
+                <span class="macro-badge-dot"></span>
+                <span class="macro-name-text">{{ t.translate('nutrition.carbs') }}</span>
+              </div>
+              <span class="macro-value-text">{{ plan.carbsGrams }}g</span>
+            </div>
+
+            <div class="macro-table-row fat">
+              <div class="macro-name-with-dot" style="display: flex; align-items: center; gap: 10px;">
+                <span class="macro-badge-dot"></span>
+                <span class="macro-name-text">{{ t.translate('nutrition.fat') }}</span>
+              </div>
+              <span class="macro-value-text">{{ plan.fatGrams }}g</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="meals-section-wrapper">
+  <div class="meals-filter-tabs">
+    @for (tab of mealTabs(); track tab) {
+      <button
+        class="meal-tab"
+        [class.active]="activeMealTab() === tab"
+        (click)="activeMealTab.set(tab)"
+      >
+        {{ tab === 'all' ? t.translate('nutrition.all') : translateMealType(tab) }}
+      </button>
+    }
+  </div>
+          <div class="modern-meals-grid">
+            @if (filteredMeals().length === 0) {
+              <div class="meals-empty">
+                <p>{{ t.translate('nutrition.noMeals', { mealType: activeMealTab() }) }}</p>
+              </div>
+            }
+
+           @for (meal of filteredMeals(); track meal.id) {
+              <div class="meal-grid-card modern-meal-card-enhanced" (click)="view.set('meal-detail'); selectedMeal.set(meal)">
+                <div class="meal-card-header-accent">
+                  <div class="meal-avatar-icon-box">
+                    @if (meal.mealType?.toLowerCase() === 'breakfast') {
+                      <img src="assets/images/fried-egg.png" alt="Breakfast" />
+                    } @else if (meal.mealType?.toLowerCase() === 'lunch') {
+                      <img src="assets/images/turkey.png" alt="Lunch" />
+                    } @else if (meal.mealType?.toLowerCase() === 'snack') {
+                      <img src="assets/images/snack.png" alt="Snack" />
+                    } @else {
+                      <img src="assets/images/salad.png" alt="Meal" />
+                    }
+                  </div>
+                  <span class="meal-badge-tag-type" [class]="getMealTypeColor(meal.mealType)">
+  {{ translateMealType(meal.mealType) }}
+</span>
+                </div>
+
+                <div class="meal-card-main-content">
+                  <h4 class="text-meal-name-updated">{{ meal.name }}</h4>
+
+                  <div class="meal-calories-badge-row">
+                    <img src="assets/images/calories.png" class="meal-cal-icon-img" alt="Calories" />
+                    <span class="meal-cal-val-num">{{ meal.calories }}</span>
+<span class="meal-cal-lbl-text">{{ t.translate('nutrition.kcal') }}</span>
+                  </div>
+
+                  <div class="meal-macros-horizontal-pills">
+                    <div class="macro-pill-item protein-pill">
+                      <img src="assets/images/steack.png" alt="Protein" />
+                      <div class="macro-pill-meta">
+                        <span class="pill-amount">{{ meal.proteinGrams }}g</span>
+                        <span class="pill-label">{{ t.translate('nutrition.protein') }}</span>
+                      </div>
+                    </div>
+
+                    <div class="macro-pill-item carbs-pill">
+                      <img src="assets/images/bread.png" alt="Carbs" />
+                      <div class="macro-pill-meta">
+                        <span class="pill-amount">{{ meal.carbsGrams }}g</span>
+                        <span class="pill-label">{{ t.translate('nutrition.carbs') }}</span>
+                      </div>
+                    </div>
+
+                    <div class="macro-pill-item fat-pill">
+                      <img src="assets/images/trans-fat.png" alt="Fat" />
+                      <div class="macro-pill-meta">
+                        <span class="pill-amount">{{ meal.fatGrams }}g</span>
+                        <span class="pill-label">{{ t.translate('nutrition.fat') }}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  @if (meal.ingredients) {
+                    <div class="meal-ingredients-tags-flex">
+                      @for (item of meal.ingredients.split(','); track item) {
+                        <span class="meal-ingredient-tag-item">
+                          {{ item.trim() }}
+                        </span>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      @else if (view() === 'meal-detail' && selectedMeal(); as meal) {
+        <div class="detail-header">
+          <button class="btn-back" (click)="goBack()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            {{ t.translate('nutrition.backToPlan') }}
+          </button>
+        </div>
+
+        <div class="meal-detail-card">
+          <div class="meal-detail-top">
+            <div class="meal-type-badge lg" [class]="getMealTypeColor(meal.mealType)">
+              <span>{{ translateMealType(meal.mealType) }}</span>
+            </div>
+            <h2 class="meal-detail-name">{{ meal.name }}</h2>
+          </div>
+
+          <div class="meal-cal-hero">
+            <span class="meal-cal-num">{{ meal.calories }}</span>
+            <span class="meal-cal-label">{{ t.translate('nutrition.kcal') }}</span>
+          </div>
+
+          <div class="meal-macro-grid">
+            <div class="meal-macro-card protein-card">
+              <span class="meal-macro-val">{{ meal.proteinGrams }}g</span>
+              <span class="meal-macro-lbl">{{ t.translate('nutrition.protein') }}</span>
+            </div>
+            <div class="meal-macro-card carbs-card">
+              <span class="meal-macro-val">{{ meal.carbsGrams }}g</span>
+              <span class="meal-macro-lbl">{{ t.translate('nutrition.carbs') }}</span>
+            </div>
+            <div class="meal-macro-card fat-card">
+              <span class="meal-macro-val">{{ meal.fatGrams }}g</span>
+              <span class="meal-macro-lbl">{{ t.translate('nutrition.fat') }}</span>
+            </div>
+          </div>
+
+          @if (meal.ingredients) {
+            <div class="ingredients-section">
+              <h3 class="ingredients-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                  <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+                  <rect x="9" y="3" width="6" height="4" rx="2"/>
+                </svg>
+                {{ t.translate('nutrition.ingredients') }}
+              </h3>
+              <div class="ingredients-list">
+                @for (item of meal.ingredients.split(','); track item) {
+                  <span class="ingredient-tag">{{ item.trim() }}</span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+</div>
