@@ -1,7 +1,8 @@
-import { Component, input, computed, signal } from '@angular/core';
+import { Component, input, computed, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { BookingDto } from '../../../features/QR/qr.model';
+import { TranslationService } from '../../../core/services/translation.service';
 
 interface CalendarDay {
   day: number;
@@ -19,19 +20,27 @@ interface CalendarDay {
   styleUrl: './booking-calendar.css'
 })
 export class BookingCalendarComponent {
+  private translationService = inject(TranslationService);
+
   bookings = input<BookingDto[]>([]);
-  
+
   currentDate = new Date();
-  
+
   monthName = computed(() => {
-    return this.currentDate.toLocaleString('default', { month: 'long' });
+    const lang = this.translationService.currentLang();
+    return this.currentDate.toLocaleString(lang === 'ar' ? 'ar-EG' : 'en-US', { month: 'long' });
   });
 
   year = computed(() => {
     return this.currentDate.getFullYear();
   });
 
-  daysOfWeek = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+  daysOfWeek = computed(() => {
+    const lang = this.translationService.currentLang();
+    return lang === 'ar'
+      ? ['ح', 'ن', 'ث', 'ر', 'خ', 'ج', 'س']
+      : ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+  });
 
   calendarDays = computed(() => {
     const year = this.currentDate.getFullYear();
@@ -67,7 +76,7 @@ export class BookingCalendarComponent {
       dayBookings.forEach(b => {
         const isConfirmed = b.status === 1 || b.status === '1' || b.status === 'Confirmed';
         const isCancelled = b.status === 2 || b.status === '2' || b.status === 'Cancelled';
-        
+
         if (isCancelled) {
           hasPast = true;
         } else if (isConfirmed) {

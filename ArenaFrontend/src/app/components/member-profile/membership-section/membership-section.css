@@ -23,7 +23,7 @@
 
 .section-header-left i {
   font-size: 18px;
-  color: #D4FA24;
+  color: #C6EF2E;
 }
 
 .section-header h2 {
@@ -52,12 +52,12 @@
 
 .status-indicator.active {
   color: #0F172A;
-  background: rgba(212, 250, 36, 0.15);
+  background: rgba(198, 239, 46, 0.15);
   opacity: 1;
 }
 
 .status-indicator.active i {
-  color: #D4FA24;
+  color: #C6EF2E;
 }
 
 .membership-body {
@@ -72,14 +72,14 @@
   align-items: center;
   gap: 14px;
   padding: 16px;
-  background: rgba(212, 250, 36, 0.06);
+  background: rgba(198, 239, 46, 0.06);
   border-radius: 12px;
 }
 
 .plan-icon {
   width: 44px;
   height: 44px;
-  background: #D4FA24;
+  background: #C6EF2E;
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -108,7 +108,7 @@
 }
 
 .info-item > i {
-  color: #D4FA24;
+  color: #C6EF2E;
   font-size: 14px;
   margin-top: 2px;
   width: 16px;
@@ -169,7 +169,7 @@
 }
 
 .features-list li i {
-  color: #D4FA24;
+  color: #C6EF2E;
   font-size: 13px;
   opacity: 1;
 }
@@ -186,7 +186,7 @@
 .empty-state i {
   font-size: 32px;
   margin-bottom: 12px;
-  color: #D4FA24;
+  color: #C6EF2E;
   opacity: 0.5;
 }
 
