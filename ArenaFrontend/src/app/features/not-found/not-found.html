@@ -1,0 +1,25 @@
+<div class="nf">
+  <!-- drifting gradient mesh -->
+  <span class="nf-blob nf-blob-1" aria-hidden="true"></span>
+  <span class="nf-blob nf-blob-2" aria-hidden="true"></span>
+
+  <span class="nf-glow" aria-hidden="true"></span>
+
+  <div class="nf-inner">
+    <span class="nf-kicker">{{ 'notFound.kicker' | translate }}</span>
+    <h1 class="nf-code">404</h1>
+    <h2 class="nf-title">{{ 'notFound.title' | translate }}</h2>
+    <p class="nf-sub">{{ 'notFound.subtitle' | translate }}</p>
+
+    <div class="nf-actions">
+      <a routerLink="/" class="nf-btn nf-btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12" />
+          <polyline points="12 19 5 12 12 5" />
+        </svg>
+        {{ 'notFound.returnHome' | translate }}
+      </a>
+      <a routerLink="/dashboard" class="nf-btn nf-btn-ghost">{{ 'notFound.dashboard' | translate }}</a>
+    </div>
+  </div>
+</div>

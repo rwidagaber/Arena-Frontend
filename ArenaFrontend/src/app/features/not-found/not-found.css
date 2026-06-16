@@ -1,0 +1,224 @@
+:host { display: block; }
+
+.nf {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  background:
+    radial-gradient(1100px 720px at 12% -6%, rgba(198, 239, 46, 0.10), transparent 52%),
+    radial-gradient(900px 720px at 90% 106%, rgba(129, 140, 248, 0.09), transparent 52%),
+    linear-gradient(180deg, #ffffff 0%, #eff1ec 100%);
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+/* masked dot grid */
+.nf::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: radial-gradient(circle, rgba(16, 19, 27, 0.06) 1px, transparent 1px);
+  background-size: 26px 26px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 74% at 50% 44%, #000 0%, transparent 78%);
+  mask-image: radial-gradient(ellipse 80% 74% at 50% 44%, #000 0%, transparent 78%);
+  pointer-events: none;
+}
+
+/* soft center glow that gently breathes */
+.nf-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(680px 440px at 50% 10%, rgba(198, 239, 46, 0.10), transparent 60%);
+  pointer-events: none;
+  animation: nfPulse 7s ease-in-out infinite;
+}
+@keyframes nfPulse { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+
+/* drifting gradient-mesh blobs */
+.nf-blob {
+  position: absolute;
+  z-index: 0;
+  border-radius: 50%;
+  filter: blur(90px);
+  pointer-events: none;
+  will-change: transform;
+}
+.nf-blob-1 { width: 480px; height: 480px; background: rgba(198, 239, 46, 0.26); top: -170px; left: -110px; animation: nfDrift1 15s ease-in-out infinite; }
+.nf-blob-2 { width: 420px; height: 420px; background: rgba(129, 140, 248, 0.18); bottom: -170px; right: -90px; animation: nfDrift2 18s ease-in-out infinite; }
+
+@keyframes nfDrift1 { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(60px, 44px) scale(1.08); } }
+@keyframes nfDrift2 { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-52px, -32px) scale(1.1); } }
+
+/* ── content ── */
+.nf-inner {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  max-width: 540px;
+}
+
+/* choreographed staggered entrance */
+.nf-inner > * {
+  opacity: 0;
+  animation: nfRise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.nf-kicker  { animation-delay: 0.05s; }
+.nf-title   { animation-delay: 0.30s; }
+.nf-sub     { animation-delay: 0.40s; }
+.nf-actions { animation-delay: 0.50s; }
+
+@keyframes nfRise {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.nf-kicker {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: #4d7c0f;
+  margin-bottom: 6px;
+}
+
+.nf-code {
+  margin: 0;
+  font-size: clamp(116px, 27vw, 210px);
+  font-weight: 800;
+  line-height: 0.88;
+  letter-spacing: -0.045em;
+  /* layer 1: travelling shine · layer 2: lime-dipped base — both clipped to the glyphs */
+  background:
+    linear-gradient(100deg, transparent 36%, rgba(255, 255, 255, 0.85) 50%, transparent 64%),
+    linear-gradient(180deg, #10131B 0%, #2b3140 76%, #C6EF2E 76%);
+  background-size: 280% 100%, 100% 100%;
+  background-position: 200% 0, 0 0;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #10131B;
+  /* runs alongside the entrance (different properties, no conflict) */
+  animation: nfRise 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.16s both,
+             nfSweep 5.5s ease-in-out 1s infinite;
+}
+
+@keyframes nfSweep {
+  0%        { background-position: 200% 0, 0 0; }
+  55%, 100% { background-position: -120% 0, 0 0; }
+}
+
+.nf-title {
+  margin: 14px 0 12px;
+  font-size: clamp(22px, 4vw, 30px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #181818;
+}
+
+.nf-sub {
+  margin: 0 auto 30px;
+  max-width: 420px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: #6b7280;
+}
+
+.nf-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.nf-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 14px 26px;
+  border-radius: 100px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.25s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.nf-btn svg { width: 17px; height: 17px; transition: transform 0.2s ease; }
+
+.nf-btn-primary {
+  background: #C6EF2E;
+  color: #15240a;
+  box-shadow: 0 12px 28px -8px rgba(198, 239, 46, 0.5);
+}
+.nf-btn-primary:hover {
+  transform: translateY(-2px);
+  background: #b8e018;
+  box-shadow: 0 16px 34px -8px rgba(198, 239, 46, 0.6);
+}
+.nf-btn-primary:hover svg { transform: translateX(-3px); }
+
+.nf-btn-ghost {
+  background: rgba(16, 19, 27, 0.04);
+  color: #181818;
+  border: 1px solid rgba(16, 19, 27, 0.1);
+}
+.nf-btn-ghost:hover {
+  transform: translateY(-2px);
+  background: rgba(16, 19, 27, 0.07);
+}
+
+/* ── Dark theme ── */
+:host-context([data-theme="dark"]) .nf {
+  background:
+    radial-gradient(1100px 720px at 12% -6%, rgba(198, 239, 46, 0.08), transparent 52%),
+    radial-gradient(900px 720px at 90% 106%, rgba(129, 140, 248, 0.08), transparent 52%),
+    linear-gradient(180deg, #161a24 0%, #10131B 100%);
+}
+:host-context([data-theme="dark"]) .nf::before {
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+}
+:host-context([data-theme="dark"]) .nf-code {
+  background:
+    linear-gradient(100deg, transparent 36%, rgba(198, 239, 46, 0.7) 50%, transparent 64%),
+    linear-gradient(180deg, #ffffff 0%, #aab1c0 76%, #C6EF2E 76%);
+  background-size: 280% 100%, 100% 100%;
+  background-position: 200% 0, 0 0;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+:host-context([data-theme="dark"]) .nf-title { color: #f1f5f9; }
+:host-context([data-theme="dark"]) .nf-sub { color: rgba(255, 255, 255, 0.55); }
+:host-context([data-theme="dark"]) .nf-btn-ghost {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+:host-context([data-theme="dark"]) .nf-btn-ghost:hover { background: rgba(255, 255, 255, 0.12); }
+
+/* ── responsive ── */
+@media (max-width: 640px) {
+  .nf { padding: 28px 20px; }
+  .nf-code { font-size: clamp(96px, 32vw, 170px); }
+  .nf-sub { font-size: 14px; }
+}
+
+@media (max-width: 420px) {
+  .nf-actions { flex-direction: column; width: 100%; max-width: 280px; margin: 0 auto; }
+  .nf-btn { width: 100%; justify-content: center; }
+}
+
+/* ── reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .nf-inner > *, .nf-code, .nf-blob, .nf-glow { animation: none !important; opacity: 1; transform: none; }
+  .nf-code { background-position: -120% 0, 0 0; }
+}
