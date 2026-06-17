@@ -2,8 +2,8 @@
 <div class="booking-hero">
   <!-- Slideshow Background -->
   <div class="hero-slideshow">
-    @for (slide of currentSlides(); track $index) {
-      <div class="hero-slide" [class.active]="$index === activeSlideIndex()">
+    @for (slide of allSlides; track $index) {
+      <div class="hero-slide" [class.active]="$index === activeGlobalIndex()">
         <img [src]="slide.image" alt="Gym Background" class="hero-slide-image" />
       </div>
     }
@@ -105,10 +105,44 @@
 
           @if (upcomingBookings().length > 0) {
           <div class="bookings-grid">
-            @for (booking of upcomingBookings(); track booking.id) {
+            @for (booking of pagedUpcoming(); track booking.id) {
             <app-booking-card [booking]="booking" (cancel)="onCancelBooking($event)" />
             }
           </div>
+
+          <!-- Upcoming Pagination -->
+          @if (upcomingPageCount() > 1) {
+          <nav class="pagination" aria-label="Upcoming bookings pages">
+            <button
+              class="pg-btn pg-prev"
+              [disabled]="upcomingPage() === 1"
+              (click)="goToUpcomingPage(upcomingPage() - 1)"
+              aria-label="Previous page">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+
+            <div class="pg-numbers">
+              @for (p of upcomingPages(); track p) {
+              <button
+                class="pg-num"
+                [class.active]="p === upcomingPage()"
+                (click)="goToUpcomingPage(p)"
+                [attr.aria-current]="p === upcomingPage() ? 'page' : null">
+                {{ p }}
+              </button>
+              }
+            </div>
+
+            <button
+              class="pg-btn pg-next"
+              [disabled]="upcomingPage() === upcomingPageCount()"
+              (click)="goToUpcomingPage(upcomingPage() + 1)"
+              aria-label="Next page">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+          </nav>
+          }
+
           } @else {
           <div class="booking-empty-state">
             <div class="empty-icon-wrapper">
@@ -145,10 +179,44 @@
 
           @if (pastBookings().length > 0) {
           <div class="bookings-grid">
-            @for (booking of pastBookings(); track booking.id) {
+            @for (booking of pagedPast(); track booking.id) {
             <app-booking-card [booking]="booking" (cancel)="onCancelBooking($event)" />
             }
           </div>
+
+          <!-- Past Pagination -->
+          @if (pastPageCount() > 1) {
+          <nav class="pagination" aria-label="Past bookings pages">
+            <button
+              class="pg-btn pg-prev"
+              [disabled]="pastPage() === 1"
+              (click)="goToPastPage(pastPage() - 1)"
+              aria-label="Previous page">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+
+            <div class="pg-numbers">
+              @for (p of pastPages(); track p) {
+              <button
+                class="pg-num"
+                [class.active]="p === pastPage()"
+                (click)="goToPastPage(p)"
+                [attr.aria-current]="p === pastPage() ? 'page' : null">
+                {{ p }}
+              </button>
+              }
+            </div>
+
+            <button
+              class="pg-btn pg-next"
+              [disabled]="pastPage() === pastPageCount()"
+              (click)="goToPastPage(pastPage() + 1)"
+              aria-label="Next page">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+          </nav>
+          }
+
           } @else {
           <div class="booking-empty-state">
             <div class="empty-icon-wrapper">
