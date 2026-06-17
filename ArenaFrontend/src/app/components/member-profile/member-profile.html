@@ -1,673 +1,856 @@
 <div class="dash-layout">
-  <app-dashboard-sidebar
-    [activeSection]="activeSection()"
-    (sectionChange)="onSectionChange($event)"
-  />
+  <app-dashboard-sidebar [activeSection]="activeSection()" (sectionChange)="onSectionChange($event)" />
 
   <main class="dash-main">
     <div class="dash-content">
       <div class="dot-indigo"></div>
       <div class="dot-amber"></div>
       @if (error(); as err) {
-        <div class="empty-section">
-          <h3>{{ 'memberProfile.somethingWentWrong' | translate }}</h3>
-          <p>{{ err }}</p>
-          <button class="retry-btn" (click)="loadData()">
-            <span class="svg-icon-wrap" [innerHTML]="getSvgIcon('rotate')"></span>
-            {{ 'memberProfile.retry' | translate }}
-          </button>
-        </div>
+      <div class="empty-section">
+        <h3>{{ 'memberProfile.somethingWentWrong' | translate }}</h3>
+        <p>{{ err }}</p>
+        <button class="retry-btn" (click)="loadData()">
+          <span class="svg-icon-wrap" [innerHTML]="getSvgIcon('rotate')"></span>
+          {{ 'memberProfile.retry' | translate }}
+        </button>
+      </div>
       } @else {
-        @switch (activeSection()) {
-          @case ('profile') {
+      @switch (activeSection()) {
+      @case ('profile') {
 
-            @if (!loading()) {
+      @if (!loading()) {
 
-            <!-- ════════════════════════════════════════
+      <!-- ════════════════════════════════════════
                  HERO  (compact, energetic)
                  ════════════════════════════════════════ -->
-            <section class="hero-section" appReveal style="--hero-delay: 0.05s">
-              <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200&q=80" alt="" class="hero-bg" loading="lazy" />
-              <div class="hero-grain"></div>
-              <div class="hero-glow"></div>
-              <div class="hero-overlay"></div>
-              <div class="hero-body">
-                <div class="hero-avatar-wrap">
-                  @if (profile()?.profileImage) {
-                    <img [src]="profile()?.profileImage" alt="" class="hero-avatar-img" />
-                  } @else {
-                    <div class="hero-avatar-ph">{{ profile()?.firstName?.[0] }}{{ profile()?.lastName?.[0] }}</div>
-                  }
-                </div>
-                <div class="hero-info">
-                  <span class="hero-eyebrow">Athlete Dashboard</span>
-                  <h1 class="hero-title">Good {{ timeOfDay() }}, {{ profile()?.firstName }}</h1>
-                  <p class="hero-sub">{{ sessionsCompletedText() }}</p>
-                  <div class="hero-tags">
-                    <span class="hero-status" [class.status-active]="profile()?.isActive">
-                      <span class="status-pulse"></span>
-                      {{ profile()?.isActive ? 'Active Member' : 'Inactive' }}
-                    </span>
-                    @if (profile()?.activeSubscription?.startDate) {
-                      <span class="hero-since">Member since {{ (profile()?.activeSubscription?.startDate ?? '') | date:'MMM yyyy' }}</span>
-                    }
-                    @if (daysSinceLastWorkout(); as d) {
-                      <span class="hero-focus" [class.hero-recent]="d <= 2" [class.hero-idle]="d > 2">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                        @if (d === 0) { Today } @else if (d === 1) { Yesterday } @else { {{ d }} days ago }
-                      </span>
-                    }
-                  </div>
-                </div>
-              </div>
-              <div class="hero-metrics">
-                <div class="hm-item">
-                  <span class="hm-value">{{ sessionsThisMonth() }}</span>
-                  <span class="hm-label">Sessions</span>
-                </div>
-                <div class="hm-item">
-                  <span class="hm-value">{{ totalWorkouts() }}</span>
-                  <span class="hm-label">Workouts</span>
-                </div>
-                <div class="hm-item">
-                  <span class="hm-value">{{ currentStreak() }}<small>d</small></span>
-                  <span class="hm-label">Streak</span>
-                </div>
-                <div class="hm-item">
-                  <span class="hm-value">{{ membershipProgress() < 100 ? Math.max(0, monthlyTarget() - sessionsThisMonth()) : 0 }}</span>
-                  <span class="hm-label">Left</span>
-                </div>
-                @if (subscriptionDaysRemaining(); as rem) {
-                  <div class="hm-item">
-                    <span class="hm-value">{{ rem }}<small>d</small></span>
-                    <span class="hm-label">Left on Plan</span>
-                  </div>
-                }
-              </div>
-            </section>
+      <section class="hero-section" appReveal style="--hero-delay: 0.05s">
+        <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200&q=80" alt="" class="hero-bg"
+          loading="lazy" />
+        <div class="hero-grain"></div>
+        <div class="hero-glow"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-body">
+          <div class="hero-avatar-wrap">
+            @if (profile()?.profileImage) {
+            <img [src]="profile()?.profileImage" alt="" class="hero-avatar-img" />
+            } @else {
+            <div class="hero-avatar-ph">{{ profile()?.firstName?.[0] }}{{ profile()?.lastName?.[0] }}</div>
+            }
+          </div>
+          <div class="hero-info">
+            <span class="hero-eyebrow">Athlete Dashboard</span>
+            <h1 class="hero-title">Good {{ timeOfDay() }}, {{ profile()?.firstName }}</h1>
+            <p class="hero-sub">{{ sessionsCompletedText() }}</p>
+            <div class="hero-tags">
+              <span class="hero-status" [class.status-active]="profile()?.isActive">
+                <span class="status-pulse"></span>
+                {{ profile()?.isActive ? 'Active Member' : 'Inactive' }}
+              </span>
+              @if (profile()?.activeSubscription?.startDate) {
+              <span class="hero-since">Member since {{ (profile()?.activeSubscription?.startDate ?? '') | date:'MMM
+                yyyy' }}</span>
+              }
+              @if (daysSinceLastWorkout(); as d) {
+              <span class="hero-focus" [class.hero-recent]="d <= 2" [class.hero-idle]="d > 2">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" width="13" height="13">
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12 6 12 12 16 14" />
+                </svg>
+                @if (d === 0) { Today } @else if (d === 1) { Yesterday } @else { {{ d }} days ago }
+              </span>
+              }
+            </div>
+          </div>
+        </div>
+        <div class="hero-metrics">
+          <div class="hm-item">
+            <span class="hm-value">{{ sessionsThisMonth() }}</span>
+            <span class="hm-label">Sessions</span>
+          </div>
+          <div class="hm-item">
+            <span class="hm-value">{{ totalWorkouts() }}</span>
+            <span class="hm-label">Workouts</span>
+          </div>
+          <div class="hm-item">
+            <span class="hm-value">{{ currentStreak() }}<small>d</small></span>
+            <span class="hm-label">Streak</span>
+          </div>
+          <div class="hm-item">
+            <span class="hm-value">{{ membershipProgress() < 100 ? Math.max(0, monthlyTarget() - sessionsThisMonth()) :
+                0 }}</span>
+                <span class="hm-label">Left</span>
+          </div>
+          @if (subscriptionDaysRemaining(); as rem) {
+          <div class="hm-item">
+            <span class="hm-value">{{ rem }}<small>d</small></span>
+            <span class="hm-label">Left on Plan</span>
+          </div>
+          }
+        </div>
+      </section>
 
-            <!-- ════════════════════════════════════════
+      <!-- ════════════════════════════════════════
                  STREAK CELEBRATION BANNER
                  ════════════════════════════════════════ -->
-            <div class="streak-banner" appReveal style="--sb-delay:0.12s">
-              <div class="sb-flame">
-                <span class="sb-flame-icon" [innerHTML]="getSvgIcon(streakMessage().icon)"></span>
-                <span class="sb-flame-count">{{ currentStreak() }}</span>
-              </div>
-              <div class="sb-body">
-                <h2 class="sb-title">{{ streakMessage().title }}</h2>
-                <p class="sb-sub">{{ streakMessage().subtitle }}</p>
-              </div>
-              @if (nextStreakMilestone(); as next) {
-                <div class="sb-milestone">
-                  <div class="sb-ring">
-                    <svg viewBox="0 0 44 44">
-                      <circle class="sb-ring-track" cx="22" cy="22" r="19"/>
-                      <circle class="sb-ring-fill" cx="22" cy="22" r="19"
-                        [attr.stroke-dasharray]="119.38"
-                        [attr.stroke-dashoffset]="119.38 * (1 - Math.min(1, currentStreak() / next.target))"
-                        transform="rotate(-90 22 22)"/>
-                    </svg>
-                    <span class="sb-ring-num">{{ next.remaining }}</span>
-                  </div>
-                  <span class="sb-ring-label">day{{ next.remaining > 1 ? 's' : '' }}<br>to {{ next.target }}d</span>
-                </div>
-              }
-            </div>
+      <div class="streak-banner" appReveal style="--sb-delay:0.12s">
+        <div class="sb-flame">
+          <span class="sb-flame-icon" [innerHTML]="getSvgIcon(streakMessage().icon)"></span>
+          <span class="sb-flame-count">{{ currentStreak() }}</span>
+        </div>
+        <div class="sb-body">
+          <h2 class="sb-title">{{ streakMessage().title }}</h2>
+          <p class="sb-sub">{{ streakMessage().subtitle }}</p>
+        </div>
+        @if (nextStreakMilestone(); as next) {
+        <div class="sb-milestone">
+          <div class="sb-ring">
+            <svg viewBox="0 0 44 44">
+              <circle class="sb-ring-track" cx="22" cy="22" r="19" />
+              <circle class="sb-ring-fill" cx="22" cy="22" r="19" [attr.stroke-dasharray]="119.38"
+                [attr.stroke-dashoffset]="119.38 * (1 - Math.min(1, currentStreak() / next.target))"
+                transform="rotate(-90 22 22)" />
+            </svg>
+            <span class="sb-ring-num">{{ next.remaining }}</span>
+          </div>
+          <span class="sb-ring-label">day{{ next.remaining > 1 ? 's' : '' }}<br>to {{ next.target }}d</span>
+        </div>
+        }
+      </div>
 
-            <!-- ════════════════════════════════════════
+      <!-- ════════════════════════════════════════
                   ACHIEVEMENT BADGES
                   ════════════════════════════════════════ -->
-            <div class="achievements-row" appReveal style="--ach-delay:0.18s">
-              @for (m of streakMilestones(); track m.days) {
-                <div class="ach-badge" [class.ach-locked]="!m.unlocked" [class.ach-unlocked]="m.unlocked">
-                  <span class="ach-icon" [innerHTML]="getSvgIcon(m.icon)"></span>
-                  <span class="ach-label">{{ m.label }}</span>
-                  <span class="ach-check">@if (m.unlocked) { <span class="svg-check" [innerHTML]="getSvgIcon('check')"></span> }</span>
-                </div>
-              }
-            </div>
+      <div class="achievements-row" appReveal style="--ach-delay:0.18s">
+        @for (m of streakMilestones(); track m.days) {
+        <div class="ach-badge" [class.ach-locked]="!m.unlocked" [class.ach-unlocked]="m.unlocked">
+          <span class="ach-icon" [innerHTML]="getSvgIcon(m.icon)"></span>
+          <span class="ach-label">{{ m.label }}</span>
+          <span class="ach-check">@if (m.unlocked) { <span class="svg-check" [innerHTML]="getSvgIcon('check')"></span>
+            }</span>
+        </div>
+        }
+      </div>
 
-            <!-- ════════════════════════════════════════
+      <!-- ════════════════════════════════════════
                   WORKOUT MILESTONES
                   ════════════════════════════════════════ -->
-            <div class="workout-milestones" appReveal style="--ach-delay:0.22s">
-              <div class="wm-label">Workout Milestones</div>
-              <div class="wm-row">
-                @for (m of workoutMilestones(); track m.count) {
-                  <div class="wm-chip" [class.wm-done]="m.unlocked">
-                    <span class="wm-icon">{{ m.icon }}</span>
-                    <span class="wm-count">{{ m.count }}</span>
-                  </div>
-                }
-              </div>
-            </div>
+      <div class="workout-milestones" appReveal style="--ach-delay:0.22s">
+        <div class="wm-label">Workout Milestones</div>
+        <div class="wm-row">
+          @for (m of workoutMilestones(); track m.count) {
+          <div class="wm-chip" [class.wm-done]="m.unlocked">
+            <span class="wm-icon">{{ m.icon }}</span>
+            <span class="wm-count">{{ m.count }}</span>
+          </div>
+          }
+        </div>
+      </div>
 
-            <!-- ════════════════════════════════════════
+      <!-- ════════════════════════════════════════
                   STATS OVERVIEW STRIP
                   ════════════════════════════════════════ -->
-            <div class="stats-strip" style="--ss-delay:0.26s">
-              <div class="ss-card">
-                <div class="ss-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                </div>
-                <div class="ss-body">
-                  <span class="ss-value">{{ totalWorkouts() }}</span>
-                  <span class="ss-label">Total Workouts</span>
-                </div>
-              </div>
-              <div class="ss-card">
-                <div class="ss-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                </div>
-                <div class="ss-body">
-                  <span class="ss-value">{{ currentStreak() }}<small>d</small></span>
-                  <span class="ss-label">Current Streak</span>
-                </div>
-              </div>
-              <div class="ss-card">
-                <div class="ss-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg>
-                </div>
-                <div class="ss-body">
-                  <span class="ss-value">{{ bestStreak() }}<small>d</small></span>
-                  <span class="ss-label">Best Streak</span>
-                </div>
-              </div>
-              <div class="ss-card">
-                <div class="ss-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                </div>
-                <div class="ss-body">
-                  <span class="ss-value">{{ sessionsThisMonth() }}<small>/{{ monthlyTarget() }}</small></span>
-                  <span class="ss-label">This Month</span>
-                </div>
-              </div>
-              @if (subscriptionDaysRemaining(); as rem) {
-                <div class="ss-card">
-                  <div class="ss-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                  </div>
-                  <div class="ss-body">
-                    <span class="ss-value">{{ rem }}<small>d</small></span>
-                    <span class="ss-label">Plan Left</span>
-                  </div>
-                </div>
-              }
-            </div>
+      <div class="stats-strip" style="--ss-delay:0.26s">
+        <div class="ss-card">
+          <div class="ss-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" width="18" height="18">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
+          </div>
+          <div class="ss-body">
+            <span class="ss-value">{{ totalWorkouts() }}</span>
+            <span class="ss-label">Total Workouts</span>
+          </div>
+        </div>
+        <div class="ss-card">
+          <div class="ss-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" width="18" height="18">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+          </div>
+          <div class="ss-body">
+            <span class="ss-value">{{ currentStreak() }}<small>d</small></span>
+            <span class="ss-label">Current Streak</span>
+          </div>
+        </div>
+        <div class="ss-card">
+          <div class="ss-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" width="18" height="18">
+              <path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+          </div>
+          <div class="ss-body">
+            <span class="ss-value">{{ bestStreak() }}<small>d</small></span>
+            <span class="ss-label">Best Streak</span>
+          </div>
+        </div>
+        <div class="ss-card">
+          <div class="ss-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" width="18" height="18">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+          </div>
+          <div class="ss-body">
+            <span class="ss-value">{{ sessionsThisMonth() }}<small>/{{ monthlyTarget() }}</small></span>
+            <span class="ss-label">This Month</span>
+          </div>
+        </div>
+        @if (subscriptionDaysRemaining(); as rem) {
+        <div class="ss-card">
+          <div class="ss-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" width="18" height="18">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+          </div>
+          <div class="ss-body">
+            <span class="ss-value">{{ rem }}<small>d</small></span>
+            <span class="ss-label">Plan Left</span>
+          </div>
+        </div>
+        }
+      </div>
 
-            <!-- ════════════════════════════════════════
+      <!-- ════════════════════════════════════════
                   MAIN CARDS  (flex 2-column)
                   ════════════════════════════════════════ -->
-            <div class="profile-cards" appReveal style="--pg-delay:0.30s">
+      <div class="profile-cards" appReveal style="--pg-delay:0.30s">
 
-              <div class="pc-left">
+        <div class="pc-left">
 
-                <!-- ── BODY STATS  (tall) ── -->
-                <div class="card glass-card pg-body">
-                  <div class="card-hdr">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                    <h3>Your Body</h3>
-                    <button class="card-edit-btn" (click)="openEdit()">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                      Edit
-                    </button>
-                  </div>
-                  <div class="body-stats-grid">
-                    <div class="bs-card">
-                      <div class="bs-icon" style="--bs-iclr:#C6EF2E">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                      </div>
-                      <span class="bs-value">{{ profile()?.weight ?? '—' }} <small>kg</small></span>
-                      <span class="bs-label">Weight</span>
-                      @if (weightChange(); as ch) {
-                        <span class="bs-trend bs-trend-inline" [class.bs-trend-up]="ch > 0" [class.bs-trend-down]="ch < 0">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline [attr.points]="ch > 0 ? '18 15 12 9 6 15' : '6 9 12 15 18 9'"/></svg>
-                          {{ ch > 0 ? '+' : '' }}{{ ch }}kg
-                        </span>
-                      }
-                      <div class="bs-bar" style="--bs-bclr:#C6EF2E;--bs-bw:{{ (profile()?.weight ?? 0) > 0 ? Math.min((profile()?.weight ?? 0) / 150 * 100, 100) + '%' : '4%' }}"></div>
-                    </div>
-                    <div class="bs-card">
-                      <div class="bs-icon" style="--bs-iclr:#9a9a9a">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="12" y1="20" x2="12" y2="4"/><polyline points="6 10 12 4 18 10"/></svg>
-                      </div>
-                      <span class="bs-value">{{ profile()?.height ?? '—' }} <small>cm</small></span>
-                      <span class="bs-label">Height</span>
-                      <div class="bs-bar" style="--bs-bclr:#9a9a9a;--bs-bw:{{ (profile()?.height ?? 0) > 0 ? Math.min((profile()?.height ?? 0) / 220 * 100, 100) + '%' : '4%' }}"></div>
-                    </div>
-                    <div class="bs-card">
-                      <div class="bs-icon" style="--bs-iclr:#C6EF2E">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                      </div>
-                      <span class="bs-value">{{ profile()?.bmi ?? '—' }}</span>
-                      <span class="bs-label">BMI</span>
-                      @if (profile()?.bmi) {
-                        <span class="bs-badge" [class.bs-bad-normal]="(profile()?.bmi ?? 0) >= 18.5 && (profile()?.bmi ?? 0) < 25"
-                              [class.bs-bad-over]="(profile()?.bmi ?? 0) >= 25 && (profile()?.bmi ?? 0) < 30"
-                              [class.bs-bad-obese]="(profile()?.bmi ?? 0) >= 30">
-                          {{ (profile()?.bmi ?? 0) >= 30 ? 'Obese' : (profile()?.bmi ?? 0) >= 25 ? 'Overweight' : (profile()?.bmi ?? 0) >= 18.5 ? 'Normal' : 'Underweight' }}
-                        </span>
-                      }
-                      <div class="bs-bar" style="--bs-bclr:#C6EF2E;--bs-bw:{{ (profile()?.bmi ?? 0) > 0 ? Math.min((profile()?.bmi ?? 0) / 40 * 100, 100) + '%' : '4%' }}"></div>
-                    </div>
-                    <div class="bs-card">
-                      <div class="bs-icon" style="--bs-iclr:#C6EF2E">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                      </div>
-                      <span class="bs-value">{{ (currentBodyFat() ?? '—') }}@if (currentBodyFat(); as bf) { <small>%</small> }</span>
-                      <span class="bs-label">Body Fat</span>
-                      @if (bodyFatChange(); as ch) {
-                        <span class="bs-trend" [class.bs-trend-up]="ch > 0" [class.bs-trend-down]="ch < 0">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline [attr.points]="ch > 0 ? '18 15 12 9 6 15' : '6 9 12 15 18 9'"/></svg>
-                          {{ ch > 0 ? '+' : '' }}{{ ch }}%
-                        </span>
-                      }
-                      <div class="bs-bar" style="--bs-bclr:#C6EF2E;--bs-bw:{{ (currentBodyFat() ?? 0) > 0 ? Math.min(currentBodyFat()! / 40 * 100, 100) + '%' : '4%' }}"></div>
-                    </div>
-                    <div class="bs-card">
-                      <div class="bs-icon" style="--bs-iclr:#9a9a9a">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                      </div>
-                      <span class="bs-value">{{ (currentMuscleMass() ?? '—') }}@if (currentMuscleMass(); as mm) { <small>kg</small> }</span>
-                      <span class="bs-label">Muscle</span>
-                      @if (muscleMassChange(); as ch) {
-                        <span class="bs-trend" [class.bs-trend-up]="ch > 0" [class.bs-trend-down]="ch < 0">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline [attr.points]="ch > 0 ? '18 15 12 9 6 15' : '6 9 12 15 18 9'"/></svg>
-                          {{ ch > 0 ? '+' : '' }}{{ ch }}kg
-                        </span>
-                      }
-                      <div class="bs-bar" style="--bs-bclr:#9a9a9a;--bs-bw:{{ (currentMuscleMass() ?? 0) > 0 ? Math.min(currentMuscleMass()! / 60 * 100, 100) + '%' : '4%' }}"></div>
-                    </div>
-                    <div class="bs-card bs-card-target">
-                      <div class="bs-icon" style="--bs-iclr:#C6EF2E">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-                      </div>
-                      <span class="bs-value">{{ profile()?.targetWeight ?? '—' }}@if (profile()?.targetWeight) { <small>kg</small> }</span>
-                      <span class="bs-label">Target</span>
-                      @if (goalDelta(); as gd) {
-                        <span class="bs-trend bs-trend-down">{{ gd.text }}</span>
-                      } @else {
-                        <span class="bs-trend-set" (click)="openEdit()">Set goal</span>
-                      }
-                      <div class="bs-bar" style="--bs-bclr:#C6EF2E;--bs-bw:{{ (profile()?.targetWeight ?? 0) > 0 ? Math.min((profile()?.targetWeight ?? 0) / 150 * 100, 100) + '%' : '4%' }}"></div>
-                    </div>
-                  </div>
-                  <div class="bs-goal-banner" (click)="openEdit()">
-                    <div class="bs-goal-icon">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-                    </div>
-                    <div class="bs-goal-text">
-                      <span class="bs-goal-label">Fitness Goal</span>
-                      @if (goalLabel() || profile()?.targetWeight) {
-                        <span class="bs-goal-value">{{ goalLabel() ?? 'Goal' }}@if (profile()?.targetWeight; as t) { <span class="bs-goal-sep">·</span> {{ t }} kg target }</span>
-                      } @else {
-                        <span class="bs-goal-value bs-goal-empty">Not set — tap to add a goal</span>
-                      }
-                    </div>
-                    @if (goalDelta(); as gd) {
-                      <span class="bs-goal-delta" [class.reached]="gd.state === 'reached'">{{ gd.text }}</span>
-                    }
-                    <span class="bs-goal-edit">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                    </span>
-                  </div>
-                  @if (profile()?.email || profile()?.phoneNumber) {
-                    <div class="bs-contact">
-                      @if (profile()?.email; as email) {
-                        <span class="bs-contact-item">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                          {{ email }}
-                        </span>
-                      }
-                      @if (profile()?.phoneNumber; as phone) {
-                        <span class="bs-contact-item">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                          {{ phone }}
-                        </span>
-                      }
-                    </div>
-                  }
-                </div>
-
-                <!-- ── FITNESS PULSE  (new, after Your Body) ── -->
-                <div class="card glass-card pg-pulse">
-                  <div class="card-hdr">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                    <h3>Fitness Pulse</h3>
-                  </div>
-                  <div class="pulse-body">
-                    <div class="pulse-ring-wrap">
-                      <svg class="pulse-ring-svg" viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="7"/>
-                        <circle cx="50" cy="50" r="42" fill="none" stroke="#C6EF2E" stroke-width="7"
-                          stroke-linecap="round" [attr.transform]="'rotate(-90 50 50)'"
-                          [attr.stroke-dasharray]="'263.89'"
-                          [attr.stroke-dashoffset]="daysSinceLastWorkout() != null ? 263.89 - (263.89 * Math.max(0, Math.min(100, (1 - daysSinceLastWorkout()! / 14) * 100)) / 100) : 263.89"
-                          style="transition: stroke-dashoffset 1.2s cubic-bezier(0.34, 1.56, 0.64, 1); filter: drop-shadow(0 0 8px rgba(198,239,46,0.20));"/>
-                      </svg>
-                      <div class="pulse-ring-text">
-                        <span class="pulse-val">{{ daysSinceLastWorkout() ?? '—' }}</span>
-                        <span class="pulse-lbl">days ago</span>
-                      </div>
-                    </div>
-                    <div class="pulse-stats">
-                      <div class="pulse-stat">
-                        <div class="pulse-stat-icon">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                        </div>
-                        <div class="pulse-stat-body">
-                          <span class="pulse-stat-val">{{ currentStreak() }}<small>d</small></span>
-                          <span class="pulse-stat-lbl">Streak</span>
-                        </div>
-                      </div>
-                      <div class="pulse-stat">
-                        <div class="pulse-stat-icon">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                        </div>
-                        <div class="pulse-stat-body">
-                          <span class="pulse-stat-val">{{ totalWorkouts() }}</span>
-                          <span class="pulse-stat-lbl">Total</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <button class="pulse-cta">
-                    <span>{{ daysSinceLastWorkout() === 0 ? 'Already trained today!' : daysSinceLastWorkout() === 1 ? 'Missed yesterday — go now!' : 'Start your workout' }}</span>
-                    <span class="pulse-cta-arrow">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                    </span>
-                  </button>
-                </div>
-
-                <!-- ── QUICK ACTIONS ── -->
-                <div class="card glass-card pg-actions">
-                  <div class="card-hdr">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                    <h3>Quick Actions</h3>
-                  </div>
-                  <div class="actions-row">
-                    <button class="action-btn" (click)="onSectionChange('qr')">
-                      <span class="action-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                      </span>
-                      <span class="action-lbl">QR Code</span>
-                    </button>
-                    <button class="action-btn" (click)="onSectionChange('progress')">
-                      <span class="action-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                      </span>
-                      <span class="action-lbl">Progress</span>
-                    </button>
-                    <button class="action-btn" (click)="openEdit()">
-                      <span class="action-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                      </span>
-                      <span class="action-lbl">Edit</span>
-                    </button>
-                  </div>
-                </div>
-
-              </div>
-
-              <div class="pc-right">
-
-                <!-- ── MONTHLY PROGRESS  (compact ring) ── -->
-                <div class="card glass-card pg-monthly">
-                  <div class="card-hdr">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                    <h3>Monthly Progress</h3>
-                  </div>
-                  <div class="mp-body">
-                    <div class="mp-ring-wrap">
-                      <svg class="mp-ring-svg" viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="7"/>
-                        <circle cx="50" cy="50" r="40" fill="none" stroke="#C6EF2E" stroke-width="7"
-                          [attr.stroke-dasharray]="'251.33'"
-                          [attr.stroke-dashoffset]="251.33 - (251.33 * monthlyProgressPercent() / 100)"
-                          stroke-linecap="round" [attr.transform]="'rotate(-90 50 50)'"
-                          style="transition: stroke-dashoffset 1s cubic-bezier(0.34, 1.56, 0.64, 1); filter: drop-shadow(0 0 6px rgba(198,239,46,0.25));"/>
-                      </svg>
-                      <div class="mp-ring-text">
-                        <span class="mp-pct">{{ monthlyProgressPercent() }}%</span>
-                        <span class="mp-lbl">Complete</span>
-                      </div>
-                    </div>
-                    <div class="mp-stats">
-                      <div class="mp-stat">
-                        <span class="mp-stat-val">{{ sessionsThisMonth() }}</span>
-                        <span class="mp-stat-lbl">Done</span>
-                      </div>
-                      <div class="mp-stat">
-                        <span class="mp-stat-val">{{ monthlyTarget() }}</span>
-                        <span class="mp-stat-lbl">Goal</span>
-                      </div>
-                      <div class="mp-stat">
-                        <span class="mp-stat-val">{{ Math.max(0, monthlyTarget() - sessionsThisMonth()) }}</span>
-                        <span class="mp-stat-lbl">Remain</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="mp-sparkline-wrap">
-                    <div class="mp-sparkline-hdr">
-                      <span>Monthly Activity</span>
-                      @if (mostActiveDay(); as mad) {
-                        <span class="mp-mad">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                          Peak: {{ mad.name }} ({{ mad.count }})
-                        </span>
-                      }
-                    </div>
-                    <svg class="mp-sparkline" viewBox="0 0 120 32" preserveAspectRatio="none">
-                      @if (sparklinePath()) {
-                        <path [attr.d]="sparklinePath()" fill="none" stroke="#C6EF2E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      }
-                      @if (sparklinePath()) {
-                        <path [attr.d]="sparklinePath()" fill="url(#sparkGrad)" stroke="none" opacity="0.15"/>
-                      }
-                      <defs>
-                        <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stop-color="#C6EF2E"/>
-                          <stop offset="100%" stop-color="#C6EF2E" stop-opacity="0"/>
-                        </linearGradient>
-                      </defs>
-                    </svg>
-                  </div>
-                  @if (hasProgressLogs()) {
-                    <div class="mp-weight-trend">
-                      <div class="mp-sparkline-hdr">
-                        <span>Weight Trend</span>
-                        @if (weightChange(); as ch) {
-                          <span class="wt-change" [class.wt-up]="ch > 0" [class.wt-down]="ch < 0">
-                            {{ ch > 0 ? '+' : '' }}{{ ch }}kg
-                          </span>
-                        }
-                      </div>
-                      <svg class="mp-sparkline" viewBox="0 0 120 32" preserveAspectRatio="none">
-                        <path [attr.d]="weightTrendPath()" fill="none" stroke="#9a9a9a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path [attr.d]="weightTrendPath()" fill="url(#wtGrad)" stroke="none" opacity="0.15"/>
-                        <defs>
-                          <linearGradient id="wtGrad" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stop-color="#9a9a9a"/>
-                            <stop offset="100%" stop-color="#9a9a9a" stop-opacity="0"/>
-                          </linearGradient>
-                        </defs>
-                      </svg>
-                    </div>
-                  }
-                </div>
-
-                <!-- ── CALENDAR ── -->
-                <div class="card glass-card pg-cal">
-                  <div class="card-hdr">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    <h3>Calendar</h3>
-                  </div>
-                  <div class="cal-grid">
-                    @for (d of calendarDays(); track $index) {
-                      @if (d.day === 0) {
-                        <span class="cal-empty"></span>
-                      } @else {
-                        <span class="cal-day" [class.cal-today]="d.isToday" [class.cal-booked]="d.booked">
-                          {{ d.day }}
-                        </span>
-                      }
-                    }
-                  </div>
-                  <div class="cal-legend">
-                    <span class="cal-legend-item"><span class="cal-dot cal-dot-today"></span> Today</span>
-                    <span class="cal-legend-item"><span class="cal-dot cal-dot-booked"></span> Booked</span>
-                  </div>
-                  <div class="weekly-strip">
-                    <div class="ws-header">
-                      <span>This Week</span>
-                      <span class="ws-badge">{{ weeklySessionCount() }} sessions</span>
-                    </div>
-                    <div class="ws-days">
-                      @for (d of weeklyActivity(); track $index) {
-                        <div class="ws-day" [class.ws-active]="d.active" [class.ws-today]="d.isToday" [style.--ws-delay]="($index * 0.04) + 's'">
-                          <span class="ws-dot"></span>
-                          <span class="ws-lbl">{{ d.label }}</span>
-                        </div>
-                      }
-                    </div>
-                    <div class="ws-compare">
-                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="12" height="12"><polyline points="1 10 5 6 9 10 15 4"/></svg>
-                      <span class="ws-compare-val" [class.ws-up]="weekComparison().change >= 0" [class.ws-down]="weekComparison().change < 0">
-                        {{ weekComparison().change >= 0 ? '+' : '' }}{{ weekComparison().change }} vs last week
-                      </span>
-                    </div>
-                  </div>
-                  <div class="wd-chart">
-                    <div class="ws-header"><span>By Day of Week</span></div>
-                    <div class="wd-bars">
-                      @for (wd of weekdayDistribution(); track wd.label) {
-                        <div class="wd-col">
-                          <div class="wd-bar-wrap">
-                            <div class="wd-bar" [style.height.px]="Math.max(4, (wd.pct / 100) * 36)"></div>
-                          </div>
-                          <span class="wd-lbl">{{ wd.label }}</span>
-                          <span class="wd-count">{{ wd.count }}</span>
-                        </div>
-                      }
-                    </div>
-                  </div>
-                </div>
-
-                <!-- ── QUOTE ── -->
-                <div class="quote-card pg-quote">
-                  <div class="q-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
-                  </div>
-                  <p class="q-text">{{ dailyQuote().text }}</p>
-                </div>
-
-              </div>
-
+          <!-- ── BODY STATS  (tall) ── -->
+          <div class="card glass-card pg-body">
+            <div class="card-hdr">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" width="16" height="16">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+              <h3>Your Body</h3>
+              <button class="card-edit-btn" (click)="openEdit()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" width="13" height="13">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg>
+                Edit
+              </button>
             </div>
-
-            <!-- ════════════════════════════════════════
-                 BOTTOM: MEMBERSHIP + RECENT WORKOUTS
-                 ════════════════════════════════════════ -->
-            <div class="bottom-zone" appReveal style="--bz-delay:0.32s">
-              <app-membership-section [membership]="mappedMembership()" [subscription]="profile()?.activeSubscription ?? null" [loading]="loading()" />
-              <app-recent-workouts [workouts]="recentWorkouts()" [loading]="loading()" />
-            </div>
-
-            } @else {
-
-            <!-- ════ LOADING SKELETON ════ -->
-            <section class="hero-section hero-skeleton">
-              <div class="hero-grain"></div>
-              <div class="hero-overlay"></div>
-              <div class="hero-body">
-                <div class="hero-avatar-wrap"><div class="skeleton-circle"></div></div>
-                <div class="hero-info">
-                  <div class="skeleton-line skeleton-line-sm"></div>
-                  <div class="skeleton-line skeleton-line-lg"></div>
-                  <div class="skeleton-line skeleton-line-md"></div>
+            <div class="body-stats-grid">
+              <div class="bs-card">
+                <div class="bs-icon" style="--bs-iclr:#C6EF2E">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" width="18" height="18">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 6v6l4 2" />
+                  </svg>
+                </div>
+                <span class="bs-value">{{ profile()?.weight ?? '—' }} <small>kg</small></span>
+                <span class="bs-label">Weight</span>
+                @if (weightChange(); as ch) {
+                <span class="bs-trend bs-trend-inline" [class.bs-trend-up]="ch > 0" [class.bs-trend-down]="ch < 0">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" width="12" height="12">
+                    <polyline [attr.points]="ch > 0 ? '18 15 12 9 6 15' : '6 9 12 15 18 9'" />
+                  </svg>
+                  {{ ch > 0 ? '+' : '' }}{{ ch }}kg
+                </span>
+                }
+                <div class="bs-bar"
+                  style="--bs-bclr:#C6EF2E;--bs-bw:{{ (profile()?.weight ?? 0) > 0 ? Math.min((profile()?.weight ?? 0) / 150 * 100, 100) + '%' : '4%' }}">
                 </div>
               </div>
-              <div class="hero-metrics">
-                @for (_ of [1,2,3,4,5]; track $index) {
-                  <div class="hm-item"><div class="skeleton-line" style="height:18px;width:28px;border-radius:4px"></div></div>
+              <div class="bs-card">
+                <div class="bs-icon" style="--bs-iclr:#9a9a9a">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" width="18" height="18">
+                    <line x1="12" y1="20" x2="12" y2="4" />
+                    <polyline points="6 10 12 4 18 10" />
+                  </svg>
+                </div>
+                <span class="bs-value">{{ profile()?.height ?? '—' }} <small>cm</small></span>
+                <span class="bs-label">Height</span>
+                <div class="bs-bar"
+                  style="--bs-bclr:#9a9a9a;--bs-bw:{{ (profile()?.height ?? 0) > 0 ? Math.min((profile()?.height ?? 0) / 220 * 100, 100) + '%' : '4%' }}">
+                </div>
+              </div>
+              <div class="bs-card">
+                <div class="bs-icon" style="--bs-iclr:#C6EF2E">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" width="18" height="18">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                  </svg>
+                </div>
+                <span class="bs-value">{{ profile()?.bmi ?? '—' }}</span>
+                <span class="bs-label">BMI</span>
+                @if (profile()?.bmi) {
+                <span class="bs-badge"
+                  [class.bs-bad-normal]="(profile()?.bmi ?? 0) >= 18.5 && (profile()?.bmi ?? 0) < 25"
+                  [class.bs-bad-over]="(profile()?.bmi ?? 0) >= 25 && (profile()?.bmi ?? 0) < 30"
+                  [class.bs-bad-obese]="(profile()?.bmi ?? 0) >= 30">
+                  {{ (profile()?.bmi ?? 0) >= 30 ? 'Obese' : (profile()?.bmi ?? 0) >= 25 ? 'Overweight' :
+                  (profile()?.bmi ?? 0) >= 18.5 ? 'Normal' : 'Underweight' }}
+                </span>
+                }
+                <div class="bs-bar"
+                  style="--bs-bclr:#C6EF2E;--bs-bw:{{ (profile()?.bmi ?? 0) > 0 ? Math.min((profile()?.bmi ?? 0) / 40 * 100, 100) + '%' : '4%' }}">
+                </div>
+              </div>
+              <div class="bs-card">
+                <div class="bs-icon" style="--bs-iclr:#C6EF2E">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" width="18" height="18">
+                    <path
+                      d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                  </svg>
+                </div>
+                <span class="bs-value">{{ (currentBodyFat() ?? '—') }}@if (currentBodyFat(); as bf) { <small>%</small>
+                  }</span>
+                <span class="bs-label">Body Fat</span>
+                @if (bodyFatChange(); as ch) {
+                <span class="bs-trend" [class.bs-trend-up]="ch > 0" [class.bs-trend-down]="ch < 0">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" width="12" height="12">
+                    <polyline [attr.points]="ch > 0 ? '18 15 12 9 6 15' : '6 9 12 15 18 9'" />
+                  </svg>
+                  {{ ch > 0 ? '+' : '' }}{{ ch }}%
+                </span>
+                }
+                <div class="bs-bar"
+                  style="--bs-bclr:#C6EF2E;--bs-bw:{{ (currentBodyFat() ?? 0) > 0 ? Math.min(currentBodyFat()! / 40 * 100, 100) + '%' : '4%' }}">
+                </div>
+              </div>
+              <div class="bs-card">
+                <div class="bs-icon" style="--bs-iclr:#9a9a9a">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" width="18" height="18">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                </div>
+                <span class="bs-value">{{ (currentMuscleMass() ?? '—') }}@if (currentMuscleMass(); as mm) {
+                  <small>kg</small> }</span>
+                <span class="bs-label">Muscle</span>
+                @if (muscleMassChange(); as ch) {
+                <span class="bs-trend" [class.bs-trend-up]="ch > 0" [class.bs-trend-down]="ch < 0">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" width="12" height="12">
+                    <polyline [attr.points]="ch > 0 ? '18 15 12 9 6 15' : '6 9 12 15 18 9'" />
+                  </svg>
+                  {{ ch > 0 ? '+' : '' }}{{ ch }}kg
+                </span>
+                }
+                <div class="bs-bar"
+                  style="--bs-bclr:#9a9a9a;--bs-bw:{{ (currentMuscleMass() ?? 0) > 0 ? Math.min(currentMuscleMass()! / 60 * 100, 100) + '%' : '4%' }}">
+                </div>
+              </div>
+              <div class="bs-card bs-card-target">
+                <div class="bs-icon" style="--bs-iclr:#C6EF2E">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" width="18" height="18">
+                    <circle cx="12" cy="12" r="10" />
+                    <circle cx="12" cy="12" r="6" />
+                    <circle cx="12" cy="12" r="2" />
+                  </svg>
+                </div>
+                <span class="bs-value">{{ profile()?.targetWeight ?? '—' }}@if (profile()?.targetWeight) {
+                  <small>kg</small> }</span>
+                <span class="bs-label">Target</span>
+                @if (goalDelta(); as gd) {
+                <span class="bs-trend bs-trend-down">{{ gd.text }}</span>
+                } @else {
+                <span class="bs-trend-set" (click)="openEdit()">Set goal</span>
+                }
+                <div class="bs-bar"
+                  style="--bs-bclr:#C6EF2E;--bs-bw:{{ (profile()?.targetWeight ?? 0) > 0 ? Math.min((profile()?.targetWeight ?? 0) / 150 * 100, 100) + '%' : '4%' }}">
+                </div>
+              </div>
+            </div>
+            <div class="bs-goal-banner" (click)="openEdit()">
+              <div class="bs-goal-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" width="18" height="18">
+                  <circle cx="12" cy="12" r="10" />
+                  <circle cx="12" cy="12" r="6" />
+                  <circle cx="12" cy="12" r="2" />
+                </svg>
+              </div>
+              <div class="bs-goal-text">
+                <span class="bs-goal-label">Fitness Goal</span>
+                @if (goalLabel() || profile()?.targetWeight) {
+                <span class="bs-goal-value">{{ goalLabel() ?? 'Goal' }}@if (profile()?.targetWeight; as t) { <span
+                    class="bs-goal-sep">·</span> {{ t }} kg target }</span>
+                } @else {
+                <span class="bs-goal-value bs-goal-empty">Not set — tap to add a goal</span>
                 }
               </div>
-            </section>
-            <div class="streak-banner"><div class="skeleton-block" style="min-height:100px"></div></div>
-            <div class="achievements-row">
-              @for (_ of [1,2,3,4,5]; track $index) {
-                <div class="skeleton-block" style="height:60px;width:70px;border-radius:12px"></div>
+              @if (goalDelta(); as gd) {
+              <span class="bs-goal-delta" [class.reached]="gd.state === 'reached'">{{ gd.text }}</span>
               }
+              <span class="bs-goal-edit">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" width="14" height="14">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg>
+              </span>
             </div>
-            <div class="stats-strip">
-              @for (_ of [1,2,3,4,5]; track $index) {
-                <div class="skeleton-block" style="height:56px;border-radius:12px;flex:1"></div>
+            @if (profile()?.email || profile()?.phoneNumber) {
+            <div class="bs-contact">
+              @if (profile()?.email; as email) {
+              <span class="bs-contact-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" width="13" height="13">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                  <polyline points="22,6 12,13 2,6" />
+                </svg>
+                {{ email }}
+              </span>
               }
-            </div>
-            <div class="profile-cards" style="--pg-delay:0s">
-              <div class="pc-left">
-                <div class="card glass-card"><div class="skeleton-block" style="min-height:200px"></div></div>
-                <div class="card glass-card"><div class="skeleton-block" style="min-height:120px"></div></div>
-              </div>
-              <div class="pc-right">
-                <div class="card glass-card"><div class="skeleton-block" style="min-height:140px"></div></div>
-                <div class="card glass-card"><div class="skeleton-block" style="min-height:140px"></div></div>
-                <div class="card glass-card"><div class="skeleton-block" style="min-height:80px"></div></div>
-                <div class="card glass-card pg-quote"><div class="skeleton-block" style="min-height:50px"></div></div>
-              </div>
-            </div>
-            <div class="bottom-zone">
-              <div class="card glass-card"><div class="skeleton-line skeleton-hdr"></div><div class="skeleton-block" style="min-height:100px"></div></div>
+              @if (profile()?.phoneNumber; as phone) {
+              <span class="bs-contact-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" width="13" height="13">
+                  <path
+                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                </svg>
+                {{ phone }}
+              </span>
+              }
             </div>
             }
-          }
-           @case ('qr') {
-            <app-qr-display [memberProfileId]="profile()?.memberProfileId || profile()?.id || ''" />
-          }
+          </div>
 
-          @case ('workout') {
-            <div class="section-placeholder">
-              <div class="placeholder-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5 17.5 17.5M6.5 17.5 17.5 6.5"/><line x1="6" y1="12" x2="18" y2="12"/></svg>
-              </div>
-              <h2>{{ 'sidebar.myWorkouts' | translate }}</h2>
-              <p>{{ 'section.workoutPlaceholder' | translate }}</p>
+          <!-- ── FITNESS PULSE  (new, after Your Body) ── -->
+          <div class="card glass-card pg-pulse">
+            <div class="card-hdr">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" width="16" height="16">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+              </svg>
+              <h3>Fitness Pulse</h3>
             </div>
-          }
-
-         @case ('diet') {
-  <div class="section-placeholder">
-    <app-nutritionplan
-      [memberProfileId]="profile()?.memberProfileId || profile()?.id || ''"
-    />
-  </div>
-}
-
-          @case ('membership') {
-            <div class="section-placeholder">
-              <div class="placeholder-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg>
+            <div class="pulse-body">
+              <div class="pulse-ring-wrap">
+                <svg class="pulse-ring-svg" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="7" />
+                  <circle cx="50" cy="50" r="42" fill="none" stroke="#C6EF2E" stroke-width="7" stroke-linecap="round"
+                    [attr.transform]="'rotate(-90 50 50)'" [attr.stroke-dasharray]="'263.89'"
+                    [attr.stroke-dashoffset]="daysSinceLastWorkout() != null ? 263.89 - (263.89 * Math.max(0, Math.min(100, (1 - daysSinceLastWorkout()! / 14) * 100)) / 100) : 263.89"
+                    style="transition: stroke-dashoffset 1.2s cubic-bezier(0.34, 1.56, 0.64, 1); filter: drop-shadow(0 0 8px rgba(198,239,46,0.20));" />
+                </svg>
+                <div class="pulse-ring-text">
+                  <span class="pulse-val">{{ daysSinceLastWorkout() ?? '—' }}</span>
+                  <span class="pulse-lbl">days ago</span>
+                </div>
               </div>
-              <h2>{{ 'sidebar.membershipBilling' | translate }}</h2>
-              <p>{{ 'section.workoutPlaceholder' | translate }}</p>
-            </div>
-          }
-
-          @case ('progress') {
-            <app-progress-report />
-          }
-
-          @case ('settings') {
-            <div class="section-placeholder">
-              <div class="placeholder-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              <div class="pulse-stats">
+                <div class="pulse-stat">
+                  <div class="pulse-stat-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round" width="16" height="16">
+                      <path
+                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                  </div>
+                  <div class="pulse-stat-body">
+                    <span class="pulse-stat-val">{{ currentStreak() }}<small>d</small></span>
+                    <span class="pulse-stat-lbl">Streak</span>
+                  </div>
+                </div>
+                <div class="pulse-stat">
+                  <div class="pulse-stat-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round" width="16" height="16">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
+                  </div>
+                  <div class="pulse-stat-body">
+                    <span class="pulse-stat-val">{{ totalWorkouts() }}</span>
+                    <span class="pulse-stat-lbl">Total</span>
+                  </div>
+                </div>
               </div>
-              <h2>{{ 'sidebar.settings' | translate }}</h2>
-              <p>{{ 'section.settingsPlaceholder' | translate }}</p>
             </div>
+            <button class="pulse-cta">
+              <span>{{ daysSinceLastWorkout() === 0 ? 'Already trained today!' : daysSinceLastWorkout() === 1 ? 'Missed
+                yesterday — go now!' : 'Start your workout' }}</span>
+              <span class="pulse-cta-arrow">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                  stroke-linejoin="round" width="14" height="14">
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
+              </span>
+            </button>
+          </div>
+
+          <!-- ── QUICK ACTIONS ── -->
+          <div class="card glass-card pg-actions">
+            <div class="card-hdr">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" width="16" height="16">
+                <circle cx="12" cy="12" r="3" />
+                <path
+                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+              </svg>
+              <h3>Quick Actions</h3>
+            </div>
+            <div class="actions-row">
+              <button class="action-btn" (click)="onSectionChange('qr')">
+                <span class="action-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" width="16" height="16">
+                    <rect x="3" y="3" width="7" height="7" />
+                    <rect x="14" y="3" width="7" height="7" />
+                    <rect x="14" y="14" width="7" height="7" />
+                    <rect x="3" y="14" width="7" height="7" />
+                  </svg>
+                </span>
+                <span class="action-lbl">QR Code</span>
+              </button>
+              <button class="action-btn" (click)="onSectionChange('progress')">
+                <span class="action-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" width="16" height="16">
+                    <line x1="18" y1="20" x2="18" y2="10" />
+                    <line x1="12" y1="20" x2="12" y2="4" />
+                    <line x1="6" y1="20" x2="6" y2="14" />
+                  </svg>
+                </span>
+                <span class="action-lbl">Progress</span>
+              </button>
+              <button class="action-btn" (click)="openEdit()">
+                <span class="action-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" width="16" height="16">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                  </svg>
+                </span>
+                <span class="action-lbl">Edit</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="pc-right">
+
+          <!-- ── MONTHLY PROGRESS  (compact ring) ── -->
+          <div class="card glass-card pg-monthly">
+            <div class="card-hdr">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" width="16" height="16">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+              </svg>
+              <h3>Monthly Progress</h3>
+            </div>
+            <div class="mp-body">
+              <div class="mp-ring-wrap">
+                <svg class="mp-ring-svg" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="7" />
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="#C6EF2E" stroke-width="7"
+                    [attr.stroke-dasharray]="'251.33'"
+                    [attr.stroke-dashoffset]="251.33 - (251.33 * monthlyProgressPercent() / 100)" stroke-linecap="round"
+                    [attr.transform]="'rotate(-90 50 50)'"
+                    style="transition: stroke-dashoffset 1s cubic-bezier(0.34, 1.56, 0.64, 1); filter: drop-shadow(0 0 6px rgba(198,239,46,0.25));" />
+                </svg>
+                <div class="mp-ring-text">
+                  <span class="mp-pct">{{ monthlyProgressPercent() }}%</span>
+                  <span class="mp-lbl">Complete</span>
+                </div>
+              </div>
+              <div class="mp-stats">
+                <div class="mp-stat">
+                  <span class="mp-stat-val">{{ sessionsThisMonth() }}</span>
+                  <span class="mp-stat-lbl">Done</span>
+                </div>
+                <div class="mp-stat">
+                  <span class="mp-stat-val">{{ monthlyTarget() }}</span>
+                  <span class="mp-stat-lbl">Goal</span>
+                </div>
+                <div class="mp-stat">
+                  <span class="mp-stat-val">{{ Math.max(0, monthlyTarget() - sessionsThisMonth()) }}</span>
+                  <span class="mp-stat-lbl">Remain</span>
+                </div>
+              </div>
+            </div>
+            <div class="mp-sparkline-wrap">
+              <div class="mp-sparkline-hdr">
+                <span>Monthly Activity</span>
+                @if (mostActiveDay(); as mad) {
+                <span class="mp-mad">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" width="11" height="11">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                  </svg>
+                  Peak: {{ mad.name }} ({{ mad.count }})
+                </span>
+                }
+              </div>
+              <svg class="mp-sparkline" viewBox="0 0 120 32" preserveAspectRatio="none">
+                @if (sparklinePath()) {
+                <path [attr.d]="sparklinePath()" fill="none" stroke="#C6EF2E" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" />
+                }
+                @if (sparklinePath()) {
+                <path [attr.d]="sparklinePath()" fill="url(#sparkGrad)" stroke="none" opacity="0.15" />
+                }
+                <defs>
+                  <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#C6EF2E" />
+                    <stop offset="100%" stop-color="#C6EF2E" stop-opacity="0" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            @if (hasProgressLogs()) {
+            <div class="mp-weight-trend">
+              <div class="mp-sparkline-hdr">
+                <span>Weight Trend</span>
+                @if (weightChange(); as ch) {
+                <span class="wt-change" [class.wt-up]="ch > 0" [class.wt-down]="ch < 0">
+                  {{ ch > 0 ? '+' : '' }}{{ ch }}kg
+                </span>
+                }
+              </div>
+              <svg class="mp-sparkline" viewBox="0 0 120 32" preserveAspectRatio="none">
+                <path [attr.d]="weightTrendPath()" fill="none" stroke="#9a9a9a" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" />
+                <path [attr.d]="weightTrendPath()" fill="url(#wtGrad)" stroke="none" opacity="0.15" />
+                <defs>
+                  <linearGradient id="wtGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#9a9a9a" />
+                    <stop offset="100%" stop-color="#9a9a9a" stop-opacity="0" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            }
+          </div>
+
+          <!-- ── CALENDAR ── -->
+          <div class="card glass-card pg-cal">
+            <div class="card-hdr">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" width="16" height="16">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+              <h3>Calendar</h3>
+            </div>
+            <div class="cal-grid">
+              @for (d of calendarDays(); track $index) {
+              @if (d.day === 0) {
+              <span class="cal-empty"></span>
+              } @else {
+              <span class="cal-day" [class.cal-today]="d.isToday" [class.cal-booked]="d.booked">
+                {{ d.day }}
+              </span>
+              }
+              }
+            </div>
+            <div class="cal-legend">
+              <span class="cal-legend-item"><span class="cal-dot cal-dot-today"></span> Today</span>
+              <span class="cal-legend-item"><span class="cal-dot cal-dot-booked"></span> Booked</span>
+            </div>
+            <div class="weekly-strip">
+              <div class="ws-header">
+                <span>This Week</span>
+                <span class="ws-badge">{{ weeklySessionCount() }} sessions</span>
+              </div>
+              <div class="ws-days">
+                @for (d of weeklyActivity(); track $index) {
+                <div class="ws-day" [class.ws-active]="d.active" [class.ws-today]="d.isToday"
+                  [style.--ws-delay]="($index * 0.04) + 's'">
+                  <span class="ws-dot"></span>
+                  <span class="ws-lbl">{{ d.label }}</span>
+                </div>
+                }
+              </div>
+              <div class="ws-compare">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="12" height="12">
+                  <polyline points="1 10 5 6 9 10 15 4" />
+                </svg>
+                <span class="ws-compare-val" [class.ws-up]="weekComparison().change >= 0"
+                  [class.ws-down]="weekComparison().change < 0">
+                  {{ weekComparison().change >= 0 ? '+' : '' }}{{ weekComparison().change }} vs last week
+                </span>
+              </div>
+            </div>
+            <div class="wd-chart">
+              <div class="ws-header"><span>By Day of Week</span></div>
+              <div class="wd-bars">
+                @for (wd of weekdayDistribution(); track wd.label) {
+                <div class="wd-col">
+                  <div class="wd-bar-wrap">
+                    <div class="wd-bar" [style.height.px]="Math.max(4, (wd.pct / 100) * 36)"></div>
+                  </div>
+                  <span class="wd-lbl">{{ wd.label }}</span>
+                  <span class="wd-count">{{ wd.count }}</span>
+                </div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- ── QUOTE ── -->
+          <div class="quote-card pg-quote">
+            <div class="q-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round" width="15" height="15">
+                <path
+                  d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z" />
+                <path
+                  d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z" />
+              </svg>
+            </div>
+            <p class="q-text">{{ dailyQuote().text }}</p>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ════════════════════════════════════════
+                 BOTTOM: MEMBERSHIP + RECENT WORKOUTS
+                 ════════════════════════════════════════ -->
+      <div class="bottom-zone" appReveal style="--bz-delay:0.32s">
+        <app-membership-section [subscriptions]="userSubscriptions()" [loading]="loadingSubscriptions()" />
+        <app-recent-workouts [workouts]="recentWorkouts()" [loading]="loading()" />
+      </div>
+
+      } @else {
+
+      <!-- ════ LOADING SKELETON ════ -->
+      <section class="hero-section hero-skeleton">
+        <div class="hero-grain"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-body">
+          <div class="hero-avatar-wrap">
+            <div class="skeleton-circle"></div>
+          </div>
+          <div class="hero-info">
+            <div class="skeleton-line skeleton-line-sm"></div>
+            <div class="skeleton-line skeleton-line-lg"></div>
+            <div class="skeleton-line skeleton-line-md"></div>
+          </div>
+        </div>
+        <div class="hero-metrics">
+          @for (_ of [1,2,3,4,5]; track $index) {
+          <div class="hm-item">
+            <div class="skeleton-line" style="height:18px;width:28px;border-radius:4px"></div>
+          </div>
           }
+        </div>
+      </section>
+      <div class="streak-banner">
+        <div class="skeleton-block" style="min-height:100px"></div>
+      </div>
+      <div class="achievements-row">
+        @for (_ of [1,2,3,4,5]; track $index) {
+        <div class="skeleton-block" style="height:60px;width:70px;border-radius:12px"></div>
         }
+      </div>
+      <div class="stats-strip">
+        @for (_ of [1,2,3,4,5]; track $index) {
+        <div class="skeleton-block" style="height:56px;border-radius:12px;flex:1"></div>
+        }
+      </div>
+      <div class="profile-cards" style="--pg-delay:0s">
+        <div class="pc-left">
+          <div class="card glass-card">
+            <div class="skeleton-block" style="min-height:200px"></div>
+          </div>
+          <div class="card glass-card">
+            <div class="skeleton-block" style="min-height:120px"></div>
+          </div>
+        </div>
+        <div class="pc-right">
+          <div class="card glass-card">
+            <div class="skeleton-block" style="min-height:140px"></div>
+          </div>
+          <div class="card glass-card">
+            <div class="skeleton-block" style="min-height:140px"></div>
+          </div>
+          <div class="card glass-card">
+            <div class="skeleton-block" style="min-height:80px"></div>
+          </div>
+          <div class="card glass-card pg-quote">
+            <div class="skeleton-block" style="min-height:50px"></div>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-zone">
+        <div class="card glass-card">
+          <div class="skeleton-line skeleton-hdr"></div>
+          <div class="skeleton-block" style="min-height:100px"></div>
+        </div>
+      </div>
+      }
+      }
+      @case ('qr') {
+      <app-qr-display [memberProfileId]="profile()?.memberProfileId || profile()?.id || ''" />
+      }
+
+      @case ('workout') {
+      <div class="section-placeholder">
+        <div class="placeholder-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M6.5 6.5 17.5 17.5M6.5 17.5 17.5 6.5" />
+            <line x1="6" y1="12" x2="18" y2="12" />
+          </svg>
+        </div>
+        <h2>{{ 'sidebar.myWorkouts' | translate }}</h2>
+        <p>{{ 'section.workoutPlaceholder' | translate }}</p>
+      </div>
+      }
+
+      @case ('diet') {
+      <div class="section-placeholder">
+        <app-nutritionplan [memberProfileId]="profile()?.memberProfileId || profile()?.id || ''" />
+      </div>
+      }
+
+      @case ('membership') {
+      <app-membership-section [subscriptions]="userSubscriptions()" [loading]="loadingSubscriptions()">
+      </app-membership-section>
+      }
+
+      @case ('progress') {
+      <app-progress-report />
+      }
+
+      @case ('settings') {
+      <div class="section-placeholder">
+        <div class="placeholder-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+            stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
+        </div>
+        <h2>{{ 'sidebar.settings' | translate }}</h2>
+        <p>{{ 'section.settingsPlaceholder' | translate }}</p>
+      </div>
+      }
+      }
       }
     </div>
   </main>
@@ -675,72 +858,75 @@
 
 <!-- Edit Profile Overlay -->
 @if (isEditing()) {
-  <div class="edit-overlay" (click)="closeEdit()">
-    <div class="edit-modal" (click)="$event.stopPropagation()">
-      <h3>{{ 'profile.editProfile' | translate }}</h3>
-      <div class="edit-avatar">
-        <div class="edit-avatar-preview">
-          @if (editImage()) {
-            <img [src]="editImage()" alt="Profile photo" />
-          } @else {
-            <span class="edit-avatar-ph">{{ editFirstName()?.[0] }}{{ editLastName()?.[0] }}</span>
-          }
-        </div>
-        <div class="edit-avatar-actions">
-          <label class="edit-avatar-btn">
-            <input type="file" accept="image/*" (change)="onEditImageSelected($event)" hidden />
-            {{ editImage() ? 'Change Photo' : 'Upload Photo' }}
-          </label>
-          @if (editImage()) {
-            <button type="button" class="edit-avatar-remove" (click)="removeEditImage()">Remove</button>
-          }
-          <span class="edit-avatar-hint">JPG or PNG, up to 2&nbsp;MB</span>
-        </div>
+<div class="edit-overlay" (click)="closeEdit()">
+  <div class="edit-modal" (click)="$event.stopPropagation()">
+    <h3>{{ 'profile.editProfile' | translate }}</h3>
+    <div class="edit-avatar">
+      <div class="edit-avatar-preview">
+        @if (editImage()) {
+        <img [src]="editImage()" alt="Profile photo" />
+        } @else {
+        <span class="edit-avatar-ph">{{ editFirstName()?.[0] }}{{ editLastName()?.[0] }}</span>
+        }
       </div>
-      <div class="edit-fields">
-        <label>{{ 'profile.firstName' | translate }}
-          <input type="text" [value]="editFirstName()" (input)="editFirstName.set($any($event.target).value)" />
+      <div class="edit-avatar-actions">
+        <label class="edit-avatar-btn">
+          <input type="file" accept="image/*" (change)="onEditImageSelected($event)" hidden />
+          {{ editImage() ? 'Change Photo' : 'Upload Photo' }}
         </label>
-        <label>{{ 'profile.lastName' | translate }}
-          <input type="text" [value]="editLastName()" (input)="editLastName.set($any($event.target).value)" />
-        </label>
-        <label>{{ 'profile.weight' | translate }}
-          <input type="number" [value]="editWeight()" (input)="editWeight.set(+$any($event.target).value || null)" />
-        </label>
-        <label>{{ 'profile.height' | translate }}
-          <input type="number" [value]="editHeight()" (input)="editHeight.set(+$any($event.target).value || null)" />
-        </label>
-        <label>{{ 'profile.phone' | translate }}
-          <input type="text" [value]="editPhone()" (input)="editPhone.set($any($event.target).value)" />
-        </label>
-        <label>{{ 'profile.gender' | translate }}
-          <select [value]="editGender()" (change)="editGender.set($any($event.target).value)">
-            <option value="">{{ 'profile.notSet' | translate }}</option>
-            <option value="male">{{ 'memberProfile.male' | translate }}</option>
-            <option value="female">{{ 'memberProfile.female' | translate }}</option>
-          </select>
-        </label>
-        <label>Fitness Goal
-          <select [value]="editGoal()" (change)="editGoal.set($any($event.target).value)">
-            <option value="">{{ 'profile.notSet' | translate }}</option>
-            @for (g of goalOptions; track g.value) {
-              <option [value]="g.value">{{ g.label }}</option>
-            }
-          </select>
-        </label>
-        <label>Target Weight (kg)
-          <input type="number" step="0.1" [value]="editTargetWeight()" (input)="editTargetWeight.set(+$any($event.target).value || null)" />
-        </label>
-      </div>
-      @if (editError(); as err) {
-        <p class="edit-error">{{ err }}</p>
-      }
-      <div class="edit-actions">
-        <button class="edit-cancel" (click)="closeEdit()" [disabled]="savingEdit()">{{ 'profile.cancel' | translate }}</button>
-        <button class="edit-save" (click)="saveEdit()" [disabled]="savingEdit()">
-          @if (savingEdit()) { <span class="edit-spinner"></span> Saving… } @else { {{ 'profile.saveChanges' | translate }} }
-        </button>
+        @if (editImage()) {
+        <button type="button" class="edit-avatar-remove" (click)="removeEditImage()">Remove</button>
+        }
+        <span class="edit-avatar-hint">JPG or PNG, up to 2&nbsp;MB</span>
       </div>
     </div>
+    <div class="edit-fields">
+      <label>{{ 'profile.firstName' | translate }}
+        <input type="text" [value]="editFirstName()" (input)="editFirstName.set($any($event.target).value)" />
+      </label>
+      <label>{{ 'profile.lastName' | translate }}
+        <input type="text" [value]="editLastName()" (input)="editLastName.set($any($event.target).value)" />
+      </label>
+      <label>{{ 'profile.weight' | translate }}
+        <input type="number" [value]="editWeight()" (input)="editWeight.set(+$any($event.target).value || null)" />
+      </label>
+      <label>{{ 'profile.height' | translate }}
+        <input type="number" [value]="editHeight()" (input)="editHeight.set(+$any($event.target).value || null)" />
+      </label>
+      <label>{{ 'profile.phone' | translate }}
+        <input type="text" [value]="editPhone()" (input)="editPhone.set($any($event.target).value)" />
+      </label>
+      <label>{{ 'profile.gender' | translate }}
+        <select [value]="editGender()" (change)="editGender.set($any($event.target).value)">
+          <option value="">{{ 'profile.notSet' | translate }}</option>
+          <option value="male">{{ 'memberProfile.male' | translate }}</option>
+          <option value="female">{{ 'memberProfile.female' | translate }}</option>
+        </select>
+      </label>
+      <label>Fitness Goal
+        <select [value]="editGoal()" (change)="editGoal.set($any($event.target).value)">
+          <option value="">{{ 'profile.notSet' | translate }}</option>
+          @for (g of goalOptions; track g.value) {
+          <option [value]="g.value">{{ g.label }}</option>
+          }
+        </select>
+      </label>
+      <label>Target Weight (kg)
+        <input type="number" step="0.1" [value]="editTargetWeight()"
+          (input)="editTargetWeight.set(+$any($event.target).value || null)" />
+      </label>
+    </div>
+    @if (editError(); as err) {
+    <p class="edit-error">{{ err }}</p>
+    }
+    <div class="edit-actions">
+      <button class="edit-cancel" (click)="closeEdit()" [disabled]="savingEdit()">{{ 'profile.cancel' | translate
+        }}</button>
+      <button class="edit-save" (click)="saveEdit()" [disabled]="savingEdit()">
+        @if (savingEdit()) { <span class="edit-spinner"></span> Saving… } @else { {{ 'profile.saveChanges' | translate
+        }} }
+      </button>
+    </div>
   </div>
+</div>
 }

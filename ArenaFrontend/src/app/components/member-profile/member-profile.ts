@@ -21,7 +21,7 @@ import { ThemeService } from '../../core/services/themeservice';
 function mapAuthToProfile(dto: GetProfileDto): MemberProfileModel {
   return {
     id: dto.id,
-      memberProfileId: dto.memberProfileId ?? dto.id,
+    memberProfileId: dto.memberProfileId ?? dto.id,
     firstName: dto.firstName,
     lastName: dto.lastName,
     email: dto.email,
@@ -767,8 +767,11 @@ export class MemberProfile implements OnInit {
   }
 
   private isValidSection(s: string): s is DashboardSection {
-    return ['profile','qr', 'workout', 'diet', 'membership', 'progress', 'settings'].includes(s);
+    return ['profile', 'qr', 'workout', 'diet', 'membership', 'progress', 'settings'].includes(s);
   }
+
+  userSubscriptions = signal<UserSubscriptionDto[]>([]);
+  loadingSubscriptions = signal(false);
 
   loadData(): void {
     this.loading.set(true);
@@ -788,6 +791,7 @@ export class MemberProfile implements OnInit {
         return;
       }
       this.profile.set(data);
+      this.loadSubscriptions(data.memberProfileId);
       const memberProfileId = data.memberProfileId || data.id || '';
       if (!memberProfileId) {
         this.loading.set(false);
@@ -805,6 +809,19 @@ export class MemberProfile implements OnInit {
         this.progressSummary.set(result.progress);
         this.loading.set(false);
       });
+    });
+  }
+
+  loadSubscriptions(memberProfileId: string): void {
+    this.loadingSubscriptions.set(true);
+    this.memberService.getUserSubscriptions(memberProfileId).pipe(
+      catchError(err => {
+        console.error('Failed to load subscriptions', err);
+        return of([]);
+      })
+    ).subscribe(subs => {
+      this.userSubscriptions.set(subs);
+      this.loadingSubscriptions.set(false);
     });
   }
 }

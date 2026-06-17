@@ -22,6 +22,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
   public    readonly auth = inject(AuthService);
   readonly themeService = inject(ThemeService);
 
+  protected isSticky = false;
+
+  @HostListener('window:scroll', [])
+  onWindowScroll(): void {
+    this.isSticky = window.scrollY > 80;
+  }
+
   private userSub?: Subscription;
   protected readonly displayName = signal('');
   protected readonly profileImage = signal<string | null>(null);

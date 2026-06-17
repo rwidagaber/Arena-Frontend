@@ -3,50 +3,58 @@
   justify-content: center;
   align-items: center;
   min-height: 80vh;
-  background-color: #F8F9FA;
+  background-color: var(--bg-secondary);
   padding: 40px 20px;
   font-family: 'Inter', sans-serif;
+  transition: background-color 0.3s ease;
 }
 
 .checkout-card {
-  background: white;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
   border-radius: 24px;
   box-shadow: 0 10px 40px rgba(0,0,0,0.08);
   width: 100%;
   max-width: 800px;
   overflow: hidden;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .checkout-header {
   padding: 30px;
   text-align: center;
-  border-bottom: 1px solid #EEE;
+  border-bottom: 1px solid var(--border-color);
+  transition: border-color 0.3s ease;
 }
 
 .checkout-header h2 {
   margin: 0 0 10px 0;
-  color: #0B0E14;
+  color: var(--text-primary);
   font-size: 28px;
+  transition: color 0.3s ease;
 }
 
 .checkout-header p {
   margin: 0;
-  color: #666;
+  color: var(--text-secondary);
   font-size: 16px;
+  transition: color 0.3s ease;
 }
 
 .loading-state {
   font-size: 20px;
-  color: #555;
+  color: var(--text-secondary);
   text-align: center;
   margin-top: 50px;
+  transition: color 0.3s ease;
 }
 
 iframe {
   display: block;
   width: 100%;
   border: none;
-  background: #fdfdfd;
+  background: var(--bg-primary);
+  transition: background-color 0.3s ease;
 }
 
 .result-card {
@@ -70,13 +78,15 @@ iframe {
 .result-card h2 {
   font-size: 32px;
   margin-bottom: 15px;
-  color: #111;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
 }
 
 .result-card p {
   font-size: 18px;
-  color: #666;
+  color: var(--text-secondary);
   margin-bottom: 30px;
+  transition: color 0.3s ease;
 }
 
 .primary-btn {
@@ -117,4 +127,37 @@ iframe {
 .secondary-btn:hover {
   background: #E53935;
   color: white;
+}
+
+.success-btn {
+  background: #D3F551;
+  color: #0B0E14;
+  border: none;
+  padding: 14px 32px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.success-btn:hover {
+  background: #bce03c;
+}
+
+.gray-btn {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 2px solid var(--text-secondary);
+  padding: 14px 32px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.gray-btn:hover {
+  background: var(--text-secondary);
+  color: var(--bg-primary);
 }

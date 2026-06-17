@@ -1,10 +1,12 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { CountUpDirective } from '../../shared/directives/count-up.directive';
+import { ScrollRevealDirective } from '../../shared/directives/scroll-reveal.directive';
 
 @Component({
   selector: 'app-why-choose-us',
   standalone: true,
-  imports: [TranslateModule],
+  imports: [TranslateModule, CountUpDirective, ScrollRevealDirective],
   templateUrl: './why-choose-us.component.html',
   styleUrl: './why-choose-us.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush

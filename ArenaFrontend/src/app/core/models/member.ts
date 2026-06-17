@@ -6,6 +6,8 @@ export interface ActiveSubscription {
   endDate: string;
   status: string;
   remainingSessions: number;
+  totalSessions: number;
+  paymentAmount: number;
   reminderSent: boolean;
 }
 

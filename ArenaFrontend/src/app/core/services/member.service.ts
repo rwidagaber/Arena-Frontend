@@ -38,4 +38,8 @@ export class MemberService {
   updateProfile(dto: UpdateProfileDto): Observable<MemberProfile> {
     return this.http.put<MemberProfile>(`${this.base}/profile`, dto);
   }
+
+  getUserSubscriptions(memberProfileId: string): Observable<import('../models/auth').UserSubscriptionDto[]> {
+    return this.http.get<import('../models/auth').UserSubscriptionDto[]>(`${this.base}/user-subscriptions/member/${memberProfileId}`);
+  }
 }
