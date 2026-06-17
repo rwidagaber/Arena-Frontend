@@ -1,4 +1,7 @@
-<aside class="dash-sidebar">
+@if (isMobileOpen()) {
+  <div class="sidebar-backdrop" (click)="closeMobile.emit()"></div>
+}
+<aside class="dash-sidebar" [class.mobile-open]="isMobileOpen()">
   <div class="sidebar-brand">
     <div class="brand-logo">
       <svg

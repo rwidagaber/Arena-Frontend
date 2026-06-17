@@ -19,6 +19,8 @@ import { RevealDirective } from '../progress-report/reveal.directive';
 import { Nutritionplan } from './nutritionplan/nutritionplan';
 import { ThemeService } from '../../core/services/themeservice';
 import { WorkoutComponent } from "./workoutplan/workout";
+import { BookingSection } from './booking-section/booking-section';
+
 
 function mapAuthToProfile(dto: GetProfileDto): MemberProfileModel {
   return {
@@ -67,7 +69,9 @@ function mapSubscriptionToMembership(sub: UserSubscriptionDto): MembershipDetail
     ProgressReportComponent,
     RevealDirective,
     Nutritionplan,
-    WorkoutComponent
+    WorkoutComponent,
+
+    BookingSection,
 ],
   templateUrl: './member-profile.html',
   styleUrl: './member-profile.css',
@@ -78,9 +82,9 @@ export class MemberProfile implements OnInit {
   private progressService = inject(ProgressReportService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  private sanitizer = inject(DomSanitizer);
   private themeService = inject(ThemeService);
   private translate = inject(TranslateService);
+  private sanitizer = inject(DomSanitizer);
 
   protected Math = Math;
 
@@ -107,6 +111,8 @@ export class MemberProfile implements OnInit {
   error = signal<string | null>(null);
 
   activeSection = signal<DashboardSection>('profile');
+
+  isMobileSidebarOpen = signal(false);
 
   timeOfDay = computed(() => {
     const h = new Date().getHours();
@@ -758,11 +764,20 @@ export class MemberProfile implements OnInit {
 
   onSectionChange(section: DashboardSection): void {
     this.activeSection.set(section);
+    this.isMobileSidebarOpen.set(false);
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { section },
       queryParamsHandling: 'merge',
     });
+  }
+
+  toggleMobileSidebar(): void {
+    this.isMobileSidebarOpen.set(!this.isMobileSidebarOpen());
+  }
+
+  closeMobileSidebar(): void {
+    this.isMobileSidebarOpen.set(false);
   }
 
   ngOnInit(): void {
@@ -786,7 +801,7 @@ export class MemberProfile implements OnInit {
   }
 
   private isValidSection(s: string): s is DashboardSection {
-    return ['profile', 'qr', 'workout', 'diet', 'membership', 'progress', 'settings'].includes(s);
+    return ['profile', 'qr', 'workout', 'diet', 'membership', 'progress', 'settings', 'mybookings'].includes(s);
   }
 
   userSubscriptions = signal<UserSubscriptionDto[]>([]);

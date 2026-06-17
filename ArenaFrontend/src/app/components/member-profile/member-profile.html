@@ -5,6 +5,7 @@
   />
 
   <main class="dash-main">
+
     <div class="dash-content">
       <div class="dot-indigo"></div>
       <div class="dot-amber"></div>
@@ -644,7 +645,12 @@
               <p>{{ 'section.settingsPlaceholder' | translate }}</p>
             </div>
           }
-        }
+  
+      @case ('mybookings') {
+      <app-booking-section
+        [memberProfileId]="profile()?.memberProfileId || profile()?.id || ''" />
+      }
+      }
       }
     </div>
   </main>

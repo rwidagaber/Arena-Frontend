@@ -36,16 +36,6 @@
           </a>
         </li>
         <li>
-          <a routerLink="/pricing" routerLinkActive="text-lime-active" class="nav-item-exact">
-            {{ 'header.pricing' | translate }}
-          </a>
-        </li>
-        <li *ngIf="auth.isSubscribed">
-          <a routerLink="/dashboard" class="nav-item-exact">
-            {{ 'header.dashboard' | translate }}
-          </a>
-        </li>
-        <li>
           <a routerLink="/contact" routerLinkActive="text-lime-active" class="nav-item-exact">
             {{ 'header.contact' | translate }}
           </a>
@@ -90,16 +80,33 @@
       <ng-container *ngIf="currentUser$ | async as user; else loginButtons">
         <div class="user-dropdown-container">
           <div class="user-trigger-wrapper" (click)="toggleDropdown(); $event.stopPropagation()">
-            @if (user.firstName) {
-              <span class="user-name-pill">{{ user.firstName }} {{ user.lastName || '' }}</span>
-            } @else {
-              <div class="user-avatar-circle">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#0c0f17" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                  <circle cx="12" cy="7" r="4"/>
+            <div class="user-avatar-circle" [class.uploading]="uploadingAvatar()">
+              @if (profileImage()) {
+                <img [src]="profileImage()" [alt]="user.firstName || 'Profile'" class="user-avatar-img">
+              } @else {
+                <span class="user-avatar-initials">{{ (user.firstName || 'U')[0] }}</span>
+              }
+              <button
+                type="button"
+                class="user-avatar-edit"
+                (click)="avatarInput.click(); $event.stopPropagation()"
+                [attr.aria-label]="'header.uploadPhoto' | translate"
+                [attr.title]="'header.uploadPhoto' | translate"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="10" height="10">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                  <circle cx="12" cy="13" r="4"/>
                 </svg>
-              </div>
-            }
+              </button>
+            </div>
+            <input
+              #avatarInput
+              type="file"
+              accept="image/*"
+              class="avatar-file-input"
+              (change)="onAvatarSelected($event)"
+              (click)="$event.stopPropagation()"
+            />
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-chevron" [class.rotated]="dropdownOpen" width="14" height="14">
               <polyline points="6 9 12 15 18 9"/>
             </svg>
@@ -150,6 +157,19 @@
         </div>
       </ng-container>
 
+      <button
+        type="button"
+        class="mobile-toggle d-lg-none"
+        [class.is-active]="mobileOpen"
+        (click)="toggleMobileMenu()"
+        aria-label="Toggle menu"
+        [attr.aria-expanded]="mobileOpen"
+      >
+        <span class="mobile-toggle-bar"></span>
+        <span class="mobile-toggle-bar"></span>
+        <span class="mobile-toggle-bar"></span>
+      </button>
+
       <ng-template #loginButtons>
         <a routerLink="/login" class="btn-login-exact font-display text-decoration-none">
           {{ 'header.login' | translate }}
@@ -162,4 +182,27 @@
 
     </div>
   </div>
+
+  <!-- Mobile navigation (collapses the desktop nav on small screens) -->
+  <nav
+    class="mobile-menu d-lg-none"
+    [class.open]="mobileOpen"
+    [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'"
+  >
+    <a routerLink="/" routerLinkActive="text-lime-active" [routerLinkActiveOptions]="{exact: true}" class="mobile-link" (click)="closeMobileMenu()">
+      {{ 'header.home' | translate }}
+    </a>
+    <a routerLink="/about" routerLinkActive="text-lime-active" class="mobile-link" (click)="closeMobileMenu()">
+      {{ 'header.about' | translate }}
+    </a>
+    <a routerLink="/contact" routerLinkActive="text-lime-active" class="mobile-link" (click)="closeMobileMenu()">
+      {{ 'header.contact' | translate }}
+    </a>
+    <a routerLink="/chat" class="mobile-link" [class.text-lime-active]="activeTab === 'chat'" (click)="closeMobileMenu()">
+      Chat
+    </a>
+  </nav>
+
+  <!-- Reading / scroll progress indicator -->
+  <div class="scroll-progress" [style.width.%]="scrollProgress" aria-hidden="true"></div>
 </header>

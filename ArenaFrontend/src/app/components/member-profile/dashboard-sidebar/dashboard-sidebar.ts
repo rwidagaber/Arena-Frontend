@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth';
 import { TranslateModule } from '@ngx-translate/core';
 
-export type DashboardSection = 'profile' | 'qr' | 'workout' | 'diet' | 'membership' | 'progress' | 'settings';
+export type DashboardSection = 'profile' | 'qr' | 'workout' | 'diet' | 'membership' | 'progress' | 'settings' | 'mybookings';
 
 @Component({
   selector: 'app-dashboard-sidebar',
@@ -31,8 +31,12 @@ export class DashboardSidebar {
   readonly firstName = input<string>('');
   readonly lastName = input<string>('');
 
+  readonly isMobileOpen = input<boolean>(false);
+  readonly closeMobile = output<void>();
+
   readonly items: { key: DashboardSection; icon: string; label: string }[] = [
     { key: 'profile',    icon: 'grid',       label: 'sidebar.dashboard' },
+    { key: 'mybookings', icon: 'calendar',   label: 'myBookings' },
     { key: 'qr',         icon: 'qr',         label: 'QR Codes' },
     { key: 'workout',    icon: 'dumbbell',   label: 'sidebar.myWorkouts' },
     { key: 'diet',       icon: 'utensils',   label: 'sidebar.myDietPlan' },

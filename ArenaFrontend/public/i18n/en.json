@@ -20,7 +20,8 @@
     "logout": "Logout",
     "dashboard": "Dashboard",
     "profile": "Profile",
-    "pricing": "Membership Plans"
+    "pricing": "Membership Plans",
+    "uploadPhoto": "Upload photo"
   },
   "hero": {
     "badge": "Smart Training. Real Results.",
@@ -89,7 +90,28 @@
     "hours": "Working Hours",
     "weekdays": "Monday - Fri: 6:00 AM - 10:30 PM",
     "saturday": "Saturday: 7:00 AM - 9:00 PM",
-    "copyright": "Copyright © {{year}} ArenaGym. All rights reserved."
+    "copyright": "Copyright © {{year}} ArenaGym. All rights reserved.",
+    "newsletterTitle": "Join the Arena",
+    "newsletterSub": "Get training tips, member offers, and class updates — straight to your inbox.",
+    "emailPlaceholder": "Enter your email",
+    "subscribe": "Subscribe",
+    "subscribedMsg": "You're in! Welcome to the Arena.",
+    "emailErrorMsg": "Please enter a valid email address.",
+    "followUs": "Follow us",
+    "openNow": "Open now",
+    "closedNow": "Closed now",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "backToTop": "Back to top",
+    "madeWith": "Crafted for athletes",
+    "getDirections": "Get directions",
+    "questionsEyebrow": "Got questions?",
+    "getInTouch": "Get in touch with us",
+    "brandDesc": "Arena Gym is where ambition meets action. From state-of-the-art equipment and expert coaches to tailored workout and nutrition plans, we give every member the tools, guidance, and community to train smarter, stay consistent, and reach real, lasting results.",
+    "statYears": "Years Experience",
+    "statMembers": "Active Members",
+    "statTrainers": "Expert Trainers",
+    "statClasses": "Weekly Classes"
   },
   "auth": {
     "login": {
@@ -760,9 +782,8 @@
     "clearSearch": "Clear Search",
     "noPlans": "No nutrition plans yet",
     "generatePlan": "Chat with your AI coach to generate a personalized nutrition plan",
-
-  "plan": "Plan",
-  "inactive": "Inactive",
+    "plan": "Plan",
+    "inactive": "Inactive",
     "dietPlan": "Diet Plan",
     "activePlan": "Active Plan",
     "backToPlans": "Back to Plans",
@@ -778,56 +799,41 @@
     "noMeals": "No {{mealType}} meals in this plan",
     "ingredients": "Ingredients",
     "breakfast": "Breakfast",
-"lunch": "Lunch",
-"dinner": "Dinner",
-"snack": "Snack"
+    "lunch": "Lunch",
+    "dinner": "Dinner",
+    "snack": "Snack"
   },
-  
   "workout": {
     "searchPlaceholder": "Search workout plans...",
     "active": "Active",
     "tryAgain": "Try Again",
-
     "resultsFor": "results for",
-
     "noResults": "No results found for",
     "tryDifferentKeywords": "Try different keywords",
     "clearSearch": "Clear Search",
-
     "noPlans": "No workout plans available",
     "noPlansHint": "Your workout plans will appear here when available",
     "contactTrainer": "Contact your trainer to get a workout plan",
-
     "plan": "Plan",
-
     "days": "Days",
     "weeks": "Weeks",
-
     "daysLabel": "Days",
     "durationLabel": "Duration",
     "exercisesLabel": "Exercises",
-
     "backToPlans": "Back to Plans",
     "backToPlan": "Back to Plan",
-
     "activePlan": "Active Plan",
-
     "day": "Day",
-
     "exercises": "Exercises",
     "noExercises": "No exercises for this day",
-
     "sets": "Sets",
     "reps": "Reps",
     "min": "Min",
     "restSec": "Sec Rest",
-
     "description": "Description",
     "equipment": "Equipment",
     "notes": "Notes",
-
     "watchVideo": "Watch Video",
-
     "detail": "Detail",
     "value": "Value",
     "trainingDays": "Training Days",
@@ -839,28 +845,54 @@
     "rest": "Rest",
     "duration": "Duration",
     "monday": "Monday",
-"tuesday": "Tuesday",
-"wednesday": "Wednesday",
-"thursday": "Thursday",
-"friday": "Friday",
-"saturday": "Saturday",
-"sunday": "Sunday",
-"muscleGroups": {
-  "chest": "Chest",
-  "back": "Back",
-  "shoulders": "Shoulders",
-  "biceps": "Biceps",
-  "triceps": "Triceps",
-  "legs": "Legs",
-  "quadriceps": "Quadriceps",
-  "hamstrings": "Hamstrings",
-  "glutes": "Glutes",
-  "calves": "Calves",
-  "abs": "Abs",
-  "core": "Core",
-  "forearms": "Forearms",
-  "fullBody": "Full Body",
-  "cardio": "Cardio"
-}
-  }
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday",
+    "muscleGroups": {
+      "chest": "Chest",
+      "back": "Back",
+      "shoulders": "Shoulders",
+      "biceps": "Biceps",
+      "triceps": "Triceps",
+      "legs": "Legs",
+      "quadriceps": "Quadriceps",
+      "hamstrings": "Hamstrings",
+      "glutes": "Glutes",
+      "calves": "Calves",
+      "abs": "Abs",
+      "core": "Core",
+      "forearms": "Forearms",
+      "fullBody": "Full Body",
+      "cardio": "Cardio"
+    }
+  },
+  "myBookings": "My Bookings",
+  "upcoming": "Upcoming Bookings",
+  "past": "Past Bookings",
+  "upcomingBookings": "Upcoming Bookings",
+  "pastBookings": "Past Bookings",
+  "noBookings": "No bookings found",
+  "noBookingsFound": "No bookings found",
+  "loading": "Loading...",
+  "error": "Booking canceled",
+  "calendar": "Calendar",
+  "cancelBooking": "Cancel Booking",
+  "totalBookings": "Total Bookings",
+  "loadingError": "Failed to load bookings.",
+  "retry": "Retry",
+  "QR Codes": "QR Codes",
+  "bookingHeroWelcome": "WELCOME BACK",
+  "bookingHeroSubtitle1": "PUSH HARDER. ACHIEVE YOUR GOALS.",
+  "bookingHeroSubtitle2": "DISCIPLINE TODAY. STRENGTH TOMORROW.",
+  "bookingHeroSubtitle3": "YOUR ONLY COMPETITION IS WHO YOU WERE YESTERDAY.",
+  "bookingHeroSubtitle4": "NO EXCUSES. JUST RESULTS.",
+  "bookingHeroSubtitle5": "BUILD THE BODY. BUILD THE MIND.",
+  "bookingHeroSubtitleLight1": "EVERY WORKOUT COUNTS.",
+  "bookingHeroSubtitleLight2": "SMALL STEPS. BIG RESULTS.",
+  "bookingHeroSubtitleLight3": "STAY CONSISTENT. STAY STRONG.",
+  "bookingHeroSubtitleLight4": "PROGRESS OVER PERFECTION.",
+  "bookingHeroSubtitleLight5": "TRAIN TODAY. THRIVE TOMORROW."
 }

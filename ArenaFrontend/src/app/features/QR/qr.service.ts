@@ -24,4 +24,8 @@ export class QrService {
   getBookings(memberProfileId: string): Observable<BookingDto[]> {
     return this.http.get<BookingDto[]>(`${this.bookingUrl}?memberProfileId=${memberProfileId}`);
   }
+
+  cancelBooking(bookingId: string): Observable<BookingDto> {
+    return this.http.post<BookingDto>(`${this.bookingUrl}/cancel/${bookingId}`, {});
+  }
 }

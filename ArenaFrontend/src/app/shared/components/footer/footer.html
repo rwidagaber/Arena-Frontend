@@ -1,52 +1,152 @@
-<footer class="py-5" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
-  <div class="container">
-    <div class="mb-5">
-      <h2 class="h4">{{ 'app.title' | translate }}</h2>
-      <p class="h3 fw-bold">{{ 'app.tagline' | translate }}</p>
+<footer class="site-footer" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
+  <div class="footer-glow" aria-hidden="true"></div>
+  <div class="footer-grid-overlay" aria-hidden="true"></div>
+
+  <div class="container footer-inner">
+
+    <!-- ===== Get-in-touch contact band ===== -->
+    <div class="footer-contact-band">
+      <div class="fcb-text">
+        <span class="fcb-eyebrow">{{ 'footer.questionsEyebrow' | translate }}</span>
+        <h3 class="fcb-title">{{ 'footer.getInTouch' | translate }}</h3>
+      </div>
+      <div class="fcb-info">
+        <a class="fcb-item" [href]="'tel:' + phone">
+          <i class="bi bi-telephone-fill"></i><span>{{ phone }}</span>
+        </a>
+        <a class="fcb-item" [href]="'mailto:' + email">
+          <i class="bi bi-envelope-fill"></i><span>{{ email }}</span>
+        </a>
+      </div>
+      <a class="fcb-cta" routerLink="/contact">
+        <span>{{ 'footer.contact' | translate }}</span>
+        <i class="bi bi-arrow-right"></i>
+      </a>
     </div>
 
-    <div class="row">
-      <div class="col-md-3">
-        <h5>{{ 'footer.location' | translate }}</h5>
-        <p>{{ 'footer.locationDesc' | translate }}</p>
-        <p class="fw-bold">{{ 'footer.address' | translate }}</p>
-      </div>
+    <div class="footer-divider"></div>
 
-      <div class="col-md-3">
-        <h5>{{ 'footer.quickLinks' | translate }}</h5>
-        <ul class="list-unstyled">
-          <li>{{ 'footer.home' | translate }}</li>
-          <li>{{ 'footer.about' | translate }}</li>
-          <li>{{ 'footer.programs' | translate }}</li>
-          <li>{{ 'footer.blog' | translate }}</li>
-          <li>{{ 'footer.contact' | translate }}</li>
-        </ul>
-      </div>
-
-      <div class="col-md-3">
-        <h5>{{ 'footer.trainingPrograms' | translate }}</h5>
-        <ul class="list-unstyled">
-          <li>{{ 'footer.weightLoss' | translate }}</li>
-          <li>{{ 'footer.groupFitness' | translate }}</li>
-          <li>{{ 'footer.beginner' | translate }}</li>
-          <li>{{ 'footer.muscleBuilding' | translate }}</li>
-          <li>{{ 'footer.cardio' | translate }}</li>
-        </ul>
-      </div>
-
-      <div class="col-md-3">
-        <h5>{{ 'footer.hours' | translate }}</h5>
-        <p>{{ 'footer.weekdays' | translate }}</p>
-        <p>{{ 'footer.saturday' | translate }}</p>
-        <div class="d-flex gap-3">
-          <span>Pinterest</span> <span>X</span> <span>Facebook</span> <span>Instagram</span>
+    <!-- ===== Credibility stats ===== -->
+    <div class="footer-stats">
+      @for (s of stats; track s.key) {
+        <div class="footer-stat">
+          <span class="footer-stat-val">{{ s.value }}</span>
+          <span class="footer-stat-lbl">{{ 'footer.' + s.key | translate }}</span>
         </div>
+      }
+    </div>
+
+    <div class="footer-divider"></div>
+
+    <!-- ===== Main columns ===== -->
+    <div class="footer-main">
+
+      <!-- Brand + description -->
+      <div class="footer-col footer-brand-col">
+        <div class="footer-brand">
+          <span class="footer-logo">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0c0f17" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <g>
+                <line x1="5" y1="5" x2="19" y2="19" />
+                <line x1="6.5" y1="9.5" x2="9.5" y2="6.5" />
+                <line x1="14.5" y1="17.5" x2="17.5" y2="14.5" />
+              </g>
+              <g>
+                <line x1="5" y1="19" x2="19" y2="5" />
+                <line x1="6.5" y1="14.5" x2="9.5" y2="17.5" />
+                <line x1="14.5" y1="6.5" x2="17.5" y2="9.5" />
+              </g>
+            </svg>
+          </span>
+          <span class="footer-brand-text">{{ 'app.title' | translate }}</span>
+        </div>
+
+        <p class="footer-tagline">{{ 'footer.brandDesc' | translate }}</p>
+      </div>
+
+      <!-- Location / contact -->
+      <div class="footer-col">
+        <h5 class="footer-heading">{{ 'footer.location' | translate }}</h5>
+        <ul class="footer-contact list-unstyled">
+          <li class="footer-contact-item">
+            <a [href]="mapsUrl" target="_blank" rel="noopener noreferrer" [attr.aria-label]="'footer.getDirections' | translate">
+              <i class="bi bi-geo-alt"></i>
+              <span>{{ 'footer.address' | translate }}</span>
+            </a>
+          </li>
+          <li class="footer-contact-item">
+            <a [href]="'tel:' + phone"><i class="bi bi-telephone"></i><span>{{ phone }}</span></a>
+          </li>
+          <li class="footer-contact-item">
+            <a [href]="'mailto:' + email"><i class="bi bi-envelope"></i><span>{{ email }}</span></a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Quick links (only real, existing routes) -->
+      <div class="footer-col">
+        <h5 class="footer-heading">{{ 'footer.quickLinks' | translate }}</h5>
+        <ul class="footer-links list-unstyled">
+          <li><a class="footer-link" routerLink="/" [routerLinkActiveOptions]="{exact: true}" routerLinkActive="footer-link-active">{{ 'footer.home' | translate }}</a></li>
+          <li><a class="footer-link" routerLink="/about" routerLinkActive="footer-link-active">{{ 'footer.about' | translate }}</a></li>
+          <li><a class="footer-link" routerLink="/contact" routerLinkActive="footer-link-active">{{ 'footer.contact' | translate }}</a></li>
+        </ul>
+      </div>
+
+      <!-- Hours + status -->
+      <div class="footer-col">
+        <h5 class="footer-heading">{{ 'footer.hours' | translate }}</h5>
+        <span class="footer-status" [class.is-open]="isOpenNow" [class.is-closed]="!isOpenNow">
+          <span class="status-dot"></span>
+          {{ (isOpenNow ? 'footer.openNow' : 'footer.closedNow') | translate }}
+        </span>
+        <ul class="footer-hours list-unstyled">
+          <li class="footer-hours-item">
+            <i class="bi bi-clock"></i><span>{{ 'footer.weekdays' | translate }}</span>
+          </li>
+          <li class="footer-hours-item">
+            <i class="bi bi-clock"></i><span>{{ 'footer.saturday' | translate }}</span>
+          </li>
+        </ul>
       </div>
     </div>
-    
-    <hr class="mt-4">
-    <div class="text-center text-muted">
-      {{ 'footer.copyright' | translate: { year: currentYear } }}
+
+    <div class="footer-divider"></div>
+
+    <!-- ===== Bottom bar ===== -->
+    <div class="footer-bottom">
+      <span class="footer-copy">{{ 'footer.copyright' | translate: { year: currentYear } }}</span>
+
+      <div class="footer-social">
+        @for (s of socials; track s.name) {
+          <a
+            class="social-btn"
+            [href]="s.url"
+            target="_blank"
+            rel="noopener noreferrer"
+            [attr.aria-label]="s.name"
+          >
+            <i class="bi" [class]="'bi-' + s.icon"></i>
+          </a>
+        }
+      </div>
+
+      <div class="footer-legal">
+        <span class="footer-legal-link">{{ 'footer.privacy' | translate }}</span>
+        <span class="footer-legal-sep">•</span>
+        <span class="footer-legal-link">{{ 'footer.terms' | translate }}</span>
+      </div>
     </div>
   </div>
+
+  <!-- ===== Back to top ===== -->
+  <button
+    type="button"
+    class="back-to-top"
+    [class.visible]="showTopButton"
+    (click)="scrollToTop()"
+    [attr.aria-label]="'footer.backToTop' | translate"
+  >
+    <i class="bi bi-arrow-up"></i>
+  </button>
 </footer>
