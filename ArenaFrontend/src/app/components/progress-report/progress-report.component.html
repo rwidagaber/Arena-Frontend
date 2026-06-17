@@ -1,0 +1,669 @@
+<div class="progress-report">
+  @if (progressSummaryState$ | async; as plState) {
+    @if (plState.$state === 'loaded') {
+      <!-- ── Command center: Arena Momentum ── -->
+      <div class="cc" [class]="momentumTier()?.cls ?? ''">
+        <div class="cc-photo">
+          <img src="assets/images/progress.jpg" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" />
+        </div>
+        <div class="hero-grain"></div>
+        <div class="cc-overlay"></div>
+        <div class="cc-glow"></div>
+        <div class="cc-accent-line"></div>
+
+        <div class="cc-inner">
+          <div class="cc-top">
+            <div class="cc-level-chip">
+              <span class="cc-level-badge">{{ level() }}</span>
+              <span class="cc-level-text">
+                <span class="cc-level-kicker">{{ 'progressReport.levelLabel' | translate }} {{ level() }}</span>
+                <span class="cc-level-title">{{ levelTitle() | translate }}</span>
+              </span>
+            </div>
+            @if (daysSinceFirstLog(); as days) {
+              <div class="cc-streak">
+                <span class="cc-streak-flame"><i class="fa-solid fa-fire"></i></span>
+                <span class="cc-streak-num">{{ days }}</span>
+                <span class="cc-streak-lbl">{{ 'progressReport.statStreak' | translate }}</span>
+              </div>
+            }
+          </div>
+
+          <div class="cc-core">
+            <button class="cc-gauge" type="button" (click)="toggleMomentum()" [class.open]="momentumOpen()"
+              [attr.aria-expanded]="momentumOpen()" [attr.aria-label]="'progressReport.scoreBreakdown' | translate">
+              <svg viewBox="0 0 200 200" class="cc-gauge-svg">
+                <circle cx="100" cy="100" r="80" class="cc-gauge-track" fill="none" stroke-width="13"/>
+                <circle cx="100" cy="100" r="80" class="cc-gauge-fill" fill="none" stroke-width="13" stroke-linecap="round"
+                  [attr.stroke-dasharray]="momentumCirc"
+                  [attr.stroke-dashoffset]="momentumOffset()"
+                  transform="rotate(-90 100 100)"/>
+              </svg>
+              <div class="cc-gauge-center">
+                <span class="cc-score">{{ momentumScore() ?? '—' }}</span>
+                <span class="cc-score-trend" [class.up]="momentumTrend() === 'up'" [class.down]="momentumTrend() === 'down'">{{ trendIcon(momentumTrend()) }}</span>
+              </div>
+              <span class="cc-gauge-info"><i class="fa-solid fa-circle-info"></i></span>
+            </button>
+            <div class="cc-meta">
+              <span class="cc-meta-kicker">{{ 'progressReport.ccMomentum' | translate }}</span>
+              @if (momentumTier(); as tier) {
+                <span class="cc-meta-tier">{{ tier.key | translate }}</span>
+              }
+              <span class="cc-status" [class.ind-positive]="message().type === 'positive'" [class.ind-warning]="message().type === 'warning'" [class.ind-push]="message().type === 'push'">
+                <span class="ind-dot"></span>
+                @if (message().type === 'positive') { {{ 'progressReport.badgeOnTrack' | translate }} }
+                @else if (message().type === 'warning') { {{ 'progressReport.badgeNeedsAttention' | translate }} }
+                @else { {{ 'progressReport.badgeKeepPushing' | translate }} }
+              </span>
+              <button class="cc-cta" (click)="openForm()" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>{{ 'progressReport.newMeasurement' | translate }}</span>
+              </button>
+            </div>
+          </div>
+
+          @if (momentumOpen()) {
+            <div class="cc-breakdown">
+              <div class="cc-bd-title">{{ 'progressReport.scoreBreakdown' | translate }}</div>
+              @for (b of momentumBreakdown(); track b.key) {
+                <div class="cc-bd-row">
+                  <span class="cc-bd-label">{{ b.key | translate:b.params }}</span>
+                  <span class="cc-bd-pts" [class.pos]="b.points > 0" [class.neg]="b.points < 0">{{ b.points > 0 ? '+' : '' }}{{ b.points }}</span>
+                </div>
+              }
+              <div class="cc-bd-row cc-bd-total">
+                <span class="cc-bd-label">{{ 'progressReport.ccMomentum' | translate }}</span>
+                <span class="cc-bd-pts">{{ momentumScore() }}</span>
+              </div>
+            </div>
+          }
+
+          <div class="cc-xp">
+            <div class="cc-xp-bar"><div class="cc-xp-fill" [style.width.%]="xpPct()"></div></div>
+            <span class="cc-xp-text">{{ 'progressReport.xpToNext' | translate:{ xp: xpIntoLevel(), max: xpForLevel(), next: level() + 1 } }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Active challenges ── -->
+      @if (activeChallenges().length > 0) {
+        <section class="ch" appReveal>
+          <div class="ch-head">
+            <svg class="ch-head-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 6-6"/><path d="m16 16 4 4"/><path d="m19 21 2-2"/><path d="M14.5 6.5 18 3h3v3l-3.5 3.5"/><path d="m5 14 4 4"/><path d="m3 21 2-2"/><path d="m8 18-2 2"/></svg>
+            <span class="ch-title">{{ 'progressReport.sectionChallenges' | translate }}</span>
+          </div>
+          <div class="ch-grid">
+            @for (c of activeChallenges(); track c.id) {
+              <div class="ch-card" [style.animation-delay]="($index * 0.07) + 's'">
+                <div class="ch-card-top">
+                  <span class="ch-icon"><i [class]="c.icon"></i></span>
+                  <span class="ch-label">{{ c.label | translate }}</span>
+                </div>
+                <div class="ch-bar"><div class="ch-bar-fill" [style.width.%]="c.pct"></div></div>
+                <div class="ch-foot">
+                  <span class="ch-count">{{ c.current }}/{{ c.target }}</span>
+                  <span class="ch-togo">{{ 'progressReport.challengeToGo' | translate:{ n: c.remaining } }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        </section>
+      }
+
+      <!-- ── Goal + Personal Records (two-column) ── -->
+      <div class="pr-duo" appReveal>
+      @if (goalProgress() != null) {
+        <div class="goal-card">
+          <div class="goal-ring-wrap">
+            <svg viewBox="0 0 120 120" class="goal-ring-svg">
+              <circle cx="60" cy="60" r="52" fill="none" stroke="currentColor" stroke-width="6" opacity="0.06"/>
+              <circle cx="60" cy="60" r="52" fill="none" stroke-width="6" stroke-linecap="round"
+                [attr.stroke-dasharray]="2 * Math.PI * 52"
+                [attr.stroke-dashoffset]="2 * Math.PI * 52 * (1 - (goalProgress() ?? 0) / 100)"
+                transform="rotate(-90 60 60)" class="goal-ring-fill"/>
+            </svg>
+            <div class="goal-ring-text">
+              <span class="goal-ring-pct">{{ goalProgress() }}%</span>
+              <span class="goal-ring-lbl">{{ 'progressReport.goalToGoal' | translate }}</span>
+            </div>
+          </div>
+          <div class="goal-info">
+            <div class="goal-info-row">
+              <span class="goal-info-lbl">{{ 'progressReport.goalStart' | translate }}</span>
+              <span class="goal-info-val">{{ goalConfig()?.startWeight }} {{ 'progressReport.unitKg' | translate }}</span>
+            </div>
+            <div class="goal-info-row">
+              <span class="goal-info-lbl">{{ 'progressReport.goalCurrent' | translate }}</span>
+              <span class="goal-info-val">{{ currentWeight() }} {{ 'progressReport.unitKg' | translate }}</span>
+            </div>
+            <div class="goal-info-row">
+              <span class="goal-info-lbl">{{ 'progressReport.goalTarget' | translate }}</span>
+              <span class="goal-info-val goal-info-target">{{ goalConfig()?.targetWeight }} {{ 'progressReport.unitKg' | translate }}</span>
+            </div>
+            @if (goalEta(); as eta) {
+              <div class="goal-eta" [class.reached]="eta.state === 'reached'" [class.off]="eta.state === 'off'">
+                <i class="fa-solid" [ngClass]="eta.state === 'reached' ? 'fa-trophy' : eta.state === 'off' ? 'fa-triangle-exclamation' : 'fa-rocket'"></i>
+                @if (eta.state === 'eta') { <span>{{ 'progressReport.goalEtaDays' | translate:{ n: eta.days } }}</span> }
+                @else if (eta.state === 'reached') { <span>{{ 'progressReport.goalReached' | translate }}</span> }
+                @else { <span>{{ 'progressReport.goalOffTrack' | translate }}</span> }
+              </div>
+            }
+            <button class="goal-clear" (click)="clearGoal()">{{ 'progressReport.goalClear' | translate }}</button>
+          </div>
+        </div>
+      } @else {
+        <div class="goal-card goal-card-empty" (click)="openGoalForm()">
+          <div class="goal-ring-wrap">
+            <svg viewBox="0 0 120 120" class="goal-ring-svg">
+              <circle cx="60" cy="60" r="52" fill="none" stroke="currentColor" stroke-width="6" opacity="0.06"/>
+            </svg>
+            <div class="goal-ring-text">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="28" height="28" opacity="0.3"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            </div>
+          </div>
+          <div class="goal-info">
+            <span class="goal-prompt">{{ 'progressReport.goalSetPrompt' | translate }}</span>
+            <span class="goal-prompt-sub">{{ 'progressReport.goalSetPromptSub' | translate }}</span>
+          </div>
+        </div>
+      }
+        @if (personalRecords().length > 0) {
+          <div class="card pr-card">
+            <div class="card-header">
+              <h3 class="card-title"><i class="fa-solid fa-trophy"></i> {{ 'progressReport.sectionRecords' | translate }}</h3>
+            </div>
+            <div class="pr-grid">
+              @for (r of personalRecords(); track r.key) {
+                <div class="pr-tile" [class.down]="r.tone === 'down'" [class.up]="r.tone === 'up'" [style.animation-delay]="($index * 0.05) + 's'">
+                  <span class="pr-icon"><i class="fa-solid" [ngClass]="r.icon"></i></span>
+                  <span class="pr-value">{{ r.value }}@if (r.unit) { <small>{{ r.unit | translate }}</small> }</span>
+                  <span class="pr-label">{{ r.key | translate }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="metrics-header" appReveal>
+        <div class="metrics-header-left">
+          <h2 class="metrics-title"><i class="fa-solid fa-dumbbell metrics-title-icon"></i>{{ 'progressReport.sectionBodyComposition' | translate }}</h2>
+          <p class="metrics-sub">{{ 'progressReport.bodyCompositionSub' | translate }}</p>
+        </div>
+      </div>
+
+      <div class="metrics-grid" appReveal>
+        <div class="m-card">
+          <div class="m-card-top">
+            <div class="m-icon m-icon-weight">
+              <i class="fa-solid fa-weight-scale"></i>
+            </div>
+            <span class="m-label">{{ 'progressReport.metricWeight' | translate }}</span>
+          </div>
+          <div class="m-value-row">
+            <span class="m-value">{{ currentWeight() ?? '—' }}</span>
+            <span class="m-unit">{{ 'progressReport.unitKg' | translate }}</span>
+          </div>
+          @if (weightChange(); as wc) {
+            <div class="m-diff" [class.m-diff-down]="wc < 0" [class.m-diff-up]="wc > 0">
+              <span class="m-diff-arrow">{{ wc < 0 ? '↓' : '↑' }}</span>
+              <span>{{ formatDiff(wc) }} {{ 'progressReport.unitKg' | translate }}</span>
+              <span class="m-diff-lbl">{{ 'progressReport.fromLastEntry' | translate }}</span>
+            </div>
+          }
+          @if (weightSpark(); as sp) {
+            <div class="m-spark m-spark-green">
+              <svg viewBox="0 0 100 28" preserveAspectRatio="none">
+                <polygon [attr.points]="sp.area" class="m-spark-area"/>
+                <polyline [attr.points]="sp.line" class="m-spark-line"/>
+              </svg>
+            </div>
+          }
+        </div>
+
+        <div class="m-card">
+          <div class="m-card-top">
+            <div class="m-icon m-icon-fat">
+              <i class="fa-solid fa-droplet"></i>
+            </div>
+            <span class="m-label">{{ 'progressReport.metricBodyFat' | translate }}</span>
+          </div>
+          <div class="m-value-row">
+            <span class="m-value">{{ currentBodyFat() ?? '—' }}</span>
+            <span class="m-unit">{{ 'progressReport.unitPercent' | translate }}</span>
+          </div>
+          @if (bodyFatChange(); as bfc) {
+            <div class="m-diff" [class.m-diff-down]="bfc < 0" [class.m-diff-up]="bfc > 0">
+              <span class="m-diff-arrow">{{ bfc < 0 ? '↓' : '↑' }}</span>
+              <span>{{ formatDiff(bfc) }} {{ 'progressReport.unitPercent' | translate }}</span>
+              <span class="m-diff-lbl">{{ 'progressReport.fromLastEntry' | translate }}</span>
+            </div>
+          }
+          @if (bodyFatSpark(); as sp) {
+            <div class="m-spark m-spark-amber">
+              <svg viewBox="0 0 100 28" preserveAspectRatio="none">
+                <polygon [attr.points]="sp.area" class="m-spark-area"/>
+                <polyline [attr.points]="sp.line" class="m-spark-line"/>
+              </svg>
+            </div>
+          }
+        </div>
+
+        <div class="m-card">
+          <div class="m-card-top">
+            <div class="m-icon m-icon-muscle">
+              <i class="fa-solid fa-dumbbell"></i>
+            </div>
+            <span class="m-label">{{ 'progressReport.metricMuscleMass' | translate }}</span>
+          </div>
+          <div class="m-value-row">
+            <span class="m-value">{{ currentMuscleMass() ?? '—' }}</span>
+            <span class="m-unit">{{ 'progressReport.unitKg' | translate }}</span>
+          </div>
+          @if (muscleMassChange(); as mmc) {
+            <div class="m-diff" [class.m-diff-up]="mmc > 0" [class.m-diff-down]="mmc < 0">
+              <span class="m-diff-arrow">{{ mmc > 0 ? '↑' : '↓' }}</span>
+              <span>{{ formatDiff(mmc) }} {{ 'progressReport.unitKg' | translate }}</span>
+              <span class="m-diff-lbl">{{ 'progressReport.fromLastEntry' | translate }}</span>
+            </div>
+          }
+          @if (muscleSpark(); as sp) {
+            <div class="m-spark m-spark-indigo">
+              <svg viewBox="0 0 100 28" preserveAspectRatio="none">
+                <polygon [attr.points]="sp.area" class="m-spark-area"/>
+                <polyline [attr.points]="sp.line" class="m-spark-line"/>
+              </svg>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- ── Motivation banner (web image) ── -->
+      <div class="moti" [class]="momentumTier()?.cls ?? ''">
+        <img class="moti-img" src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1400&q=70" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" />
+        <div class="moti-overlay"></div>
+        <div class="moti-content">
+          <span class="moti-kicker"><i class="fa-solid fa-bolt"></i>
+            @if (momentumTier(); as tier) { {{ tier.key | translate }} }
+          </span>
+          <p class="moti-quote">{{ message().quoteKey | translate }}</p>
+          @if (message().author) {
+            <span class="moti-author">— {{ message().author }}</span>
+          }
+        </div>
+      </div>
+
+      <!-- ── Weekly + Milestones (two-column) ── -->
+      <div class="pr-duo" appReveal>
+      @if (weeklyComparison(); as wc) {
+        <div class="card weekly-card">
+          <div class="card-header">
+            <h3 class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              {{ 'progressReport.weekOverWeek' | translate }}
+            </h3>
+          </div>
+          <div class="weekly-body">
+            <div class="weekly-bars">
+              <div class="weekly-bar-group">
+                <span class="weekly-bar-lbl">{{ 'progressReport.weeklyPrevious' | translate }}</span>
+                <div class="weekly-bar-track">
+                  <div class="weekly-bar weekly-bar-prev" [style.height.%]="60"></div>
+                </div>
+                <span class="weekly-bar-val">{{ wc.avgPrev.toFixed(1) }}</span>
+              </div>
+              <div class="weekly-bar-group">
+                <span class="weekly-bar-lbl">{{ 'progressReport.weeklyRecent' | translate }}</span>
+                <div class="weekly-bar-track">
+                  <div class="weekly-bar weekly-bar-curr" [style.height.%]="Math.min(90, (wc.avgRecent / wc.avgPrev) * 60)"></div>
+                </div>
+                <span class="weekly-bar-val">{{ wc.avgRecent.toFixed(1) }}</span>
+              </div>
+            </div>
+            @if (Math.abs(wc.change) > 0.1) {
+              <div class="weekly-diff" [class.weekly-diff-down]="wc.change < 0" [class.weekly-diff-up]="wc.change > 0">
+                <span class="weekly-diff-arrow">{{ wc.change < 0 ? '↓' : '↑' }}</span>
+                <span>{{ (wc.change < 0 ? 'progressReport.weeklyLighter' : 'progressReport.weeklyHeavier') | translate:{ value: Math.abs(wc.change).toFixed(1) } }}</span>
+              </div>
+            } @else {
+              <div class="weekly-diff weekly-diff-stable">
+                <span>→ {{ 'progressReport.weeklyStable' | translate }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- ── Milestones (achievements + milestone) ── -->
+      @if (unlockedAchievements().length > 0) {
+        <div class="card milestones-card">
+          <img class="milestones-deco" src="https://images.unsplash.com/photo-1534258936925-c58bed479fcb?auto=format&fit=crop&w=700&q=60" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" />
+          <div class="card-header">
+            <h3 class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 6 9 6 9z"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C17 4 18 9 18 9z"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/></svg>
+              {{ 'progressReport.sectionMilestones' | translate }}
+            </h3>
+            <span class="card-count">{{ unlockedAchievements().length }}</span>
+          </div>
+          @if (totalLogs() >= 3) {
+            <p class="milestones-note">{{ 'progressReport.milestone' | translate:{ count: totalLogs() } }}</p>
+          }
+          <div class="achieve-strip">
+            @for (a of unlockedAchievements(); track a.id) {
+              <div class="achieve-badge" [style.animation-delay]="($index * 0.06) + 's'">
+                <span class="achieve-icon"><i [class]="a.icon"></i></span>
+                <span class="achieve-label">{{ a.label | translate }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      }
+      </div>
+
+      @if (plState.value.logs.length > 0) {
+        <div class="card timeline-card" appReveal>
+          <div class="card-header">
+            <h3 class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              {{ 'progressReport.sectionTimeline' | translate }}
+            </h3>
+            <div class="tl-head-actions">
+              <button class="tl-export" type="button" (click)="exportCsv()" [title]="'progressReport.exportCsv' | translate">
+                <i class="fa-solid fa-download"></i>
+                <span>{{ 'progressReport.exportCsv' | translate }}</span>
+              </button>
+              <span class="card-count">{{ 'progressReport.timelineEntries' | translate:{ count: plState.value.logs.length } }}</span>
+            </div>
+          </div>
+          <div class="tl">
+            @for (entry of visibleLogs(); track entry.id; let i = $index; let last = $last) {
+              <div class="tl-item">
+                <div class="tl-marker">
+                  <div class="tl-dot" [class.tl-dot-positive]="i > 0 && isImproving(entry, plState.value.logs[i - 1])" [class.tl-dot-negative]="i > 0 && !isImproving(entry, plState.value.logs[i - 1])">
+                    <div class="tl-dot-inner"></div>
+                  </div>
+                  @if (!last) { <div class="tl-line"></div> }
+                </div>
+                <div class="tl-body">
+                  <div class="tl-top">
+                    <span class="tl-date">{{ entry.loggedAt | date:'MMM d, yyyy' }}</span>
+                    <span class="tl-day">{{ 'progressReport.timelineDay' | translate:{ n: $index + 1 } }}</span>
+                    @if (isEdited(entry.id)) {
+                      <span class="tl-edited"><i class="fa-solid fa-pen"></i> {{ 'progressReport.editedBadge' | translate }}</span>
+                    }
+                    <div class="tl-actions">
+                      <button class="tl-act" type="button" [disabled]="!isEditable(entry.id)"
+                        [title]="(isEditable(entry.id) ? 'progressReport.edit' : 'progressReport.editedTooltip') | translate"
+                        (click)="openEditForm(entry)">
+                        <i class="fa-solid fa-pen"></i>
+                      </button>
+                      <button class="tl-act tl-act-del" type="button"
+                        [title]="'progressReport.delete' | translate" (click)="requestDelete(entry.id)">
+                        <i class="fa-solid fa-trash-can"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="tl-chips">
+                    <span class="tl-chip tl-chip-weight">{{ entry.weight }} <span class="tl-chip-unit">kg</span></span>
+                    @if (entry.bodyFat != null) {
+                      <span class="tl-chip tl-chip-fat">{{ entry.bodyFat }}<span class="tl-chip-unit">%</span></span>
+                    }
+                    @if (entry.muscleMass != null) {
+                      <span class="tl-chip tl-chip-muscle">{{ entry.muscleMass }} <span class="tl-chip-unit">kg</span></span>
+                    }
+                  </div>
+                  @if (confirmDeleteId() === entry.id) {
+                    <div class="tl-confirm">
+                      <span class="tl-confirm-text"><i class="fa-solid fa-triangle-exclamation"></i> {{ 'progressReport.deleteConfirm' | translate }}</span>
+                      <div class="tl-confirm-actions">
+                        <button type="button" class="tl-confirm-btn" (click)="cancelDelete()">{{ 'progressReport.cancel' | translate }}</button>
+                        <button type="button" class="tl-confirm-btn danger" [disabled]="deleting()" (click)="confirmDelete(entry.id)">{{ 'progressReport.delete' | translate }}</button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+          @if (plState.value.logs.length > timelineCollapsedCount) {
+            <button class="tl-toggle" (click)="toggleTimeline()" type="button">
+              <span>{{ (timelineExpanded() ? 'progressReport.timelineShowLess' : 'progressReport.timelineShowAll') | translate }}</span>
+              <svg class="tl-toggle-chev" [class.tl-toggle-open]="timelineExpanded()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          }
+        </div>
+      } @else {
+        <div class="card empty-card" appReveal>
+          <img class="empty-img" src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=1200&q=60" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" />
+          <div class="empty-rings">
+            <svg viewBox="0 0 200 200" fill="none" class="empty-svg">
+              <circle cx="100" cy="100" r="75" stroke="currentColor" stroke-width="0.5" stroke-dasharray="4 6" opacity="0.08" class="er-ring-1"/>
+              <circle cx="100" cy="100" r="55" stroke="currentColor" stroke-width="0.5" stroke-dasharray="3 5" opacity="0.06" class="er-ring-2"/>
+              <circle cx="100" cy="100" r="90" stroke="currentColor" stroke-width="0.5" stroke-dasharray="5 8" opacity="0.05" class="er-ring-3"/>
+            </svg>
+          </div>
+          <div class="empty-content">
+            <div class="empty-icon-frame">
+              <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" width="40" height="40" class="empty-icon-svg">
+                <circle cx="16" cy="16" r="14" opacity="0.3"/>
+                <path d="M10 16l4 4 8-8" stroke-width="2" opacity="0.7"/>
+              </svg>
+            </div>
+            <h3 class="empty-title">{{ 'progressReport.emptyTimelineTitle' | translate }}</h3>
+            <p class="empty-desc">{{ 'progressReport.emptyTimelineDesc' | translate }}</p>
+            <button class="btn-primary" (click)="openForm()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span>{{ 'progressReport.logFirstMeasurement' | translate }}</span>
+            </button>
+          </div>
+        </div>
+      }
+
+      @if (attendancesState$ | async; as atState) {
+        @if (atState.$state === 'loaded') {
+          <div class="card" appReveal>
+            <div class="card-header">
+              <h3 class="card-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                {{ 'progressReport.sectionCheckins' | translate }}
+              </h3>
+              @if (atState.value.length > 0) {
+                <span class="card-count">{{ 'progressReport.checkinVisits' | translate:{ count: atState.value.length } }}</span>
+              }
+            </div>
+            @if (atState.value.length === 0) {
+              <div class="empty-row">
+                <p>{{ 'progressReport.emptyCheckins' | translate }}</p>
+              </div>
+            } @else {
+              <div class="checkin-strip">
+                @for (c of atState.value.slice(0, 12); track c.id) {
+                  <div class="ci-pill">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" width="10" height="10"><polyline points="20 6 9 17 4 12"/></svg>
+                    <span>{{ c.checkInTime ? (c.checkInTime | date:'MMM d') : '' }}</span>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      }
+    } @else if (plState.$state === 'error') {
+      <div class="error-card">
+        <div class="error-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="36" height="36"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <h3>{{ 'progressReport.errorTitle' | translate }}</h3>
+        <p>{{ 'progressReport.errorDesc' | translate }}</p>
+      </div>
+    } @else {
+      <div class="skeleton-group">
+        <div class="skeleton skeleton-hero"></div>
+        <div class="skeleton skeleton-row">
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
+        </div>
+      </div>
+    }
+  }
+
+  <div class="modal-overlay" *ngIf="showForm()" (click)="closeForm()">
+    <div class="modal" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="pr-log-title">
+      <div class="modal-head">
+        <div class="modal-head-left">
+          <div class="modal-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </div>
+          <div>
+            <h3 class="modal-title" id="pr-log-title">{{ (editingId() ? 'progressReport.editModalTitle' : 'progressReport.logModalTitle') | translate }}</h3>
+            <p class="modal-sub">{{ (editingId() ? 'progressReport.editModalSub' : 'progressReport.logModalSub') | translate }}</p>
+          </div>
+        </div>
+        <button class="modal-x" (click)="closeForm()" type="button" [attr.aria-label]="'progressReport.cancel' | translate">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="fld">
+          <label class="fld-label" for="pr-weight">
+            {{ 'progressReport.metricWeight' | translate }} <span class="fld-req">*</span>
+            <span class="fld-unit">{{ 'progressReport.unitKg' | translate }}</span>
+          </label>
+          <div class="fld-control">
+            <input #weightInput id="pr-weight" type="number" inputmode="decimal" step="0.1" min="0" class="fld-input" [attr.value]="formWeight() ?? ''" [placeholder]="'progressReport.phWeight' | translate" (input)="onWeightInput(weightInput.value)" (keydown.enter)="submitEntry()" />
+            <div class="fld-stepper">
+              <button type="button" class="fld-step" tabindex="-1" aria-label="Increase" (click)="applyStep(weightInput, 0.1, 0, 999, formWeight)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+              </button>
+              <button type="button" class="fld-step" tabindex="-1" aria-label="Decrease" (click)="applyStep(weightInput, -0.1, 0, 999, formWeight)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="fld">
+          <label class="fld-label" for="pr-bodyfat">
+            {{ 'progressReport.metricBodyFat' | translate }}
+            <span class="fld-unit">%</span>
+          </label>
+          <div class="fld-control">
+            <input #bodyfatInput id="pr-bodyfat" type="number" inputmode="decimal" step="0.1" min="0" max="100" class="fld-input" [attr.value]="formBodyFat() ?? ''" [placeholder]="'progressReport.phBodyFat' | translate" (input)="onBodyFatInput(bodyfatInput.value)" />
+            <div class="fld-stepper">
+              <button type="button" class="fld-step" tabindex="-1" aria-label="Increase" (click)="applyStep(bodyfatInput, 0.1, 0, 100, formBodyFat)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+              </button>
+              <button type="button" class="fld-step" tabindex="-1" aria-label="Decrease" (click)="applyStep(bodyfatInput, -0.1, 0, 100, formBodyFat)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="fld">
+          <label class="fld-label" for="pr-muscle">
+            {{ 'progressReport.metricMuscleMass' | translate }}
+            <span class="fld-unit">{{ 'progressReport.unitKg' | translate }}</span>
+          </label>
+          <div class="fld-control">
+            <input #muscleInput id="pr-muscle" type="number" inputmode="decimal" step="0.1" min="0" class="fld-input" [attr.value]="formMuscleMass() ?? ''" [placeholder]="'progressReport.phMuscleMass' | translate" (input)="onMuscleMassInput(muscleInput.value)" />
+            <div class="fld-stepper">
+              <button type="button" class="fld-step" tabindex="-1" aria-label="Increase" (click)="applyStep(muscleInput, 0.1, 0, 999, formMuscleMass)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+              </button>
+              <button type="button" class="fld-step" tabindex="-1" aria-label="Decrease" (click)="applyStep(muscleInput, -0.1, 0, 999, formMuscleMass)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        @if (editingId()) {
+          <div class="fld-note"><i class="fa-solid fa-circle-info"></i> {{ 'progressReport.editOnceNote' | translate }}</div>
+        }
+        @if (formError()) {
+          <div class="fld-error">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            {{ formError() }}
+          </div>
+        }
+      </div>
+      <div class="modal-foot">
+        <button class="m-btn m-btn-ghost" (click)="closeForm()" type="button">{{ 'progressReport.cancel' | translate }}</button>
+        <button class="m-btn m-btn-primary" [disabled]="saving()" (click)="submitEntry()" type="button">
+          @if (saving()) {
+            <span class="m-spinner"></span>
+            <span>{{ 'progressReport.saving' | translate }}</span>
+          } @else {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>{{ (editingId() ? 'progressReport.updateMeasurement' : 'progressReport.saveMeasurement') | translate }}</span>
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" [style.display]="showGoalForm() ? 'flex' : 'none'" (click)="closeGoalForm()">
+    <div class="modal" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="pr-goal-title">
+      <div class="modal-head">
+        <div class="modal-head-left">
+          <div class="modal-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          </div>
+          <div>
+            <h3 class="modal-title" id="pr-goal-title">{{ 'progressReport.goalModalTitle' | translate }}</h3>
+            <p class="modal-sub">{{ 'progressReport.goalModalSub' | translate }}</p>
+          </div>
+        </div>
+        <button class="modal-x" (click)="closeGoalForm()" type="button" [attr.aria-label]="'progressReport.cancel' | translate">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="fld">
+          <label class="fld-label" for="pr-goal-target">
+            {{ 'progressReport.targetWeight' | translate }} <span class="fld-req">*</span>
+            <span class="fld-unit">{{ 'progressReport.unitKg' | translate }}</span>
+          </label>
+          <div class="fld-control">
+            <input #goalTargetInput id="pr-goal-target" type="number" inputmode="decimal" step="0.1" min="0" class="fld-input" [placeholder]="'progressReport.phTarget' | translate" (input)="onGoalWeightInput(goalTargetInput.value)" (keydown.enter)="saveGoal()" />
+            <div class="fld-stepper">
+              <button type="button" class="fld-step" tabindex="-1" aria-label="Increase" (click)="applyStep(goalTargetInput, 0.1, 0, 999, goalFormWeight)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+              </button>
+              <button type="button" class="fld-step" tabindex="-1" aria-label="Decrease" (click)="applyStep(goalTargetInput, -0.1, 0, 999, goalFormWeight)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="fld">
+          <label class="fld-label" for="pr-goal-start">
+            {{ 'progressReport.startingWeight' | translate }} <span class="fld-req">*</span>
+            <span class="fld-unit">{{ 'progressReport.unitKg' | translate }}</span>
+          </label>
+          <div class="fld-control">
+            <input #goalStartInput id="pr-goal-start" type="number" inputmode="decimal" step="0.1" min="0" class="fld-input" [placeholder]="'progressReport.phStart' | translate" (input)="onGoalStartInput(goalStartInput.value)" (keydown.enter)="saveGoal()" />
+            <div class="fld-stepper">
+              <button type="button" class="fld-step" tabindex="-1" aria-label="Increase" (click)="applyStep(goalStartInput, 0.1, 0, 999, goalFormStart)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+              </button>
+              <button type="button" class="fld-step" tabindex="-1" aria-label="Decrease" (click)="applyStep(goalStartInput, -0.1, 0, 999, goalFormStart)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        @if (formError()) {
+          <div class="fld-error">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            {{ formError() }}
+          </div>
+        }
+      </div>
+      <div class="modal-foot">
+        <button class="m-btn m-btn-ghost" (click)="closeGoalForm()" type="button">{{ 'progressReport.cancel' | translate }}</button>
+        <button class="m-btn m-btn-primary" (click)="saveGoal()" type="button">{{ 'progressReport.setGoal' | translate }}</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -4,7 +4,7 @@
 :host {
   /* Light defaults */
   --n-bg:            #ffffff;
-  --n-card:         #ffffff;
+  --n-card:          #ffffff;
   --n-card-border:  rgba(0, 0, 0, 0.06);
   --n-card-shadow:  rgba(0, 0, 0, 0.04);
   --n-text:         #1a1a1a;
@@ -33,8 +33,8 @@
 }
 
 :host-context([data-theme="dark"]) {
-  --n-bg:           #1a1c1e;
-  --n-card:         #1a1c1e;
+  --n-bg:           #131725;
+  --n-card:         #131725;
   --n-card-border:  rgba(255, 255, 255, 0.07);
   --n-card-shadow:  rgba(0, 0, 0, 0.3);
   --n-text:         #f1f5f9;
@@ -77,12 +77,11 @@
   width: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden;
   background-color: var(--n-bg);
   transition: background-color 0.3s ease;
   border-top-left-radius: 24px;
   border-top-right-radius: 24px;
-  box-sizing: border-box; /* عشان يحسب البوردر من ضمن المساحة */
+  box-sizing: border-box;
   overflow: hidden; 
 }
 
@@ -96,7 +95,7 @@
   border-top-left-radius: 24px;
   border-top-right-radius: 24px;
   overflow: hidden;
-  
+  margin-bottom: 30px;
 }
 
 .header-bg-img {
@@ -229,18 +228,23 @@
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 16px;
 }
-
 /* ==========================================================================
-   ── 6. Plan Cards ──
+   ── 6. Plan Cards (الوضع الافتراضي الإنجليزي LTR - الصورة يمين والنص يسار) ──
    ========================================================================== */
 .custom-plan-card {
   display: flex;
+  flex-direction: row; /* يضمن ترتيب العناصر: النص أولاً ثم الصورة على اليمين */
   background: var(--n-card);
   border: 1px solid var(--n-card-border);
-  border-radius: 28px; min-height: 170px; overflow: hidden;
+  border-radius: 28px; 
+  min-height: 170px; 
+  overflow: hidden;
   cursor: pointer;
   box-shadow: 0 4px 18px var(--n-card-shadow);
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  opacity: 0;
+  animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.2s ease, box-shadow 0.3s ease;
+  will-change: transform, opacity;
 }
 
 .custom-plan-card:hover {
@@ -249,14 +253,45 @@
   box-shadow: 0 12px 30px rgba(212, 250, 36, 0.1);
 }
 
-.custom-plan-card.plan-card-active {
-  border-color: var(--accent);
-  box-shadow: 0 8px 24px rgba(212, 250, 36, 0.08);
+/* حاوية الصورة - في الإنجليزي تقع على اليمين */
+.custom-plan-card .card-image-side {
+  width: 110px;       
+  min-width: 110px;   
+  height: 100%;       
+  display: flex; 
+  align-items: center; 
+  overflow: hidden;   
+  /* قوس نصف الدائرة ممتد جهة اليسار داخل الكارد (ليناسب وجودها على اليمين) */
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-top-left-radius: 120px;
+  border-bottom-left-radius: 120px;
 }
 
-.card-info-side {
-  flex: 1.5; padding: 20px 0 20px 24px;
-  display: flex; flex-direction: column; justify-content: space-between; z-index: 2;
+/* الصورة نفسها داخل الحاوية */
+.custom-plan-card .plan-hero-img {
+  width: 100%;        
+  height: 100%;
+  object-fit: cover; 
+  object-position: center; 
+  transform: scaleX(-1); /* عكس اتجاه الصورة لتنظر إلى اليسار داخل النسخة الإنجليزية */
+  transition: transform 0.3s ease;
+}
+
+/* الـ hover للنسخة الإنجليزية */
+.custom-plan-card:hover .plan-hero-img { 
+  transform: scaleX(-1) scale(1.05) rotate(-3deg); 
+}
+
+/* حاوية النصوص (جهة اليسار في الإنجليزي) */
+.custom-plan-card .card-info-side {
+  flex: 1; 
+  padding: 20px 24px; 
+  display: flex; 
+  flex-direction: column; 
+  justify-content: space-between; 
+  text-align: left; /* محاذاة النص لليستار */
+  min-width: 0; 
 }
 
 .card-status-row { margin-bottom: 8px; }
@@ -281,15 +316,27 @@
   margin: 0 0 16px; letter-spacing: -0.3px;
 }
 
-.card-stats-grid { display: flex; align-items: center; gap: 20px; }
+.custom-plan-card .card-stats-grid { 
+  display: flex; 
+  align-items: center; 
+  gap: 20px; 
+  justify-content: flex-start;
+}
+
 .stat-box { display: flex; flex-direction: column; }
 
-.stat-num-hero  { color: var(--n-text); font-size: 26px; font-weight: 800; line-height: 1; }
+.stat-num-hero   { color: var(--n-text); font-size: 26px; font-weight: 800; line-height: 1; }
 .stat-label-hero { color: var(--n-text-sub); font-size: 12px; margin-top: 4px; font-weight: 500; }
 
-.macros-summary-box {
-  display: flex; flex-direction: column; gap: 3px;
-  border-left: 1px solid var(--n-border); padding-left: 12px;
+/* الـ Box الخاص بالماكروز (LTR - إنجليزي) */
+.custom-plan-card .macros-summary-box {
+  display: flex; 
+  flex-direction: column; 
+  gap: 3px;
+  border-left: none;
+  border-right: 1px solid var(--n-border); 
+  padding-left: 0;
+  padding-right: 12px;
 }
 
 .mini-macro {
@@ -300,19 +347,6 @@
 .p-dot { width: 6px; height: 6px; background: #6366f1; border-radius: 50%; }
 .c-dot { width: 6px; height: 6px; background: #f59e0b; border-radius: 50%; }
 .f-dot { width: 6px; height: 6px; background: #ef4444; border-radius: 50%; }
-
-.card-image-side {
-  flex: 0.5; display: flex; align-items: center; justify-content: flex-end;
-}
-
-.plan-hero-img {
-  width: 140%; height: 110%;
-  object-fit: cover; object-position: left center;
-  border-top-left-radius: 120px; border-bottom-left-radius: 120px;
-  transition: transform 0.3s ease;
-}
-
-.custom-plan-card:hover .plan-hero-img { transform: scale(1.03) rotate(-3deg); }
 
 /* ==========================================================================
    ── 7. Plan Detail ──
@@ -430,11 +464,20 @@
    ========================================================================== */
 .modern-meal-card-enhanced {
   background: var(--n-card);
-  border-radius: 16px; border: 1px solid var(--n-card-border);
+  border-radius: 16px; 
+  border: 1px solid var(--n-card-border);
   box-shadow: 0 4px 12px var(--n-card-shadow);
-  overflow: hidden; display: flex; flex-direction: column;
-  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s ease;
+  overflow: hidden; 
+  display: flex; 
+  flex-direction: column; 
   cursor: pointer;
+  min-height: 320px; 
+
+  /* الأنيميشن */
+  opacity: 0;
+  animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+  will-change: transform, opacity;
 }
 
 .modern-meal-card-enhanced:hover {
@@ -446,14 +489,20 @@
 .meal-card-header-accent {
   padding: 14px 16px;
   background: var(--n-meal-header);
-  display: flex; justify-content: flex-start; align-items: center; gap: 10px;
+  display: flex; 
+  justify-content: flex-start; 
+  align-items: center; 
+  gap: 10px;
   border-bottom: 1px solid var(--n-meal-border);
 }
 
 .meal-avatar-icon-box {
   width: 40px; height: 40px;
   background: var(--n-card);
-  border-radius: 12px; display: flex; align-items: center; justify-content: center;
+  border-radius: 12px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
   box-shadow: 0 2px 6px var(--n-card-shadow);
   flex-shrink: 0;
 }
@@ -471,34 +520,53 @@
 .meal-snack     { background: rgba(239,68,68,0.12);  color: #ef4444; }
 
 .meal-card-main-content {
-  padding: 16px; display: flex; flex-direction: column; flex-grow: 1;
+  padding: 16px; 
+  display: flex; 
+  flex-direction: column; 
+  flex-grow: 1; 
 }
 
 .text-meal-name-updated {
-  font-size: 16px; font-weight: 700; color: var(--n-text);
-  margin: 0 0 8px; line-height: 1.4;
+  font-size: 16px; 
+  font-weight: 700; 
+  color: var(--n-text);
+  margin: 0 0 8px; 
+  line-height: 1.4;
 }
 
 .meal-calories-badge-row {
-  display: flex; align-items: center; gap: 6px;
+  display: flex; 
+  align-items: center; 
+  gap: 6px;
   background: rgba(251, 191, 36, 0.1);
-  padding: 4px 10px; border-radius: 8px;
-  width: fit-content; margin-bottom: 14px;
+  padding: 4px 10px; 
+  border-radius: 8px;
+  width: fit-content; 
+  margin-bottom: 14px;
 }
 .meal-cal-icon-img { width: 16px; height: 16px; object-fit: contain; }
 .meal-cal-val-num  { font-size: 14px; font-weight: 800; color: #d97706; }
 .meal-cal-lbl-text { font-size: 11px; color: #f59e0b; }
 
 .meal-macros-horizontal-pills {
-  display: flex; flex-wrap: wrap; gap: 8px;
-  margin-bottom: 12px; justify-content: flex-start;
+  display: flex; 
+  flex-wrap: wrap; 
+  gap: 8px;
+  margin-top: auto; 
+  margin-bottom: 14px; 
+  justify-content: flex-start;
 }
 
 .macro-pill-item {
-  display: flex; align-items: center; gap: 6px;
-  padding: 6px 10px; border-radius: 100px;
-  background: var(--n-pill-bg); border: 1px solid var(--n-pill-border);
-  width: max-content; flex-shrink: 0;
+  display: flex; 
+  align-items: center; 
+  gap: 6px;
+  padding: 6px 10px; 
+  border-radius: 100px;
+  background: var(--n-pill-bg); 
+  border: 1px solid var(--n-pill-border);
+  width: max-content; 
+  flex-shrink: 0;
 }
 .macro-pill-item img { width: 18px; height: 18px; object-fit: contain; }
 
@@ -514,15 +582,19 @@
 .macro-pill-item.fat-pill     .pill-amount { color: #9333ea; }
 
 .meal-ingredients-tags-flex {
-  display: flex; flex-wrap: wrap; gap: 4px;
-  margin-top: auto; padding-top: 8px;
+  display: flex; 
+  flex-wrap: wrap; 
+  gap: 4px;
+  padding-top: 12px;
   border-top: 1px dashed var(--n-border);
 }
 
 .meal-ingredient-tag-item {
   font-size: 10px;
-  background: var(--n-ing-bg); color: var(--n-ing-text);
-  padding: 2px 6px; border-radius: 6px;
+  background: var(--n-ing-bg); 
+  color: var(--n-ing-text);
+  padding: 2px 6px; 
+  border-radius: 6px;
 }
 
 /* ==========================================================================
@@ -575,7 +647,7 @@
 .fat-card     { background: rgba(239,68,68,0.08);   border-color: rgba(239,68,68,0.15); }
 
 .meal-macro-val { font-size: 24px; font-weight: 800; color: var(--n-text); }
-.meal-macro-lbl { font-size: 12px; color: var(--n-text-muted); margin-top: 4px; }
+.macro-macro-lbl { font-size: 12px; color: var(--n-text-muted); margin-top: 4px; }
 
 /* ==========================================================================
    ── 11. Ingredients ──
@@ -596,7 +668,7 @@
 }
 
 /* ==========================================================================
-   ── 12. Responsive ──
+   ── 12. Responsive & Context Support ──
    ========================================================================== */
 @media (max-width: 768px) {
   :host { margin-top: -17px !important; margin-left: -16px !important; margin-right: -16px !important; width: calc(100% + 32px) !important; }
@@ -614,46 +686,28 @@
   .custom-plan-card { min-height: 150px; }
   .stat-num-hero { font-size: 22px; }
   .card-plan-title { font-size: 16px; }
-  .plan-hero-img { width: 150%; }
+  .plan-hero-img { width: 100%; }
   .modern-meals-grid { grid-template-columns: 1fr; }
   .meal-macro-grid { gap: 8px; }
 }
 
-.custom-plan-card {
-  direction: ltr;
-  flex-direction: row-reverse;
+/* ==========================================================================
+   ── 13. Animations Keyframes ──
+   ========================================================================== */
+@keyframes slideUpFade {
+  0% {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.custom-plan-card .card-info-side {
-  direction: rtl;
-  text-align: right;
-  padding: 20px 24px 20px 0;
-  flex: 1.5;
-  min-width: 0;
-}
-
-.custom-plan-card .card-stats-grid {
-  justify-content: flex-start;
-}
-
-.custom-plan-card .macros-summary-box {
-  border-right: none;
-  border-left: 1px solid var(--n-border);
-  padding-right: 0;
-  padding-left: 12px;
-}
-
-.custom-plan-card .card-image-side {
-  justify-content: flex-start;
-}
-
-.custom-plan-card .plan-hero-img {
-  object-position: right center;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  border-top-right-radius: 120px;
-  border-bottom-right-radius: 120px;
-}
+/* ==========================================================================
+   ── التغييرات الخاصة باللغة العربية [dir="rtl"] ──
+   ========================================================================== */
 :host-context([dir="rtl"]) .search-icon {
   left: auto;
   right: 16px;
@@ -668,3 +722,43 @@
   left: 110px;
 }
 
+/* ترك المتصفح ليرتب الصورة يميناً والنص يساراً تلقائياً بدون row-reverse */
+:host-context([dir="rtl"]) .custom-plan-card {
+  flex-direction: row; 
+}
+
+/* التعديل السحري هنا: جعل نصف الدائرة يفتح ويبص جهة اليمين داخل الكارد */
+:host-context([dir="rtl"]) .custom-plan-card .card-image-side {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-top-right-radius: 120px;
+  border-bottom-right-radius: 120px;
+}
+
+/* الصورة تنظر لليمين */
+:host-context([dir="rtl"]) .plan-hero-img {
+  transform: scaleX(1); 
+}
+
+/* الـ hover يحافظ على اتجاه اليمين */
+:host-context([dir="rtl"]) .custom-plan-card:hover .plan-hero-img { 
+  transform: scaleX(1) scale(1.05) rotate(3deg); 
+}
+
+/* محاذاة النص لليمين في النسخة العربية */
+:host-context([dir="rtl"]) .card-info-side {
+  text-align: right;
+  padding: 20px 24px; 
+}
+
+:host-context([dir="rtl"]) .custom-plan-card .card-stats-grid { 
+  justify-content: flex-start;
+}
+
+/* تعديل خط الفصل والـ Margins للماكروز في العربي */
+:host-context([dir="rtl"]) .macros-summary-box {
+  border-right: none;
+  border-left: 1px solid var(--n-border); 
+  padding-right: 0;
+  padding-left: 12px;
+}

@@ -12,8 +12,8 @@
   position: absolute;
   inset: 0;
   background-image:
-    radial-gradient(ellipse 80% 60% at 15% 80%, rgba(212, 250, 36, 0.08) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 85% 20%, rgba(212, 250, 36, 0.04) 0%, transparent 60%);
+    radial-gradient(ellipse 80% 60% at 15% 80%, rgba(198,239,46, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 85% 20%, rgba(198,239,46, 0.04) 0%, transparent 60%);
   pointer-events: none;
 }
 
@@ -34,7 +34,7 @@
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.12em;
-  color: #D4FA24;
+  color: #C6EF2E;
   margin-bottom: 10px;
 }
 
@@ -94,8 +94,8 @@
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #D4FA24;
-  box-shadow: 0 0 6px rgba(212, 250, 36, 0.5);
+  background: #C6EF2E;
+  box-shadow: 0 0 6px rgba(198,239,46, 0.5);
 }
 
 .avatar-container {
@@ -107,8 +107,8 @@
   height: 52px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid rgba(212, 250, 36, 0.35);
-  box-shadow: 0 0 0 4px rgba(212, 250, 36, 0.08);
+  border: 2px solid rgba(198,239,46, 0.35);
+  box-shadow: 0 0 0 4px rgba(198,239,46, 0.08);
 }
 
 .avatar-placeholder {
@@ -119,14 +119,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid rgba(212, 250, 36, 0.35);
-  box-shadow: 0 0 0 4px rgba(212, 250, 36, 0.08);
+  border: 2px solid rgba(198,239,46, 0.35);
+  box-shadow: 0 0 0 4px rgba(198,239,46, 0.08);
 }
 
 .avatar-initials {
   font-size: 18px;
   font-weight: 700;
-  color: rgba(212, 250, 36, 0.8);
+  color: rgba(198,239,46, 0.8);
   letter-spacing: 0.04em;
 }
 

@@ -8,12 +8,12 @@
   <div class="section-card">
     <div class="section-header">
       <div class="section-header-left">
-        <i class="fas fa-id-card"></i>
+        <span class="section-icon" [innerHTML]="getSvgIcon('id-card')"></span>
         <h2>{{ 'memberProfile.membership' | translate }}</h2>
       </div>
       @if (membership(); as m) {
         <span class="status-indicator" [class.active]="m.isActive">
-          <i class="fas fa-circle"></i>
+          <span class="status-dot" [innerHTML]="getSvgIcon('circle')"></span>
           {{ m.isActive ? ('memberProfile.active' | translate) : ('memberProfile.inactive' | translate) }}
         </span>
       }
@@ -22,26 +22,20 @@
     @if (membership(); as m) {
       <div class="membership-body">
         <div class="plan-section">
-          <div class="plan-icon">
-            @if (m.type.toLowerCase().includes('premium')) {
-              <i class="fas fa-crown"></i>
-            } @else {
-              <i class="fas fa-dumbbell"></i>
-            }
-          </div>
+          <div class="plan-icon" [innerHTML]="getSvgIcon(m.type.toLowerCase().includes('premium') ? 'crown' : 'dumbbell')"></div>
           <div class="plan-name">{{ m.type }}</div>
         </div>
 
         <div class="info-grid">
           <div class="info-item">
-            <i class="far fa-calendar-alt"></i>
+            <span class="info-item-icon" [innerHTML]="getSvgIcon('calendar')"></span>
             <div class="info-text">
               <span class="info-label">{{ 'memberProfile.started' | translate }}</span>
               <span class="info-value">{{ m.startDate | date:'mediumDate' }}</span>
             </div>
           </div>
           <div class="info-item">
-            <i class="far fa-clock"></i>
+            <span class="info-item-icon" [innerHTML]="getSvgIcon('clock')"></span>
             <div class="info-text">
               <span class="info-label">{{ 'memberProfile.expires' | translate }}</span>
               <span class="info-value">{{ m.endDate | date:'mediumDate' }}</span>
@@ -50,7 +44,7 @@
 
           @if (subscription(); as s) {
             <div class="info-item">
-              <i class="fas fa-bolt"></i>
+              <span class="info-item-icon" [innerHTML]="getSvgIcon('bolt')"></span>
               <div class="info-text">
                 <span class="info-label">{{ 'memberProfile.remainingSessions' | translate }}</span>
                 <span class="info-value">{{ s.remainingSessions }}</span>
@@ -59,7 +53,7 @@
           }
 
           <div class="info-item">
-            <i class="fas fa-dollar-sign"></i>
+            <span class="info-item-icon" [innerHTML]="getSvgIcon('dollar')"></span>
             <div class="info-text">
               <span class="info-label">{{ 'memberProfile.price' | translate }}</span>
               <span class="info-value">{{ m.price | currency }}</span>
@@ -73,7 +67,7 @@
             <ul class="features-list">
               @for (feature of m.features; track feature) {
                 <li>
-                  <i class="fas fa-check-circle"></i>
+                  <span class="feature-icon" [innerHTML]="getSvgIcon('check-circle')"></span>
                   {{ feature }}
                 </li>
               }
@@ -83,7 +77,7 @@
       </div>
     } @else {
       <div class="empty-state">
-        <i class="fas fa-id-card"></i>
+        <span class="empty-icon" [innerHTML]="getSvgIcon('id-card')"></span>
         <p>{{ 'memberProfile.noMembership' | translate }}</p>
       </div>
     }
