@@ -186,3 +186,71 @@ body {
   --card-bg-mobile: rgba(255, 255, 255, 0.95);
 }
 
+/* --- Scroll Reveal Animations --- */
+.reveal-fade-up {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 1.2s cubic-bezier(0.25, 1, 0.5, 1), transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+  will-change: transform, opacity;
+}
+
+.reveal-visible {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+/* --- Premium Cards Hover Transitions --- */
+.pricing-card, .program-card, .checkout-card, .benefit-item {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.pricing-card:hover, .program-card:hover {
+  transform: translateY(-6px) scale(1.02) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* --- Button Click & Hover Feedback --- */
+.btn, button, .primary-btn, .secondary-btn, .success-btn, .gray-btn, .join-btn, .btn-signup-exact, .btn-login-exact {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+.btn:active, button:active, .primary-btn:active, .secondary-btn:active, .success-btn:active, .gray-btn:active, .join-btn:active, .btn-signup-exact:active, .btn-login-exact:active {
+  transform: scale(0.96) !important;
+}
+
+/* --- Active Nav Item Underline Slide Effect --- */
+.nav-item-exact {
+  position: relative;
+  transition: color 0.3s ease;
+}
+.nav-item-exact::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #D3F551; /* Lime/Mint color */
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.nav-item-exact:hover::after, .nav-item-exact.text-lime-active::after {
+  width: 100%;
+}
+
+/* --- Accessibility: Respect user prefers-reduced-motion --- */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-delay: -1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    background-attachment: initial !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+  }
+  .reveal-fade-up {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+

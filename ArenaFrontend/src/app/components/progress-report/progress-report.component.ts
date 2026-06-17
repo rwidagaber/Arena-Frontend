@@ -1,9 +1,9 @@
 import { Component, ChangeDetectionStrategy, ChangeDetectorRef, NgZone, HostListener, inject, computed, signal, type WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Subject, Observable, switchMap, startWith, map, catchError, of, take, merge, fromEvent, filter } from 'rxjs';
+import { Subject, Observable, switchMap, startWith, map, catchError, of, take, merge, fromEvent, filter, shareReplay } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ProgressReportService, type ProgressLogDto, type ProgressSummaryDto, type CreateProgressLogDto } from '../../core/services/progress-report.service';
+import { ProgressReportService, type ProgressLogDto, type ProgressSummaryDto, type CreateProgressLogDto, type AttendanceRecord } from '../../core/services/progress-report.service';
 import { MemberService } from '../../core/services/member.service';
 import { RevealDirective } from './reveal.directive';
 
@@ -136,30 +136,20 @@ export class ProgressReportComponent {
   private zone = inject(NgZone);
   private translate = inject(TranslateService);
 
-  private memberProfileId: string = (() => {
-    try {
-      const raw = localStorage.getItem('arena_user') ?? sessionStorage.getItem('arena_user');
-      if (raw) return JSON.parse(raw).memberProfileId || '';
-    } catch {}
-    return '';
-  })();
+  /** Shared member-profile stream (DB) — source for member id and target weight. */
+  private profile$ = this.member.getProfile().pipe(
+    catchError(() => of(null)),
+    shareReplay(1)
+  );
 
   protected Math = Math;
 
   constructor() {
-    const saved = localStorage.getItem('progress_goal');
-    if (saved) {
-      try { this.goalConfig.set(JSON.parse(saved)); } catch {}
-    }
-    // The goal's target weight is sourced from the member profile (DB)
-    this.member.getProfile().subscribe({
-      next: p => {
-        if (p?.targetWeight != null && p.targetWeight > 0) {
-          const start = this.goalConfig()?.startWeight ?? p.weight ?? p.targetWeight;
-          this.goalConfig.set({ targetWeight: p.targetWeight, startWeight: start });
-        }
-      },
-      error: () => {},
+    // Target weight is sourced from the member profile (DB); no local storage.
+    this.profile$.subscribe(p => {
+      if (p?.targetWeight != null && p.targetWeight > 0) {
+        this.profileTargetWeight.set(p.targetWeight);
+      }
     });
   }
 
@@ -182,7 +172,14 @@ export class ProgressReportComponent {
 
   attendancesState$ = merge(this.refresh$, this.visibilityRefresh$).pipe(
     startWith(undefined),
-    switchMap(() => toState(this.service.getAttendances(this.memberProfileId)))
+    switchMap(() => this.profile$.pipe(
+      switchMap(p => {
+        const id = p?.memberProfileId || p?.id || '';
+        return id
+          ? toState(this.service.getAttendances(id))
+          : of({ $state: 'loaded' as const, value: [] as AttendanceRecord[] });
+      })
+    ))
   );
 
   private summarySignal = toSignal(this.progressSummaryState$, { requireSync: true });
@@ -371,20 +368,10 @@ export class ProgressReportComponent {
 
   /** Edit/delete state. Each entry may be edited only once (tracked client-side). */
   protected editingId = signal<string | null>(null);
-  protected editedIds = signal<Set<string>>(this.loadEditedIds());
+  protected editedIds = signal<Set<string>>(new Set<string>());
   protected confirmDeleteId = signal<string | null>(null);
   protected deleting = signal(false);
 
-  private loadEditedIds(): Set<string> {
-    try {
-      const raw = localStorage.getItem('progress_edited_ids');
-      if (raw) return new Set<string>(JSON.parse(raw));
-    } catch {}
-    return new Set<string>();
-  }
-  private persistEditedIds(): void {
-    try { localStorage.setItem('progress_edited_ids', JSON.stringify(Array.from(this.editedIds()))); } catch {}
-  }
   protected isEdited(id: string): boolean { return this.editedIds().has(id); }
   protected isEditable(id: string): boolean { return !this.editedIds().has(id); }
 
@@ -392,8 +379,23 @@ export class ProgressReportComponent {
   protected goalFormWeight = signal<number | null>(null);
   protected goalFormStart = signal<number | null>(null);
 
-  /** Goal config persisted in localStorage */
-  protected goalConfig = signal<GoalConfig | null>(null);
+  /** Target weight from the member profile (DB). */
+  private profileTargetWeight = signal<number | null>(null);
+
+  /** Start weight derived from the earliest progress log (DB). */
+  private goalStartWeight = computed(() => {
+    const chrono = [...this.logs].reverse();
+    return chrono[0]?.weight ?? this.currentWeight() ?? null;
+  });
+
+  /** Goal config sourced entirely from the DB: target = profile, start = first log. */
+  protected goalConfig = computed<GoalConfig | null>(() => {
+    const target = this.profileTargetWeight();
+    if (target == null || target <= 0) return null;
+    const start = this.goalStartWeight();
+    if (start == null) return null;
+    return { targetWeight: target, startWeight: start };
+  });
 
   /** Week-over-week data (last 7 days vs previous 7 days) */
   protected weeklyComparison = computed(() => {
@@ -760,7 +762,6 @@ export class ProgressReportComponent {
           const next = new Set(this.editedIds());
           next.delete(id);
           this.editedIds.set(next);
-          this.persistEditedIds();
         }
         this.refresh$.next();
       },
@@ -824,7 +825,6 @@ export class ProgressReportComponent {
           next.delete(editId);
           if (created?.id) next.add(created.id);
           this.editedIds.set(next);
-          this.persistEditedIds();
         }
         this.lockScroll(false);
         this.showForm.set(false);
@@ -873,23 +873,20 @@ export class ProgressReportComponent {
 
   saveGoal(): void {
     const target = this.goalFormWeight();
-    const start = this.goalFormStart();
-    if (!target || !start || target <= 0 || start <= 0) {
+    if (!target || target <= 0) {
       this.formError.set(this.translate.instant('progressReport.errValidValues'));
       return;
     }
-    const goal: GoalConfig = { targetWeight: target, startWeight: start };
-    this.goalConfig.set(goal);
-    localStorage.setItem('progress_goal', JSON.stringify(goal));
-    // Persist target weight to the DB (start weight stays local as the ring reference)
+    // Target weight is persisted to the DB; the ring's start weight is derived
+    // from the earliest progress log, so the goal survives reloads with no local storage.
+    this.profileTargetWeight.set(target);
     this.member.updateProfile({ targetWeight: target }).subscribe({ next: () => {}, error: () => {} });
     this.lockScroll(false);
     this.showGoalForm.set(false);
   }
 
   clearGoal(): void {
-    this.goalConfig.set(null);
-    localStorage.removeItem('progress_goal');
+    this.profileTargetWeight.set(null);
     this.member.updateProfile({ targetWeight: 0 }).subscribe({ next: () => {}, error: () => {} });
   }
 

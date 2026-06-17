@@ -4,34 +4,23 @@
   --accent-soft: rgba(198,239,46,0.12);
   --accent-glow: rgba(198,239,46,0.25);
   --hide-x: -100%;
-  height: 100vh;
+  height: calc(100vh - var(--header-h, 80px));
   position: sticky;
-  top: 0;
+  top: var(--header-h, 80px);
 }
 
 :host-context([dir="rtl"]) { --hide-x: 100%; }
 
 .dash-sidebar {
   width: 240px;
-  height: 100vh;
-  background: #FEFFFF;
+  height: calc(100vh - var(--header-h, 80px));
+  background: #ffffff;
   padding: 0;
   display: flex;
   flex-direction: column;
   border-right: 1px solid #e5e5e5;
   position: sticky;
-  top: 0;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
-}
-
-[data-theme="light"] .dash-sidebar {
-  background: #FEFFFF;
-  border-right-color: #e5e5e5;
-}
-
-[data-theme="dark"] .dash-sidebar {
-  background: #111318;
-  border-right-color: rgba(255, 255, 255, 0.05);
+  top: var(--header-h, 80px);
 }
 
 .sidebar-brand {
@@ -284,9 +273,55 @@
   transform: translatex(2px);
 }
 
+@media (max-width: 768px) {
+  /* Collapse the full-height rail into a compact sticky top bar */
+  :host {
+    position: sticky;
+    top: 0;
+    height: auto;
+    width: 100%;
+    z-index: 50;
+  }
   .dash-sidebar {
     width: 100%;
     height: auto;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-right: none;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .sidebar-brand {
+    padding: 0 6px 0 0;
+    border-bottom: none;
+    flex-shrink: 0;
+  }
+  .sidebar-nav {
+    flex-direction: row;
+    gap: 6px;
+    padding: 0;
+    flex: 1 1 auto;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .sidebar-nav::-webkit-scrollbar { display: none; }
+  .sidebar-item {
+    width: auto;
+    flex: 0 0 auto;
+    padding: 8px 12px;
+    white-space: nowrap;
+  }
+  .sidebar-item:hover { transform: none; }
+  .sidebar-active-bar { display: none; }
+  /* The membership promo is also shown in the dashboard body — hide here to keep the bar slim */
+  .sidebar-membership { display: none; }
+  .sidebar-footer {
+    padding: 0;
+    border-top: none;
+    flex-shrink: 0;
+  }
+  .sidebar-logout { padding: 8px 10px; }
 }
 
 /* ══════════════════════════════════════════════
@@ -423,4 +458,10 @@
 
 :host-context([data-theme="dark"]) .sidebar-logout:hover {
   background: rgba(239,68,68,0.10) !important;
+}
+
+@media (max-width: 768px) {
+  :host-context([data-theme="dark"]) .dash-sidebar {
+    border-bottom-color: rgba(255,255,255,0.06);
+  }
 }

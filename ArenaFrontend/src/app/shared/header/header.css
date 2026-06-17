@@ -62,9 +62,39 @@
   background-position: 20px 0, 20px 0, 0 0, 0 0;
   background-size: 40px 40px;
   background-repeat: repeat;
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 999;
   border-bottom: 1px solid var(--header-border);
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  transition: background-color 0.3s ease, border-color 0.3s ease, padding 0.3s ease;
+}
+
+.gympro-header-exact.is-sticky {
+  position: fixed;
+  background-color: rgba(12, 15, 23, 0.95) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
+  border-bottom: 1px solid var(--header-border);
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+  animation: headerSlideDown 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+:host-context([data-theme="light"]) .gympro-header-exact.is-sticky {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+}
+
+@keyframes headerSlideDown {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 
 .gympro-header-exact::before {
