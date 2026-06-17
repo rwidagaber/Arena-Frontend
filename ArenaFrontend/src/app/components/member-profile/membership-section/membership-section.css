@@ -836,6 +836,7 @@
 }
 
 :host-context([data-theme="dark"]) .page-num-btn.active {
+  background: var(--c-accent, #C6EF2E);
   color: #000000;
   box-shadow: 0 4px 12px rgba(198, 239, 46, 0.15);
 }
@@ -890,4 +891,4 @@
 /* ── sessions-usage-fill: gradient flows right→left in RTL ── */
 :host-context([dir="rtl"]) .sessions-usage-fill {
   background: linear-gradient(270deg, #a0c826 0%, #C6EF2E 100%);
-}
+}
