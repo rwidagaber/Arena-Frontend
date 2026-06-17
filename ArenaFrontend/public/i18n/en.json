@@ -282,7 +282,8 @@
     "progressReport": "Progress Report",
     "settings": "Settings",
     "logout": "Logout",
-    "chatbot": "ChatBot"
+    "chatbot": "ChatBot",
+    "getPlanDetails": "Get Plan Details"
   },
   "section": {
     "workoutPlaceholder": "Your personalized workout plan will appear here.",
@@ -670,6 +671,12 @@
       "startWorkout": "Start your workout",
       "quickActions": "Quick Actions",
       "qrCode": "QR Code",
+      "checkIn": "Check In",
+      "nextSession": "Next Session",
+      "noUpcoming": "No upcoming session booked",
+      "openQr": "Open my QR code",
+      "sessionsLeft": "sessions left",
+      "daysLeft": "days left",
       "progress": "Progress",
       "monthlyProgress": "Monthly Progress",
       "complete": "Complete",

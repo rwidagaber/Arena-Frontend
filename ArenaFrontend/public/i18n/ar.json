@@ -283,7 +283,8 @@
     "progressReport": "تقرير التقدم",
     "settings": "الإعدادات",
     "logout": "تسجيل الخروج",
-    "chatbot": "المساعد الذكي"
+    "chatbot": "المساعد الذكي",
+    "getPlanDetails": "عرض تفاصيل الخطة"
   },
   "section": {
     "workoutPlaceholder": "ستظهر خطة التمرين المخصصة لك هنا.",
@@ -671,6 +672,12 @@
       "startWorkout": "ابدأ تمرينك",
       "quickActions": "إجراءات سريعة",
       "qrCode": "رمز QR",
+      "checkIn": "تسجيل الحضور",
+      "nextSession": "الجلسة القادمة",
+      "noUpcoming": "لا توجد جلسة قادمة محجوزة",
+      "openQr": "افتح رمز QR الخاص بي",
+      "sessionsLeft": "جلسة متبقية",
+      "daysLeft": "يوم متبقٍ",
       "progress": "التقدم",
       "monthlyProgress": "التقدم الشهري",
       "complete": "مكتمل",

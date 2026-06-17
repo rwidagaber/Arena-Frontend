@@ -471,7 +471,7 @@ export class ProgressReportComponent {
   });
 
   /** Downloads the full log history as a CSV file. */
-  exportCsv(): void {
+  exportPdf(): void {
     const logs = this.logs;
     if (!logs.length) return;
 
@@ -516,7 +516,7 @@ export class ProgressReportComponent {
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Arena — Progress Report</title>
+<title>arena-progress-${new Date().toISOString().slice(0, 10)}</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;background:#eceae4;color:#181818;padding:32px;line-height:1.5;-webkit-print-color-adjust:exact;print-color-adjust:exact}
@@ -574,13 +574,38 @@ export class ProgressReportComponent {
 </body>
 </html>`;
 
-    const blob = new Blob([html], { type: 'text/html;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `arena-progress-${new Date().toISOString().slice(0, 10)}.html`;
-    a.click();
-    URL.revokeObjectURL(url);
+    // Render the print-styled report into a hidden iframe and open the
+    // browser's print dialog — choose "Save as PDF" to download a PDF.
+    const iframe = document.createElement('iframe');
+    iframe.setAttribute('aria-hidden', 'true');
+    iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow?.document;
+    if (!doc) { iframe.remove(); return; }
+
+    doc.open();
+    doc.write(html);
+    doc.close();
+
+    const win = iframe.contentWindow!;
+    const cleanup = () => iframe.remove();
+
+    const triggerPrint = () => {
+      win.focus();
+      // Remove the iframe once the print dialog is dismissed.
+      win.onafterprint = () => setTimeout(cleanup, 0);
+      win.print();
+      // Fallback cleanup in case onafterprint never fires.
+      setTimeout(cleanup, 60000);
+    };
+
+    // Give the document (and fonts) a moment to lay out before printing.
+    if (doc.readyState === 'complete') {
+      setTimeout(triggerPrint, 250);
+    } else {
+      win.onload = () => setTimeout(triggerPrint, 250);
+    }
   }
 
   /** Achievement badges computed from log data */
