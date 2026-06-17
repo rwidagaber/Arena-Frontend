@@ -23,10 +23,26 @@ export class HeaderComponent implements OnInit, OnDestroy {
   readonly themeService = inject(ThemeService);
 
   protected isSticky = false;
+  protected scrollProgress = 0;
 
   @HostListener('window:scroll', [])
   onWindowScroll(): void {
     this.isSticky = window.scrollY > 80;
+    // Reading progress indicator (additive — does not affect sticky logic)
+    const doc = document.documentElement;
+    const max = doc.scrollHeight - doc.clientHeight;
+    this.scrollProgress = max > 0 ? Math.min(100, (window.scrollY / max) * 100) : 0;
+  }
+
+  /* ── Mobile navigation menu ──────────────────────────────────── */
+  protected mobileOpen = false;
+
+  toggleMobileMenu(): void {
+    this.mobileOpen = !this.mobileOpen;
+  }
+
+  closeMobileMenu(): void {
+    this.mobileOpen = false;
   }
 
   private userSub?: Subscription;

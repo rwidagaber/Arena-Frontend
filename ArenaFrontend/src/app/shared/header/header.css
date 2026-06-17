@@ -18,6 +18,7 @@
   --toggle-bg:        rgba(255, 255, 255, 0.06);
   --toggle-border:    rgba(255, 255, 255, 0.12);
   --toggle-color:     #ffffff; /* لون الهلال */
+  --accent-text:      #cffe21; /* readable accent for hover/active text (dark) */
 }
 
 :host-context([data-theme="light"]) {
@@ -34,6 +35,7 @@
   --toggle-bg:        rgba(0, 0, 0, 0.06);
   --toggle-border:    rgba(0, 0, 0, 0.12);
   --toggle-color:     #f8e807; /* لون الشمس */
+  --accent-text:      #3f6307; /* darker green stays readable on light bg */
 }
 
 /* ==========================================================================
@@ -150,8 +152,8 @@
   background: transparent; border: none;
 }
 
-.nav-item-exact:hover { color: #cffe21; }
-.text-lime-active { color: #cffe21 !important; }
+.nav-item-exact:hover { color: var(--accent-text); }
+.text-lime-active { color: var(--accent-text) !important; }
 
 /* ==========================================================================
    Theme Toggle — زر بسيط بـ SVG
@@ -196,7 +198,7 @@
 
 .btn-lang-exact:hover {
   background: rgba(207, 254, 33, 0.12);
-  border-color: #cffe21; color: #cffe21;
+  border-color: #cffe21; color: var(--accent-text);
 }
 
 .btn-login-exact {
@@ -205,7 +207,7 @@
   transition: color 0.2s ease; cursor: pointer;
 }
 
-.btn-login-exact:hover { color: #cffe21; }
+.btn-login-exact:hover { color: var(--accent-text); }
 
 .btn-signup-exact {
   background-color: #cffe21; color: #0c0f17;
@@ -424,3 +426,138 @@
 /* تأثير دوران السهم اللطيف */
 .nav-chevron { transition: transform 0.2s ease; }
 .nav-chevron.rotated { transform: rotate(180deg); }
+
+/* ==========================================================================
+   ENHANCEMENTS (additive) — brand polish, animated nav underline,
+   scroll progress, mobile menu
+   ========================================================================== */
+
+/* Brand logo hover polish */
+.logo-circle-exact {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
+}
+.brand-v3-exact { cursor: default; }
+.brand-v3-exact:hover .logo-circle-exact {
+  transform: rotate(8deg) scale(1.06);
+  box-shadow: 0 0 30px rgba(207, 254, 33, 0.4);
+}
+
+/* Animated underline for desktop nav links */
+.nav-item-exact { position: relative; }
+.nav-item-exact::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -7px;
+  width: 100%;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #a3e635, #cffe21);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.nav-item-exact:hover::after,
+.nav-item-exact.text-lime-active::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* Reading / scroll progress bar */
+.scroll-progress {
+  position: absolute;
+  bottom: 0;
+  inset-inline-start: 0;
+  height: 3px;
+  width: 0;
+  background: linear-gradient(90deg, #a3e635, #cffe21);
+  box-shadow: 0 0 10px rgba(207, 254, 33, 0.6);
+  z-index: 3;
+  border-radius: 0 2px 2px 0;
+  transition: width 0.1s linear;
+  pointer-events: none;
+}
+
+/* Hamburger toggle (mobile only) */
+.mobile-toggle {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--toggle-bg);
+  border: 1px solid var(--toggle-border);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.mobile-toggle:hover {
+  border-color: #cffe21;
+  background: rgba(207, 254, 33, 0.1);
+}
+.mobile-toggle-bar {
+  width: 18px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--nav-text);
+  transition: transform 0.3s ease, opacity 0.2s ease, background 0.3s ease;
+}
+.mobile-toggle.is-active .mobile-toggle-bar:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.mobile-toggle.is-active .mobile-toggle-bar:nth-child(2) { opacity: 0; }
+.mobile-toggle.is-active .mobile-toggle-bar:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+/* Mobile menu panel */
+.mobile-menu {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  padding: 0 1.5rem;
+  position: relative;
+  z-index: 2;
+  background-color: var(--header-bg);
+  border-top: 0 solid var(--header-border);
+  transition: max-height 0.38s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, padding 0.3s ease, border-width 0.3s ease;
+}
+.mobile-menu.open {
+  max-height: 420px;
+  opacity: 1;
+  padding: 0.5rem 1.5rem 1.1rem;
+  border-top-width: 1px;
+}
+
+.gympro-header-exact.is-sticky .mobile-menu {
+  background-color: rgba(12, 15, 23, 0.98);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+:host-context([data-theme="light"]) .gympro-header-exact.is-sticky .mobile-menu {
+  background-color: rgba(255, 255, 255, 0.98);
+}
+
+.mobile-link {
+  color: var(--nav-text);
+  font-weight: 700;
+  font-size: 1rem;
+  text-decoration: none;
+  padding: 0.9rem 0.25rem;
+  border-bottom: 1px solid var(--header-border);
+  transition: color 0.2s ease, padding-inline-start 0.2s ease;
+}
+.mobile-link:last-child { border-bottom: none; }
+.mobile-link:hover,
+.mobile-link.text-lime-active {
+  color: var(--accent-text);
+  padding-inline-start: 0.6rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-progress,
+  .nav-item-exact::after,
+  .mobile-menu,
+  .logo-circle-exact { transition: none; }
+}

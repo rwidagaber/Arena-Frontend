@@ -150,6 +150,19 @@
         </div>
       </ng-container>
 
+      <button
+        type="button"
+        class="mobile-toggle d-lg-none"
+        [class.is-active]="mobileOpen"
+        (click)="toggleMobileMenu()"
+        aria-label="Toggle menu"
+        [attr.aria-expanded]="mobileOpen"
+      >
+        <span class="mobile-toggle-bar"></span>
+        <span class="mobile-toggle-bar"></span>
+        <span class="mobile-toggle-bar"></span>
+      </button>
+
       <ng-template #loginButtons>
         <a routerLink="/login" class="btn-login-exact font-display text-decoration-none">
           {{ 'header.login' | translate }}
@@ -162,4 +175,33 @@
 
     </div>
   </div>
+
+  <!-- Mobile navigation (collapses the desktop nav on small screens) -->
+  <nav
+    class="mobile-menu d-lg-none"
+    [class.open]="mobileOpen"
+    [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'"
+  >
+    <a routerLink="/" routerLinkActive="text-lime-active" [routerLinkActiveOptions]="{exact: true}" class="mobile-link" (click)="closeMobileMenu()">
+      {{ 'header.home' | translate }}
+    </a>
+    <a routerLink="/about" routerLinkActive="text-lime-active" class="mobile-link" (click)="closeMobileMenu()">
+      {{ 'header.about' | translate }}
+    </a>
+    <a routerLink="/pricing" routerLinkActive="text-lime-active" class="mobile-link" (click)="closeMobileMenu()">
+      {{ 'header.pricing' | translate }}
+    </a>
+    <a *ngIf="auth.isSubscribed" routerLink="/dashboard" class="mobile-link" (click)="closeMobileMenu()">
+      {{ 'header.dashboard' | translate }}
+    </a>
+    <a routerLink="/contact" routerLinkActive="text-lime-active" class="mobile-link" (click)="closeMobileMenu()">
+      {{ 'header.contact' | translate }}
+    </a>
+    <a routerLink="/chat" class="mobile-link" [class.text-lime-active]="activeTab === 'chat'" (click)="closeMobileMenu()">
+      Chat
+    </a>
+  </nav>
+
+  <!-- Reading / scroll progress indicator -->
+  <div class="scroll-progress" [style.width.%]="scrollProgress" aria-hidden="true"></div>
 </header>
