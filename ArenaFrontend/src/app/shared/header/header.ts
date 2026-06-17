@@ -46,7 +46,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.auth.getMe().subscribe();
+    // Only ask the server "who am I?" when a session exists — otherwise an
+    // unauthenticated /auth/me returns 401 and the auth interceptor redirects home.
+    if (this.auth.isLoggedIn) {
+      this.auth.getMe().subscribe();
+    }
     this.userSub = this.auth.currentUser$.subscribe(u => {
       this.displayName.set(u?.firstName ?? '');
       this.profileImage.set(u?.profileImage ?? u?.profileImageUrl ?? null);

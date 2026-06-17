@@ -85,12 +85,12 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     component: ProfileComponent,
-    canActivate: [authGuard, subGuard]
+    canActivate: [authGuard, subscriptionGuard]
   },
   {
     path: 'profile',
     component: ProfileComponent,
-    canActivate: [authGuard, subGuard]
+    canActivate: [authGuard, subscriptionGuard]
   },
   {
     path: 'about',
