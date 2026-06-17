@@ -99,7 +99,7 @@
         } @else {
           <div class="plans-grid">
             @for (plan of filteredPlans(); track plan.id; let i = $index) {
-              <div class="custom-plan-card" [class.plan-card-active]="plan.isActive" (click)="openPlan(plan)">
+              <div class="custom-plan-card" [class.plan-card-active]="plan.isActive" (click)="openPlan(plan)" [style.animation-delay]="i * 75 + 'ms'">
                 <div class="card-info-side">
                   <div class="card-status-row">
                     @if (plan.isActive) {
@@ -206,8 +206,8 @@
               </div>
             }
 
-           @for (meal of filteredMeals(); track meal.id) {
-              <div class="meal-grid-card modern-meal-card-enhanced" (click)="view.set('meal-detail'); selectedMeal.set(meal)">
+           @for (meal of filteredMeals(); track meal.id ;let i = $index) {
+              <div class="modern-meal-card-enhanced" [style.animation-delay]="(i * 60) + 'ms'" class="meal-grid-card modern-meal-card-enhanced" (click)="view.set('meal-detail'); selectedMeal.set(meal)">
                 <div class="meal-card-header-accent">
                   <div class="meal-avatar-icon-box">
                     @if (meal.mealType?.toLowerCase() === 'breakfast') {
@@ -236,7 +236,7 @@
 
                   <div class="meal-macros-horizontal-pills">
                     <div class="macro-pill-item protein-pill">
-                      <img src="assets/images/steack.png" alt="Protein" />
+                      <img src="assets/images/meat.png" alt="Protein" />
                       <div class="macro-pill-meta">
                         <span class="pill-amount">{{ meal.proteinGrams }}g</span>
                         <span class="pill-label">{{ t.translate('nutrition.protein') }}</span>
@@ -244,7 +244,7 @@
                     </div>
 
                     <div class="macro-pill-item carbs-pill">
-                      <img src="assets/images/bread.png" alt="Carbs" />
+                      <img src="assets/images/potato.png" alt="Carbs" />
                       <div class="macro-pill-meta">
                         <span class="pill-amount">{{ meal.carbsGrams }}g</span>
                         <span class="pill-label">{{ t.translate('nutrition.carbs') }}</span>
@@ -252,7 +252,7 @@
                     </div>
 
                     <div class="macro-pill-item fat-pill">
-                      <img src="assets/images/trans-fat.png" alt="Fat" />
+                      <img src="assets/images/fat.png" alt="Fat" />
                       <div class="macro-pill-meta">
                         <span class="pill-amount">{{ meal.fatGrams }}g</span>
                         <span class="pill-label">{{ t.translate('nutrition.fat') }}</span>

@@ -81,7 +81,11 @@ export class Nutritionplan implements OnInit {
   planImages: string[] = [
     'assets/images/veg.jpg',
     'assets/images/nut.png',
-    'assets/images/fruit.png'
+    'assets/images/fruit.png',
+    'assets/images/break.jpg',
+    'assets/images/dinner.jpg',
+    'assets/images/lunch.jpg',
+    'assets/images/fruit.jpg',
   ];
   langSub: any;
 
@@ -104,7 +108,7 @@ export class Nutritionplan implements OnInit {
     this.nutritionService.getMyPlans().subscribe({
       next: (plans) => {
         this.plans.set(plans);
-console.log('Loaded nutrition plans:', JSON.stringify(plans, null, 2));        this.loading.set(false);
+      this.loading.set(false);
       },
       error: () => {
         this.error.set('Failed to load nutrition plans');
