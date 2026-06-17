@@ -92,6 +92,16 @@ export class MembershipSection {
     return lang.startsWith('ar') ? sub.planNameAr : sub.planNameEn;
   }
 
+  getStatusKey(status: string): string {
+    switch (status.toLowerCase()) {
+      case 'active':    return 'memberProfile.status.active';
+      case 'pending':   return 'memberProfile.status.pending';
+      case 'expired':   return 'memberProfile.status.expired';
+      case 'cancelled': return 'memberProfile.status.cancelled';
+      default:          return 'memberProfile.status.unknown';
+    }
+  }
+
   private sanitizer = inject(DomSanitizer);
 
   private readonly svgIcons: Record<string, string> = {

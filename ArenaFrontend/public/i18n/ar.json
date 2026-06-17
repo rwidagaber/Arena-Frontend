@@ -773,7 +773,14 @@
     "noActiveMembership": "لا توجد عضوية نشطة",
     "noHistoryFound": "لا يوجد سجل عضويات",
     "prev": "السابق",
-    "next": "التالي"
+    "next": "التالي",
+    "status": {
+      "active": "نشط",
+      "pending": "قيد الانتظار",
+      "expired": "منتهية",
+      "cancelled": "ملغية",
+      "unknown": "غير معروف"
+    }
   },
   "nutrition": {
     "searchPlaceholder": "ابحث عن خطة غذائية أو وجبة...",

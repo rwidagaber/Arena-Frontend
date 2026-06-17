@@ -117,7 +117,7 @@
                   [class.status-expired]="sub.status.toLowerCase() === 'expired'"
                   [class.status-cancelled]="sub.status.toLowerCase() === 'cancelled'"
                 >
-                  {{ sub.status | uppercase }}
+                  {{ getStatusKey(sub.status) | translate }}
                 </span>
               </div>
               <div class="history-card-body">

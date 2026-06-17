@@ -839,3 +839,55 @@
   color: #000000;
   box-shadow: 0 4px 12px rgba(198, 239, 46, 0.15);
 }
+
+/* ══════════════════════════════════════════════
+   RTL Overrides
+   ══════════════════════════════════════════════ */
+
+/* ── Active membership info-item: accent bar flips from left → right ── */
+:host-context([dir="rtl"]) .info-item {
+  padding: 11px 14px 11px 12px;
+}
+
+:host-context([dir="rtl"]) .info-item::before {
+  left: auto;
+  right: 0;
+  border-radius: 1px 0 0 1px;
+}
+
+/* ── Hover slide reverses direction in RTL ── */
+:host-context([dir="rtl"]) .info-item:hover {
+  transform: translateX(-4px);
+}
+
+/* ── features-section accent line: left → right ── */
+:host-context([dir="rtl"]) .features-section::before {
+  left: auto;
+  right: 0;
+}
+
+/* ── features-title trailing line: reverse gradient + margin side ── */
+:host-context([dir="rtl"]) .features-title::after {
+  background: linear-gradient(270deg, rgba(198, 239, 46, 0.15), transparent);
+  margin-left: 0;
+  margin-right: 4px;
+}
+
+/* ── section-card decorative radial: mirror to bottom-left ── */
+:host-context([dir="rtl"]) .section-card::after {
+  right: auto;
+  left: 0;
+  background: radial-gradient(circle at 0% 100%, rgba(198, 239, 46, 0.07) 0%, transparent 70%);
+  border-radius: 0 0 0 20px;
+}
+
+/* ── Pagination: flip chevron arrows ── */
+:host-context([dir="rtl"]) .prev-btn i,
+:host-context([dir="rtl"]) .next-btn i {
+  transform: scaleX(-1);
+}
+
+/* ── sessions-usage-fill: gradient flows right→left in RTL ── */
+:host-context([dir="rtl"]) .sessions-usage-fill {
+  background: linear-gradient(270deg, #a0c826 0%, #C6EF2E 100%);
+}
