@@ -1,0 +1,44 @@
+<div class="calendar-widget">
+  <div class="cal-header-row">
+    <span class="cal-title">{{ 'calendar' | translate }}</span>
+    <span class="cal-month">{{ monthName() }} {{ year() }}</span>
+  </div>
+
+  <div class="cal-weekdays">
+    @for (dayName of daysOfWeek(); track $index) {
+    <span class="weekday-label">{{ dayName }}</span>
+    }
+  </div>
+
+  <div class="cal-days-grid">
+    @for (day of calendarDays(); track $index) {
+    <div class="cal-day-cell" [class.empty]="day.day === 0" [class.today]="day.isToday"
+      [class.has-upcoming]="day.hasUpcoming && !day.isToday"
+      [class.has-past]="day.hasPast && !day.hasUpcoming && !day.isToday">
+
+      @if (day.day !== 0) {
+      <span class="day-number">{{ day.day }}</span>
+      <div class="day-dots">
+        @if (day.hasUpcoming) {
+        <span class="dot upcoming-dot"></span>
+        }
+        @if (day.hasPast) {
+        <span class="dot past-dot"></span>
+        }
+      </div>
+      }
+    </div>
+    }
+  </div>
+
+  <div class="cal-legend-row">
+    <div class="legend-item">
+      <span class="legend-dot upcoming-dot"></span>
+      <span class="legend-text">{{ 'upcoming' | translate }}</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot past-dot"></span>
+      <span class="legend-text">{{ 'past' | translate }}</span>
+    </div>
+  </div>
+</div>

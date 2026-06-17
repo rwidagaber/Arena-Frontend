@@ -1,22 +1,81 @@
-[dir="rtl"] .ms-1 { margin-left: 0 !important; margin-right: 0.25rem !important; }
-[dir="rtl"] .me-1 { margin-right: 0 !important; margin-left: 0.25rem !important; }
-[dir="rtl"] .ms-2 { margin-left: 0 !important; margin-right: 0.5rem !important; }
-[dir="rtl"] .me-2 { margin-right: 0 !important; margin-left: 0.5rem !important; }
-[dir="rtl"] .ms-3 { margin-left: 0 !important; margin-right: 1rem !important; }
-[dir="rtl"] .me-3 { margin-right: 0 !important; margin-left: 1rem !important; }
-[dir="rtl"] .ps-0 { padding-left: 0 !important; padding-right: 0 !important; }
-[dir="rtl"] .pe-0 { padding-right: 0 !important; padding-left: 0 !important; }
-[dir="rtl"] .text-start { text-align: right !important; }
-[dir="rtl"] .text-end { text-align: left !important; }
+[dir="rtl"] .ms-1 {
+  margin-left: 0 !important;
+  margin-right: 0.25rem !important;
+}
 
-[dir="rtl"] .nav-links-exact { padding-right: 0; }
-[dir="rtl"] .benefits-list { padding-right: 0; }
-[dir="rtl"] .stats-list { padding-right: 0; }
-[dir="rtl"] ul, [dir="rtl"] ol { padding-right: 0; }
+[dir="rtl"] .me-1 {
+  margin-right: 0 !important;
+  margin-left: 0.25rem !important;
+}
 
-[dir="rtl"] .program-card .image-wrapper { right: auto; left: -20px; }
-[dir="rtl"] .member-meta { align-items: flex-start !important; }
-[dir="rtl"] .info-row { flex-direction: row-reverse; }
+[dir="rtl"] .ms-2 {
+  margin-left: 0 !important;
+  margin-right: 0.5rem !important;
+}
+
+[dir="rtl"] .me-2 {
+  margin-right: 0 !important;
+  margin-left: 0.5rem !important;
+}
+
+[dir="rtl"] .ms-3 {
+  margin-left: 0 !important;
+  margin-right: 1rem !important;
+}
+
+[dir="rtl"] .me-3 {
+  margin-right: 0 !important;
+  margin-left: 1rem !important;
+}
+
+[dir="rtl"] .ps-0 {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+[dir="rtl"] .pe-0 {
+  padding-right: 0 !important;
+  padding-left: 0 !important;
+}
+
+[dir="rtl"] .text-start {
+  text-align: right !important;
+}
+
+[dir="rtl"] .text-end {
+  text-align: left !important;
+}
+
+[dir="rtl"] .nav-links-exact {
+  padding-right: 0;
+}
+
+[dir="rtl"] .benefits-list {
+  padding-right: 0;
+}
+
+[dir="rtl"] .stats-list {
+  padding-right: 0;
+}
+
+[dir="rtl"] ul,
+[dir="rtl"] ol {
+  padding-right: 0;
+}
+
+[dir="rtl"] .program-card .image-wrapper {
+  right: auto;
+  left: -20px;
+}
+
+[dir="rtl"] .member-meta {
+  align-items: flex-start !important;
+}
+
+[dir="rtl"] .info-row {
+  flex-direction: row-reverse;
+}
+
 /* You can add global styles to this file, and also import other style files */
 /* @import 'bootstrap-icons/font/bootstrap-icons.css'; */
 
@@ -36,7 +95,7 @@ html[dir="rtl"] .ms-auto {
 }
 
 /* Flip any arrows in RTL */
-html[dir="rtl"] .bi-arrow-right, 
+html[dir="rtl"] .bi-arrow-right,
 html[dir="rtl"] .bi-arrow-up-right,
 html[dir="rtl"] .arrow-icon svg {
   transform: scaleX(-1);
@@ -48,19 +107,18 @@ html[dir="rtl"] .arrow-icon svg {
    ========================================================================== */
 
 /* 1. لمتصفحات Chrome, Safari, Opera, و Edge الحديثة */
-html::-webkit-scrollbar, 
+html::-webkit-scrollbar,
 body::-webkit-scrollbar {
-  display: none !important; /* يخفي شريط السكرول تماماً */
-  width: 0 !important;       /* يتأكد أن العرض صفر تماماً */
-  height: 0 !important;      /* يتأكد أن الارتفاع صفر تماماً */
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 /* 2. لمتصفح Firefox */
-html, body {
-  scrollbar-width: none !important; /* يخفي الشريط في فايرفوكس */
-  
-  /* خاصية إضافية لإنترنت إكسبلورر القديم لو لسه حد بيستخدمه */
-  -ms-overflow-style: none !important; 
+html,
+body {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
 }
 
 body {

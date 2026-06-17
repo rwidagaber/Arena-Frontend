@@ -1,0 +1,179 @@
+<!-- ═══ PREMIUM HERO BANNER ═══ -->
+<div class="booking-hero">
+  <!-- Slideshow Background -->
+  <div class="hero-slideshow">
+    @for (slide of currentSlides(); track $index) {
+      <div class="hero-slide" [class.active]="$index === activeSlideIndex()">
+        <img [src]="slide.image" alt="Gym Background" class="hero-slide-image" />
+      </div>
+    }
+  </div>
+
+  <!-- Smooth Theme-Aware Overlay -->
+  <div class="hero-overlay"></div>
+
+  <!-- Hero Content Grid -->
+  <div class="hero-content">
+    <!-- Left: Welcome & Motivation -->
+    <div class="welcome-container glass-card">
+      <span class="welcome-label">{{ 'bookingHeroWelcome' | translate }},</span>
+      <h1 class="welcome-name">{{ userName() || 'ATHLETE' }}</h1>
+      
+      <!-- Motivational Quote -->
+      <div class="quote-container glass-card-sub">
+        <span class="quote-text">{{ currentSlide().quoteKey | translate }}</span>
+      </div>
+    </div>
+
+    <!-- Right: Redesigned Stats Cards Wrapper -->
+    <div class="stats-wrapper glass-card">
+      @if (loading()) {
+        <div class="hero-stats-grid">
+          @for (_ of [1,2,3]; track $index) {
+            <div class="hero-stat-card skeleton-stat-card">
+              <div class="skeleton-icon-wrapper"></div>
+              <div class="skeleton-info-wrapper">
+                <div class="skeleton-line-val"></div>
+                <div class="skeleton-line-lbl"></div>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="hero-stats-grid">
+          @for (stat of bookingStats(); track stat.label) {
+            <div class="hero-stat-card">
+              <div class="stat-icon-wrapper">
+                <i [class]="stat.icon"></i>
+              </div>
+              <div class="stat-info-wrapper">
+                <span class="stat-value">{{ stat.value }}</span>
+                <span class="stat-label">{{ stat.label | translate }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+<div class="bookings-two-col">
+
+  <!-- ═══ LEFT COLUMN — bookings list ═══ -->
+  <div class="dash-col-left">
+
+    <!-- Loading skeleton -->
+    @if (loading()) {
+    <div class="bookings-skeleton">
+      @for (_ of [1,2,3]; track $index) {
+      <div class="booking-skeleton-card"></div>
+      }
+    </div>
+    }
+
+    <!-- Error state -->
+    @if (!loading() && error()) {
+    <div class="booking-error-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+        stroke-linejoin="round" width="32" height="32">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
+      <span>{{ 'loadingError' | translate }}</span>
+      <button class="retry-btn" (click)="loadBookings()">{{ 'retry' | translate }}</button>
+    </div>
+    }
+
+    @if (!loading() && !error()) {
+
+    <!-- ── Upcoming Bookings ── -->
+    <div class="booking-section-wrapper" [class.collapsed]="!upcomingExpanded()">
+      <button class="booking-section-toggle-btn" [attr.aria-expanded]="upcomingExpanded()" (click)="toggleUpcoming()">
+        <h3 class="booking-section-title">{{ 'upcomingBookings' | translate }}</h3>
+        <span class="toggle-chevron">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+            stroke-linejoin="round" width="16" height="16">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </span>
+      </button>
+
+      <div class="booking-section-content-wrapper">
+        <div class="booking-section-content">
+
+          @if (upcomingBookings().length > 0) {
+          <div class="bookings-grid">
+            @for (booking of upcomingBookings(); track booking.id) {
+            <app-booking-card [booking]="booking" (cancel)="onCancelBooking($event)" />
+            }
+          </div>
+          } @else {
+          <div class="booking-empty-state">
+            <div class="empty-icon-wrapper">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round" width="36" height="36">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </div>
+            <span class="empty-text">{{ 'noBookingsFound' | translate }}</span>
+          </div>
+          }
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Past Bookings ── -->
+    <div class="booking-section-wrapper" [class.collapsed]="!pastExpanded()">
+      <button class="booking-section-toggle-btn" [attr.aria-expanded]="pastExpanded()" (click)="togglePast()">
+        <h3 class="booking-section-title">{{ 'pastBookings' | translate }}</h3>
+        <span class="toggle-chevron">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+            stroke-linejoin="round" width="16" height="16">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </span>
+      </button>
+
+      <div class="booking-section-content-wrapper">
+        <div class="booking-section-content">
+
+          @if (pastBookings().length > 0) {
+          <div class="bookings-grid">
+            @for (booking of pastBookings(); track booking.id) {
+            <app-booking-card [booking]="booking" (cancel)="onCancelBooking($event)" />
+            }
+          </div>
+          } @else {
+          <div class="booking-empty-state">
+            <div class="empty-icon-wrapper">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round" width="36" height="36">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </div>
+            <span class="empty-text">{{ 'noBookingsFound' | translate }}</span>
+          </div>
+          }
+
+        </div>
+      </div>
+    </div>
+
+    }
+  </div>
+
+  <!-- ═══ RIGHT COLUMN — calendar sidebar ═══ -->
+  <div class="dash-col-right calendar-sidebar-fixed">
+    <app-booking-calendar [bookings]="bookings()" />
+  </div>
+
+</div>
