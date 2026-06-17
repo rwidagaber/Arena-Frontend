@@ -23,7 +23,6 @@ import { completeProfileGuard } from './core/guards/auth/complete-profile-guard'
 import { resetPasswordGuard } from './core/guards/auth/reset-password-guard';
 import { subscriptionGuard } from './core/guards/subscription/subscription-guard';
 import { QrDisplayComponent } from './features/QR/qr-display.component/qr-display.component';
-import { NotFound } from './features/not-found/not-found';
 
 export const routes: Routes = [
   // ─── Public ───
@@ -129,12 +128,5 @@ export const routes: Routes = [
     path: 'qr/:bookingId',
     component: QrDisplayComponent,
     canActivate: [authGuard, subGuard]
-  },
-
-  // ─── 404 — must stay last ───
-  {
-    path: '**',
-    component: NotFound,
-    data: { hideLayout: true }
   }
 ];
