@@ -126,7 +126,7 @@
 }
 
 .booking-section-toggle-btn:hover {
-  background-color: var(--primary);
+  background-color: rgba(0, 0, 0, 0.02);
 }
 
 :host-context([data-theme="light"]) .booking-section-toggle-btn:hover {
@@ -134,7 +134,7 @@
 }
 
 .booking-section-title {
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 700;
   margin: 0;
   letter-spacing: 0.01em;
