@@ -90,19 +90,22 @@
 
 /* ── Accordion wrapper ───────────────────────────────────────────── */
 .booking-section-wrapper {
-  background: var(--surface);
+  background: var(--lux-graphite-2, #211f1b);
   border: 1px solid var(--border);
   border-radius: 18px;
   overflow: hidden;
   transition: border-color 0.25s ease;
 }
+:host-context([data-theme="light"])  .booking-section-wrapper {
+  background: var(--surface);
 
+}
 .booking-section-wrapper:hover {
-  border-color: rgba(212, 250, 36, 0.18);
+  border:1px solid var(--primary);
 }
 
 :host-context([data-theme="light"]) .booking-section-wrapper:hover {
-  border-color: rgba(198, 239, 46, 0.35);
+ border:1px solid var(--primary);
 }
 
 /* ── Toggle button ───────────────────────────────────────────────── */

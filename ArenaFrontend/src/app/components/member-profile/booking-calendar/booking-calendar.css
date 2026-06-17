@@ -53,7 +53,7 @@
 }
 
 .calendar-widget {
-  background: var(--surface);
+  background:var(--lux-graphite-2, #211f1b);
   border-radius: 16px;
   padding: 18px;
   box-shadow: var(--shadow);
@@ -63,7 +63,10 @@
   overflow: hidden;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
+:host-context([data-theme="light"])  .calendar-widget {
+  background:var(--surface);
 
+}
 .cal-header-row {
   display: flex;
   flex-direction: column;

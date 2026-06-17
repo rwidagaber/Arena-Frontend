@@ -54,7 +54,7 @@
 }
 
 .stat-card {
-  background: var(--surface);
+  background:var(--lux-graphite-2, #211f1b);
   border-radius: 16px;
   padding: 18px 20px;
   display: flex;
@@ -67,6 +67,9 @@
               border-color 0.25s ease;
 }
 
+ :host-context([data-theme="light"]) .stat-card {
+  background:var(--surface);
+}
 .stat-card:hover {
   transform: translatey(-4px);
   border-color: rgba(198, 255, 0, 0.3);
@@ -95,7 +98,7 @@
   background: var(--primary);
 }
 .stat-icon-wrapper i {
-  color:var(--text) !important;
+  color:black !important;
 }
 
 .stat-info {

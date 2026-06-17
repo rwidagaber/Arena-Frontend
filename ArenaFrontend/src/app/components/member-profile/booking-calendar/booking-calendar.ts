@@ -28,7 +28,7 @@ export class BookingCalendarComponent {
 
   monthName = computed(() => {
     const lang = this.translationService.currentLang();
-    return this.currentDate.toLocaleString(lang === 'ar' ? 'ar-EG' : 'en-US', { month: 'long' });
+    return this.currentDate.toLocaleString(lang === 'ar' ? 'ar-EG-u-nu-latn' : 'en-US', { month: 'long' });
   });
 
   year = computed(() => {

@@ -777,10 +777,16 @@
   "myBookings": "حجوزاتي",
   "upcoming": "الحجوزات القادمة",
   "past": "الحجوزات السابقة",
+  "upcomingBookings": "الحجوزات القادمة",
+  "pastBookings": "الحجوزات السابقة",
   "noBookings": "لم يتم العثور على حجوزات",
+  "noBookingsFound": "لم يتم العثور على حجوزات",
   "loading": "جارٍ التحميل...",
   "error": "تم إلغاء الحجز",
   "calendar": "التقويم",
   "cancelBooking": "إلغاء الحجز",
-  "totalBookings": "إجمالي الحجوزات"
+  "totalBookings": "إجمالي الحجوزات",
+  "loadingError": "فشل تحميل الحجوزات.",
+  "retry": "إعادة المحاولة",
+  "QR Codes": "رموز QR"
 }

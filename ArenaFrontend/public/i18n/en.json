@@ -776,10 +776,16 @@
   "myBookings": "My Bookings",
   "upcoming": "Upcoming Bookings",
   "past": "Past Bookings",
+  "upcomingBookings": "Upcoming Bookings",
+  "pastBookings": "Past Bookings",
   "noBookings": "No bookings found",
+  "noBookingsFound": "No bookings found",
   "loading": "Loading...",
   "error": "Booking canceled",
   "calendar": "Calendar",
   "cancelBooking": "Cancel Booking",
-  "totalBookings": "Total Bookings"
+  "totalBookings": "Total Bookings",
+  "loadingError": "Failed to load bookings.",
+  "retry": "Retry",
+  "QR Codes": "QR Codes"
 }
