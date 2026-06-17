@@ -1,4 +1,4 @@
-import { Component, input, computed, inject } from '@angular/core';
+import { Component, input, computed, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -17,6 +17,10 @@ export class MembershipSection {
   subscriptions = input<UserSubscriptionDto[]>([]);
   loading = input<boolean>(false);
 
+  // Pagination state
+  currentPage = signal<number>(1);
+  pageSize = signal<number>(8);
+
   activeSubscription = computed(() => {
     const subs = this.subscriptions();
     if (!subs) return null;
@@ -26,8 +30,62 @@ export class MembershipSection {
   historySubscriptions = computed(() => {
     const subs = this.subscriptions();
     if (!subs) return [];
-    return subs.filter(s => s.status.toLowerCase() !== 'active').sort((a, b) => new Date(b.endDate).getTime() - new Date(a.endDate).getTime());
+    return subs
+      .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
   });
+
+  totalPages = computed(() => {
+    return Math.ceil(this.historySubscriptions().length / this.pageSize());
+  });
+
+  pageRange = computed(() => {
+    const total = this.totalPages();
+    return Array.from({ length: total }, (_, i) => i + 1);
+  });
+
+  paginatedHistorySubscriptions = computed(() => {
+    const history = this.historySubscriptions();
+    const page = this.currentPage();
+    const total = this.totalPages();
+    const validPage = Math.max(1, Math.min(page, total || 1));
+    const startIndex = (validPage - 1) * this.pageSize();
+    return history.slice(startIndex, startIndex + this.pageSize());
+  });
+
+  constructor() {
+    // Dynamic page size based on screen width
+    if (typeof window !== 'undefined') {
+      const mediaQuery = window.matchMedia('(max-width: 1023px)');
+      this.pageSize.set(mediaQuery.matches ? 6 : 8);
+
+      mediaQuery.addEventListener('change', (e) => {
+        this.pageSize.set(e.matches ? 6 : 8);
+      });
+    }
+
+    effect(() => {
+      this.subscriptions();
+      this.currentPage.set(1);
+    }, { allowSignalWrites: true });
+  }
+
+  nextPage() {
+    if (this.currentPage() < this.totalPages()) {
+      this.currentPage.update(p => p + 1);
+    }
+  }
+
+  prevPage() {
+    if (this.currentPage() > 1) {
+      this.currentPage.update(p => p - 1);
+    }
+  }
+
+  setPage(page: number) {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+    }
+  }
 
   getPlanName(sub: UserSubscriptionDto): string {
     const lang = this.translate.currentLang || 'en';

@@ -771,7 +771,9 @@
     "totalSessions": "إجمالي الحصص",
     "paymentAmount": "مبلغ الدفع",
     "noActiveMembership": "لا توجد عضوية نشطة",
-    "noHistoryFound": "لا يوجد سجل عضويات"
+    "noHistoryFound": "لا يوجد سجل عضويات",
+    "prev": "السابق",
+    "next": "التالي"
   },
   "nutrition": {
     "searchPlaceholder": "ابحث عن خطة غذائية أو وجبة...",

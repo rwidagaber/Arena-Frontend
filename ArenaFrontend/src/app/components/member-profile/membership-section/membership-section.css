@@ -187,10 +187,50 @@
   font-size: 7px;
 }
 
-.status-indicator.cancelled {
-  color: #EF4444;
-  background: rgba(239, 68, 68, 0.1);
-  opacity: 1;
+/* ── History card status colours ── */
+
+/* Active – green accent */
+.status-indicator.status-active {
+  color: var(--c-accent-deep, #4d7c0f);
+  background: rgba(198, 239, 46, 0.15);
+}
+
+:host-context([data-theme="dark"]) .status-indicator.status-active {
+  color: var(--c-accent, #C6EF2E);
+  background: rgba(198, 239, 46, 0.18);
+}
+
+/* Pending – amber/orange */
+.status-indicator.status-pending {
+  color: #b45309;
+  background: rgba(245, 158, 11, 0.12);
+}
+
+:host-context([data-theme="dark"]) .status-indicator.status-pending {
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.15);
+}
+
+/* Expired – slate/muted blue-grey */
+.status-indicator.status-expired {
+  color: #475569;
+  background: rgba(100, 116, 139, 0.12);
+}
+
+:host-context([data-theme="dark"]) .status-indicator.status-expired {
+  color: #94a3b8;
+  background: rgba(148, 163, 184, 0.12);
+}
+
+/* Cancelled – red */
+.status-indicator.status-cancelled {
+  color: #b91c1c;
+  background: rgba(239, 68, 68, 0.10);
+}
+
+:host-context([data-theme="dark"]) .status-indicator.status-cancelled {
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.15);
 }
 
 .membership-body {
@@ -732,4 +772,70 @@
   .section-card {
     padding: 12px 14px 16px;
   }
+}
+
+/* ── Pagination Controls styling ── */
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--lux-line, rgba(28, 27, 24, 0.12));
+}
+
+:host-context([data-theme="dark"]) .pagination-controls {
+  border-top-color: var(--lux-line-dk, rgba(255, 255, 255, 0.08));
+}
+
+.pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--lux-line, rgba(28, 27, 24, 0.12));
+  background: var(--lux-surface, #fbfaf6);
+  color: var(--lux-ink, #1c1b18);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:host-context([data-theme="dark"]) .pagination-btn {
+  border-color: var(--lux-line-dk, rgba(255, 255, 255, 0.08));
+  background: var(--lux-graphite-3, #211f1b);
+  color: var(--lux-cream, #efe9dc);
+}
+
+.pagination-btn:hover:not(:disabled) {
+  border-color: var(--c-accent, #C6EF2E);
+  background: rgba(198, 239, 46, 0.06);
+  transform: translateY(-2px);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.page-numbers {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.page-num-btn.active {
+  background: var(--c-accent, #C6EF2E);
+  border-color: var(--c-accent, #C6EF2E);
+  color: #15240a;
+  box-shadow: 0 4px 12px rgba(198, 239, 46, 0.25);
+}
+
+:host-context([data-theme="dark"]) .page-num-btn.active {
+  color: #000000;
+  box-shadow: 0 4px 12px rgba(198, 239, 46, 0.15);
 }
