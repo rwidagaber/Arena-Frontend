@@ -4,44 +4,36 @@
 
   <div class="container footer-inner">
 
-    <!-- ===== Newsletter CTA band ===== -->
-    <div class="footer-cta">
-      <div class="footer-cta-text">
-        <span class="footer-cta-eyebrow">{{ tr('madeWith') }}</span>
-        <h3 class="footer-cta-title">{{ tr('newsletterTitle') }}</h3>
-        <p class="footer-cta-sub">{{ tr('newsletterSub') }}</p>
+    <!-- ===== Get-in-touch contact band ===== -->
+    <div class="footer-contact-band">
+      <div class="fcb-text">
+        <span class="fcb-eyebrow">{{ 'footer.questionsEyebrow' | translate }}</span>
+        <h3 class="fcb-title">{{ 'footer.getInTouch' | translate }}</h3>
       </div>
-
-      <div class="footer-cta-form">
-        <form class="footer-newsletter" (ngSubmit)="subscribe()" novalidate>
-          <div class="newsletter-field" [class.has-error]="emailError">
-            <i class="bi bi-envelope"></i>
-            <input
-              type="email"
-              name="newsletterEmail"
-              [(ngModel)]="newsletterEmail"
-              [placeholder]="tr('emailPlaceholder')"
-              (input)="emailError = false"
-              autocomplete="email"
-              aria-label="Email"
-            />
-          </div>
-          <button type="submit" class="newsletter-btn">
-            <span>{{ tr('subscribe') }}</span>
-            <i class="bi bi-arrow-right"></i>
-          </button>
-        </form>
-
-        @if (subscribed) {
-          <p class="newsletter-note newsletter-success">
-            <i class="bi bi-check-circle-fill"></i> {{ tr('subscribedMsg') }}
-          </p>
-        } @else if (emailError) {
-          <p class="newsletter-note newsletter-error">
-            <i class="bi bi-exclamation-circle-fill"></i> {{ tr('emailErrorMsg') }}
-          </p>
-        }
+      <div class="fcb-info">
+        <a class="fcb-item" [href]="'tel:' + phone">
+          <i class="bi bi-telephone-fill"></i><span>{{ phone }}</span>
+        </a>
+        <a class="fcb-item" [href]="'mailto:' + email">
+          <i class="bi bi-envelope-fill"></i><span>{{ email }}</span>
+        </a>
       </div>
+      <a class="fcb-cta" routerLink="/contact">
+        <span>{{ 'footer.contact' | translate }}</span>
+        <i class="bi bi-arrow-right"></i>
+      </a>
+    </div>
+
+    <div class="footer-divider"></div>
+
+    <!-- ===== Credibility stats ===== -->
+    <div class="footer-stats">
+      @for (s of stats; track s.key) {
+        <div class="footer-stat">
+          <span class="footer-stat-val">{{ s.value }}</span>
+          <span class="footer-stat-lbl">{{ 'footer.' + s.key | translate }}</span>
+        </div>
+      }
     </div>
 
     <div class="footer-divider"></div>
@@ -49,7 +41,7 @@
     <!-- ===== Main columns ===== -->
     <div class="footer-main">
 
-      <!-- Brand + contact -->
+      <!-- Brand + description -->
       <div class="footer-col footer-brand-col">
         <div class="footer-brand">
           <span class="footer-logo">
@@ -69,43 +61,35 @@
           <span class="footer-brand-text">{{ 'app.title' | translate }}</span>
         </div>
 
-        <p class="footer-tagline">{{ 'app.tagline' | translate }}</p>
+        <p class="footer-tagline">{{ 'footer.brandDesc' | translate }}</p>
+      </div>
 
+      <!-- Location / contact -->
+      <div class="footer-col">
+        <h5 class="footer-heading">{{ 'footer.location' | translate }}</h5>
         <ul class="footer-contact list-unstyled">
           <li class="footer-contact-item">
-            <i class="bi bi-geo-alt"></i>
-            <span>{{ 'footer.address' | translate }}</span>
+            <a [href]="mapsUrl" target="_blank" rel="noopener noreferrer" [attr.aria-label]="'footer.getDirections' | translate">
+              <i class="bi bi-geo-alt"></i>
+              <span>{{ 'footer.address' | translate }}</span>
+            </a>
           </li>
           <li class="footer-contact-item">
-            <a [href]="'tel:' + tr('phone')"><i class="bi bi-telephone"></i><span>{{ tr('phone') }}</span></a>
+            <a [href]="'tel:' + phone"><i class="bi bi-telephone"></i><span>{{ phone }}</span></a>
           </li>
           <li class="footer-contact-item">
-            <a [href]="'mailto:' + tr('email')"><i class="bi bi-envelope"></i><span>{{ tr('email') }}</span></a>
+            <a [href]="'mailto:' + email"><i class="bi bi-envelope"></i><span>{{ email }}</span></a>
           </li>
         </ul>
       </div>
 
-      <!-- Quick links -->
+      <!-- Quick links (only real, existing routes) -->
       <div class="footer-col">
         <h5 class="footer-heading">{{ 'footer.quickLinks' | translate }}</h5>
         <ul class="footer-links list-unstyled">
-          <li><span class="footer-link">{{ 'footer.home' | translate }}</span></li>
-          <li><span class="footer-link">{{ 'footer.about' | translate }}</span></li>
-          <li><span class="footer-link">{{ 'footer.programs' | translate }}</span></li>
-          <li><span class="footer-link">{{ 'footer.blog' | translate }}</span></li>
-          <li><span class="footer-link">{{ 'footer.contact' | translate }}</span></li>
-        </ul>
-      </div>
-
-      <!-- Training programs -->
-      <div class="footer-col">
-        <h5 class="footer-heading">{{ 'footer.trainingPrograms' | translate }}</h5>
-        <ul class="footer-links list-unstyled">
-          <li><span class="footer-link">{{ 'footer.weightLoss' | translate }}</span></li>
-          <li><span class="footer-link">{{ 'footer.groupFitness' | translate }}</span></li>
-          <li><span class="footer-link">{{ 'footer.beginner' | translate }}</span></li>
-          <li><span class="footer-link">{{ 'footer.muscleBuilding' | translate }}</span></li>
-          <li><span class="footer-link">{{ 'footer.cardio' | translate }}</span></li>
+          <li><a class="footer-link" routerLink="/" [routerLinkActiveOptions]="{exact: true}" routerLinkActive="footer-link-active">{{ 'footer.home' | translate }}</a></li>
+          <li><a class="footer-link" routerLink="/about" routerLinkActive="footer-link-active">{{ 'footer.about' | translate }}</a></li>
+          <li><a class="footer-link" routerLink="/contact" routerLinkActive="footer-link-active">{{ 'footer.contact' | translate }}</a></li>
         </ul>
       </div>
 
@@ -114,7 +98,7 @@
         <h5 class="footer-heading">{{ 'footer.hours' | translate }}</h5>
         <span class="footer-status" [class.is-open]="isOpenNow" [class.is-closed]="!isOpenNow">
           <span class="status-dot"></span>
-          {{ isOpenNow ? tr('openNow') : tr('closedNow') }}
+          {{ (isOpenNow ? 'footer.openNow' : 'footer.closedNow') | translate }}
         </span>
         <ul class="footer-hours list-unstyled">
           <li class="footer-hours-item">
@@ -124,21 +108,6 @@
             <i class="bi bi-clock"></i><span>{{ 'footer.saturday' | translate }}</span>
           </li>
         </ul>
-
-        <span class="footer-follow-label">{{ tr('followUs') }}</span>
-        <div class="footer-social">
-          @for (s of socials; track s.name) {
-            <a
-              class="social-btn"
-              [href]="s.url"
-              target="_blank"
-              rel="noopener noreferrer"
-              [attr.aria-label]="s.name"
-            >
-              <i class="bi" [class]="'bi-' + s.icon"></i>
-            </a>
-          }
-        </div>
       </div>
     </div>
 
@@ -147,10 +116,25 @@
     <!-- ===== Bottom bar ===== -->
     <div class="footer-bottom">
       <span class="footer-copy">{{ 'footer.copyright' | translate: { year: currentYear } }}</span>
+
+      <div class="footer-social">
+        @for (s of socials; track s.name) {
+          <a
+            class="social-btn"
+            [href]="s.url"
+            target="_blank"
+            rel="noopener noreferrer"
+            [attr.aria-label]="s.name"
+          >
+            <i class="bi" [class]="'bi-' + s.icon"></i>
+          </a>
+        }
+      </div>
+
       <div class="footer-legal">
-        <span class="footer-legal-link">{{ tr('privacy') }}</span>
+        <span class="footer-legal-link">{{ 'footer.privacy' | translate }}</span>
         <span class="footer-legal-sep">•</span>
-        <span class="footer-legal-link">{{ tr('terms') }}</span>
+        <span class="footer-legal-link">{{ 'footer.terms' | translate }}</span>
       </div>
     </div>
   </div>
@@ -161,7 +145,7 @@
     class="back-to-top"
     [class.visible]="showTopButton"
     (click)="scrollToTop()"
-    [attr.aria-label]="tr('backToTop')"
+    [attr.aria-label]="'footer.backToTop' | translate"
   >
     <i class="bi bi-arrow-up"></i>
   </button>
