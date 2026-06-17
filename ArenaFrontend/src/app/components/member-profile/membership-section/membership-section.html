@@ -31,7 +31,27 @@
                 <i class="fas fa-dumbbell"></i>
               }
             </div>
-            <div class="plan-name">{{ getPlanName(m) }}</div>
+            <div class="plan-meta">
+              <div class="plan-name">{{ getPlanName(m) }}</div>
+              <div class="plan-sub">
+                <i class="far fa-clock"></i>
+                <span>{{ 'memberProfile.expires' | translate }} {{ m.endDate | date: 'dd/MM/yyyy' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sessions usage -->
+          <div class="sessions-usage">
+            <div class="sessions-usage-head">
+              <span class="sessions-usage-label">{{ 'memberProfile.sessions' | translate }}</span>
+              <span class="sessions-usage-count">{{ m.remainingSessions }} / {{ m.totalSessions }}</span>
+            </div>
+            <div class="sessions-usage-track">
+              <div
+                class="sessions-usage-fill"
+                [style.width.%]="m.totalSessions > 0 ? (m.remainingSessions / m.totalSessions) * 100 : 0"
+              ></div>
+            </div>
           </div>
 
           <div class="info-grid">

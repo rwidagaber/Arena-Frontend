@@ -551,11 +551,11 @@ app-footer { display: none !important; }
 }
 
 .hm-item:first-child {
-  border-radius: 12px 0 0 12px;
+  border-radius: 12px 0 0 0;
 }
 
 .hm-item:last-child {
-  border-radius: 0 12px 12px 0;
+  border-radius: 0 12px 0 0;
 }
 
 .hm-item:hover {
@@ -1915,6 +1915,12 @@ app-footer { display: none !important; }
   animation-delay: var(--bz-delay, 0.26s);
 }
 
+/* Membership history belongs only on the Membership & Billing page —
+   hide it for the membership-section instance shown in the dashboard. */
+.bottom-zone app-membership-section .history-membership-section {
+  display: none;
+}
+
 /* ═══════════════════════════════════════════════
    CALENDAR
    ═══════════════════════════════════════════════ */
@@ -2955,6 +2961,11 @@ app-footer { display: none !important; }
   .mp-ring-wrap { width: 76px; height: 76px; }
   .mp-pct { font-size: 16px; }
   .mp-stat-val { font-size: 14px; }
+  /* Fitness Pulse — shrink the ring so the stats keep room beside it */
+  .pulse-body { gap: 16px; }
+  .pulse-ring-wrap, .pulse-ring-svg { width: 96px; height: 96px; }
+  .pulse-val { font-size: 28px; }
+  .pulse-cta { padding: 13px 18px; }
 }
 
 @media (max-width: 480px) {
@@ -2993,6 +3004,11 @@ app-footer { display: none !important; }
   .mp-ring-wrap { width: 80px; height: 80px; }
   .mp-pct { font-size: 18px; }
   .mp-stats { align-items: center; }
+  /* Fitness Pulse — stack ring above stats, mirroring the monthly card */
+  .pulse-body { flex-direction: column; gap: 16px; align-items: center; }
+  .pulse-ring-wrap, .pulse-ring-svg { width: 100px; height: 100px; }
+  .pulse-val { font-size: 30px; }
+  .pulse-stats { width: 100%; gap: 10px; }
 }
 
 /* ═══════════════════════════════════════════════

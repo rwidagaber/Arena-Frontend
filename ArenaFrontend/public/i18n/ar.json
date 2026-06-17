@@ -254,7 +254,8 @@
     "progressReport": "تقرير التقدم",
     "settings": "الإعدادات",
     "logout": "تسجيل الخروج",
-    "chatbot": "المساعد الذكي"
+    "chatbot": "المساعد الذكي",
+    "getPlanDetails": "عرض تفاصيل الخطة"
   },
   "section": {
     "workoutPlaceholder": "ستظهر خطة التمرين المخصصة لك هنا.",

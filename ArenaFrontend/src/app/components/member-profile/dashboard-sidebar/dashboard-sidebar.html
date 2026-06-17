@@ -156,28 +156,10 @@
     }
   </nav>
 
-  <div class="sidebar-membership">
-    <span class="membership-label">{{ 'memberProfile.membership' | translate }}</span>
-    @if (hasSubscription()) {
-      <div class="membership-badge-row">
-        <span class="plan-badge">{{ planLevel() || ('memberProfile.active' | translate) }}</span>
-        <span class="plan-name">{{ planName() || ('memberProfile.dash.member' | translate) }} {{ 'memberProfile.dash.member' | translate }}</span>
-      </div>
-      <span class="plan-expiry"
-        >{{ 'memberProfile.expires' | translate }} {{ expiryDate() || '—' }}</span
-      >
-      <div class="plan-progress-bar">
-        <div class="plan-progress-fill" [style.width.%]="membershipProgress()"></div>
-      </div>
-      <button class="btn-renew" (click)="renewPlan.emit()">
-        {{ 'memberProfile.renewPlan' | translate }}
-      </button>
-    } @else {
-      <p class="no-plan-text">{{ 'memberProfile.noActivePlan' | translate }}</p>
-      <button class="btn-renew" (click)="renewPlan.emit()">
-        {{ 'memberProfile.getPlan' | translate }}
-      </button>
-    }
+  <div class="sidebar-plan-cta">
+    <button class="btn-renew" (click)="select('membership')">
+      {{ 'sidebar.getPlanDetails' | translate }}
+    </button>
   </div>
 
   <div class="sidebar-footer">
