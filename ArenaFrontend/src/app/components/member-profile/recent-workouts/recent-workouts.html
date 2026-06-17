@@ -32,7 +32,7 @@
               <span class="workout-icon" [innerHTML]="getSvgIcon(getTypeIcon(workout.type))"></span>
             </div>
             <div class="workout-info">
-              <span class="workout-name">{{ workout.name }}</span>
+              <span class="workout-name">{{ workout.name | translate }}</span>
               <span class="workout-meta">
                 <span class="meta-item">
                   <span class="meta-icon" [innerHTML]="getSvgIcon('clock')"></span>

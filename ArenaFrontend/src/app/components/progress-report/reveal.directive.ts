@@ -37,7 +37,10 @@ export class RevealDirective implements AfterViewInit, OnDestroy {
           }
         }
       },
-      { threshold: 0.12, rootMargin: '0px 0px -8% 0px' },
+      // threshold:0 so the reveal triggers as soon as any part of the element
+      // enters the viewport — a percentage threshold never fires for elements
+      // taller than ~8× the viewport (e.g. the stacked cards on small screens).
+      { threshold: 0, rootMargin: '0px 0px -10% 0px' },
     );
     this.observer.observe(node);
   }

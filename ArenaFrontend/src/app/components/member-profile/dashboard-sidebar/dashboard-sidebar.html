@@ -157,11 +157,11 @@
   </nav>
 
   <div class="sidebar-membership">
-    <span class="membership-label">MEMBERSHIP</span>
+    <span class="membership-label">{{ 'memberProfile.membership' | translate }}</span>
     @if (hasSubscription()) {
       <div class="membership-badge-row">
-        <span class="plan-badge">{{ planLevel() || 'Active' }}</span>
-        <span class="plan-name">{{ planName() || 'Member' }} Member</span>
+        <span class="plan-badge">{{ planLevel() || ('memberProfile.active' | translate) }}</span>
+        <span class="plan-name">{{ planName() || ('memberProfile.dash.member' | translate) }} {{ 'memberProfile.dash.member' | translate }}</span>
       </div>
       <span class="plan-expiry"
         >{{ 'memberProfile.expires' | translate }} {{ expiryDate() || '—' }}</span
