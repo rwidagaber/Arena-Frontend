@@ -20,7 +20,8 @@
     "logout": "Logout",
     "dashboard": "Dashboard",
     "profile": "Profile",
-    "pricing": "Membership Plans"
+    "pricing": "Membership Plans",
+    "uploadPhoto": "Upload photo"
   },
   "hero": {
     "badge": "Smart Training. Real Results.",
@@ -89,7 +90,28 @@
     "hours": "Working Hours",
     "weekdays": "Monday - Fri: 6:00 AM - 10:30 PM",
     "saturday": "Saturday: 7:00 AM - 9:00 PM",
-    "copyright": "Copyright © {{year}} ArenaGym. All rights reserved."
+    "copyright": "Copyright © {{year}} ArenaGym. All rights reserved.",
+    "newsletterTitle": "Join the Arena",
+    "newsletterSub": "Get training tips, member offers, and class updates — straight to your inbox.",
+    "emailPlaceholder": "Enter your email",
+    "subscribe": "Subscribe",
+    "subscribedMsg": "You're in! Welcome to the Arena.",
+    "emailErrorMsg": "Please enter a valid email address.",
+    "followUs": "Follow us",
+    "openNow": "Open now",
+    "closedNow": "Closed now",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "backToTop": "Back to top",
+    "madeWith": "Crafted for athletes",
+    "getDirections": "Get directions",
+    "questionsEyebrow": "Got questions?",
+    "getInTouch": "Get in touch with us",
+    "brandDesc": "Arena Gym is where ambition meets action. From state-of-the-art equipment and expert coaches to tailored workout and nutrition plans, we give every member the tools, guidance, and community to train smarter, stay consistent, and reach real, lasting results.",
+    "statYears": "Years Experience",
+    "statMembers": "Active Members",
+    "statTrainers": "Expert Trainers",
+    "statClasses": "Weekly Classes"
   },
   "auth": {
     "login": {

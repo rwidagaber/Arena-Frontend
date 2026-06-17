@@ -32,6 +32,16 @@ export class AuthService {
   private _user$ = new BehaviorSubject<any | null>(this._loadUser());
   readonly currentUser$ = this._user$.asObservable();
 
+  /** Merge a partial update into the cached current user (e.g. a new profile image). */
+  patchCurrentUser(patch: Record<string, unknown>): void {
+    const current = this._user$.value;
+    if (!current) return;
+    const updated = { ...current, ...patch };
+    this._user$.next(updated);
+    const storage = localStorage.getItem(KEYS.access) ? localStorage : sessionStorage;
+    storage.setItem(KEYS.user, JSON.stringify(updated));
+  }
+
   get isLoggedIn(): boolean {
     return !!localStorage.getItem(KEYS.access) ||
            !!sessionStorage.getItem(KEYS.access);
