@@ -69,7 +69,8 @@ function mapSubscriptionToMembership(sub: UserSubscriptionDto): MembershipDetail
     ProgressReportComponent,
     RevealDirective,
     Nutritionplan,
-    WorkoutComponent
+    WorkoutComponent,
+
     BookingSection,
 ],
   templateUrl: './member-profile.html',
