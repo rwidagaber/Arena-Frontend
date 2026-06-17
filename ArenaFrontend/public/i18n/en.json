@@ -770,7 +770,16 @@
     "totalSessions": "Total Sessions",
     "paymentAmount": "Payment Amount",
     "noActiveMembership": "No active membership found",
-    "noHistoryFound": "No membership history found"
+    "noHistoryFound": "No membership history found",
+    "prev": "Previous",
+    "next": "Next",
+    "status": {
+      "active": "Active",
+      "pending": "Pending",
+      "expired": "Expired",
+      "cancelled": "Cancelled",
+      "unknown": "Unknown"
+    }
   },
   "nutrition": {
     "searchPlaceholder": "Search for diet plans or meals...",
