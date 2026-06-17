@@ -86,15 +86,16 @@
   justify-content: center;
   flex-shrink: 0;
   font-size: 20px;
-  background: rgba(198,239,46,0.12) ;
+  background:var(--primary) ;
 }
 
 :host-context([data-theme="light"]) .stat-icon-wrapper {
   background-color: #0000;
-  border:1px solid #a3e635 !important ;
+  border:1px solid var(--primary) !important ;
+  background: var(--primary);
 }
 .stat-icon-wrapper i {
-  color: #a3e635 !important;
+  color:var(--text) !important;
 }
 
 .stat-info {
