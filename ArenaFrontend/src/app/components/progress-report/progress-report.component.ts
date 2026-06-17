@@ -1,9 +1,10 @@
 import { Component, ChangeDetectionStrategy, ChangeDetectorRef, NgZone, HostListener, inject, computed, signal, type WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Subject, Observable, switchMap, startWith, map, catchError, of, take, merge, fromEvent, filter } from 'rxjs';
+import { Subject, Observable, switchMap, startWith, map, catchError, of, take, merge, fromEvent, filter, shareReplay } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ProgressReportService, type ProgressLogDto, type ProgressSummaryDto, type CreateProgressLogDto } from '../../core/services/progress-report.service';
+import { ProgressReportService, type ProgressLogDto, type ProgressSummaryDto, type CreateProgressLogDto, type AttendanceRecord } from '../../core/services/progress-report.service';
+import { MemberService } from '../../core/services/member.service';
 import { RevealDirective } from './reveal.directive';
 
 type LoadState<T> =
@@ -130,25 +131,26 @@ const MOTIVATION_COUNT = 14;
 })
 export class ProgressReportComponent {
   private service = inject(ProgressReportService);
+  private member = inject(MemberService);
   private cdr = inject(ChangeDetectorRef);
   private zone = inject(NgZone);
   private translate = inject(TranslateService);
 
-  private memberProfileId: string = (() => {
-    try {
-      const raw = localStorage.getItem('arena_user') ?? sessionStorage.getItem('arena_user');
-      if (raw) return JSON.parse(raw).memberProfileId || '';
-    } catch {}
-    return '';
-  })();
+  /** Shared member-profile stream (DB) — source for member id and target weight. */
+  private profile$ = this.member.getProfile().pipe(
+    catchError(() => of(null)),
+    shareReplay(1)
+  );
 
   protected Math = Math;
 
   constructor() {
-    const saved = localStorage.getItem('progress_goal');
-    if (saved) {
-      try { this.goalConfig.set(JSON.parse(saved)); } catch {}
-    }
+    // Target weight is sourced from the member profile (DB); no local storage.
+    this.profile$.subscribe(p => {
+      if (p?.targetWeight != null && p.targetWeight > 0) {
+        this.profileTargetWeight.set(p.targetWeight);
+      }
+    });
   }
 
   private refresh$ = new Subject<void>();
@@ -170,7 +172,14 @@ export class ProgressReportComponent {
 
   attendancesState$ = merge(this.refresh$, this.visibilityRefresh$).pipe(
     startWith(undefined),
-    switchMap(() => toState(this.service.getAttendances(this.memberProfileId)))
+    switchMap(() => this.profile$.pipe(
+      switchMap(p => {
+        const id = p?.memberProfileId || p?.id || '';
+        return id
+          ? toState(this.service.getAttendances(id))
+          : of({ $state: 'loaded' as const, value: [] as AttendanceRecord[] });
+      })
+    ))
   );
 
   private summarySignal = toSignal(this.progressSummaryState$, { requireSync: true });
@@ -359,20 +368,10 @@ export class ProgressReportComponent {
 
   /** Edit/delete state. Each entry may be edited only once (tracked client-side). */
   protected editingId = signal<string | null>(null);
-  protected editedIds = signal<Set<string>>(this.loadEditedIds());
+  protected editedIds = signal<Set<string>>(new Set<string>());
   protected confirmDeleteId = signal<string | null>(null);
   protected deleting = signal(false);
 
-  private loadEditedIds(): Set<string> {
-    try {
-      const raw = localStorage.getItem('progress_edited_ids');
-      if (raw) return new Set<string>(JSON.parse(raw));
-    } catch {}
-    return new Set<string>();
-  }
-  private persistEditedIds(): void {
-    try { localStorage.setItem('progress_edited_ids', JSON.stringify(Array.from(this.editedIds()))); } catch {}
-  }
   protected isEdited(id: string): boolean { return this.editedIds().has(id); }
   protected isEditable(id: string): boolean { return !this.editedIds().has(id); }
 
@@ -380,8 +379,23 @@ export class ProgressReportComponent {
   protected goalFormWeight = signal<number | null>(null);
   protected goalFormStart = signal<number | null>(null);
 
-  /** Goal config persisted in localStorage */
-  protected goalConfig = signal<GoalConfig | null>(null);
+  /** Target weight from the member profile (DB). */
+  private profileTargetWeight = signal<number | null>(null);
+
+  /** Start weight derived from the earliest progress log (DB). */
+  private goalStartWeight = computed(() => {
+    const chrono = [...this.logs].reverse();
+    return chrono[0]?.weight ?? this.currentWeight() ?? null;
+  });
+
+  /** Goal config sourced entirely from the DB: target = profile, start = first log. */
+  protected goalConfig = computed<GoalConfig | null>(() => {
+    const target = this.profileTargetWeight();
+    if (target == null || target <= 0) return null;
+    const start = this.goalStartWeight();
+    if (start == null) return null;
+    return { targetWeight: target, startWeight: start };
+  });
 
   /** Week-over-week data (last 7 days vs previous 7 days) */
   protected weeklyComparison = computed(() => {
@@ -460,15 +474,111 @@ export class ProgressReportComponent {
   exportCsv(): void {
     const logs = this.logs;
     if (!logs.length) return;
-    const header = 'Date,Weight (kg),Body Fat (%),Muscle Mass (kg)';
-    const rows = [...logs].reverse().map(e =>
-      `${new Date(e.loggedAt).toISOString().slice(0, 10)},${e.weight},${e.bodyFat ?? ''},${e.muscleMass ?? ''}`
-    );
-    const blob = new Blob([[header, ...rows].join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+
+    const goal = this.goalConfig();
+    const prog = this.goalProgress();
+    const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    const fmt = (d: string) => new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
+    const rows = [...logs].reverse().map((e, i) => `
+        <tr>
+          <td class="idx">${i + 1}</td>
+          <td>${fmt(e.loggedAt)}</td>
+          <td><strong>${e.weight}</strong> kg</td>
+          <td>${e.bodyFat != null ? e.bodyFat + ' %' : '—'}</td>
+          <td>${e.muscleMass != null ? e.muscleMass + ' kg' : '—'}</td>
+        </tr>`).join('');
+
+    const stat = (label: string, val: string) =>
+      `<div class="stat"><span class="stat-val">${val}</span><span class="stat-lbl">${label}</span></div>`;
+
+    const summary = `
+      <section class="stats">
+        ${stat('Current Weight', (this.currentWeight() ?? '—') + ' kg')}
+        ${stat('Body Fat', this.currentBodyFat() != null ? this.currentBodyFat() + ' %' : '—')}
+        ${stat('Muscle Mass', this.currentMuscleMass() != null ? this.currentMuscleMass() + ' kg' : '—')}
+        ${stat('Entries', String(logs.length))}
+      </section>`;
+
+    const goalBlock = goal ? `
+      <h2>Weight Goal</h2>
+      <section class="goal">
+        <div class="goal-grid">
+          <div><span>Start</span><strong>${goal.startWeight} kg</strong></div>
+          <div><span>Current</span><strong>${this.currentWeight() ?? '—'} kg</strong></div>
+          <div><span>Target</span><strong class="lime">${goal.targetWeight} kg</strong></div>
+          ${prog != null ? `<div><span>Progress</span><strong class="lime">${prog}%</strong></div>` : ''}
+        </div>
+        ${prog != null ? `<div class="bar"><div class="bar-fill" style="width:${Math.max(0, Math.min(100, prog))}%"></div></div>` : ''}
+      </section>` : '';
+
+    const html = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Arena — Progress Report</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;background:#eceae4;color:#181818;padding:32px;line-height:1.5;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .sheet{max-width:820px;margin:0 auto;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.12)}
+  header{background:linear-gradient(135deg,#181818,#10131B);color:#fff;padding:30px 36px;position:relative;overflow:hidden}
+  header::after{content:'';position:absolute;top:0;right:0;bottom:0;width:6px;background:#C6EF2E}
+  .brand{display:flex;align-items:center;gap:12px}
+  .logo{width:38px;height:38px;border-radius:10px;background:#C6EF2E;color:#10131B;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px}
+  .brand h1{font-size:22px;font-weight:800;letter-spacing:-.02em}
+  .brand span{color:#C6EF2E}
+  .sub{margin-top:14px;font-size:13px;color:rgba(255,255,255,.6)}
+  .sub strong{color:#fff}
+  .body{padding:26px 36px 34px}
+  h2{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#6b6b6b;margin:24px 0 12px;font-weight:700}
+  .body h2:first-child{margin-top:0}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .stat{background:#f6f6f4;border:1px solid rgba(0,0,0,.05);border-radius:14px;padding:16px;text-align:center}
+  .stat-val{display:block;font-size:23px;font-weight:800;letter-spacing:-.02em;color:#181818}
+  .stat-lbl{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:#8a8a8a;margin-top:4px;font-weight:600}
+  .goal{background:linear-gradient(135deg,rgba(198,239,46,.14),rgba(198,239,46,.04));border:1px solid rgba(198,239,46,.3);border-radius:16px;padding:18px 20px}
+  .goal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .goal-grid div{display:flex;flex-direction:column;gap:2px}
+  .goal-grid span{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#8a8a8a;font-weight:600}
+  .goal-grid strong{font-size:17px;font-weight:800}
+  .lime{color:#4d7c0f}
+  .bar{height:7px;border-radius:7px;background:rgba(0,0,0,.06);margin-top:16px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:7px;background:linear-gradient(90deg,#aed81f,#C6EF2E)}
+  table{width:100%;border-collapse:collapse;margin-top:6px;font-size:13px}
+  thead th{text-align:left;padding:10px 12px;background:#10131B;color:#fff;font-size:10px;text-transform:uppercase;letter-spacing:.06em}
+  tbody td{padding:10px 12px;border-bottom:1px solid rgba(0,0,0,.05)}
+  tbody tr:nth-child(even){background:#faf9f6}
+  td.idx{color:#b0b0b0;font-weight:700;width:36px}
+  footer{padding:18px 36px;border-top:1px solid rgba(0,0,0,.06);color:#9a9a9a;font-size:11px;text-align:center}
+  @media print{body{background:#fff;padding:0}.sheet{box-shadow:none;border-radius:0}}
+</style>
+</head>
+<body>
+  <div class="sheet">
+    <header>
+      <div class="brand"><div class="logo">A</div><h1>ARENA <span>· Progress Report</span></h1></div>
+      <div class="sub">Generated on <strong>${today}</strong> · ${logs.length} measurement${logs.length === 1 ? '' : 's'}</div>
+    </header>
+    <div class="body">
+      <h2>Summary</h2>
+      ${summary}
+      ${goalBlock}
+      <h2>Measurement Timeline</h2>
+      <table>
+        <thead><tr><th>#</th><th>Date</th><th>Weight</th><th>Body Fat</th><th>Muscle Mass</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <footer>Arena Fitness · Keep showing up — your progress is your power.</footer>
+  </div>
+</body>
+</html>`;
+
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'arena-progress.csv';
+    a.download = `arena-progress-${new Date().toISOString().slice(0, 10)}.html`;
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -652,7 +762,6 @@ export class ProgressReportComponent {
           const next = new Set(this.editedIds());
           next.delete(id);
           this.editedIds.set(next);
-          this.persistEditedIds();
         }
         this.refresh$.next();
       },
@@ -716,7 +825,6 @@ export class ProgressReportComponent {
           next.delete(editId);
           if (created?.id) next.add(created.id);
           this.editedIds.set(next);
-          this.persistEditedIds();
         }
         this.lockScroll(false);
         this.showForm.set(false);
@@ -765,21 +873,21 @@ export class ProgressReportComponent {
 
   saveGoal(): void {
     const target = this.goalFormWeight();
-    const start = this.goalFormStart();
-    if (!target || !start || target <= 0 || start <= 0) {
+    if (!target || target <= 0) {
       this.formError.set(this.translate.instant('progressReport.errValidValues'));
       return;
     }
-    const goal: GoalConfig = { targetWeight: target, startWeight: start };
-    this.goalConfig.set(goal);
-    localStorage.setItem('progress_goal', JSON.stringify(goal));
+    // Target weight is persisted to the DB; the ring's start weight is derived
+    // from the earliest progress log, so the goal survives reloads with no local storage.
+    this.profileTargetWeight.set(target);
+    this.member.updateProfile({ targetWeight: target }).subscribe({ next: () => {}, error: () => {} });
     this.lockScroll(false);
     this.showGoalForm.set(false);
   }
 
   clearGoal(): void {
-    this.goalConfig.set(null);
-    localStorage.removeItem('progress_goal');
+    this.profileTargetWeight.set(null);
+    this.member.updateProfile({ targetWeight: 0 }).subscribe({ next: () => {}, error: () => {} });
   }
 
   private calcTrend(entries: ProgressLogDto[]): TrendResult {

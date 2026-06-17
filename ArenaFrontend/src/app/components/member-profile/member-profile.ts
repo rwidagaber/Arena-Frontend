@@ -1,17 +1,18 @@
-import { Component, OnInit, inject, signal, computed, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, effect, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, of, forkJoin } from 'rxjs';
 import { AuthService } from '../../core/services/auth';
 import { MemberService } from '../../core/services/member.service';
-import { ProgressReportService, AttendanceRecord, ProgressSummaryDto } from '../../core/services/progress-report.service';
+import { ProgressReportService, AttendanceRecord, ProgressSummaryDto, CreateProgressLogDto } from '../../core/services/progress-report.service';
+import { switchMap } from 'rxjs/operators';
 import type { GetProfileDto, UserSubscriptionDto } from '../../core/models/auth';
-import type { MemberProfile as MemberProfileModel, MembershipDetails } from '../../core/models/member';
+import type { MemberProfile as MemberProfileModel, MembershipDetails, UpdateProfileDto, WorkoutSession } from '../../core/models/member';
 import { DashboardSidebar, DashboardSection } from './dashboard-sidebar/dashboard-sidebar';
 import { RecentWorkouts } from './recent-workouts/recent-workouts';
 import { MembershipSection } from './membership-section/membership-section';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { QrDisplayComponent } from '../../features/QR/qr-display.component/qr-display.component';
 import { ProgressReportComponent } from '../progress-report/progress-report.component';
 import { RevealDirective } from '../progress-report/reveal.directive';
@@ -22,7 +23,7 @@ import { WorkoutComponent } from "./workoutplan/workout";
 function mapAuthToProfile(dto: GetProfileDto): MemberProfileModel {
   return {
     id: dto.id,
-      memberProfileId: dto.memberProfileId ?? dto.id,
+    memberProfileId: dto.memberProfileId ?? dto.id,
     firstName: dto.firstName,
     lastName: dto.lastName,
     email: dto.email,
@@ -32,6 +33,8 @@ function mapAuthToProfile(dto: GetProfileDto): MemberProfileModel {
     weight: dto.weight ?? null,
     height: dto.height ?? null,
     bmi: dto.bmi ?? null,
+    targetWeight: dto.targetWeight ?? null,
+    goal: dto.goal ?? null,
     gender: dto.gender ?? null,
     profileImage: dto.profileImage ?? null,
     birthday: dto.birthday ?? null,
@@ -77,13 +80,14 @@ export class MemberProfile implements OnInit {
   private route = inject(ActivatedRoute);
   private sanitizer = inject(DomSanitizer);
   private themeService = inject(ThemeService);
+  private translate = inject(TranslateService);
 
   protected Math = Math;
 
   isDarkMode = computed(() => this.themeService.isDark);
 
   private readonly svgIcons: Record<string, string> = {
-    fire: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c-3.866 0-7-3.134-7-7 0-3.866 3.134-7 7-7s7 3.134 7 7c0 3.866-3.134 7-7 7z"/></svg>',
+    fire: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>',
     bolt: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
     star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
     shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
@@ -114,32 +118,14 @@ export class MemberProfile implements OnInit {
   attendances = signal<AttendanceRecord[]>([]);
   progressSummary = signal<ProgressSummaryDto | null>(null);
 
-  private quotes = [
-    { text: 'The only bad workout is the one that didn\'t happen.' },
-    { text: 'Strength does not come from the body. It comes from the will.' },
-    { text: 'Don\'t limit your challenges. Challenge your limits.' },
-    { text: 'The pain you feel today will be the strength you feel tomorrow.' },
-    { text: 'Success starts with self-discipline.' },
-    { text: 'Your body can stand almost anything. It\'s your mind you have to convince.' },
-    { text: 'Believe in yourself and you will be unstoppable.' },
-    { text: 'The harder you work, the luckier you get.' },
-    { text: 'Wake up with determination. Go to bed with satisfaction.' },
-    { text: 'You are stronger than you think.' },
-    { text: 'Push yourself because no one else is going to do it for you.' },
-    { text: 'The secret of getting ahead is getting started.' },
-    { text: 'Great things never come from comfort zones.' },
-    { text: 'Dream big. Work hard. Stay focused.' },
-    { text: 'Your only limit is your mind.' },
-    { text: 'Champions keep playing until they get it right.' },
-    { text: 'Take care of your body. It\'s the only place you have to live.' },
-    { text: 'The best project you\'ll ever work on is you.' },
-  ];
+  private readonly quoteCount = 18;
 
-  dailyQuote = computed(() => {
+  /** Translation key for today's rotating motivational quote (memberProfile.quotes.q0..q17). */
+  dailyQuoteKey = computed(() => {
     const n = new Date();
     const diff = n.getTime() - new Date(n.getFullYear(), 0, 0).getTime();
     const dayOfYear = Math.floor(diff / 86400000);
-    return this.quotes[dayOfYear % this.quotes.length];
+    return `memberProfile.quotes.q${dayOfYear % this.quoteCount}`;
   });
 
   mappedMembership = computed<MembershipDetails | null>(() => {
@@ -174,11 +160,11 @@ export class MemberProfile implements OnInit {
   });
 
   streakMilestones = computed(() => [
-    { days: 3, label: '3 Days', icon: 'calendar-check', unlocked: this.currentStreak() >= 3 },
-    { days: 7, label: '7 Days', icon: 'star', unlocked: this.currentStreak() >= 7 },
-    { days: 14, label: '2 Weeks', icon: 'shield', unlocked: this.currentStreak() >= 14 },
-    { days: 21, label: '3 Weeks', icon: 'trophy', unlocked: this.currentStreak() >= 21 },
-    { days: 30, label: '30 Days', icon: 'crown', unlocked: this.currentStreak() >= 30 },
+    { days: 3, labelKey: 'memberProfile.dash.ms3Days', icon: 'calendar-check', unlocked: this.currentStreak() >= 3 },
+    { days: 7, labelKey: 'memberProfile.dash.ms7Days', icon: 'star', unlocked: this.currentStreak() >= 7 },
+    { days: 14, labelKey: 'memberProfile.dash.ms2Weeks', icon: 'shield', unlocked: this.currentStreak() >= 14 },
+    { days: 21, labelKey: 'memberProfile.dash.ms3Weeks', icon: 'trophy', unlocked: this.currentStreak() >= 21 },
+    { days: 30, labelKey: 'memberProfile.dash.ms30Days', icon: 'crown', unlocked: this.currentStreak() >= 30 },
   ]);
 
   nextStreakMilestone = computed(() => {
@@ -199,15 +185,15 @@ export class MemberProfile implements OnInit {
 
   streakMessage = computed(() => {
     const s = this.currentStreak();
-    if (s === 0) return { icon: 'bolt', title: 'Ready to start?', subtitle: 'Come in today and begin your streak!' };
-    if (s === 1) return { icon: 'fire', title: 'Day 1 — Let\'s go!', subtitle: 'One day down. Make it two!' };
-    if (s === 2) return { icon: 'fire', title: '2-Day Streak!', subtitle: 'Momentum is building. Keep showing up!' };
-    if (s >= 3 && s < 7) return { icon: 'fire', title: `${s}-Day Streak!`, subtitle: 'You\'re on fire! Consistency is key.' };
-    if (s >= 7 && s < 14) return { icon: 'star', title: `${s}-Day Streak!`, subtitle: 'A full week! That\'s championship mindset.' };
-    if (s >= 14 && s < 21) return { icon: 'shield', title: `${s}-Day Streak!`, subtitle: 'Two weeks of excellence! Unstoppable.' };
-    if (s >= 21 && s < 30) return { icon: 'trophy', title: `${s}-Day Streak!`, subtitle: 'Three weeks! You\'re in the elite zone.' };
-    if (s >= 30) return { icon: 'crown', title: `${s}-Day Streak!`, subtitle: '30+ days! Absolutely legendary consistency!' };
-    return { icon: 'fire', title: `${s}-Day Streak!`, subtitle: 'Keep the momentum going!' };
+    if (s === 0) return { icon: 'bolt', titleKey: 'memberProfile.dash.streakReadyTitle', subKey: 'memberProfile.dash.streakReadySub', n: s };
+    if (s === 1) return { icon: 'fire', titleKey: 'memberProfile.dash.streakDay1Title', subKey: 'memberProfile.dash.streakDay1Sub', n: s };
+    if (s === 2) return { icon: 'fire', titleKey: 'memberProfile.dash.streakTitle', subKey: 'memberProfile.dash.streak2Sub', n: s };
+    if (s >= 3 && s < 7) return { icon: 'fire', titleKey: 'memberProfile.dash.streakTitle', subKey: 'memberProfile.dash.streakFireSub', n: s };
+    if (s >= 7 && s < 14) return { icon: 'star', titleKey: 'memberProfile.dash.streakTitle', subKey: 'memberProfile.dash.streakWeekSub', n: s };
+    if (s >= 14 && s < 21) return { icon: 'shield', titleKey: 'memberProfile.dash.streakTitle', subKey: 'memberProfile.dash.streak2WeekSub', n: s };
+    if (s >= 21 && s < 30) return { icon: 'trophy', titleKey: 'memberProfile.dash.streakTitle', subKey: 'memberProfile.dash.streak3WeekSub', n: s };
+    if (s >= 30) return { icon: 'crown', titleKey: 'memberProfile.dash.streakTitle', subKey: 'memberProfile.dash.streak30Sub', n: s };
+    return { icon: 'fire', titleKey: 'memberProfile.dash.streakTitle', subKey: 'memberProfile.dash.streakKeepSub', n: s };
   });
 
   sessionsRemaining = computed(() => {
@@ -229,6 +215,23 @@ export class MemberProfile implements OnInit {
 
   totalWorkouts = computed(() => {
     return this.getDatesFromAttendance(this.attendances()).length;
+  });
+
+  // Recent gym visits (from real attendance/check-in data) shaped as workout sessions
+  recentWorkouts = computed<WorkoutSession[]>(() => {
+    return this.attendances()
+      .filter(a => a.checkInTime)
+      .slice()
+      .sort((a, b) => new Date(b.checkInTime!).getTime() - new Date(a.checkInTime!).getTime())
+      .slice(0, 6)
+      .map(a => ({
+        id: a.id,
+        name: 'memberProfile.dash.gymSession',
+        date: a.checkInTime!,
+        durationMinutes: 0,
+        caloriesBurned: 0,
+        type: 'Check-in',
+      }));
   });
 
   currentStreak = computed(() => {
@@ -311,16 +314,21 @@ export class MemberProfile implements OnInit {
     return points.join(' ');
   });
 
+  private readonly dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+
   mostActiveDay = computed(() => {
     const dates = this.getDatesFromAttendance(this.attendances());
     if (!dates.length) return null;
     const dayCounts = [0, 0, 0, 0, 0, 0, 0];
-    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     for (const d of dates) {
       dayCounts[d.getDay()]++;
     }
     const maxIdx = dayCounts.indexOf(Math.max(...dayCounts));
-    return { name: dayNames[maxIdx], count: dayCounts[maxIdx] };
+    // Most recent calendar date that falls on the peak weekday
+    const peakDate = dates
+      .filter(d => d.getDay() === maxIdx)
+      .sort((a, b) => b.getTime() - a.getTime())[0] ?? null;
+    return { nameKey: `memberProfile.dash.daysFull.${this.dayKeys[maxIdx]}`, date: peakDate };
   });
 
   weeklyActivity = computed(() => {
@@ -386,12 +394,12 @@ export class MemberProfile implements OnInit {
     return Math.round(((now - start) / (end - start)) * 100);
   });
 
-  sessionsCompletedText = computed(() => {
+  sessionsCompleted = computed(() => {
     const s = this.sessionsThisMonth();
-    if (s === 0) return "Ready to crush your first workout today? Let's go!";
-    if (s <= 3) return `${s} sessions done this month. Keep building momentum!`;
-    if (s <= 10) return `${s} sessions this month. You're on fire!`;
-    return `${s} sessions this month. Elite performance!`;
+    if (s === 0) return { key: 'memberProfile.dash.sessionsNone', n: s };
+    if (s <= 3) return { key: 'memberProfile.dash.sessionsFew', n: s };
+    if (s <= 10) return { key: 'memberProfile.dash.sessionsMid', n: s };
+    return { key: 'memberProfile.dash.sessionsElite', n: s };
   });
 
   /* ── Progress Summary derived ── */
@@ -440,13 +448,13 @@ export class MemberProfile implements OnInit {
   weekdayDistribution = computed(() => {
     const dates = this.getDatesFromAttendance(this.attendances());
     const counts = [0, 0, 0, 0, 0, 0, 0];
-    const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const keys = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
     for (const d of dates) {
       const idx = d.getDay();
       counts[idx === 0 ? 6 : idx - 1]++;
     }
     const max = Math.max(...counts, 1);
-    return labels.map((label, i) => ({ label, count: counts[i], pct: (counts[i] / max) * 100 }));
+    return keys.map((k, i) => ({ labelKey: `memberProfile.dash.days.${k}`, count: counts[i], pct: (counts[i] / max) * 100 }));
   });
 
   weightLogData = computed(() => {
@@ -488,6 +496,36 @@ export class MemberProfile implements OnInit {
   editHeight = signal<number | null>(null);
   editPhone = signal('');
   editGender = signal('');
+  savingEdit = signal(false);
+  editError = signal<string | null>(null);
+  editImage = signal<string | null>(null);
+  editGoal = signal('');
+  editTargetWeight = signal<number | null>(null);
+  editBodyFat = signal<number | null>(null);
+  editMuscle = signal<number | null>(null);
+
+  // Fitness goal options (values match the backend MemberProfile.Goal)
+  readonly goalOptions = [
+    { value: 'WeightLoss', labelKey: 'memberProfile.dash.goalWeightLoss' },
+    { value: 'MuscleGain', labelKey: 'memberProfile.dash.goalMuscleGain' },
+    { value: 'Endurance', labelKey: 'memberProfile.dash.goalEndurance' },
+    { value: 'GeneralFitness', labelKey: 'memberProfile.dash.goalGeneralFitness' },
+  ];
+
+  goalLabelKey = computed(() => {
+    const g = this.profile()?.goal;
+    return this.goalOptions.find(o => o.value === g)?.labelKey ?? null;
+  });
+
+  goalDelta = computed(() => {
+    const w = this.profile()?.weight;
+    const t = this.profile()?.targetWeight;
+    if (w == null || t == null) return null;
+    const diff = Math.round((w - t) * 10) / 10;
+    if (Math.abs(diff) <= 0.5) return { state: 'reached', key: 'memberProfile.dash.goalReached', n: 0 };
+    if (diff > 0) return { state: 'lose', key: 'memberProfile.dash.kgToGo', n: diff };
+    return { state: 'gain', key: 'memberProfile.dash.kgToGain', n: Math.abs(diff) };
+  });
 
   openEdit(): void {
     const p = this.profile();
@@ -498,28 +536,211 @@ export class MemberProfile implements OnInit {
     this.editHeight.set(p.height ?? null);
     this.editPhone.set(p.phoneNumber || '');
     this.editGender.set(p.gender || '');
+    this.editImage.set(p.profileImage ?? null);
+    this.editGoal.set(p.goal || '');
+    this.editTargetWeight.set(p.targetWeight ?? null);
+    this.editBodyFat.set(this.currentBodyFat());
+    this.editMuscle.set(this.currentMuscleMass());
+    this.editError.set(null);
     this.isEditing.set(true);
   }
 
+  onEditImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      this.editError.set('Please choose an image file.');
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      this.editError.set('Image is too large (max 2MB).');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.editImage.set(reader.result as string);
+      this.editError.set(null);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  removeEditImage(): void {
+    this.editImage.set(null);
+  }
+
   closeEdit(): void {
+    if (this.savingEdit()) return;
     this.isEditing.set(false);
+    this.editError.set(null);
   }
 
   saveEdit(): void {
     const p = this.profile();
-    if (!p) return;
-    const updated: MemberProfileModel = {
-      ...p,
-      firstName: this.editFirstName(),
-      lastName: this.editLastName(),
-      weight: this.editWeight(),
-      height: this.editHeight(),
-      phoneNumber: this.editPhone(),
-      gender: this.editGender(),
+    if (!p || this.savingEdit()) return;
+
+    const dto: UpdateProfileDto = {
+      firstName: this.editFirstName().trim(),
+      lastName: this.editLastName().trim(),
+      phoneNumber: this.editPhone().trim() || undefined,
+      weight: this.editWeight() ?? undefined,
+      height: this.editHeight() ?? undefined,
+      gender: this.editGender() || undefined,
+      profileImage: this.editImage() ?? undefined,
+      goal: this.editGoal() || undefined,
+      targetWeight: this.editTargetWeight() ?? undefined,
     };
-    this.profile.set(updated);
-    this.isEditing.set(false);
+
+    // Body-composition fields (weight/body fat/muscle) live in the progress log.
+    // If any changed, append a new measurement so the dashboard AND the
+    // Progress Report page stay in sync with the database.
+    const newWeight = this.editWeight();
+    const newBodyFat = this.editBodyFat();
+    const newMuscle = this.editMuscle();
+    const bodyCompChanged =
+      (newWeight != null && newWeight !== (p.weight ?? null)) ||
+      newBodyFat !== this.currentBodyFat() ||
+      newMuscle !== this.currentMuscleMass();
+    const logWeight = newWeight ?? p.weight ?? null;
+    const progressDto: CreateProgressLogDto | null =
+      bodyCompChanged && logWeight != null
+        ? { weight: logWeight, bodyFat: newBodyFat, muscleMass: newMuscle }
+        : null;
+
+    this.savingEdit.set(true);
+    this.editError.set(null);
+
+    // 1) Persist profile fields, then 2) optionally append a progress log.
+    this.memberService.updateProfile(dto).pipe(
+      switchMap(() => progressDto ? this.progressService.createProgressEntry(progressDto) : of(null))
+    ).subscribe({
+      next: () => {
+        // Re-fetch the canonical profile + progress so derived fields stay accurate
+        forkJoin({
+          profile: this.memberService.getProfile().pipe(catchError(() => of(null))),
+          progress: this.progressService.getProgress().pipe(catchError(() => of(null as ProgressSummaryDto | null))),
+        }).subscribe(result => {
+          if (result.profile) {
+            this.profile.set(result.profile);
+          } else {
+            // Refresh failed — apply what we sent
+            this.profile.set({
+              ...p,
+              firstName: dto.firstName ?? p.firstName,
+              lastName: dto.lastName ?? p.lastName,
+              phoneNumber: dto.phoneNumber ?? p.phoneNumber,
+              weight: dto.weight ?? p.weight,
+              height: dto.height ?? p.height,
+              gender: dto.gender ?? p.gender,
+              profileImage: dto.profileImage ?? p.profileImage,
+              goal: dto.goal ?? p.goal,
+              targetWeight: dto.targetWeight ?? p.targetWeight,
+            });
+          }
+          if (result.progress) this.progressSummary.set(result.progress);
+          this.savingEdit.set(false);
+          this.isEditing.set(false);
+        });
+      },
+      error: (err) => {
+        this.savingEdit.set(false);
+        const e = err?.error;
+        const msg = Array.isArray(e) ? e.join(', ')
+          : typeof e === 'string' ? e
+          : e?.message ?? e?.title ?? err?.message;
+        // Surface the real backend reason (e.g. validation / DB errors) instead of a generic message
+        console.error('Profile save failed:', err?.status, e);
+        this.editError.set(msg || this.translate.instant('memberProfile.dash.saveFailed'));
+      },
+    });
   }
+
+  // ════════ Celebration modal (streak / achievement) ════════
+  showCelebration = signal(false);
+  confettiPieces = Array.from({ length: 32 }, (_, i) => ({
+    left: (i * 7 + (i % 5) * 11) % 100,
+    delay: (i % 8) * 0.13,
+    duration: 2.3 + (i % 5) * 0.45,
+    color: ['#C6EF2E', '#38BDF8', '#A78BFA', '#FB7185', '#FBBF24'][i % 5],
+    size: 6 + (i % 4) * 3,
+    round: i % 3 === 0,
+  }));
+
+  openCelebration(): void { this.showCelebration.set(true); }
+  closeCelebration(): void { this.showCelebration.set(false); }
+
+  // Auto-pop once when a new streak milestone is reached
+  private celebratedStreak = 0;
+  private celebrationEffect = effect(() => {
+    const s = this.currentStreak();
+    const milestones = [1, 2, 3, 7, 14, 21, 30, 60, 100];
+    if (!milestones.includes(s)) return;
+    if (s > this.celebratedStreak) {
+      this.celebratedStreak = s;
+      setTimeout(() => this.showCelebration.set(true), 700);
+    }
+  });
+
+  // ════════ Stat detail modal ════════
+  activeStat = signal<string | null>(null);
+  openStat(key: string): void { this.activeStat.set(key); }
+  closeStat(): void { this.activeStat.set(null); }
+
+  private daysAgoLabel(): string {
+    const d = this.daysSinceLastWorkout();
+    if (d == null) return '—';
+    if (d === 0) return 'Today';
+    if (d === 1) return 'Yesterday';
+    return `${d} days ago`;
+  }
+
+  statDetail = computed(() => {
+    const key = this.activeStat();
+    if (!key) return null;
+    const rem = this.subscriptionDaysRemaining();
+    const map: Record<string, { title: string; value: string; accent: string; rows: { label: string; value: string }[] }> = {
+      workouts: {
+        title: 'Total Workouts', value: `${this.totalWorkouts()}`, accent: '#C6EF2E',
+        rows: [
+          { label: 'This month', value: `${this.sessionsThisMonth()}` },
+          { label: 'Current streak', value: `${this.currentStreak()} days` },
+          { label: 'Best streak', value: `${this.bestStreak()} days` },
+        ],
+      },
+      streak: {
+        title: 'Current Streak', value: `${this.currentStreak()}d`, accent: '#FB7185',
+        rows: [
+          { label: 'Best streak', value: `${this.bestStreak()} days` },
+          { label: 'Last visit', value: this.daysAgoLabel() },
+          { label: 'Total workouts', value: `${this.totalWorkouts()}` },
+        ],
+      },
+      best: {
+        title: 'Best Streak', value: `${this.bestStreak()}d`, accent: '#A78BFA',
+        rows: [
+          { label: 'Current streak', value: `${this.currentStreak()} days` },
+          { label: 'Total workouts', value: `${this.totalWorkouts()}` },
+          { label: 'Last visit', value: this.daysAgoLabel() },
+        ],
+      },
+      month: {
+        title: 'This Month', value: `${this.sessionsThisMonth()}/${this.monthlyTarget()}`, accent: '#38BDF8',
+        rows: [
+          { label: 'Completed', value: `${this.sessionsThisMonth()}` },
+          { label: 'Monthly target', value: `${this.monthlyTarget()}` },
+          { label: 'Remaining', value: `${Math.max(0, this.monthlyTarget() - this.sessionsThisMonth())}` },
+        ],
+      },
+      plan: {
+        title: 'Plan', value: rem != null ? `${rem}d` : '—', accent: '#FBBF24',
+        rows: [
+          { label: 'Days remaining', value: rem != null ? `${rem}` : '—' },
+          { label: 'This month', value: `${this.sessionsThisMonth()} / ${this.monthlyTarget()}` },
+        ],
+      },
+    };
+    return map[key] ?? null;
+  });
 
   onImageSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -565,8 +786,11 @@ export class MemberProfile implements OnInit {
   }
 
   private isValidSection(s: string): s is DashboardSection {
-    return ['profile','qr', 'workout', 'diet', 'membership', 'progress', 'settings'].includes(s);
+    return ['profile', 'qr', 'workout', 'diet', 'membership', 'progress', 'settings'].includes(s);
   }
+
+  userSubscriptions = signal<UserSubscriptionDto[]>([]);
+  loadingSubscriptions = signal(false);
 
   loadData(): void {
     this.loading.set(true);
@@ -586,6 +810,7 @@ export class MemberProfile implements OnInit {
         return;
       }
       this.profile.set(data);
+      this.loadSubscriptions(data.memberProfileId);
       const memberProfileId = data.memberProfileId || data.id || '';
       if (!memberProfileId) {
         this.loading.set(false);
@@ -603,6 +828,19 @@ export class MemberProfile implements OnInit {
         this.progressSummary.set(result.progress);
         this.loading.set(false);
       });
+    });
+  }
+
+  loadSubscriptions(memberProfileId: string): void {
+    this.loadingSubscriptions.set(true);
+    this.memberService.getUserSubscriptions(memberProfileId).pipe(
+      catchError(err => {
+        console.error('Failed to load subscriptions', err);
+        return of([]);
+      })
+    ).subscribe(subs => {
+      this.userSubscriptions.set(subs);
+      this.loadingSubscriptions.set(false);
     });
   }
 }
