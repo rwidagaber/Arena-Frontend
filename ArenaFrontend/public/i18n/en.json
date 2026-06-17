@@ -1,4 +1,11 @@
 {
+  "notFound": {
+    "kicker": "Error 404",
+    "title": "Oops! Page Not Found",
+    "subtitle": "The page you're looking for doesn't exist or may have been moved. Let's get you back on track.",
+    "returnHome": "Return to Home",
+    "dashboard": "Go to Dashboard"
+  },
   "app": {
     "title": "ArenaGym.",
     "tagline": "Empowering Your Fitness Journey with Expert Training and Lasting Results"
@@ -747,7 +754,9 @@
     "clearSearch": "Clear Search",
     "noPlans": "No nutrition plans yet",
     "generatePlan": "Chat with your AI coach to generate a personalized nutrition plan",
-    "plan": "Plan",
+
+  "plan": "Plan",
+  "inactive": "Inactive",
     "dietPlan": "Diet Plan",
     "activePlan": "Active Plan",
     "backToPlans": "Back to Plans",
@@ -763,15 +772,89 @@
     "noMeals": "No {{mealType}} meals in this plan",
     "ingredients": "Ingredients",
     "breakfast": "Breakfast",
-    "lunch": "Lunch",
-    "dinner": "Dinner",
-    "snack": "Snack"
+"lunch": "Lunch",
+"dinner": "Dinner",
+"snack": "Snack"
   },
-  "notFound": {
-    "kicker": "Error 404",
-    "title": "Oops! Page Not Found",
-    "subtitle": "The page you're looking for doesn't exist or may have been moved. Let's get you back on track.",
-    "returnHome": "Return to Home",
-    "dashboard": "Go to Dashboard"
+  
+  "workout": {
+    "searchPlaceholder": "Search workout plans...",
+    "active": "Active",
+    "tryAgain": "Try Again",
+
+    "resultsFor": "results for",
+
+    "noResults": "No results found for",
+    "tryDifferentKeywords": "Try different keywords",
+    "clearSearch": "Clear Search",
+
+    "noPlans": "No workout plans available",
+    "noPlansHint": "Your workout plans will appear here when available",
+    "contactTrainer": "Contact your trainer to get a workout plan",
+
+    "plan": "Plan",
+
+    "days": "Days",
+    "weeks": "Weeks",
+
+    "daysLabel": "Days",
+    "durationLabel": "Duration",
+    "exercisesLabel": "Exercises",
+
+    "backToPlans": "Back to Plans",
+    "backToPlan": "Back to Plan",
+
+    "activePlan": "Active Plan",
+
+    "day": "Day",
+
+    "exercises": "Exercises",
+    "noExercises": "No exercises for this day",
+
+    "sets": "Sets",
+    "reps": "Reps",
+    "min": "Min",
+    "restSec": "Sec Rest",
+
+    "description": "Description",
+    "equipment": "Equipment",
+    "notes": "Notes",
+
+    "watchVideo": "Watch Video",
+
+    "detail": "Detail",
+    "value": "Value",
+    "trainingDays": "Training Days",
+    "totalExercises": "Total Exercises",
+    "estKcal": "Estimated Calories",
+    "restDay": "Rest Day",
+    "setsReps": "Sets × Reps",
+    "weight": "Weight",
+    "rest": "Rest",
+    "duration": "Duration",
+    "monday": "Monday",
+"tuesday": "Tuesday",
+"wednesday": "Wednesday",
+"thursday": "Thursday",
+"friday": "Friday",
+"saturday": "Saturday",
+"sunday": "Sunday",
+"muscleGroups": {
+  "chest": "Chest",
+  "back": "Back",
+  "shoulders": "Shoulders",
+  "biceps": "Biceps",
+  "triceps": "Triceps",
+  "legs": "Legs",
+  "quadriceps": "Quadriceps",
+  "hamstrings": "Hamstrings",
+  "glutes": "Glutes",
+  "calves": "Calves",
+  "abs": "Abs",
+  "core": "Core",
+  "forearms": "Forearms",
+  "fullBody": "Full Body",
+  "cardio": "Cardio"
+}
   }
 }

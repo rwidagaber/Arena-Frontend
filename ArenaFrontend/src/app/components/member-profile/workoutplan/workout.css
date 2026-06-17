@@ -1,0 +1,824 @@
+/* ==========================================================================
+   ── CSS Variables — Dark / Light Support ──
+   ========================================================================== */
+:host {
+  /* Light defaults */
+  --n-bg:            #ffffff;
+  --n-card:          #ffffff;
+  --n-card-border:   rgba(0, 0, 0, 0.06);
+  --n-card-shadow:   rgba(0, 0, 0, 0.04);
+  --n-text:          #1a1a1a;
+  --n-text-sub:      rgba(0, 0, 0, 0.4);
+  --n-text-muted:    #64748b;
+  --n-border:        rgba(0, 0, 0, 0.06);
+  --n-surface:       #f8fafc;
+  --n-surface2:      #f1f5f9;
+  --n-input-bg:      #ffffff;
+  --n-input-border:  rgba(0, 0, 0, 0.08);
+  --n-skeleton:      rgba(0, 0, 0, 0.05);
+  --n-tab-bg:        #ffffff;
+  --n-tab-border:    rgba(160, 216, 88, 0.15);
+  --n-tab-text:      rgba(0, 0, 0, 0.6);
+  --n-header-bg:     #ffffff;
+  --n-donut-hole:    #ffffff;
+  --n-macro-header:  rgba(0, 0, 0, 0.4);
+  --n-macro-border:  rgba(0, 0, 0, 0.04);
+  --n-pill-bg:       #f9fafb;
+  --n-pill-border:   #f3f4f6;
+  --n-ing-bg:        #f3f4f6;
+  --n-ing-text:      #4b5563;
+  --n-meal-header:   #fafafa;
+  --n-meal-border:   #f3f4f6;
+  --accent:          #D4FA24; /* الأخضر الأساسي للجيم */
+  --neon-glow:       #D4FA24; /* الليموني المعتمد للاستايل الرياضي */
+}
+
+:host-context([data-theme="dark"]) {
+  --n-bg:           #131725;
+  --n-card:         #131725;
+  --n-card-border:  rgba(255, 255, 255, 0.07);
+  --n-card-shadow:  rgba(0, 0, 0, 0.3);
+  --n-text:         #f1f5f9;
+  --n-text-sub:     rgba(255, 255, 255, 0.4);
+  --n-text-muted:   #94a3b8;
+  --n-border:       rgba(255, 255, 255, 0.07);
+  --n-surface:      rgba(255, 255, 255, 0.04);
+  --n-surface2:     rgba(255, 255, 255, 0.06);
+  --n-input-bg:     rgba(255, 255, 255, 0.05);
+  --n-input-border: rgba(255, 255, 255, 0.1);
+  --n-skeleton:     rgba(255, 255, 255, 0.06);
+  --n-tab-bg:       rgba(255, 255, 255, 0.04);
+  --n-tab-border:   rgba(69, 255, 78, 0.2);
+  --n-tab-text:     rgba(255, 255, 255, 0.5);
+  --n-header-bg:    #111212;
+  --n-donut-hole:   #1a1c1e;
+  --n-macro-header: rgba(255, 255, 255, 0.3);
+  --n-macro-border: rgba(255, 255, 255, 0.04);
+  --n-pill-bg:      rgba(255, 255, 255, 0.04);
+  --n-pill-border:  rgba(255, 255, 255, 0.07);
+  --n-ing-bg:       rgba(255, 255, 255, 0.06);
+  --n-ing-text:     #94a3b8;
+  --n-meal-header:  rgba(255, 255, 255, 0.03);
+  --n-meal-border:  rgba(255, 255, 255, 0.05);
+  --accent:         #D4FA24;
+  --neon-glow:      #D4FA24;
+}
+
+/* ==========================================================================
+   ── 1. Host & Layout ──
+   ========================================================================== */
+:host {
+  display: block;
+  margin-top: -50px !important;
+  margin-left: -32px !important;
+  margin-right: -32px !important;
+  width: calc(100% + 64px) !important;
+}
+
+.workout-section {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: var(--n-bg);
+  transition: background-color 0.3s ease;
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.workout-page-header {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  margin: 0; padding: 0;
+  line-height: 0;
+  background: var(--n-header-bg);
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
+  overflow: hidden;
+  margin-bottom: 30px;
+}
+
+.header-bg-img {
+  width: 100%; height: 100%;
+  object-fit: fill;
+  display: block;
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
+}
+
+.workout-content { padding: 24px 32px; }
+
+/* ==========================================================================
+   ── 2. Loading Skeletons ──
+   ========================================================================== */
+.workout-loading { display: flex; flex-direction: column; gap: 16px; }
+
+.plan-skeleton {
+  background: var(--n-surface);
+  border: 1px solid var(--n-card-border);
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.skeleton {
+  background: var(--n-skeleton);
+  border-radius: 8px;
+  animation: shimmer 1.5s infinite;
+}
+
+.sk-title { height: 20px; width: 40%; margin-bottom: 12px; }
+.sk-body  { height: 14px; width: 100%; margin-bottom: 8px; }
+
+@keyframes shimmer { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.8; } }
+
+/* ==========================================================================
+   ── 3. Error / Empty ──
+   ========================================================================== */
+.workout-error, .workout-empty {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 12px; padding: 60px 20px;
+  text-align: center; color: var(--n-text-muted);
+}
+
+.workout-error svg, .workout-empty svg { opacity: 0.3; color: #ef4444; }
+
+.workout-empty h3 { color: var(--n-text); font-size: 18px; font-weight: 600; margin: 0; }
+.workout-empty p  { font-size: 14px; max-width: 300px; margin: 0; }
+
+.btn-retry {
+  background: var(--accent); color: #ffffff;
+  border: none; border-radius: 100px; padding: 10px 24px;
+  font-weight: 700; cursor: pointer; font-size: 14px;
+  box-shadow: 0 4px 12px rgba(77, 163, 82, 0.2);
+  transition: opacity 0.2s;
+}
+.btn-retry:hover { opacity: 0.85; }
+
+/* ==========================================================================
+   ── 4. Search Bar ──
+   ========================================================================== */
+.search-container {
+  position: relative; width: 100%; max-width: 520px;
+  margin-bottom: 24px; display: flex; align-items: center; gap: 12px;
+}
+
+.search-input {
+  flex: 1; height: 44px; padding: 0 40px 0 42px;
+  background: var(--n-input-bg) !important;
+  border: 1px solid var(--n-input-border) !important;
+  border-radius: 100px !important;
+  color: var(--n-text) !important;
+  font-size: 14px; outline: none; box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.search-input::placeholder { color: var(--n-text-sub); opacity: 1; }
+
+.search-input:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px rgba(77, 163, 82, 0.15) !important;
+}
+
+.search-icon {
+  position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+  color: var(--accent); pointer-events: none; z-index: 2;
+}
+
+.search-clear {
+  position: absolute; right: 110px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; color: var(--n-text-sub);
+  cursor: pointer; padding: 0; display: flex; align-items: center;
+  justify-content: center; width: 18px; height: 18px; transition: color 0.2s; z-index: 2;
+}
+.search-clear:hover { color: #ef4444; }
+
+.btn-active-filter {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 0 16px; font-size: 13px; font-weight: 500;
+  color: var(--n-text-muted);
+  background-color: var(--n-surface2);
+  border: 1px solid var(--n-border);
+  border-radius: 100px; cursor: pointer; height: 44px;
+  flex-shrink: 0; transition: all 0.25s ease;
+}
+
+.btn-active-filter:hover { color: var(--n-text); }
+
+.btn-active-filter.is-active {
+  background-color: rgba(77, 163, 82, 0.1);
+  color: var(--accent);
+  border-color: rgba(77, 163, 82, 0.3);
+  font-weight: 600;
+}
+
+.btn-active-filter.is-active svg { stroke: var(--accent); }
+
+/* ==========================================================================
+   ── 5. Grid & Header ──
+   ========================================================================== */
+.nutrition-header {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 8px; margin-bottom: 24px;
+}
+
+.search-results-count { font-size: 13px; color: var(--n-text-muted); }
+
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+/* ==========================================================================
+   ── 6. Plan Cards (تنسيق الإنجليزي الافتراضي LTR) ──
+   ========================================================================== */
+.custom-plan-card {
+  display: flex;
+  background: var(--n-card);
+  border: 1px solid var(--n-card-border);
+  border-radius: 28px;
+  min-height: 170px;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 4px 18px var(--n-card-shadow);
+  flex-direction: row; 
+  opacity: 0;
+  animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.2s ease, box-shadow 0.3s ease;
+  will-change: transform, opacity;
+}
+
+.custom-plan-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+  box-shadow: 0 12px 30px rgba(77, 163, 82, 0.15);
+}
+
+.custom-plan-card.plan-card-active {
+  border-color: var(--accent);
+  box-shadow: 0 8px 24px rgba(77, 163, 82, 0.1);
+}
+
+.custom-plan-card .card-info-side {
+  flex: 1.5;
+  padding: 20px 0 20px 24px; 
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  z-index: 2;
+  text-align: left; 
+  min-width: 0;
+}
+
+.card-status-row { margin-bottom: 8px; }
+
+.custom-active-badge {
+  background: rgba(77, 163, 82, 0.1);
+  color: var(--accent);
+  font-size: 11px; font-weight: 700;
+  padding: 4px 12px; border-radius: 100px;
+  border: 1px solid rgba(77, 163, 82, 0.2);
+}
+
+.custom-inactive-badge {
+  background: var(--n-surface);
+  color: var(--n-text-muted);
+  font-size: 11px; font-weight: 600;
+  padding: 4px 12px; border-radius: 100px;
+}
+
+.card-plan-title {
+  color: var(--n-text); font-size: 18px; font-weight: 700;
+  margin: 0 0 6px; letter-spacing: -0.3px;
+}
+
+.card-trainer-row {
+  display: flex; align-items: center; gap: 6px;
+  color: var(--n-text-muted); font-size: 12px; font-weight: 500;
+  margin-bottom: 14px;
+}
+.card-trainer-row svg { flex-shrink: 0; color: var(--n-text-sub); }
+
+.custom-plan-card .card-stats-grid {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  justify-content: flex-start;
+}
+
+.stat-box { display: flex; flex-direction: column; }
+
+.stat-num-hero  { color: var(--n-text); font-size: 26px; font-weight: 800; line-height: 1; }
+.stat-label-hero { color: var(--n-text-sub); font-size: 12px; margin-top: 4px; font-weight: 500; }
+
+.custom-plan-card .macros-summary-box {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  border-left: none;
+  border-right: 1px solid var(--n-border); 
+  padding-left: 0;
+  padding-right: 12px; 
+}
+
+.mini-macro {
+  color: var(--n-text); font-size: 11px; font-weight: 600;
+  display: flex; align-items: center; gap: 6px;
+}
+
+.p-dot { width: 6px; height: 6px; background: #6366f1; border-radius: 50%; }
+.c-dot { width: 6px; height: 6px; background: #f59e0b; border-radius: 50%; }
+.f-dot { width: 6px; height: 6px; background: #ef4444; border-radius: 50%; }
+
+.custom-plan-card .card-image-side {
+  flex: 0.5;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; 
+}
+
+.custom-plan-card .plan-hero-img {
+  width: 140%; height: 110%;
+  object-fit: cover;
+  object-position: left center;
+  transition: transform 0.3s ease;
+  border-top-left-radius: 120px;
+  border-bottom-left-radius: 120px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.custom-plan-card:hover .plan-hero-img { 
+  transform: scale(1.03) rotate(-3deg); 
+}
+
+.detail-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+
+.btn-back {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--w-card); border: 1px solid var(--w-card-border);
+  color: var(--w-text); border-radius: 100px; padding: 8px 16px;
+  font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s ease;
+}
+.btn-back:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ==========================================================================
+   ── 7. Plan Detail - Top Summary & Tabs Styling ──
+   ========================================================================== */
+.plan-summary-card {
+  display: flex;
+  background: var(--n-card);
+  border: 1px solid var(--n-card-border);
+  border-radius: 24px;
+  padding: 24px;
+  margin-bottom: 28px;
+  box-shadow: 0 8px 24px var(--n-card-shadow);
+  gap: 24px;
+  align-items: center;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.plan-summary-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 8px 24px rgba(77, 163, 82, 0.15);
+}
+
+.summary-icon-col { flex: 0 0 auto; }
+
+.summary-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  background: var(--n-surface2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  border: 1px solid var(--n-border);
+}
+
+.summary-stats-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.summary-plan-name {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--n-text);
+  margin: 0;
+}
+
+.summary-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  width: 100%;
+}
+
+.stat-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 10px;
+  border-radius: 16px;
+  background: var(--n-surface);
+  border: 1px solid var(--n-border);
+  transition: all 0.2s ease;
+}
+
+.stat-chip:hover {
+  background: var(--n-surface2);
+  border-color: rgba(77, 163, 82, 0.3);
+}
+
+.stat-chip-num {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--n-text);
+  line-height: 1.2;
+}
+
+.stat-chip-lbl {
+  font-size: 11px;
+  color: var(--n-text-muted);
+  margin-top: 6px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ==========================================================================
+   ── 7.5 Modern Days Tabs (إصلاح شامل لظهور أزرار الأيام المودرن) ──
+   ========================================================================== */
+.days-section-wrapper {
+  margin-top: 32px;
+  width: 100%;
+}
+
+/* ربط الهيكل بالـ HTML المتواجد بالملف */
+.ingredients-list, .days-tabs-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  width: 100%;
+}
+
+.ingredients-list::-webkit-scrollbar, .days-tabs-row::-webkit-scrollbar { 
+  height: 4px; 
+}
+.ingredients-list::-webkit-scrollbar-thumb, .days-tabs-row::-webkit-scrollbar-thumb {
+  background: var(--n-border);
+  border-radius: 100px;
+}
+
+/* استايل الأزرار الكبسولية المتطورة لربط الـ HTML القديم بالجديد */
+.ingredient-tag, .day-tab {
+  background: var(--n-tab-bg);
+  border: 1px solid var(--n-tab-border);
+  color: var(--n-tab-text);
+  padding: 10px 24px !important;
+  border-radius: 100px !important;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px var(--n-card-shadow);
+}
+
+.ingredient-tag:hover, .day-tab:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: rgba(77, 163, 82, 0.04);
+}
+
+/* تفعيل حالة الـ Active للاستفادة الكاملة من الألوان الرياضية */
+.ingredient-tag.active, .day-tab.active {
+  background: var(--accent) !important;
+  color: #ffffff !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 4px 14px rgba(77, 163, 82, 0.3) !important;
+}
+
+/* ══════════════════════════════════════════════════════════
+   ── 8. Exercises Grid ──
+   ══════════════════════════════════════════════════════════ */
+.exercises-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px; padding: 16px 0;
+}
+
+.exercises-empty {
+  grid-column: 1 / -1;
+  text-align: center; padding: 40px;
+  color: var(--n-text-muted); font-size: 14px;
+}
+
+/* ==========================================================================
+   ── 9. Exercise Cards ──
+   ========================================================================== */
+.exercise-card {
+  background: var(--n-card);
+  border-radius: 16px;
+  border: 1px solid var(--n-card-border);
+  box-shadow: 0 4px 12px var(--n-card-shadow);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  cursor: pointer;
+  min-height: 90px;
+  opacity: 0;
+  animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+  will-change: transform, opacity;
+}
+
+.exercise-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px var(--n-card-shadow);
+  border-color: rgba(77, 163, 82, 0.3);
+}
+
+.exercise-icon-box {
+  width: 48px; height: 48px;
+  background: var(--n-surface2);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px var(--n-card-shadow);
+}
+
+.exercise-info { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.exercise-name { font-size: 15px; font-weight: 700; color: var(--n-text); margin: 0 0 4px; line-height: 1.4; }
+.exercise-muscle { font-size: 12px; color: var(--n-text-muted); margin-bottom: 10px; }
+.exercise-stats-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.pill {
+  font-size: 10px; font-weight: 700;
+  background: var(--n-pill-bg);
+  border: 1px solid var(--n-pill-border);
+  color: var(--n-ing-text);
+  padding: 3px 9px; border-radius: 100px;
+}
+
+.pill.accent {
+  background: rgba(212, 250, 36, 0.1);
+  border-color: rgba(212, 250, 36, 0.25);
+  color: var(--neon-glow);
+}
+
+.exercise-chevron { color: var(--n-text-sub); flex-shrink: 0; }
+
+/* ==========================================================================
+   ── 10. Exercise Detail ──
+   ========================================================================== */
+.exercise-detail-card {
+  background: var(--n-card);
+  border: 1px solid var(--n-card-border);
+  border-radius: 24px; padding: 28px;
+  box-shadow: 0 8px 24px var(--n-card-shadow);
+}
+
+.ex-detail-top { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+
+.ex-detail-icon-big {
+  width: 64px; height: 64px; border-radius: 18px;
+  background: var(--n-surface);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px; flex-shrink: 0;
+}
+
+.ex-detail-heading { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.ex-detail-name { font-size: 24px; font-weight: 800; color: var(--n-text); margin: 0; }
+
+.ex-detail-muscle {
+  display: inline-flex; align-items: center; width: fit-content;
+  font-size: 12px; font-weight: 700; color: var(--n-text-muted);
+  background: var(--n-surface); padding: 4px 12px; border-radius: 100px;
+}
+
+.ex-stats-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 28px; }
+
+.ex-stat-box {
+  flex: 1; min-width: 80px;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 16px 12px; border-radius: 16px;
+  background: var(--n-surface); border: 1px solid var(--n-border);
+}
+
+.ex-stat-box.accent {
+  background: rgba(77, 163, 82, 0.06);
+  border-color: rgba(77, 163, 82, 0.15);
+}
+
+.ex-stat-num { font-size: 22px; font-weight: 800; color: var(--n-text); }
+.ex-stat-lbl { font-size: 11px; color: var(--n-text-muted); margin-top: 4px; font-weight: 600; }
+.ex-stat-box.accent .ex-stat-num { color: var(--accent); }
+
+.ex-description-section, .ex-equipment-section, .ex-notes-section {
+  border-top: 1px solid var(--n-border);
+  padding-top: 20px; margin-bottom: 20px;
+}
+
+.ex-section-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 15px; font-weight: 700; color: var(--n-text); margin: 0 0 14px;
+}
+
+.ex-description-text, .ex-notes-text { font-size: 14px; color: var(--n-text-muted); line-height: 1.7; margin: 0; }
+
+.equipment-tag {
+  display: inline-block;
+  padding: 6px 14px;
+  background: var(--n-ing-bg); color: var(--n-ing-text);
+  border: 1px solid var(--n-border); border-radius: 100px; font-size: 13px;
+}
+
+.btn-watch-video {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--accent); color: #ffffff;
+  border-radius: 100px; padding: 12px 24px;
+  font-weight: 700; font-size: 14px; text-decoration: none;
+  box-shadow: 0 4px 12px rgba(77, 163, 82, 0.2);
+  transition: opacity 0.2s;
+}
+.btn-watch-video:hover { opacity: 0.85; }
+
+/* ==========================================================================
+   ── 11. Responsive & Media Queries ──
+   ========================================================================== */
+@media (max-width: 768px) {
+  :host { margin-top: -17px !important; margin-left: -16px !important; margin-right: -16px !important; width: calc(100% + 32px) !important; }
+  .plans-grid { grid-template-columns: 1fr; }
+  .exercises-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+  .plan-summary-card { flex-direction: column; padding: 20px; gap: 20px; text-align: center; }
+  .summary-stats-grid { grid-template-columns: repeat(4, 1fr); width: 100%; }
+  .workout-page-header { height: 90px; }
+  .search-container { max-width: 100%; margin-bottom: 16px; }
+  .workout-content { padding: 16px; }
+}
+
+@media (max-width: 480px) {
+  .custom-plan-card { min-height: 150px; }
+  .stat-num-hero { font-size: 22px; }
+  .card-plan-title { font-size: 16px; }
+  .plan-hero-img { width: 150%; }
+  .exercises-grid { grid-template-columns: 1fr; }
+  .summary-stats-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+}
+
+/* ==========================================================================
+   ── 12. Animations Keyframes ──
+   ========================================================================== */
+@keyframes slideUpFade {
+  0% { opacity: 0; transform: translateY(40px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   ── 14. Modern Macro & Enhanced Meal Cards ──
+   ========================================================================== */
+.modern-macro-summary-card {
+  display: flex; background: var(--n-card); border: 1px solid var(--n-card-border);
+  border-radius: 24px; padding: 24px; margin-bottom: 28px; box-shadow: 0 8px 24px var(--n-card-shadow); gap: 24px; align-items: center;
+}
+
+.workout-ring-chart {
+  width: 90px; height: 90px; border-radius: 50%;
+  background: radial-gradient(var(--n-card) 60%, transparent 61%), conic-gradient(var(--accent) 100%, transparent 0);
+  display: flex; align-items: center; justify-content: center;
+}
+
+.ring-center-content { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.modern-daily-cal-num { font-size: 24px; font-weight: 800; color: var(--n-text); line-height: 1; }
+.modern-daily-cal-label { font-size: 11px; color: var(--n-text-muted); margin-top: 2px; }
+.modern-macro-details-side { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.macro-table-header { display: flex; justify-content: space-between; font-size: 12px; color: var(--n-text-muted); font-weight: 600; padding-bottom: 4px; border-bottom: 1px solid var(--n-border); }
+.macro-table-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 4px 0; }
+.macro-name-with-dot { display: flex; align-items: center; gap: 8px; }
+.macro-badge-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+.macro-value-text { font-weight: 700; color: var(--n-text); }
+
+.modern-meals-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-top: 16px; }
+.modern-meal-card-enhanced { background: var(--n-card); border: 1px solid var(--n-card-border); border-radius: 20px; padding: 16px; cursor: pointer; box-shadow: 0 4px 14px var(--n-card-shadow); transition: transform 0.25s ease, border-color 0.25s ease; }
+.modern-meal-card-enhanced:hover { transform: translateY(-4px); border-color: var(--accent); }
+.meal-card-header-accent { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.meal-avatar-icon-box { width: 36px; height: 36px; background: var(--n-surface2); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+.meal-badge-tag-type { font-size: 11px; font-weight: 700; background: var(--n-surface2); padding: 4px 10px; border-radius: 100px; color: var(--n-text-muted); }
+.meal-badge-tag-type.accent { background: rgba(77, 163, 82, 0.1); color: var(--accent); }
+.text-meal-name-updated { font-size: 16px; font-weight: 700; color: var(--n-text); margin: 0 0 8px 0; }
+.meal-calories-badge-row { display: flex; align-items: center; gap: 6px; font-size: 13px; margin-bottom: 12px; }
+.meal-cal-val-num { font-weight: 800; color: var(--accent); }
+.meal-cal-lbl-text { color: var(--n-text-muted); font-size: 12px; }
+.meal-macros-horizontal-pills { display: flex; gap: 8px; margin-bottom: 12px; }
+.macro-pill-item { flex: 1; display: flex; align-items: center; gap: 6px; background: var(--n-surface); padding: 6px; border-radius: 10px; border: 1px solid var(--n-border); }
+.pill-icon { font-size: 14px; }
+.macro-pill-meta { display: flex; flex-direction: column; line-height: 1.1; }
+.pill-amount { font-size: 12px; font-weight: 800; color: var(--n-text); }
+.pill-label { font-size: 10px; color: var(--n-text-muted); }
+.meal-ingredients-tags-flex { display: flex; flex-wrap: wrap; gap: 6px; }
+.meal-ingredient-tag-item { font-size: 11px; background: var(--n-surface2); color: var(--n-text-muted); padding: 2px 8px; border-radius: 6px; }
+
+.meal-detail-card { background: var(--n-card); border: 1px solid var(--n-card-border); border-radius: 24px; padding: 24px; box-shadow: 0 8px 24px var(--n-card-shadow); }
+.meal-detail-top { margin-bottom: 16px; }
+.meal-detail-name { font-size: 22px; font-weight: 800; color: var(--n-text); margin: 0; }
+.meal-cal-hero { display: flex; flex-direction: column; align-items: center; margin: 20px 0; padding: 16px; background: var(--n-surface); border-radius: 16px; }
+.meal-cal-num { font-size: 28px; font-weight: 800; color: var(--accent); }
+.meal-cal-label { font-size: 12px; color: var(--n-text-muted); }
+.meal-macro-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+.meal-macro-card { display: flex; flex-direction: column; align-items: center; padding: 12px; background: var(--n-surface); border: 1px solid var(--n-border); border-radius: 12px; }
+.meal-macro-val { font-size: 18px; font-weight: 800; color: var(--n-text); }
+.meal-macro-lbl { font-size: 11px; color: var(--n-text-muted); }
+.ingredients-section { border-top: 1px solid var(--n-border); padding-top: 16px; margin-bottom: 16px; }
+
+/* ==========================================================================
+   ── 13. التغييرات الخاصة باللغة العربية [dir="rtl"] ──
+   ========================================================================== */
+:host-context([dir="rtl"]) .search-icon {
+  left: auto;
+  right: 16px;
+}
+
+:host-context([dir="rtl"]) .search-input {
+  padding: 0 42px 0 40px;
+}
+
+:host-context([dir="rtl"]) .search-clear {
+  right: auto;
+  left: 110px;
+}
+
+/* قلب اتجاه الكارد بالتساوي */
+:host-context([dir="rtl"]) .custom-plan-card {
+  direction: rtl !important;
+  flex-direction: row !important; 
+}
+
+/* تثبيت محاذاة وحشوة النص في العربي جهة اليمين */
+:host-context([dir="rtl"]) .custom-plan-card .card-info-side {
+  flex: 1.5 !important;
+  text-align: right !important;
+  direction: rtl !important;
+  padding: 20px 24px 20px 0 !important; 
+}
+
+/* تثبيت مساحة حاوية الصورة لتطابق الإنجليزي بنسبة 100% */
+:host-context([dir="rtl"]) .custom-plan-card .card-image-side {
+  flex: 0.5 !important;
+  justify-content: flex-start !important;
+  border-radius: 0 !important;
+  overflow: hidden !important; 
+}
+
+/* ضبط أبعاد الصورة ومقاسها لتطابق الإنجليزي تماماً وتنظر لليسار */
+:host-context([dir="rtl"]) .plan-hero-img {
+  width: 100% !important; 
+  height: 100% !important;
+  max-width: 100% !important;
+  min-width: 100% !important;
+  object-fit: cover !important;
+  object-position: left center !important; /* تبص شمال بكفاءة */
+
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-top-right-radius: 120px !important;
+  border-bottom-right-radius: 120px !important;
+  transform: none !important; 
+}
+
+:host-context([dir="rtl"]) .custom-plan-card:hover .plan-hero-img { 
+  transform: scale(1.05) rotate(3deg) !important; 
+}
+
+:host-context([dir="rtl"]) .custom-plan-card .card-stats-grid { 
+  justify-content: flex-start !important;
+}
+
+/* تعديل خط الفصل للماكروز ليصبح جهة اليسار بدلاً من اليمين */
+:host-context([dir="rtl"]) .macros-summary-box {
+  border-right: none !important;
+  border-left: 1px solid var(--n-border) !important; 
+  padding-right: 0 !important;
+  padding-left: 12px !important;
+}
+
+/* فرض الاتجاه التتابعي للأزرار والكبسولات في العربي */
+:host-context([dir="rtl"]) .ingredients-list, 
+:host-context([dir="rtl"]) .days-tabs-row {
+  flex-direction: row !important; 
+}

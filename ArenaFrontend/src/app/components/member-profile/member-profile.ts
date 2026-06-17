@@ -18,6 +18,7 @@ import { ProgressReportComponent } from '../progress-report/progress-report.comp
 import { RevealDirective } from '../progress-report/reveal.directive';
 import { Nutritionplan } from './nutritionplan/nutritionplan';
 import { ThemeService } from '../../core/services/themeservice';
+import { WorkoutComponent } from "./workoutplan/workout";
 
 function mapAuthToProfile(dto: GetProfileDto): MemberProfileModel {
   return {
@@ -66,7 +67,8 @@ function mapSubscriptionToMembership(sub: UserSubscriptionDto): MembershipDetail
     ProgressReportComponent,
     RevealDirective,
     Nutritionplan,
-  ],
+    WorkoutComponent
+],
   templateUrl: './member-profile.html',
   styleUrl: './member-profile.css',
 })

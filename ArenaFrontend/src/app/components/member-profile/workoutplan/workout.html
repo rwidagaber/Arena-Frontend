@@ -1,0 +1,385 @@
+<div class="workout-section">
+
+  <div class="workout-page-header">
+    @if (isDarkMode()) {
+      <img src="assets/images/workheader.png" alt="Workout Header" class="header-bg-img" width="1200" height="180" loading="lazy" />
+    } @else {
+      <img src="assets/images/workoutheaderlight.png" alt="Workout Header" class="header-bg-img" width="1200" height="180" loading="lazy" />
+    }
+  </div>
+
+  <div class="workout-content">
+
+    @if (view() === 'plans') {
+      <div class="search-container">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input
+          type="text"
+          [placeholder]="t.instant('workout.searchPlaceholder')"
+          class="search-input"
+          [value]="searchQuery()"
+          (input)="searchQuery.set($any($event.target).value)"
+        />
+        <button
+          class="btn-active-filter"
+          [class.is-active]="showActiveOnly()"
+          (click)="showActiveOnly.set(!showActiveOnly())"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+            <circle cx="12" cy="12" r="10"/><polyline points="9 11 12 14 22 4"/>
+          </svg>
+          {{ t.instant('workout.active') }}
+        </button>
+        @if (searchQuery()) {
+          <button class="search-clear" (click)="searchQuery.set('')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        }
+      </div>
+    }
+
+    @if (loading()) {
+      <div class="workout-loading">
+        @for (_ of [1,2,3]; track _) {
+          <div class="plan-skeleton">
+            <div class="skeleton sk-title"></div>
+            <div class="skeleton sk-body"></div>
+            <div class="skeleton sk-body" style="width:60%"></div>
+          </div>
+        }
+      </div>
+    }
+
+    @else if (error()) {
+      <div class="workout-error">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <p>{{ error() }}</p>
+        <button class="btn-retry" (click)="loadData()">{{ t.instant('workout.tryAgain') }}</button>
+      </div>
+    }
+
+    @else {
+
+      @if (view() === 'plans') {
+
+        <div class="workout-header">
+          @if (searchQuery()) {
+            <span class="search-results-count">
+              {{ filteredPlans().length }} {{ t.instant('workout.resultsFor') }} "{{ searchQuery() }}"
+            </span>
+          }
+        </div>
+
+        @if (filteredPlans().length === 0) {
+          <div class="workout-empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="56" height="56">
+              <path d="M6.5 6.5h11M6.5 12h11M6.5 17.5h11"/>
+              <rect x="3" y="3" width="18" height="18" rx="4"/>
+            </svg>
+            @if (searchQuery()) {
+              <h3>{{ t.instant('workout.noResults') }} "{{ searchQuery() }}"</h3>
+              <p>{{ t.instant('workout.tryDifferentKeywords') }}</p>
+              <button class="btn-retry" (click)="searchQuery.set('')">{{ t.instant('workout.clearSearch') }}</button>
+            } @else {
+              <h3>{{ t.instant('workout.noPlans') }}</h3>
+              <p>{{ t.instant('workout.contactTrainer') }}</p>
+            }
+          </div>
+        } @else {
+          <div class="plans-grid">
+            @for (plan of filteredPlans(); track plan.id; let i = $index) {
+              <div
+                class="custom-plan-card"
+                [class.plan-card-active]="plan.isActive"
+                (click)="openPlan(plan)"
+                [style.animation-delay]="i * 75 + 'ms'"
+              >
+                <div class="card-info-side">
+                  <div class="card-status-row">
+                    @if (plan.isActive) {
+                      <span class="custom-active-badge">{{ t.instant('workout.active') }}</span>
+                    } @else {
+                      <span class="custom-inactive-badge">{{ t.instant('workout.plan') }}</span>
+                    }
+                  </div>
+                  <h3 class="card-plan-title">{{ plan.name }}</h3>
+                  <div class="card-stats-grid">
+                    <div class="stat-box">
+                      <span class="stat-num-hero">{{ plan.durationWeeks }}</span>
+                      <span class="stat-label-hero">{{ t.instant('workout.weeks') }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-image-side">
+                  <img [src]="getPlanImage(plan)" alt="Workout Plan" class="plan-hero-img" loading="lazy" />
+                </div>
+              </div>
+            }
+          </div>
+        }
+      }
+
+      @else if (view() === 'plan-detail' && selectedPlan(); as plan) {
+
+        <div class="detail-header">
+          <button class="btn-back" (click)="goBack()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            {{ t.instant('workout.backToPlans') }}
+          </button>
+          @if (plan.isActive) {
+            <span class="custom-active-badge">{{ t.instant('workout.activePlan') }}</span>
+          }
+        </div>
+
+        <div class="modern-macro-summary-card">
+          <div class="modern-cal-hero-box">
+            <div class="workout-ring-chart">
+              <div class="ring-center-content">
+                <span class="modern-daily-cal-num">{{ plan.durationWeeks }}</span>
+                <span class="modern-daily-cal-label">{{ t.instant('workout.weeks') }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="modern-macro-details-side">
+            <div class="macro-table-header">
+              <span class="col-left">{{ t.instant('workout.detail') }}</span>
+              <span>{{ t.instant('workout.value') }}</span>
+            </div>
+            <div class="macro-table-row w-row">
+              <div class="macro-name-with-dot">
+                <span class="macro-badge-dot"></span>
+                <span class="macro-name-text">{{ t.instant('workout.trainingDays') }}</span>
+              </div>
+              <span class="macro-value-text">{{ plan.days?.length ?? 0 }}</span>
+            </div>
+            <div class="macro-table-row e-row">
+              <div class="macro-name-with-dot">
+                <span class="macro-badge-dot"></span>
+                <span class="macro-name-text">{{ t.instant('workout.totalExercises') }}</span>
+              </div>
+              <span class="macro-value-text">{{ getTotalExercises(plan) }}</span>
+            </div>
+            <div class="macro-table-row k-row">
+              <div class="macro-name-with-dot">
+                <span class="macro-badge-dot"></span>
+                <span class="macro-name-text">{{ t.instant('workout.estKcal') }}</span>
+              </div>
+              <span class="macro-value-text">~{{ getEstimatedKcal(plan) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="days-section-wrapper">
+          <div class="days-tabs-row">
+            @for (day of plan.days ?? []; track day.id) {
+              <button
+                class="day-tab"
+                [class.active]="selectedDay()?.id === day.id"
+                (click)="selectDay(day.id)"
+              >
+                {{ t.instant('workout.' + day.dayName.toLowerCase()) || day.dayName }}
+              </button>
+            }
+          </div>
+
+          <div class="modern-meals-grid">
+            @if (!selectedDay() || selectedDay()!.exercises.length === 0) {
+              <div class="meals-empty">
+                <p>{{ t.instant('workout.restDay') }}</p>
+              </div>
+            }
+
+            @for (ex of selectedDay()?.exercises ?? []; track ex.id; let i = $index) {
+              <div
+                class="modern-meal-card-enhanced"
+                [style.animation-delay]="(i * 60) + 'ms'"
+                (click)="openExercise(ex)"
+              >
+                <div class="meal-card-header-accent">
+                  <div class="meal-avatar-icon-box">
+                    <span class="ex-icon">{{ muscleGroupIcon(ex.exercise?.muscleGroup ?? '') }}</span>
+                  </div>
+                  @if (ex.exercise?.muscleGroup) {
+                    <span class="meal-badge-tag-type" [class]="getMuscleGroupColor(ex.exercise!.muscleGroup)">
+                      {{ translateMuscleGroup(ex.exercise!.muscleGroup) }}
+                    </span>
+                  }
+                </div>
+
+                <div class="meal-card-main-content">
+                  <h4 class="text-meal-name-updated">{{ ex.name || ex.exercise?.name }}</h4>
+
+                  <div class="meal-calories-badge-row">
+                    <span class="ex-sets-icon">🔁</span>
+                    <span class="meal-cal-val-num">{{ ex.sets }} × {{ ex.reps }}</span>
+                    <span class="meal-cal-lbl-text">{{ t.instant('workout.setsReps') }}</span>
+                  </div>
+
+                  <div class="meal-macros-horizontal-pills">
+                    <div class="macro-pill-item sets-pill">
+                      <span class="pill-icon">📦</span>
+                      <div class="macro-pill-meta">
+                        <span class="pill-amount">{{ ex.sets }}</span>
+                        <span class="pill-label">{{ t.instant('workout.sets') }}</span>
+                      </div>
+                    </div>
+                    <div class="macro-pill-item reps-pill">
+                      <span class="pill-icon">🔄</span>
+                      <div class="macro-pill-meta">
+                        <span class="pill-amount">{{ ex.reps }}</span>
+                        <span class="pill-label">{{ t.instant('workout.reps') }}</span>
+                      </div>
+                    </div>
+                    @if (ex.weight) {
+                      <div class="macro-pill-item weight-pill">
+                        <span class="pill-icon">🏋️</span>
+                        <div class="macro-pill-meta">
+                          <span class="pill-amount">{{ ex.weight }}kg</span>
+                          <span class="pill-label">{{ t.instant('workout.weight') }}</span>
+                        </div>
+                      </div>
+                    }
+                    @if (ex.restSeconds) {
+                      <div class="macro-pill-item rest-pill">
+                        <span class="pill-icon">⏱️</span>
+                        <div class="macro-pill-meta">
+                          <span class="pill-amount">{{ ex.restSeconds }}s</span>
+                          <span class="pill-label">{{ t.instant('workout.rest') }}</span>
+                        </div>
+                      </div>
+                    }
+                  </div>
+
+                  @if (ex.exercise?.equipment) {
+                    <div class="meal-ingredients-tags-flex">
+                      @for (eq of ex.exercise!.equipment.split(','); track eq) {
+                        <span class="meal-ingredient-tag-item">{{ eq.trim() }}</span>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      @else if (view() === 'exercise-detail' && selectedExercise(); as ex) {
+<div class="detail-header">
+          <button class="btn-back" (click)="goBack()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            {{ t.instant('workout.backToPlan') }}
+          </button>
+        </div>
+        <div class="meal-detail-card">
+          <div class="meal-detail-top">
+            @if (ex.exercise?.muscleGroup) {
+              <div class="meal-type-badge lg" [class]="getMuscleGroupColor(ex.exercise!.muscleGroup)">
+                <span>{{ translateMuscleGroup(ex.exercise!.muscleGroup) }}</span>
+              </div>
+            }
+            <h2 class="meal-detail-name">{{ ex.name || ex.exercise?.name }}</h2>
+          </div>
+
+          <div class="meal-cal-hero">
+            <span class="meal-cal-num">{{ ex.sets }} × {{ ex.reps }}</span>
+            <span class="meal-cal-label">{{ t.instant('workout.setsReps') }}</span>
+          </div>
+
+          <div class="meal-macro-grid">
+            <div class="meal-macro-card sets-card">
+              <span class="meal-macro-val">{{ ex.sets }}</span>
+              <span class="meal-macro-lbl">{{ t.instant('workout.sets') }}</span>
+            </div>
+            <div class="meal-macro-card reps-card">
+              <span class="meal-macro-val">{{ ex.reps }}</span>
+              <span class="meal-macro-lbl">{{ t.instant('workout.reps') }}</span>
+            </div>
+            @if (ex.weight) {
+              <div class="meal-macro-card weight-card">
+                <span class="meal-macro-val">{{ ex.weight }}<small>kg</small></span>
+                <span class="meal-macro-lbl">{{ t.instant('workout.weight') }}</span>
+              </div>
+            }
+            @if (ex.durationMinutes) {
+              <div class="meal-macro-card dur-card">
+                <span class="meal-macro-val">{{ ex.durationMinutes }}<small>min</small></span>
+                <span class="meal-macro-lbl">{{ t.instant('workout.duration') }}</span>
+              </div>
+            }
+            @if (ex.restSeconds) {
+              <div class="meal-macro-card rest-card">
+                <span class="meal-macro-val">{{ ex.restSeconds }}<small>s</small></span>
+                <span class="meal-macro-lbl">{{ t.instant('workout.rest') }}</span>
+              </div>
+            }
+          </div>
+
+          @if (ex.exercise?.description) {
+            <div class="ingredients-section">
+              <h3 class="ingredients-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                  <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+                  <rect x="9" y="3" width="6" height="4" rx="2"/>
+                </svg>
+                {{ t.instant('workout.description') }}
+              </h3>
+              <p class="ex-description">{{ ex.exercise!.description }}</p>
+            </div>
+          }
+
+          @if (ex.exercise?.equipment) {
+            <div class="ingredients-section">
+              <h3 class="ingredients-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                  <path d="M6 4v16M18 4v16M6 12h12M2 7h4M2 17h4M18 7h4M18 17h4"/>
+                </svg>
+                {{ t.instant('workout.equipment') }}
+              </h3>
+              <div class="ingredients-list">
+                @for (eq of ex.exercise!.equipment.split(','); track eq) {
+                  <span class="ingredient-tag">{{ eq.trim() }}</span>
+                }
+              </div>
+            </div>
+          }
+
+          @if (ex.notes) {
+            <div class="ingredients-section">
+              <h3 class="ingredients-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                </svg>
+                {{ t.instant('workout.notes') }}
+              </h3>
+              <p class="ex-description">{{ ex.notes }}</p>
+            </div>
+          }
+
+          @if (ex.exercise?.videoUrl) {
+            <a [href]="ex.exercise!.videoUrl" target="_blank" rel="noopener" class="btn-video">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+              {{ t.instant('workout.watchVideo') }}
+            </a>
+          }
+        </div>
+      }
+    }
+  </div>
+</div>
