@@ -1,4 +1,11 @@
 {
+  "notFound": {
+    "kicker": "Error 404",
+    "title": "Oops! Page Not Found",
+    "subtitle": "The page you're looking for doesn't exist or may have been moved. Let's get you back on track.",
+    "returnHome": "Return to Home",
+    "dashboard": "Go to Dashboard"
+  },
   "app": {
     "title": "ArenaGym.",
     "tagline": "Empowering Your Fitness Journey with Expert Training and Lasting Results"
