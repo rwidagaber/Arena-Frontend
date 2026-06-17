@@ -330,54 +330,39 @@
                   }
                 </div>
 
-                <!-- ── FITNESS PULSE  (new, after Your Body) ── -->
-                <div class="card glass-card pg-pulse">
+                <!-- ── CHECK-IN / NEXT SESSION (replaces fitness pulse) ── -->
+                <div class="card glass-card pg-checkin">
                   <div class="card-hdr">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                    <h3>{{ 'memberProfile.dash.fitnessPulse' | translate }}</h3>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3"/><path d="M21 14v7h-7"/></svg>
+                    <h3>{{ 'memberProfile.dash.checkIn' | translate }}</h3>
                   </div>
-                  <div class="pulse-body">
-                    <div class="pulse-ring-wrap">
-                      <svg class="pulse-ring-svg" viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="7"/>
-                        <circle cx="50" cy="50" r="42" fill="none" stroke="#C6EF2E" stroke-width="7"
-                          stroke-linecap="round" [attr.transform]="'rotate(-90 50 50)'"
-                          [attr.stroke-dasharray]="'263.89'"
-                          [attr.stroke-dashoffset]="daysSinceLastWorkout() != null ? 263.89 - (263.89 * Math.max(0, Math.min(100, (1 - daysSinceLastWorkout()! / 14) * 100)) / 100) : 263.89"
-                          style="transition: stroke-dashoffset 1.2s cubic-bezier(0.34, 1.56, 0.64, 1); filter: drop-shadow(0 0 8px rgba(198,239,46,0.20));"/>
-                      </svg>
-                      <div class="pulse-ring-text">
-                        <span class="pulse-val">{{ daysSinceLastWorkout() ?? '—' }}</span>
-                        <span class="pulse-lbl">{{ 'memberProfile.dash.daysAgoShort' | translate }}</span>
-                      </div>
-                    </div>
-                    <div class="pulse-stats">
-                      <div class="pulse-stat">
-                        <div class="pulse-stat-icon">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                        </div>
-                        <div class="pulse-stat-body">
-                          <span class="pulse-stat-val">{{ currentStreak() }}<small>{{ 'memberProfile.dash.dShort' | translate }}</small></span>
-                          <span class="pulse-stat-lbl">{{ 'memberProfile.dash.streak' | translate }}</span>
-                        </div>
-                      </div>
-                      <div class="pulse-stat">
-                        <div class="pulse-stat-icon">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                        </div>
-                        <div class="pulse-stat-body">
-                          <span class="pulse-stat-val">{{ totalWorkouts() }}</span>
-                          <span class="pulse-stat-lbl">{{ 'memberProfile.dash.total' | translate }}</span>
-                        </div>
-                      </div>
-                    </div>
+
+                  <!-- Next session (awaiting a bookings source — honest empty state) -->
+                  <div class="ci-next">
+                    <span class="ci-next-label">{{ 'memberProfile.dash.nextSession' | translate }}</span>
+                    <span class="ci-next-empty">{{ 'memberProfile.dash.noUpcoming' | translate }}</span>
                   </div>
-                  <button class="pulse-cta">
-                    <span>{{ (daysSinceLastWorkout() === 0 ? 'memberProfile.dash.trainedToday' : daysSinceLastWorkout() === 1 ? 'memberProfile.dash.missedYesterday' : 'memberProfile.dash.startWorkout') | translate }}</span>
+
+                  <!-- Primary action: open QR to check in at the gym -->
+                  <button class="pulse-cta" (click)="onSectionChange('qr')">
+                    <span>{{ 'memberProfile.dash.openQr' | translate }}</span>
                     <span class="pulse-cta-arrow">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                     </span>
                   </button>
+
+                  <!-- Plan context (real data) -->
+                  <div class="ci-meta">
+                    <div class="ci-meta-item">
+                      <span class="ci-meta-val">{{ sessionsRemaining() ?? '—' }}</span>
+                      <span class="ci-meta-lbl">{{ 'memberProfile.dash.sessionsLeft' | translate }}</span>
+                    </div>
+                    <span class="ci-meta-sep"></span>
+                    <div class="ci-meta-item">
+                      <span class="ci-meta-val">{{ subscriptionDaysRemaining() ?? '—' }}</span>
+                      <span class="ci-meta-lbl">{{ 'memberProfile.dash.daysLeft' | translate }}</span>
+                    </div>
+                  </div>
                 </div>
 
                 <!-- ── QUICK ACTIONS ── -->
