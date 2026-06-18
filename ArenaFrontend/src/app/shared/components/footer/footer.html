@@ -38,11 +38,9 @@
 
     <div class="footer-divider"></div>
 
-    <!-- ===== Main columns ===== -->
-    <div class="footer-main">
-
-      <!-- Brand + description -->
-      <div class="footer-col footer-brand-col">
+    <!-- ===== Brand header ===== -->
+    <div class="footer-brand-row">
+      <div class="footer-brand-lead">
         <div class="footer-brand">
           <span class="footer-logo">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0c0f17" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -60,9 +58,29 @@
           </span>
           <span class="footer-brand-text">{{ 'app.title' | translate }}</span>
         </div>
-
         <p class="footer-tagline">{{ 'footer.brandDesc' | translate }}</p>
       </div>
+
+      <div class="footer-social-group">
+        <span class="footer-social-label">{{ 'footer.followUs' | translate }}</span>
+        <div class="footer-social">
+          @for (s of socials; track s.name) {
+            <a
+              class="social-btn"
+              [href]="s.url"
+              target="_blank"
+              rel="noopener noreferrer"
+              [attr.aria-label]="s.name"
+            >
+              <i class="bi" [class]="'bi-' + s.icon"></i>
+            </a>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Main columns ===== -->
+    <div class="footer-main">
 
       <!-- Location / contact -->
       <div class="footer-col">
@@ -116,20 +134,6 @@
     <!-- ===== Bottom bar ===== -->
     <div class="footer-bottom">
       <span class="footer-copy">{{ 'footer.copyright' | translate: { year: currentYear } }}</span>
-
-      <div class="footer-social">
-        @for (s of socials; track s.name) {
-          <a
-            class="social-btn"
-            [href]="s.url"
-            target="_blank"
-            rel="noopener noreferrer"
-            [attr.aria-label]="s.name"
-          >
-            <i class="bi" [class]="'bi-' + s.icon"></i>
-          </a>
-        }
-      </div>
 
       <div class="footer-legal">
         <span class="footer-legal-link">{{ 'footer.privacy' | translate }}</span>
