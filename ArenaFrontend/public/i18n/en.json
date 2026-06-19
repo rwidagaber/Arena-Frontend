@@ -810,9 +810,16 @@
     "breakfast": "Breakfast",
     "lunch": "Lunch",
     "dinner": "Dinner",
-    "snack": "Snack"
+    "snack": "Snack",
+      "title":"Diet plans",
+       "planCountPrefix": "Best diet plans available —",
+    "planCountSuffix": "diet plans available"
+
   },
   "workout": {
+    "title": "Workout Plans",
+    "planCountPrefix": "Best workout plans available —",
+    "planCountSuffix": "workout plans available",
     "searchPlaceholder": "Search workout plans...",
     "active": "Active",
     "tryAgain": "Try Again",
@@ -875,7 +882,20 @@
       "core": "Core",
       "forearms": "Forearms",
       "fullBody": "Full Body",
-      "cardio": "Cardio"
+      "cardio": "Cardio",
+            "arms":"arms",
+            "dayFocus": {
+  "upperBody": "Upper Body",
+  "lowerBodyCore": "Lower Body & Core",
+  "lowerBody": "Lower Body",
+  "fullBody": "Full Body",
+  "push": "Push",
+  "pull": "Pull",
+  "legs": "Legs",
+  "core": "Core",
+  "cardio": "Cardio"
+}
+
     }
   },
   "myBookings": "My Bookings",
@@ -903,5 +923,6 @@
   "bookingHeroSubtitleLight2": "SMALL STEPS. BIG RESULTS.",
   "bookingHeroSubtitleLight3": "STAY CONSISTENT. STAY STRONG.",
   "bookingHeroSubtitleLight4": "PROGRESS OVER PERFECTION.",
-  "bookingHeroSubtitleLight5": "TRAIN TODAY. THRIVE TOMORROW."
+  "bookingHeroSubtitleLight5": "TRAIN TODAY. THRIVE TOMORROW.",
+  "title":"workout plans"
 }

@@ -1,11 +1,26 @@
 <div class="nutrition-section">
+
   <div class="nutrition-page-header">
-  @if (isDarkMode()) {
-    <img src="assets/images/nutritionheaderdark.png" alt="Nutrition Header" class="header-bg-img" />
-  } @else {
-    <img src="assets/images/nutritionplanheader.png" alt="Nutrition Header" class="header-bg-img" />
-  }
-</div>
+    @if (isDarkMode()) {
+      <img src="assets/images/food.jpeg" alt="Workout Header" class="header-bg-img" loading="lazy" />
+    } @else {
+      <img src="assets/images/food.jpeg" alt="Workout Header" class="header-bg-img" loading="lazy" />
+    }
+
+    <div class="header-overlay-content">
+      <div class="header-main-text">
+        <h1 class="header-title">{{ t.translate('nutrition.title') }}</h1>
+        <p class="header-subtitle">
+          {{ t.translate('nutrition.planCountPrefix') || 'أفضل الخطط والبرامج الاحترافية المتاحة لك بقيمة' }}
+          <span class="plan-counter" (click)="startCounter(allPlans().length)">
+            {{ animatedCount() }}+
+          </span>
+        </p>
+      </div>
+    </div><!-- /header-overlay-content -->
+
+  </div><!-- /nutrition-page-header -->
+
   <div class="nutrition-content">
 
     @if (view() === 'plans') {
@@ -98,7 +113,7 @@
           </div>
         } @else {
           <div class="plans-grid">
-            @for (plan of filteredPlans(); track plan.id; let i = $index) {
+            @for (plan of paginatedPlans(); track plan.id; let i = $index) {
               <div class="custom-plan-card" [class.plan-card-active]="plan.isActive" (click)="openPlan(plan)" [style.animation-delay]="i * 75 + 'ms'">
                 <div class="card-info-side">
                   <div class="card-status-row">
@@ -127,6 +142,22 @@
               </div>
             }
           </div>
+
+          @if (totalPages() > 1) {
+            <div class="pagination">
+              <button class="page-btn" [class.disabled]="currentPage() === 0" (click)="goToPage(currentPage() - 1)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              @for (p of pageArray(); track $index) {
+                <button class="page-btn" [class.active]="$index === currentPage()" (click)="goToPage($index)">
+                  {{ $index + 1 }}
+                </button>
+              }
+              <button class="page-btn" [class.disabled]="currentPage() >= totalPages() - 1" (click)="goToPage(currentPage() + 1)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+            </div>
+          }
         }
       }
 
@@ -145,7 +176,7 @@
 
         <div class="modern-macro-summary-card">
           <div class="modern-cal-hero-box">
-            <div class="macro-donut-chart" 
+            <div class="macro-donut-chart"
                  [style.--p]="(plan.proteinGrams / (plan.proteinGrams + plan.carbsGrams + plan.fatGrams) * 100) + '%'"
                  [style.--c]="(plan.carbsGrams / (plan.proteinGrams + plan.carbsGrams + plan.fatGrams) * 100) + '%'">
               <div class="donut-center-content">
@@ -160,7 +191,6 @@
               <span class="col-left">{{ t.translate('nutrition.macroName') }}</span>
               <span>{{ t.translate('nutrition.quantity') }}</span>
             </div>
-
             <div class="macro-table-row protein">
               <div class="macro-name-with-dot" style="display: flex; align-items: center; gap: 10px;">
                 <span class="macro-badge-dot"></span>
@@ -168,7 +198,6 @@
               </div>
               <span class="macro-value-text">{{ plan.proteinGrams }}g</span>
             </div>
-
             <div class="macro-table-row carbs">
               <div class="macro-name-with-dot" style="display: flex; align-items: center; gap: 10px;">
                 <span class="macro-badge-dot"></span>
@@ -176,7 +205,6 @@
               </div>
               <span class="macro-value-text">{{ plan.carbsGrams }}g</span>
             </div>
-
             <div class="macro-table-row fat">
               <div class="macro-name-with-dot" style="display: flex; align-items: center; gap: 10px;">
                 <span class="macro-badge-dot"></span>
@@ -185,20 +213,21 @@
               <span class="macro-value-text">{{ plan.fatGrams }}g</span>
             </div>
           </div>
-        </div>
+        </div><!-- /modern-macro-summary-card -->
 
         <div class="meals-section-wrapper">
-  <div class="meals-filter-tabs">
-    @for (tab of mealTabs(); track tab) {
-      <button
-        class="meal-tab"
-        [class.active]="activeMealTab() === tab"
-        (click)="activeMealTab.set(tab)"
-      >
-        {{ tab === 'all' ? t.translate('nutrition.all') : translateMealType(tab) }}
-      </button>
-    }
-  </div>
+          <div class="meals-filter-tabs">
+            @for (tab of mealTabs(); track tab) {
+              <button
+                class="meal-tab"
+                [class.active]="activeMealTab() === tab"
+                (click)="activeMealTab.set(tab)"
+              >
+                {{ tab === 'all' ? t.translate('nutrition.all') : translateMealType(tab) }}
+              </button>
+            }
+          </div>
+
           <div class="modern-meals-grid">
             @if (filteredMeals().length === 0) {
               <div class="meals-empty">
@@ -206,8 +235,8 @@
               </div>
             }
 
-           @for (meal of filteredMeals(); track meal.id ;let i = $index) {
-              <div class="modern-meal-card-enhanced" [style.animation-delay]="(i * 60) + 'ms'" class="meal-grid-card modern-meal-card-enhanced" (click)="view.set('meal-detail'); selectedMeal.set(meal)">
+            @for (meal of filteredMeals(); track meal.id; let i = $index) {
+              <div class="meal-grid-card modern-meal-card-enhanced" [style.animation-delay]="(i * 60) + 'ms'" (click)="view.set('meal-detail'); selectedMeal.set(meal)">
                 <div class="meal-card-header-accent">
                   <div class="meal-avatar-icon-box">
                     @if (meal.mealType?.toLowerCase() === 'breakfast') {
@@ -221,19 +250,17 @@
                     }
                   </div>
                   <span class="meal-badge-tag-type" [class]="getMealTypeColor(meal.mealType)">
-  {{ translateMealType(meal.mealType) }}
-</span>
+                    {{ translateMealType(meal.mealType) }}
+                  </span>
                 </div>
 
                 <div class="meal-card-main-content">
                   <h4 class="text-meal-name-updated">{{ meal.name }}</h4>
-
                   <div class="meal-calories-badge-row">
                     <img src="assets/images/calories.png" class="meal-cal-icon-img" alt="Calories" />
                     <span class="meal-cal-val-num">{{ meal.calories }}</span>
-<span class="meal-cal-lbl-text">{{ t.translate('nutrition.kcal') }}</span>
+                    <span class="meal-cal-lbl-text">{{ t.translate('nutrition.kcal') }}</span>
                   </div>
-
                   <div class="meal-macros-horizontal-pills">
                     <div class="macro-pill-item protein-pill">
                       <img src="assets/images/meat.png" alt="Protein" />
@@ -242,7 +269,6 @@
                         <span class="pill-label">{{ t.translate('nutrition.protein') }}</span>
                       </div>
                     </div>
-
                     <div class="macro-pill-item carbs-pill">
                       <img src="assets/images/potato.png" alt="Carbs" />
                       <div class="macro-pill-meta">
@@ -250,7 +276,6 @@
                         <span class="pill-label">{{ t.translate('nutrition.carbs') }}</span>
                       </div>
                     </div>
-
                     <div class="macro-pill-item fat-pill">
                       <img src="assets/images/fat.png" alt="Fat" />
                       <div class="macro-pill-meta">
@@ -259,21 +284,18 @@
                       </div>
                     </div>
                   </div>
-
                   @if (meal.ingredients) {
                     <div class="meal-ingredients-tags-flex">
                       @for (item of meal.ingredients.split(','); track item) {
-                        <span class="meal-ingredient-tag-item">
-                          {{ item.trim() }}
-                        </span>
+                        <span class="meal-ingredient-tag-item">{{ item.trim() }}</span>
                       }
                     </div>
                   }
                 </div>
               </div>
             }
-          </div>
-        </div>
+          </div><!-- /modern-meals-grid -->
+        </div><!-- /meals-section-wrapper -->
       }
 
       @else if (view() === 'meal-detail' && selectedMeal(); as meal) {
@@ -293,12 +315,10 @@
             </div>
             <h2 class="meal-detail-name">{{ meal.name }}</h2>
           </div>
-
           <div class="meal-cal-hero">
             <span class="meal-cal-num">{{ meal.calories }}</span>
             <span class="meal-cal-label">{{ t.translate('nutrition.kcal') }}</span>
           </div>
-
           <div class="meal-macro-grid">
             <div class="meal-macro-card protein-card">
               <span class="meal-macro-val">{{ meal.proteinGrams }}g</span>
@@ -313,7 +333,6 @@
               <span class="meal-macro-lbl">{{ t.translate('nutrition.fat') }}</span>
             </div>
           </div>
-
           @if (meal.ingredients) {
             <div class="ingredients-section">
               <h3 class="ingredients-title">
@@ -330,8 +349,10 @@
               </div>
             </div>
           }
-        </div>
+        </div><!-- /meal-detail-card -->
       }
+
     }
-  </div>
-</div>
+  </div><!-- /nutrition-content -->
+
+</div><!-- /nutrition-section -->
