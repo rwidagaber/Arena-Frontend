@@ -283,7 +283,8 @@
     "progressReport": "تقرير التقدم",
     "settings": "الإعدادات",
     "logout": "تسجيل الخروج",
-    "chatbot": "المساعد الذكي"
+    "chatbot": "المساعد الذكي",
+    "getPlanDetails": "عرض تفاصيل الخطة"
   },
   "section": {
     "workoutPlaceholder": "ستظهر خطة التمرين المخصصة لك هنا.",
@@ -671,6 +672,12 @@
       "startWorkout": "ابدأ تمرينك",
       "quickActions": "إجراءات سريعة",
       "qrCode": "رمز QR",
+      "checkIn": "تسجيل الحضور",
+      "nextSession": "الجلسة القادمة",
+      "noUpcoming": "لا توجد جلسة قادمة محجوزة",
+      "openQr": "افتح رمز QR الخاص بي",
+      "sessionsLeft": "جلسة متبقية",
+      "daysLeft": "يوم متبقٍ",
       "progress": "التقدم",
       "monthlyProgress": "التقدم الشهري",
       "complete": "مكتمل",
@@ -764,7 +771,16 @@
     "totalSessions": "إجمالي الحصص",
     "paymentAmount": "مبلغ الدفع",
     "noActiveMembership": "لا توجد عضوية نشطة",
-    "noHistoryFound": "لا يوجد سجل عضويات"
+    "noHistoryFound": "لا يوجد سجل عضويات",
+    "prev": "السابق",
+    "next": "التالي",
+    "status": {
+      "active": "نشط",
+      "pending": "قيد الانتظار",
+      "expired": "منتهية",
+      "cancelled": "ملغية",
+      "unknown": "غير معروف"
+    }
   },
   "nutrition": {
     "searchPlaceholder": "ابحث عن خطة غذائية أو وجبة...",
@@ -795,9 +811,16 @@
     "breakfast": "فطار",
     "lunch": "غداء",
     "dinner": "عشاء",
-    "snack": "سناك"
+    "snack": "سناك",
+    "title": "الخطط الغذائيه",
+    "planCountPrefix": "أفضل الخطط والبرامج الاحترافية المتاحة لك —",
+    "planCountSuffix": "خطة تمرين متاحة"
+
   },
   "workout": {
+    "title": "تمارينك اليومية",
+    "planCountPrefix": "أفضل الخطط والبرامج الاحترافية المتاحة لك —",
+    "planCountSuffix": "خطة تمرين متاحة",
     "searchPlaceholder": "ابحث عن خطة تمرين...",
     "active": "نشطة",
     "tryAgain": "إعادة المحاولة",
@@ -860,8 +883,21 @@
       "core": "الجذع",
       "forearms": "الساعد",
       "fullBody": "الجسم بالكامل",
-      "cardio": "كارديو"
-    }
+      "cardio": "كارديو",
+      "arms":"الاذرع",
+      "obliques": "العضلات الجانبية"
+    },
+    "dayFocus": {
+  "upperBody": "الجزء العلوي",
+  "lowerBodyCore": "الجزء السفلي والجذع",
+  "lowerBody": "الجزء السفلي",
+  "fullBody": "الجسم بالكامل",
+  "push": "دفع",
+  "pull": "سحب",
+  "legs": "الأرجل",
+  "core": "الجذع",
+  "cardio": "كارديو"
+}
   },
   "myBookings": "حجوزاتي",
   "upcoming": "الحجوزات القادمة",
@@ -888,5 +924,7 @@
   "bookingHeroSubtitleLight2": "خطوات صغيرة. نتائج كبيرة.",
   "bookingHeroSubtitleLight3": "حافظ على استمراريتك. ابقَ قوياً.",
   "bookingHeroSubtitleLight4": "التقدم أهم من المثالية.",
-  "bookingHeroSubtitleLight5": "تدرب اليوم. لتتألق غداً."
+  "bookingHeroSubtitleLight5": "تدرب اليوم. لتتألق غداً.",
+  "title" : "التمارين",
+  "planCountPrefix": "أفضل الخطط والبرامج الاحترافية المتاحة لك —"
 }

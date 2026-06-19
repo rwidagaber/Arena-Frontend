@@ -47,6 +47,23 @@
                 <rect x="3" y="14" width="7" height="7" />
               </svg>
             }
+            @case ('calendar') {
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                width="18"
+                height="18"
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+            }
             @case ('qr') {
               <svg
                 viewBox="0 0 24 24"
@@ -76,8 +93,13 @@
                 width="18"
                 height="18"
               >
-                <path d="M6.5 6.5 17.5 17.5M6.5 17.5 17.5 6.5" />
-                <line x1="6" y1="12" x2="18" y2="12" />
+                <path d="m6.5 6.5 11 11" />
+                <path d="m21 21-1-1" />
+                <path d="m3 3 1 1" />
+                <path d="m18 22 4-4" />
+                <path d="m2 6 4-4" />
+                <path d="m3 10 7-7" />
+                <path d="m14 21 7-7" />
               </svg>
             }
             @case ('utensils') {
@@ -159,28 +181,10 @@
     }
   </nav>
 
-  <div class="sidebar-membership">
-    <span class="membership-label">{{ 'memberProfile.membership' | translate }}</span>
-    @if (hasSubscription()) {
-      <div class="membership-badge-row">
-        <span class="plan-badge">{{ planLevel() || ('memberProfile.active' | translate) }}</span>
-        <span class="plan-name">{{ planName() || ('memberProfile.dash.member' | translate) }} {{ 'memberProfile.dash.member' | translate }}</span>
-      </div>
-      <span class="plan-expiry"
-        >{{ 'memberProfile.expires' | translate }} {{ expiryDate() || '—' }}</span
-      >
-      <div class="plan-progress-bar">
-        <div class="plan-progress-fill" [style.width.%]="membershipProgress()"></div>
-      </div>
-      <button class="btn-renew" (click)="renewPlan.emit()">
-        {{ 'memberProfile.renewPlan' | translate }}
-      </button>
-    } @else {
-      <p class="no-plan-text">{{ 'memberProfile.noActivePlan' | translate }}</p>
-      <button class="btn-renew" (click)="renewPlan.emit()">
-        {{ 'memberProfile.getPlan' | translate }}
-      </button>
-    }
+  <div class="sidebar-plan-cta">
+    <button class="btn-renew" (click)="select('membership')">
+      {{ 'sidebar.getPlanDetails' | translate }}
+    </button>
   </div>
 
   <div class="sidebar-footer">

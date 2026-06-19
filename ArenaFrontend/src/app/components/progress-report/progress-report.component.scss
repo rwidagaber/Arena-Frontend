@@ -2293,11 +2293,24 @@
   }
 }
 
-/* ── Light theme ── */
+/* ── Dark theme — aligned with the member dashboard "lux" palette ── */
 :host-context([data-theme="dark"]) {
-  --page-bg: #181818;
+  --page-bg: #10131B;                              /* dashboard canvas (lux-graphite) */
+  --card-bg: #20273a;                              /* dashboard card surface (lux-graphite-2) */
+  --card-border: rgba(255, 255, 255, 0.09);        /* dashboard line (lux-line-dk) */
+  --text-primary: #eef1f6;                         /* dashboard text (lux-cream) */
+  --text-secondary: rgba(238, 241, 246, 0.60);     /* dashboard secondary text (lux-cream-soft) */
+  --text-tertiary: rgba(238, 241, 246, 0.40);
+
+  /* Momentum command center uses the same graphite gradient as the dashboard */
+  .cc {
+    background:
+      radial-gradient(130% 130% at 100% 0%, color-mix(in srgb, var(--cc-accent) 26%, transparent) 0%, transparent 55%),
+      linear-gradient(135deg, #20273a 0%, #10131B 100%);
+  }
 }
 
+/* ── Light theme ── */
 :host-context([data-theme="light"]) {
   --text-primary: #272727;
   --text-secondary: #5F5F5F;

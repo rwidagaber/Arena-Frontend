@@ -44,12 +44,12 @@ export class AuthService {
 
   get isLoggedIn(): boolean {
     return !!localStorage.getItem(KEYS.access) ||
-           !!sessionStorage.getItem(KEYS.access);
+      !!sessionStorage.getItem(KEYS.access);
   }
 
   get isSubscribed(): boolean {
     return localStorage.getItem(KEYS.subscribed) === 'true' ||
-           sessionStorage.getItem(KEYS.subscribed) === 'true';
+      sessionStorage.getItem(KEYS.subscribed) === 'true';
   }
 
   get accessToken(): string | null {
@@ -130,32 +130,32 @@ export class AuthService {
   }
 
   getMe(): Observable<GetProfileDto> {
-  return this.http.get<GetProfileDto>(`${BASE}/me`).pipe(
-    tap(profile => {
-      const isSubscribed = !!profile.activeSubscription;
-      const frontendRole = isSubscribed ? 'Member' : 'User';
+    return this.http.get<GetProfileDto>(`${BASE}/me`).pipe(
+      tap(profile => {
+        const isSubscribed = !!profile.activeSubscription;
+        const frontendRole = isSubscribed ? 'Member' : 'User';
 
-      // ✅ جيب الـ current user عشان تحتفظ بالـ flags
-      const currentUser = this._user$.value;
+        // ✅ جيب الـ current user عشان تحتفظ بالـ flags
+        const currentUser = this._user$.value;
 
-      const updatedUser = {
-        ...profile,
-        role: frontendRole,
-        isSubscribed,
-        firstName: profile.firstName,
-        lastName: profile.lastName,
-        // ✅ حافظ على الـ flags من الـ persist
-        isGoogleUser: currentUser?.isGoogleUser ?? false,
-      };
+        const updatedUser = {
+          ...profile,
+          role: frontendRole,
+          isSubscribed,
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+          // ✅ حافظ على الـ flags من الـ persist
+          isGoogleUser: currentUser?.isGoogleUser ?? false,
+        };
 
-      this._user$.next(updatedUser);
-      const storage = localStorage.getItem(KEYS.access) ? localStorage : sessionStorage;
-      storage.setItem(KEYS.user, JSON.stringify(updatedUser));
-      storage.setItem(KEYS.subscribed, String(isSubscribed));
-    }),
-    catchError(this._handleError)
-  );
-}
+        this._user$.next(updatedUser);
+        const storage = localStorage.getItem(KEYS.access) ? localStorage : sessionStorage;
+        storage.setItem(KEYS.user, JSON.stringify(updatedUser));
+        storage.setItem(KEYS.subscribed, String(isSubscribed));
+      }),
+      catchError(this._handleError)
+    );
+  }
 
   confirmEmail(userId: string, otp: string): Observable<AuthResponseDto> {
     return this.http.post<AuthResponseDto>(`${BASE}/confirm-email`, { userId, otp }).pipe(
@@ -188,7 +188,7 @@ export class AuthService {
     );
   }
 
- 
+
   // ───────────────────────── Helpers ─────────────────────────
 
   // ✅ Public - للـ interceptor يستخدمه بدل logout() عشان يتجنب الـ loop
@@ -211,12 +211,12 @@ export class AuthService {
 
     const user = {
       ...res,
-       role: frontendRole,
-    isSubscribed: res.isSubscribed ?? false,
-    isGoogleUser: res.isGoogleUser ?? false,
-    memberProfileId: res.memberProfileId,
-    firstName: res.firstName ?? '',
-    lastName: res.lastName ?? ''
+      role: frontendRole,
+      isSubscribed: res.isSubscribed ?? false,
+      isGoogleUser: res.isGoogleUser ?? false,
+      memberProfileId: res.memberProfileId,
+      firstName: res.firstName ?? '',
+      lastName: res.lastName ?? ''
     };
 
     storage.setItem(KEYS.user, JSON.stringify(user));
@@ -238,34 +238,34 @@ export class AuthService {
     }
   }
 
- private _handleError = (err: any): Observable<never> => {
-  let msg = 'Something went wrong';
+  private _handleError = (err: any): Observable<never> => {
+    let msg = 'Something went wrong';
 
-  // لو جه من الـ interceptor كـ Error object
-  if (err instanceof Error && !(err as any).error) {
-    return throwError(() => err); // ابعته زي ما هو
+    // لو جه من الـ interceptor كـ Error object
+    if (err instanceof Error && !(err as any).error) {
+      return throwError(() => err); // ابعته زي ما هو
+    }
+
+    const error = err?.error;
+
+    if (Array.isArray(error)) {
+      msg = error.join(', ');
+    } else if (typeof error === 'string') {
+      msg = error;
+    } else if (error?.message) {
+      msg = Array.isArray(error.message)
+        ? error.message.join(', ')
+        : error.message;
+    } else if (Array.isArray(error?.errors)) {
+      msg = error.errors.join(', ');
+    } else if (error?.errors && typeof error.errors === 'object') {
+      msg = Object.values(error.errors).flat().join(', ');
+    } else if (error?.title) {
+      msg = error.title;
+    } else if (err?.message) {
+      msg = err.message;
+    }
+
+    return throwError(() => new Error(msg));
   }
-
-  const error = err?.error;
-
-  if (Array.isArray(error)) {
-    msg = error.join(', ');
-  } else if (typeof error === 'string') {
-    msg = error;
-  } else if (error?.message) {
-    msg = Array.isArray(error.message)
-      ? error.message.join(', ')
-      : error.message;
-  } else if (Array.isArray(error?.errors)) {
-    msg = error.errors.join(', ');
-  } else if (error?.errors && typeof error.errors === 'object') {
-    msg = Object.values(error.errors).flat().join(', ');
-  } else if (error?.title) {
-    msg = error.title;
-  } else if (err?.message) {
-    msg = err.message;
-  }
-
-  return throwError(() => new Error(msg));
-}
 }

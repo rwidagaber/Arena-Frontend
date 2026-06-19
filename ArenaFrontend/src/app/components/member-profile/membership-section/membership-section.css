@@ -19,6 +19,8 @@
   gap: 18px;
   box-shadow: 0 1px 3px rgba(20, 20, 20, 0.05), 0 12px 26px -12px rgba(20, 20, 20, 0.16);
   transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 500ms cubic-bezier(0.22, 1, 0.36, 1), border-color 500ms ease;
+  height: auto;
+  flex: 0 0 auto;
   animation: fadeSlide 0.5s ease-out backwards;
   animation-delay: 0.18s;
   position: relative;
@@ -185,10 +187,50 @@
   font-size: 7px;
 }
 
-.status-indicator.cancelled {
-  color: #EF4444;
-  background: rgba(239, 68, 68, 0.1);
-  opacity: 1;
+/* ── History card status colours ── */
+
+/* Active – green accent */
+.status-indicator.status-active {
+  color: var(--c-accent-deep, #4d7c0f);
+  background: rgba(198, 239, 46, 0.15);
+}
+
+:host-context([data-theme="dark"]) .status-indicator.status-active {
+  color: var(--c-accent, #C6EF2E);
+  background: rgba(198, 239, 46, 0.18);
+}
+
+/* Pending – amber/orange */
+.status-indicator.status-pending {
+  color: #b45309;
+  background: rgba(245, 158, 11, 0.12);
+}
+
+:host-context([data-theme="dark"]) .status-indicator.status-pending {
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.15);
+}
+
+/* Expired – slate/muted blue-grey */
+.status-indicator.status-expired {
+  color: #475569;
+  background: rgba(100, 116, 139, 0.12);
+}
+
+:host-context([data-theme="dark"]) .status-indicator.status-expired {
+  color: #94a3b8;
+  background: rgba(148, 163, 184, 0.12);
+}
+
+/* Cancelled – red */
+.status-indicator.status-cancelled {
+  color: #b91c1c;
+  background: rgba(239, 68, 68, 0.10);
+}
+
+:host-context([data-theme="dark"]) .status-indicator.status-cancelled {
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.15);
 }
 
 .membership-body {
@@ -287,6 +329,90 @@
 
 [data-theme='dark'] .plan-name {
   color: #F8FAFC;
+}
+
+.plan-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  position: relative;
+  z-index: 1;
+}
+
+.plan-sub {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.62);
+}
+
+.plan-sub i {
+  font-size: 11px;
+}
+
+:host-context([data-theme="dark"]) .plan-sub {
+  color: rgba(0, 0, 0, 0.62);
+}
+
+[data-theme='dark'] .plan-sub {
+  color: rgba(248, 250, 252, 0.75);
+}
+
+/* Sessions usage bar */
+.sessions-usage {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sessions-usage-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.sessions-usage-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary, #64748b);
+}
+
+:host-context([data-theme="dark"]) .sessions-usage-label {
+  color: #94a3b8;
+}
+
+.sessions-usage-count {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text-primary, #0f172a);
+}
+
+[data-theme='dark'] .sessions-usage-count {
+  color: #F8FAFC;
+}
+
+.sessions-usage-track {
+  height: 8px;
+  border-radius: 100px;
+  background: rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+:host-context([data-theme="dark"]) .sessions-usage-track {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.sessions-usage-fill {
+  height: 100%;
+  border-radius: 100px;
+  background: linear-gradient(90deg, #a0c826 0%, #C6EF2E 100%);
+  box-shadow: 0 0 10px rgba(198, 239, 46, 0.45);
+  transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .info-grid {
@@ -647,3 +773,121 @@
     padding: 12px 14px 16px;
   }
 }
+
+/* ── Pagination Controls styling ── */
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--lux-line, rgba(28, 27, 24, 0.12));
+}
+
+:host-context([data-theme="dark"]) .pagination-controls {
+  border-top-color: var(--lux-line-dk, rgba(255, 255, 255, 0.08));
+}
+
+.pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--lux-line, rgba(28, 27, 24, 0.12));
+  background: var(--lux-surface, #fbfaf6);
+  color: var(--lux-ink, #1c1b18);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:host-context([data-theme="dark"]) .pagination-btn {
+  border-color: var(--lux-line-dk, rgba(255, 255, 255, 0.08));
+  background: var(--lux-graphite-3, #211f1b);
+  color: var(--lux-cream, #efe9dc);
+}
+
+.pagination-btn:hover:not(:disabled) {
+  border-color: var(--c-accent, #C6EF2E);
+  background: rgba(198, 239, 46, 0.06);
+  transform: translateY(-2px);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.page-numbers {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.page-num-btn.active {
+  background: var(--c-accent, #C6EF2E);
+  border-color: var(--c-accent, #C6EF2E);
+  color: #15240a;
+  box-shadow: 0 4px 12px rgba(198, 239, 46, 0.25);
+}
+
+:host-context([data-theme="dark"]) .page-num-btn.active {
+  color: #000000;
+  box-shadow: 0 4px 12px rgba(198, 239, 46, 0.15);
+}
+
+/* ══════════════════════════════════════════════
+   RTL Overrides
+   ══════════════════════════════════════════════ */
+
+/* ── Active membership info-item: accent bar flips from left → right ── */
+:host-context([dir="rtl"]) .info-item {
+  padding: 11px 14px 11px 12px;
+}
+
+:host-context([dir="rtl"]) .info-item::before {
+  left: auto;
+  right: 0;
+  border-radius: 1px 0 0 1px;
+}
+
+/* ── Hover slide reverses direction in RTL ── */
+:host-context([dir="rtl"]) .info-item:hover {
+  transform: translateX(-4px);
+}
+
+/* ── features-section accent line: left → right ── */
+:host-context([dir="rtl"]) .features-section::before {
+  left: auto;
+  right: 0;
+}
+
+/* ── features-title trailing line: reverse gradient + margin side ── */
+:host-context([dir="rtl"]) .features-title::after {
+  background: linear-gradient(270deg, rgba(198, 239, 46, 0.15), transparent);
+  margin-left: 0;
+  margin-right: 4px;
+}
+
+/* ── section-card decorative radial: mirror to bottom-left ── */
+:host-context([dir="rtl"]) .section-card::after {
+  right: auto;
+  left: 0;
+  background: radial-gradient(circle at 0% 100%, rgba(198, 239, 46, 0.07) 0%, transparent 70%);
+  border-radius: 0 0 0 20px;
+}
+
+/* ── Pagination: flip chevron arrows ── */
+:host-context([dir="rtl"]) .prev-btn i,
+:host-context([dir="rtl"]) .next-btn i {
+  transform: scaleX(-1);
+}
+
+/* ── sessions-usage-fill: gradient flows right→left in RTL ── */
+:host-context([dir="rtl"]) .sessions-usage-fill {
+  background: linear-gradient(270deg, #a0c826 0%, #C6EF2E 100%);
+}

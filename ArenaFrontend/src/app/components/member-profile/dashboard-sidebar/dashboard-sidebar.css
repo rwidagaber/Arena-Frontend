@@ -70,8 +70,8 @@
 .sidebar-nav {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 12px 10px;
+  gap: 6px;
+  padding: 18px 12px;
   flex: 1;
 }
 
@@ -79,7 +79,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 14px;
+  padding: 12px 14px;
   border-radius: 10px;
   border: none;
   background: transparent;
@@ -253,6 +253,15 @@
   margin: 0;
 }
 
+.sidebar-plan-cta {
+  padding: 16px 20px 4px;
+}
+
+.sidebar-plan-cta .btn-renew {
+  width: 100%;
+  justify-content: space-between;
+}
+
 .sidebar-footer {
   padding: 12px 20px;
   border-top: 1px solid #e5e5e5;
@@ -316,6 +325,7 @@
   .sidebar-active-bar { display: none; }
   /* The membership promo is also shown in the dashboard body — hide here to keep the bar slim */
   .sidebar-membership { display: none; }
+  .sidebar-plan-cta { display: none; }
   .sidebar-footer {
     padding: 0;
     border-top: none;
@@ -347,6 +357,7 @@
     inset-block: 0;
     inset-inline-start: 0;
     width: 240px;
+    height: 100vh;
     transform: translateX(var(--hide-x));
     /* Stay hidden while off-canvas so a language/dir flip (which flips --hide-x
        and would otherwise animate the panel through the visible center) never
