@@ -905,6 +905,9 @@
     "planCountSuffix": "خطة تمرين متاحة"
   },
   "workout": {
+    "title": "تمارينك اليومية",
+    "planCountPrefix": "أفضل الخطط والبرامج الاحترافية المتاحة لك —",
+    "planCountSuffix": "خطة تمرين متاحة",
     "searchPlaceholder": "ابحث عن خطة تمرين...",
     "active": "نشطة",
     "tryAgain": "إعادة المحاولة",
