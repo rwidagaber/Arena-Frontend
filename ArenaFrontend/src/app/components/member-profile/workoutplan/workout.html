@@ -1,13 +1,22 @@
 <div class="workout-section">
 
   <div class="workout-page-header">
-    @if (isDarkMode()) {
-      <img src="assets/images/workheader.png" alt="Workout Header" class="header-bg-img" width="1200" height="180" loading="lazy" />
-    } @else {
-      <img src="assets/images/workoutheaderlight.png" alt="Workout Header" class="header-bg-img" width="1200" height="180" loading="lazy" />
-    }
-  </div>
+    <img src="assets/images/rope.jpeg" alt="Workout Header" class="header-bg-img" loading="lazy" />
+ 
+  <div class="header-overlay-content">
 
+
+    <div class="header-main-text">
+      <h1 class="header-title">{{ t.instant('workout.title') }}</h1>
+      <p class="header-subtitle">
+        {{ t.instant('workout.planCountPrefix') || 'أفضل الخطط والبرامج الاحترافية المتاحة لك بقيمة' }}
+      <span class="plan-counter" (click)="startCounter(plans().length)">
+      {{ animatedCount() }}+
+    </span>      </p>
+    </div>
+
+  </div>
+</div>
   <div class="workout-content">
 
     @if (view() === 'plans') {
@@ -95,7 +104,7 @@
           </div>
         } @else {
           <div class="plans-grid">
-            @for (plan of filteredPlans(); track plan.id; let i = $index) {
+            @for (plan of paginatedPlans(); track plan.id; let i = $index) {
               <div
                 class="custom-plan-card"
                 [class.plan-card-active]="plan.isActive"
@@ -119,11 +128,31 @@
                   </div>
                 </div>
                 <div class="card-image-side">
-                  <img [src]="getPlanImage(plan)" alt="Workout Plan" class="plan-hero-img" loading="lazy" />
+                  <img [src]="getPlanImage(i)" alt="Workout Plan" class="plan-hero-img" loading="lazy" />
                 </div>
               </div>
             }
           </div>
+
+          @if (totalPages() > 1) {
+            <div class="pagination">
+             <button class="page-btn" [class.disabled]="currentPage() === 0" (click)="goToPage(currentPage() - 1)">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+    <polyline points="15 18 9 12 15 6"/>
+  </svg>
+</button>
+              @for (p of pageArray(); track $index) {
+                <button class="page-btn" [class.active]="$index === currentPage()" (click)="goToPage($index)">
+                  {{ $index + 1 }}
+                </button>
+              }
+             <button class="page-btn" [class.disabled]="currentPage() >= totalPages() - 1" (click)="goToPage(currentPage() + 1)">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+    <polyline points="9 18 15 12 9 6"/>
+  </svg>
+</button>
+            </div>
+          }
         }
       }
 
@@ -182,13 +211,13 @@
 
         <div class="days-section-wrapper">
           <div class="days-tabs-row">
-            @for (day of plan.days ?? []; track day.id) {
+            @for (day of sortedDays(plan); track day.id) {
               <button
                 class="day-tab"
                 [class.active]="selectedDay()?.id === day.id"
                 (click)="selectDay(day.id)"
               >
-                {{ t.instant('workout.' + day.dayName.toLowerCase()) || day.dayName }}
+                {{ translateDayName(day.dayName) }}
               </button>
             }
           </div>
@@ -208,8 +237,11 @@
               >
                 <div class="meal-card-header-accent">
                   <div class="meal-avatar-icon-box">
-                    <span class="ex-icon">{{ muscleGroupIcon(ex.exercise?.muscleGroup ?? '') }}</span>
-                  </div>
+<img
+    [src]="muscleGroupIcon(ex.exercise?.muscleGroup ?? '')"
+    alt=""
+    class="ex-icon-img"
+  />                  </div>
                   @if (ex.exercise?.muscleGroup) {
                     <span class="meal-badge-tag-type" [class]="getMuscleGroupColor(ex.exercise!.muscleGroup)">
                       {{ translateMuscleGroup(ex.exercise!.muscleGroup) }}
@@ -261,10 +293,12 @@
                     }
                   </div>
 
-                  @if (ex.exercise?.equipment) {
+                  @if (ex.exercise?.equipment && ex.exercise!.equipment.trim().toLowerCase() !== 'none') {
                     <div class="meal-ingredients-tags-flex">
                       @for (eq of ex.exercise!.equipment.split(','); track eq) {
-                        <span class="meal-ingredient-tag-item">{{ eq.trim() }}</span>
+                        @if (eq.trim().toLowerCase() !== 'none') {
+                          <span class="meal-ingredient-tag-item">{{ eq.trim() }}</span>
+                        }
                       }
                     </div>
                   }
@@ -341,7 +375,7 @@
             </div>
           }
 
-          @if (ex.exercise?.equipment) {
+          @if (ex.exercise?.equipment && ex.exercise!.equipment.trim().toLowerCase() !== 'none') {
             <div class="ingredients-section">
               <h3 class="ingredients-title">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
@@ -351,7 +385,9 @@
               </h3>
               <div class="ingredients-list">
                 @for (eq of ex.exercise!.equipment.split(','); track eq) {
-                  <span class="ingredient-tag">{{ eq.trim() }}</span>
+                  @if (eq.trim().toLowerCase() !== 'none') {
+                    <span class="ingredient-tag">{{ eq.trim() }}</span>
+                  }
                 }
               </div>
             </div>
