@@ -10,12 +10,12 @@
     <div class="section-card active-membership-section">
       <div class="section-header">
         <div class="section-header-left">
-          <i class="fas fa-id-card"></i>
+          <i class="fas fa-id-card" aria-hidden="true"></i>
           <h2>{{ 'memberProfile.activeMembership' | translate }}</h2>
         </div>
         @if (activeSubscription(); as m) {
           <span class="status-indicator active">
-            <i class="fas fa-circle"></i>
+            <i class="fas fa-circle" aria-hidden="true"></i>
             {{ 'memberProfile.active' | translate }}
           </span>
         }
@@ -26,15 +26,15 @@
           <div class="plan-section">
             <div class="plan-icon">
               @if (getPlanName(m).toLowerCase().includes('premium')) {
-                <i class="fas fa-crown"></i>
+                <i class="fas fa-crown" aria-hidden="true"></i>
               } @else {
-                <i class="fas fa-dumbbell"></i>
+                <i class="fas fa-dumbbell" aria-hidden="true"></i>
               }
             </div>
             <div class="plan-meta">
               <div class="plan-name">{{ getPlanName(m) }}</div>
               <div class="plan-sub">
-                <i class="far fa-clock"></i>
+                <i class="far fa-clock" aria-hidden="true"></i>
                 <span>{{ 'memberProfile.expires' | translate }} {{ m.endDate | date: 'dd/MM/yyyy' }}</span>
               </div>
             </div>
@@ -56,14 +56,14 @@
 
           <div class="info-grid">
             <div class="info-item">
-              <i class="far fa-calendar-alt"></i>
+              <i class="far fa-calendar-alt" aria-hidden="true"></i>
               <div class="info-text">
                 <span class="info-label">{{ 'memberProfile.started' | translate }}</span>
                 <span class="info-value">{{ m.startDate | date: 'dd/MM/yyyy' }}</span>
               </div>
             </div>
             <div class="info-item">
-              <i class="far fa-clock"></i>
+              <i class="far fa-clock" aria-hidden="true"></i>
               <div class="info-text">
                 <span class="info-label">{{ 'memberProfile.expires' | translate }}</span>
                 <span class="info-value">{{ m.endDate | date: 'dd/MM/yyyy' }}</span>
@@ -71,7 +71,7 @@
             </div>
 
             <div class="info-item">
-              <i class="fas fa-bolt"></i>
+              <i class="fas fa-bolt" aria-hidden="true"></i>
               <div class="info-text">
                 <span class="info-label">{{ 'memberProfile.sessions' | translate }}</span>
                 <span class="info-value">{{ m.remainingSessions }} / {{ m.totalSessions }}</span>
@@ -79,7 +79,7 @@
             </div>
 
             <div class="info-item">
-              <i class="fas fa-dollar-sign"></i>
+              <i class="fas fa-dollar-sign" aria-hidden="true"></i>
               <div class="info-text">
                 <span class="info-label">{{ 'memberProfile.paymentAmount' | translate }}</span>
                 <span class="info-value">{{ m.paymentAmount | currency: 'EGP' | translate }}</span>
@@ -89,7 +89,7 @@
         </div>
       } @else {
         <div class="empty-state">
-          <i class="fas fa-id-card"></i>
+          <i class="fas fa-id-card" aria-hidden="true"></i>
           <p>{{ 'memberProfile.noActiveMembership' | translate }}</p>
         </div>
       }
@@ -99,7 +99,7 @@
     <div class="section-card history-membership-section mt-4">
       <div class="section-header">
         <div class="section-header-left">
-          <i class="fas fa-history"></i>
+          <i class="fas fa-history" aria-hidden="true"></i>
           <h2>{{ 'memberProfile.membershipHistory' | translate }}</h2>
         </div>
       </div>
@@ -140,7 +140,7 @@
         </div>
       } @else {
         <div class="empty-state">
-          <i class="fas fa-history"></i>
+          <i class="fas fa-history" aria-hidden="true"></i>
           <p>{{ 'memberProfile.noHistoryFound' | translate }}</p>
         </div>
       }

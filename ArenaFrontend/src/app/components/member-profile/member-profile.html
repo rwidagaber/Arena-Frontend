@@ -7,14 +7,12 @@
   <main class="dash-main">
 
     <div class="dash-content">
-      <div class="dot-indigo"></div>
-      <div class="dot-amber"></div>
       @if (error(); as err) {
         <div class="empty-section">
           <h3>{{ 'memberProfile.somethingWentWrong' | translate }}</h3>
           <p>{{ err }}</p>
           <button class="retry-btn" (click)="loadData()">
-            <span class="svg-icon-wrap" [innerHTML]="getSvgIcon('rotate')"></span>
+            <span class="svg-icon-wrap" aria-hidden="true" [innerHTML]="getSvgIcon('rotate')"></span>
             {{ 'memberProfile.retry' | translate }}
           </button>
         </div>
@@ -33,13 +31,6 @@
               <div class="hero-glow"></div>
               <div class="hero-overlay"></div>
               <div class="hero-body">
-                <div class="hero-avatar-wrap">
-                  @if (profile()?.profileImage) {
-                    <img [src]="profile()?.profileImage" alt="" class="hero-avatar-img" />
-                  } @else {
-                    <div class="hero-avatar-ph">{{ profile()?.firstName?.[0] }}{{ profile()?.lastName?.[0] }}</div>
-                  }
-                </div>
                 <div class="hero-info">
                   <span class="hero-eyebrow">{{ 'memberProfile.dash.athleteDashboard' | translate }}</span>
                   <h1 class="hero-title">{{ 'memberProfile.greeting.' + timeOfDay() | translate:{ firstName: profile()?.firstName } }}</h1>
@@ -54,45 +45,91 @@
                     }
                     @if (daysSinceLastWorkout(); as d) {
                       <span class="hero-focus" [class.hero-recent]="d <= 2" [class.hero-idle]="d > 2">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                         @if (d === 0) { {{ 'memberProfile.dash.today' | translate }} } @else if (d === 1) { {{ 'memberProfile.dash.yesterday' | translate }} } @else { {{ 'memberProfile.dash.daysAgo' | translate:{ n: d } }} }
                       </span>
                     }
                   </div>
                 </div>
               </div>
-              <div class="hero-metrics">
-                <div class="hm-item">
-                  <span class="hm-value">{{ sessionsThisMonth() }}</span>
-                  <span class="hm-label">{{ 'memberProfile.dash.sessions' | translate }}</span>
-                </div>
-                <div class="hm-item">
-                  <span class="hm-value">{{ totalWorkouts() }}</span>
-                  <span class="hm-label">{{ 'memberProfile.dash.workouts' | translate }}</span>
-                </div>
-                <div class="hm-item">
-                  <span class="hm-value">{{ currentStreak() }}<small>{{ 'memberProfile.dash.dShort' | translate }}</small></span>
-                  <span class="hm-label">{{ 'memberProfile.dash.streak' | translate }}</span>
-                </div>
-                <div class="hm-item">
-                  <span class="hm-value">{{ membershipProgress() < 100 ? Math.max(0, monthlyTarget() - sessionsThisMonth()) : 0 }}</span>
-                  <span class="hm-label">{{ 'memberProfile.dash.left' | translate }}</span>
-                </div>
-                @if (subscriptionDaysRemaining(); as rem) {
-                  <div class="hm-item">
-                    <span class="hm-value">{{ rem }}<small>{{ 'memberProfile.dash.dShort' | translate }}</small></span>
-                    <span class="hm-label">{{ 'memberProfile.dash.leftOnPlan' | translate }}</span>
-                  </div>
-                }
-              </div>
             </section>
+
+            <!-- ════════════════════════════════════════
+                  OVERVIEW BAND  (daily quote + key numbers at a glance)
+                  ════════════════════════════════════════ -->
+            <div class="overview-band" appReveal style="--ss-delay:0.10s">
+
+              <!-- Daily quote — moved up to set the tone for the dashboard -->
+              <div class="quote-card ob-quote">
+                <div class="q-icon" aria-hidden="true">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
+                </div>
+                <div class="q-body">
+                  <p class="q-nudge">{{ motivationNudge().key | translate:motivationNudge().params }}</p>
+                  <p class="q-text">{{ dailyQuoteKey() | translate }}</p>
+                </div>
+              </div>
+
+              <!-- Key numbers at a glance -->
+              <div class="stats-strip">
+              <div class="ss-card">
+                <div class="ss-icon">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                </div>
+                <div class="ss-body">
+                  <span class="ss-value">{{ totalWorkouts() }}</span>
+                  <span class="ss-label">{{ 'memberProfile.dash.totalWorkouts' | translate }}</span>
+                </div>
+              </div>
+              <div class="ss-card">
+                <div class="ss-icon">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <div class="ss-body">
+                  <span class="ss-value">{{ currentStreak() }}<small>{{ 'memberProfile.dash.dShort' | translate }}</small></span>
+                  <span class="ss-label">{{ 'memberProfile.dash.currentStreak' | translate }}</span>
+                </div>
+              </div>
+              <div class="ss-card">
+                <div class="ss-icon">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                </div>
+                <div class="ss-body">
+                  <span class="ss-value">{{ sessionsThisMonth() }}<small>/{{ monthlyTarget() }}</small></span>
+                  <span class="ss-label">{{ 'memberProfile.dash.thisMonth' | translate }}</span>
+                </div>
+              </div>
+              </div>
+            </div>
+
+            <!-- ════════════════════════════════════════
+                 STREAK AT RISK  (loss-aversion nudge)
+                 ════════════════════════════════════════ -->
+            @if (streakAtRisk()) {
+              <div class="risk-banner" appReveal style="--rb-delay:0.11s" role="status">
+                <span class="risk-flame" aria-hidden="true">🔥</span>
+                <div class="risk-body">
+                  <span class="risk-title">{{ 'memberProfile.dash.riskTitle' | translate:{ n: currentStreak() } }}</span>
+                  <span class="risk-sub">{{ 'memberProfile.dash.riskSub' | translate }}</span>
+                </div>
+                <div class="risk-actions">
+                  <button type="button" class="risk-cta" (click)="onSectionChange('qr')">{{ 'memberProfile.dash.riskCheckIn' | translate }}</button>
+                  @if (freezeAvailable()) {
+                    <button type="button" class="risk-freeze" (click)="useFreeze()"
+                            [attr.aria-label]="'memberProfile.dash.freezeHint' | translate">
+                      {{ 'memberProfile.dash.useRestPass' | translate }}
+                    </button>
+                  }
+                </div>
+              </div>
+            }
 
             <!-- ════════════════════════════════════════
                  STREAK CELEBRATION BANNER
                  ════════════════════════════════════════ -->
             <div class="streak-banner" appReveal style="--sb-delay:0.12s">
               <div class="sb-flame">
-                <span class="sb-flame-icon" [innerHTML]="getSvgIcon(streakMessage().icon)"></span>
+                <span class="sb-flame-icon" aria-hidden="true" [innerHTML]="getSvgIcon(streakMessage().icon)"></span>
                 <span class="sb-flame-count">{{ currentStreak() }}</span>
               </div>
               <div class="sb-body">
@@ -102,7 +139,7 @@
               @if (nextStreakMilestone(); as next) {
                 <div class="sb-milestone">
                   <div class="sb-ring">
-                    <svg viewBox="0 0 44 44">
+                    <svg aria-hidden="true" viewBox="0 0 44 44">
                       <circle class="sb-ring-track" cx="22" cy="22" r="19"/>
                       <circle class="sb-ring-fill" cx="22" cy="22" r="19"
                         [attr.stroke-dasharray]="119.38"
@@ -117,113 +154,130 @@
             </div>
 
             <!-- ════════════════════════════════════════
-                  ACHIEVEMENT BADGES
+                  ACHIEVEMENTS  (streak milestones + workout milestones)
                   ════════════════════════════════════════ -->
-            <div class="achievements-row" appReveal style="--ach-delay:0.18s">
-              @for (m of streakMilestones(); track m.days) {
-                <div class="ach-badge" [class.ach-locked]="!m.unlocked" [class.ach-unlocked]="m.unlocked">
-                  <span class="ach-icon" [innerHTML]="getSvgIcon(m.icon)"></span>
-                  <span class="ach-label">{{ m.labelKey | translate }}</span>
-                  <span class="ach-check">@if (m.unlocked) { <span class="svg-check" [innerHTML]="getSvgIcon('check')"></span> }</span>
+            <section class="achievements-section" appReveal style="--ach-delay:0.18s">
+              <div class="ach-sec-hdr">
+                <span class="svg-icon-wrap" aria-hidden="true" [innerHTML]="getSvgIcon('trophy')"></span>
+                <h3>{{ 'memberProfile.dash.achievements' | translate }}</h3>
+              </div>
+
+              <div class="ach-block">
+                <div class="wm-label">{{ 'memberProfile.dash.streakMilestones' | translate }}</div>
+                <div class="achievements-row">
+                  @for (m of streakMilestones(); track m.days) {
+                    <div class="ach-badge" [class.ach-locked]="!m.unlocked" [class.ach-unlocked]="m.unlocked">
+                      <span class="ach-icon" aria-hidden="true" [innerHTML]="getSvgIcon(m.icon)"></span>
+                      <span class="ach-label">{{ m.labelKey | translate }}</span>
+                      <span class="ach-check">@if (m.unlocked) { <span class="svg-check" aria-hidden="true" [innerHTML]="getSvgIcon('check')"></span> }</span>
+                    </div>
+                  }
                 </div>
-              }
-            </div>
+              </div>
+
+              <div class="ach-block workout-milestones">
+                <div class="wm-label">{{ 'memberProfile.dash.workoutMilestones' | translate }}</div>
+                <div class="wm-row">
+                  @for (m of workoutMilestones(); track m.count) {
+                    <div class="wm-chip" [class.wm-done]="m.unlocked"
+                         [attr.aria-label]="(m.labelKey | translate:{ n: m.count }) + (m.unlocked ? '' : ' — ' + ('memberProfile.dash.locked' | translate))">
+                      <span class="wm-icon" aria-hidden="true">{{ m.icon }}</span>
+                      <span class="wm-count">{{ m.count }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            </section>
 
             <!-- ════════════════════════════════════════
-                  WORKOUT MILESTONES
+                  MOTIVATION ROW  (weekly goal · rebook · records)
                   ════════════════════════════════════════ -->
-            <div class="workout-milestones" appReveal style="--ach-delay:0.22s">
-              <div class="wm-label">{{ 'memberProfile.dash.workoutMilestones' | translate }}</div>
-              <div class="wm-row">
-                @for (m of workoutMilestones(); track m.count) {
-                  <div class="wm-chip" [class.wm-done]="m.unlocked">
-                    <span class="wm-icon">{{ m.icon }}</span>
-                    <span class="wm-count">{{ m.count }}</span>
+            <div class="motivation-row" appReveal style="--mr-delay:0.26s">
+
+              <!-- Weekly commitment goal -->
+              <div class="mot-card mot-weekly" [class.mot-weekly-met]="weeklyGoalMet()">
+                <div class="mot-hdr">
+                  <span class="mot-title">{{ 'memberProfile.dash.weeklyGoal' | translate }}</span>
+                  <div class="mot-target-step" role="group" [attr.aria-label]="'memberProfile.dash.weeklyGoal' | translate">
+                    <button type="button" (click)="setWeeklyTarget(weeklyTarget() - 1)" [disabled]="weeklyTarget() <= 1" aria-label="−">−</button>
+                    <span class="mot-target-val">{{ weeklyTarget() }}<small>×</small></span>
+                    <button type="button" (click)="setWeeklyTarget(weeklyTarget() + 1)" [disabled]="weeklyTarget() >= 7" aria-label="+">+</button>
                   </div>
+                </div>
+                <div class="mot-weekly-track">
+                  <div class="mot-weekly-fill" [style.width.%]="weeklyGoalPercent()"></div>
+                </div>
+                <span class="mot-weekly-cap">
+                  @if (weeklyGoalMet()) {
+                    {{ 'memberProfile.dash.weeklyDone' | translate }}
+                  } @else {
+                    {{ 'memberProfile.dash.weeklyLeft' | translate:{ done: weeklySessionCount(), target: weeklyTarget() } }}
+                  }
+                </span>
+              </div>
+
+              <!-- Smart rebooking / next session -->
+              <div class="mot-card mot-rebook">
+                <span class="mot-title">{{ 'memberProfile.dash.keepMomentum' | translate }}</span>
+                @if (rebookSuggestion(); as rb) {
+                  <p class="mot-rebook-txt">{{ 'memberProfile.dash.usualDay' | translate:{ day: (rb.dayKey | translate) } }}</p>
+                } @else if (nextSession()) {
+                  <p class="mot-rebook-txt">{{ 'memberProfile.dash.alreadyBooked' | translate }}</p>
+                } @else {
+                  <p class="mot-rebook-txt">{{ 'memberProfile.dash.bookEncourage' | translate }}</p>
                 }
+                <button type="button" class="mot-rebook-cta" (click)="onSectionChange('mybookings')">
+                  {{ 'memberProfile.dash.bookSession' | translate }}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </button>
               </div>
+
+              <!-- Personal records -->
+              <div class="mot-card mot-records">
+                <span class="mot-title">{{ 'memberProfile.dash.personalRecords' | translate }}</span>
+                <div class="mot-records-grid">
+                  <div class="mot-rec">
+                    <span class="mot-rec-val">{{ personalRecords().bestStreak }}<small>{{ 'memberProfile.dash.dShort' | translate }}</small></span>
+                    <span class="mot-rec-lbl">{{ 'memberProfile.dash.bestStreak' | translate }}</span>
+                  </div>
+                  <div class="mot-rec">
+                    <span class="mot-rec-val">{{ personalRecords().bestMonth }}</span>
+                    <span class="mot-rec-lbl">{{ 'memberProfile.dash.bestMonth' | translate }}</span>
+                  </div>
+                  <div class="mot-rec">
+                    <span class="mot-rec-val">@if (personalRecords().lowestWeight; as lw) { {{ lw }}<small>kg</small> } @else { — }</span>
+                    <span class="mot-rec-lbl">{{ 'memberProfile.dash.lowestWeight' | translate }}</span>
+                  </div>
+                </div>
+              </div>
+
             </div>
 
             <!-- ════════════════════════════════════════
-                  STATS OVERVIEW STRIP
-                  ════════════════════════════════════════ -->
-            <div class="stats-strip" style="--ss-delay:0.26s">
-              <div class="ss-card">
-                <div class="ss-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                </div>
-                <div class="ss-body">
-                  <span class="ss-value">{{ totalWorkouts() }}</span>
-                  <span class="ss-label">{{ 'memberProfile.dash.totalWorkouts' | translate }}</span>
-                </div>
-              </div>
-              <div class="ss-card">
-                <div class="ss-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                </div>
-                <div class="ss-body">
-                  <span class="ss-value">{{ currentStreak() }}<small>{{ 'memberProfile.dash.dShort' | translate }}</small></span>
-                  <span class="ss-label">{{ 'memberProfile.dash.currentStreak' | translate }}</span>
-                </div>
-              </div>
-              <div class="ss-card">
-                <div class="ss-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg>
-                </div>
-                <div class="ss-body">
-                  <span class="ss-value">{{ bestStreak() }}<small>{{ 'memberProfile.dash.dShort' | translate }}</small></span>
-                  <span class="ss-label">{{ 'memberProfile.dash.bestStreak' | translate }}</span>
-                </div>
-              </div>
-              <div class="ss-card">
-                <div class="ss-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                </div>
-                <div class="ss-body">
-                  <span class="ss-value">{{ sessionsThisMonth() }}<small>/{{ monthlyTarget() }}</small></span>
-                  <span class="ss-label">{{ 'memberProfile.dash.thisMonth' | translate }}</span>
-                </div>
-              </div>
-              @if (subscriptionDaysRemaining(); as rem) {
-                <div class="ss-card">
-                  <div class="ss-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                  </div>
-                  <div class="ss-body">
-                    <span class="ss-value">{{ rem }}<small>{{ 'memberProfile.dash.dShort' | translate }}</small></span>
-                    <span class="ss-label">{{ 'memberProfile.dash.planLeft' | translate }}</span>
-                  </div>
-                </div>
-              }
-            </div>
-
-            <!-- ════════════════════════════════════════
-                  MAIN CARDS  (flex 2-column)
+                  MAIN CARDS  (auto-balanced 2-column masonry)
                   ════════════════════════════════════════ -->
             <div class="profile-cards" appReveal style="--pg-delay:0.30s">
-
-              <div class="pc-left">
 
                 <!-- ── BODY STATS  (tall) ── -->
                 <div class="card glass-card pg-body">
                   <div class="card-hdr">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     <h3>{{ 'memberProfile.dash.yourBody' | translate }}</h3>
                     <button class="card-edit-btn" (click)="openEdit()">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                       {{ 'memberProfile.dash.edit' | translate }}
                     </button>
                   </div>
                   <div class="body-stats-grid">
                     <div class="bs-card">
                       <div class="bs-icon" style="--bs-iclr:#C6EF2E">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
                       </div>
                       <span class="bs-value">{{ profile()?.weight ?? '—' }} <small>kg</small></span>
                       <span class="bs-label">{{ 'memberProfile.dash.weight' | translate }}</span>
                       @if (weightChange(); as ch) {
                         <span class="bs-trend bs-trend-inline" [class.bs-trend-up]="ch > 0" [class.bs-trend-down]="ch < 0">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline [attr.points]="ch > 0 ? '18 15 12 9 6 15' : '6 9 12 15 18 9'"/></svg>
+                          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline [attr.points]="ch > 0 ? '18 15 12 9 6 15' : '6 9 12 15 18 9'"/></svg>
                           {{ ch > 0 ? '+' : '' }}{{ ch }}kg
                         </span>
                       }
@@ -231,7 +285,7 @@
                     </div>
                     <div class="bs-card">
                       <div class="bs-icon" style="--bs-iclr:#9a9a9a">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="12" y1="20" x2="12" y2="4"/><polyline points="6 10 12 4 18 10"/></svg>
+                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="12" y1="20" x2="12" y2="4"/><polyline points="6 10 12 4 18 10"/></svg>
                       </div>
                       <span class="bs-value">{{ profile()?.height ?? '—' }} <small>cm</small></span>
                       <span class="bs-label">{{ 'memberProfile.dash.height' | translate }}</span>
@@ -239,7 +293,7 @@
                     </div>
                     <div class="bs-card">
                       <div class="bs-icon" style="--bs-iclr:#C6EF2E">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
                       </div>
                       <span class="bs-value">{{ profile()?.bmi ?? '—' }}</span>
                       <span class="bs-label">{{ 'memberProfile.dash.bmi' | translate }}</span>
@@ -254,13 +308,13 @@
                     </div>
                     <div class="bs-card">
                       <div class="bs-icon" style="--bs-iclr:#C6EF2E">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
                       </div>
                       <span class="bs-value">{{ (currentBodyFat() ?? '—') }}@if (currentBodyFat(); as bf) { <small>%</small> }</span>
                       <span class="bs-label">{{ 'memberProfile.dash.bodyFat' | translate }}</span>
                       @if (bodyFatChange(); as ch) {
                         <span class="bs-trend" [class.bs-trend-up]="ch > 0" [class.bs-trend-down]="ch < 0">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline [attr.points]="ch > 0 ? '18 15 12 9 6 15' : '6 9 12 15 18 9'"/></svg>
+                          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline [attr.points]="ch > 0 ? '18 15 12 9 6 15' : '6 9 12 15 18 9'"/></svg>
                           {{ ch > 0 ? '+' : '' }}{{ ch }}%
                         </span>
                       }
@@ -268,13 +322,13 @@
                     </div>
                     <div class="bs-card">
                       <div class="bs-icon" style="--bs-iclr:#9a9a9a">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                       </div>
                       <span class="bs-value">{{ (currentMuscleMass() ?? '—') }}@if (currentMuscleMass(); as mm) { <small>kg</small> }</span>
                       <span class="bs-label">{{ 'memberProfile.dash.muscle' | translate }}</span>
                       @if (muscleMassChange(); as ch) {
                         <span class="bs-trend" [class.bs-trend-up]="ch > 0" [class.bs-trend-down]="ch < 0">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline [attr.points]="ch > 0 ? '18 15 12 9 6 15' : '6 9 12 15 18 9'"/></svg>
+                          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline [attr.points]="ch > 0 ? '18 15 12 9 6 15' : '6 9 12 15 18 9'"/></svg>
                           {{ ch > 0 ? '+' : '' }}{{ ch }}kg
                         </span>
                       }
@@ -282,7 +336,7 @@
                     </div>
                     <div class="bs-card bs-card-target">
                       <div class="bs-icon" style="--bs-iclr:#C6EF2E">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
                       </div>
                       <span class="bs-value">{{ profile()?.targetWeight ?? '—' }}@if (profile()?.targetWeight) { <small>kg</small> }</span>
                       <span class="bs-label">{{ 'memberProfile.dash.target' | translate }}</span>
@@ -296,12 +350,17 @@
                   </div>
                   <div class="bs-goal-banner" (click)="openEdit()">
                     <div class="bs-goal-icon">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
                     </div>
                     <div class="bs-goal-text">
                       <span class="bs-goal-label">{{ 'memberProfile.dash.fitnessGoal' | translate }}</span>
                       @if (goalLabelKey() || profile()?.targetWeight) {
                         <span class="bs-goal-value">{{ (goalLabelKey() ?? 'memberProfile.dash.goal') | translate }}@if (profile()?.targetWeight; as t) { <span class="bs-goal-sep">·</span> {{ 'memberProfile.dash.kgTarget' | translate:{ n: t } }} }</span>
+                        @if (goalEta().date; as eta) {
+                          <span class="bs-goal-eta">{{ 'memberProfile.dash.goalEta' | translate:{ date: (eta | date:'MMM d, y') } }}</span>
+                        } @else if (goalEta().reached) {
+                          <span class="bs-goal-eta bs-goal-eta-reached">{{ 'memberProfile.dash.goalReached' | translate }}</span>
+                        }
                       } @else {
                         <span class="bs-goal-value bs-goal-empty">{{ 'memberProfile.dash.goalNotSet' | translate }}</span>
                       }
@@ -310,20 +369,20 @@
                       <span class="bs-goal-delta" [class.reached]="gd.state === 'reached'">{{ gd.key | translate:{ n: gd.n } }}</span>
                     }
                     <span class="bs-goal-edit">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     </span>
                   </div>
                   @if (profile()?.email || profile()?.phoneNumber) {
                     <div class="bs-contact">
                       @if (profile()?.email; as email) {
                         <span class="bs-contact-item">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                           {{ email }}
                         </span>
                       }
                       @if (profile()?.phoneNumber; as phone) {
                         <span class="bs-contact-item">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                           {{ phone }}
                         </span>
                       }
@@ -334,21 +393,43 @@
                 <!-- ── CHECK-IN / NEXT SESSION (replaces fitness pulse) ── -->
                 <div class="card glass-card pg-checkin">
                   <div class="card-hdr">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3"/><path d="M21 14v7h-7"/></svg>
+                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3"/><path d="M21 14v7h-7"/></svg>
                     <h3>{{ 'memberProfile.dash.checkIn' | translate }}</h3>
                   </div>
 
-                  <!-- Next session (awaiting a bookings source — honest empty state) -->
+                  <!-- Next session (soonest upcoming confirmed booking) -->
                   <div class="ci-next">
                     <span class="ci-next-label">{{ 'memberProfile.dash.nextSession' | translate }}</span>
-                    <span class="ci-next-empty">{{ 'memberProfile.dash.noUpcoming' | translate }}</span>
+                    @if (loadingBookings()) {
+                      <span class="skeleton-line" style="height:16px;width:60%;border-radius:6px"></span>
+                    } @else if (nextSession(); as ns) {
+                      <button type="button" class="ci-next-booking" (click)="onSectionChange('mybookings')"
+                              [attr.aria-label]="'memberProfile.dash.viewBookings' | translate">
+                        <span class="ci-next-when">
+                          @switch (ns.dayKind) {
+                            @case ('today') { {{ 'memberProfile.dash.today' | translate }} }
+                            @case ('tomorrow') { {{ 'memberProfile.dash.tomorrow' | translate }} }
+                            @default { {{ ns.date | date:'EEE, MMM d' }} }
+                          }
+                          <span class="ci-next-time">{{ ns.date | date:'h:mm a' }}</span>
+                        </span>
+                        <span class="ci-next-arrow" aria-hidden="true">
+                          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </span>
+                      </button>
+                    } @else {
+                      <span class="ci-next-empty">{{ 'memberProfile.dash.noUpcoming' | translate }}</span>
+                      <button type="button" class="ci-next-book" (click)="onSectionChange('mybookings')">
+                        {{ 'memberProfile.dash.bookSession' | translate }}
+                      </button>
+                    }
                   </div>
 
                   <!-- Primary action: open QR to check in at the gym -->
                   <button class="pulse-cta" (click)="onSectionChange('qr')">
                     <span>{{ 'memberProfile.dash.openQr' | translate }}</span>
                     <span class="pulse-cta-arrow">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                     </span>
                   </button>
 
@@ -366,47 +447,63 @@
                   </div>
                 </div>
 
-                <!-- ── QUICK ACTIONS ── -->
-                <div class="card glass-card pg-actions">
+                <!-- ── WORKING WEIGHTS  (top weighted lifts from the active plan) ── -->
+                <div class="card glass-card pg-lifts">
                   <div class="card-hdr">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                    <h3>{{ 'memberProfile.dash.quickActions' | translate }}</h3>
+                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="m6.5 6.5 11 11"/><path d="m21 21-1-1"/><path d="m3 3 1 1"/><path d="m18 22 4-4"/><path d="m2 6 4-4"/><path d="m3 10 7-7"/><path d="m14 21 7-7"/></svg>
+                    <h3>{{ 'memberProfile.dash.workingWeights' | translate }}</h3>
+                    @if (hasMainLifts()) {
+                      <button class="card-edit-btn" (click)="onSectionChange('workout')">
+                        {{ 'memberProfile.dash.viewPlan' | translate }}
+                      </button>
+                    }
                   </div>
-                  <div class="actions-row">
-                    <button class="action-btn" (click)="onSectionChange('qr')">
-                      <span class="action-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+
+                  @if (hasMainLifts()) {
+                    <p class="lifts-note">{{ 'memberProfile.dash.workingWeightsNote' | translate }}</p>
+                    <div class="lifts-list">
+                      @for (lift of mainLifts(); track lift.name; let i = $index) {
+                        <div class="lift-row">
+                          <span class="lift-rank" aria-hidden="true">{{ i + 1 }}</span>
+                          <div class="lift-info">
+                            <span class="lift-name">{{ lift.name }}</span>
+                            @if (lift.muscleGroup) { <span class="lift-muscle">{{ lift.muscleGroup }}</span> }
+                          </div>
+                          <div class="lift-figure">
+                            <span class="lift-weight">{{ lift.weight }}<small>kg</small></span>
+                            <span class="lift-scheme">{{ lift.sets }}×{{ lift.reps }}</span>
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  } @else if (loadingWorkoutPlan()) {
+                    <div class="lifts-list" aria-hidden="true">
+                      @for (_ of [1,2,3]; track $index) {
+                        <div class="skeleton-block" style="height:44px;border-radius:12px"></div>
+                      }
+                    </div>
+                  } @else {
+                    <div class="lifts-empty">
+                      <span class="lifts-empty-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="28" height="28"><path d="m6.5 6.5 11 11"/><path d="m21 21-1-1"/><path d="m3 3 1 1"/><path d="m18 22 4-4"/><path d="m2 6 4-4"/><path d="m3 10 7-7"/><path d="m14 21 7-7"/></svg>
                       </span>
-                      <span class="action-lbl">{{ 'memberProfile.dash.qrCode' | translate }}</span>
-                    </button>
-                    <button class="action-btn" (click)="onSectionChange('progress')">
-                      <span class="action-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                      </span>
-                      <span class="action-lbl">{{ 'memberProfile.dash.progress' | translate }}</span>
-                    </button>
-                    <button class="action-btn" (click)="openEdit()">
-                      <span class="action-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                      </span>
-                      <span class="action-lbl">{{ 'memberProfile.dash.edit' | translate }}</span>
-                    </button>
-                  </div>
+                      <p>{{ (workoutPlan()?.days?.length ? 'memberProfile.dash.workingWeightsNoWeights' : 'memberProfile.dash.workingWeightsNoPlan') | translate }}</p>
+                      <button class="card-edit-btn" (click)="onSectionChange('workout')">
+                        {{ 'memberProfile.dash.goToWorkouts' | translate }}
+                      </button>
+                    </div>
+                  }
                 </div>
-
-              </div>
-
-              <div class="pc-right">
 
                 <!-- ── MONTHLY PROGRESS  (compact ring) ── -->
                 <div class="card glass-card pg-monthly">
                   <div class="card-hdr">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
                     <h3>{{ 'memberProfile.dash.monthlyProgress' | translate }}</h3>
                   </div>
                   <div class="mp-body">
                     <div class="mp-ring-wrap">
-                      <svg class="mp-ring-svg" viewBox="0 0 100 100">
+                      <svg aria-hidden="true" class="mp-ring-svg" viewBox="0 0 100 100">
                         <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="7"/>
                         <circle cx="50" cy="50" r="40" fill="none" stroke="#C6EF2E" stroke-width="7"
                           [attr.stroke-dasharray]="'251.33'"
@@ -439,12 +536,12 @@
                       <span>{{ 'memberProfile.dash.monthlyActivity' | translate }}</span>
                       @if (mostActiveDay(); as mad) {
                         <span class="mp-mad">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
                           {{ 'memberProfile.dash.peak' | translate:{ day: (mad.nameKey | translate), date: (mad.date | date:'MMM d') } }}
                         </span>
                       }
                     </div>
-                    <svg class="mp-sparkline" viewBox="0 0 120 32" preserveAspectRatio="none">
+                    <svg aria-hidden="true" class="mp-sparkline" viewBox="0 0 120 32" preserveAspectRatio="none">
                       @if (sparklinePath()) {
                         <path [attr.d]="sparklinePath()" fill="none" stroke="#C6EF2E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                       }
@@ -469,7 +566,7 @@
                           </span>
                         }
                       </div>
-                      <svg class="mp-sparkline" viewBox="0 0 120 32" preserveAspectRatio="none">
+                      <svg aria-hidden="true" class="mp-sparkline" viewBox="0 0 120 32" preserveAspectRatio="none">
                         <path [attr.d]="weightTrendPath()" fill="none" stroke="#9a9a9a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         <path [attr.d]="weightTrendPath()" fill="url(#wtGrad)" stroke="none" opacity="0.15"/>
                         <defs>
@@ -486,7 +583,7 @@
                 <!-- ── CALENDAR ── -->
                 <div class="card glass-card pg-cal">
                   <div class="card-hdr">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                     <h3>{{ 'memberProfile.dash.calendar' | translate }}</h3>
                   </div>
                   <div class="cal-grid">
@@ -518,7 +615,7 @@
                       }
                     </div>
                     <div class="ws-compare">
-                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="12" height="12"><polyline points="1 10 5 6 9 10 15 4"/></svg>
+                      <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="12" height="12"><polyline points="1 10 5 6 9 10 15 4"/></svg>
                       <span class="ws-compare-val" [class.ws-up]="weekComparison().change >= 0" [class.ws-down]="weekComparison().change < 0">
                         {{ 'memberProfile.dash.vsLastWeek' | translate:{ n: (weekComparison().change >= 0 ? '+' : '') + weekComparison().change } }}
                       </span>
@@ -540,24 +637,12 @@
                   </div>
                 </div>
 
-                <!-- ── QUOTE ── -->
-                <div class="quote-card pg-quote">
-                  <div class="q-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
-                  </div>
-                  <p class="q-text">{{ dailyQuoteKey() | translate }}</p>
+                <!-- Recent workouts — fifth masonry block so the two columns
+                     balance to a near-even height. -->
+                <div class="bottom-zone" appReveal style="--bz-delay:0.32s">
+                  <app-recent-workouts [workouts]="recentWorkouts()" [loading]="loading()" />
                 </div>
 
-              </div>
-
-            </div>
-
-            <!-- ════════════════════════════════════════
-                 BOTTOM: MEMBERSHIP + RECENT WORKOUTS
-                 ════════════════════════════════════════ -->
-            <div class="bottom-zone" appReveal style="--bz-delay:0.32s">
-              <app-membership-section [subscriptions]="userSubscriptions()" [loading]="loadingSubscriptions()" />
-              <app-recent-workouts [workouts]="recentWorkouts()" [loading]="loading()" />
             </div>
 
             } @else {
@@ -567,28 +652,25 @@
               <div class="hero-grain"></div>
               <div class="hero-overlay"></div>
               <div class="hero-body">
-                <div class="hero-avatar-wrap"><div class="skeleton-circle"></div></div>
                 <div class="hero-info">
                   <div class="skeleton-line skeleton-line-sm"></div>
                   <div class="skeleton-line skeleton-line-lg"></div>
                   <div class="skeleton-line skeleton-line-md"></div>
                 </div>
               </div>
-              <div class="hero-metrics">
+            </section>
+            <div class="overview-band">
+              <div class="quote-card ob-quote"><div class="skeleton-block" style="min-height:56px;flex:1;border-radius:8px"></div></div>
+              <div class="stats-strip">
                 @for (_ of [1,2,3,4,5]; track $index) {
-                  <div class="hm-item"><div class="skeleton-line" style="height:18px;width:28px;border-radius:4px"></div></div>
+                  <div class="skeleton-block" style="height:56px;border-radius:12px"></div>
                 }
               </div>
-            </section>
+            </div>
             <div class="streak-banner"><div class="skeleton-block" style="min-height:100px"></div></div>
             <div class="achievements-row">
               @for (_ of [1,2,3,4,5]; track $index) {
                 <div class="skeleton-block" style="height:60px;width:70px;border-radius:12px"></div>
-              }
-            </div>
-            <div class="stats-strip">
-              @for (_ of [1,2,3,4,5]; track $index) {
-                <div class="skeleton-block" style="height:56px;border-radius:12px;flex:1"></div>
               }
             </div>
             <div class="profile-cards" style="--pg-delay:0s">
@@ -599,8 +681,6 @@
               <div class="pc-right">
                 <div class="card glass-card"><div class="skeleton-block" style="min-height:140px"></div></div>
                 <div class="card glass-card"><div class="skeleton-block" style="min-height:140px"></div></div>
-                <div class="card glass-card"><div class="skeleton-block" style="min-height:80px"></div></div>
-                <div class="card glass-card pg-quote"><div class="skeleton-block" style="min-height:50px"></div></div>
               </div>
             </div>
             <div class="bottom-zone">
@@ -637,12 +717,55 @@
           }
 
           @case ('settings') {
-            <div class="section-placeholder">
-              <div class="placeholder-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-              </div>
-              <h2>{{ 'sidebar.settings' | translate }}</h2>
-              <p>{{ 'section.settingsPlaceholder' | translate }}</p>
+            <div class="settings-page">
+              <h2 class="settings-title">{{ 'sidebar.settings' | translate }}</h2>
+
+              <!-- Appearance -->
+              <section class="settings-card">
+                <h3 class="settings-card-title">{{ 'memberProfile.dash.setAppearance' | translate }}</h3>
+                <div class="settings-row">
+                  <span class="settings-label">{{ 'memberProfile.dash.setTheme' | translate }}</span>
+                  <div class="seg-control" role="group" [attr.aria-label]="'memberProfile.dash.setTheme' | translate">
+                    @for (t of themeOptions; track t) {
+                      <button type="button" class="seg-btn" [class.seg-active]="currentTheme() === t"
+                              [attr.aria-pressed]="currentTheme() === t" (click)="setTheme(t)">
+                        {{ 'memberProfile.dash.theme' + (t === 'system' ? 'System' : t === 'light' ? 'Light' : 'Dark') | translate }}
+                      </button>
+                    }
+                  </div>
+                </div>
+              </section>
+
+              <!-- Language -->
+              <section class="settings-card">
+                <h3 class="settings-card-title">{{ 'memberProfile.dash.setLanguage' | translate }}</h3>
+                <div class="settings-row">
+                  <span class="settings-label">{{ 'memberProfile.dash.setLanguage' | translate }}</span>
+                  <div class="seg-control" role="group" [attr.aria-label]="'memberProfile.dash.setLanguage' | translate">
+                    @for (l of langOptions; track l.value) {
+                      <button type="button" class="seg-btn" [class.seg-active]="currentLang() === l.value"
+                              [attr.aria-pressed]="currentLang() === l.value" (click)="switchLang(l.value)">
+                        {{ l.labelKey | translate }}
+                      </button>
+                    }
+                  </div>
+                </div>
+              </section>
+
+              <!-- Account -->
+              <section class="settings-card">
+                <h3 class="settings-card-title">{{ 'memberProfile.dash.setAccount' | translate }}</h3>
+                <div class="settings-row">
+                  <span class="settings-label">{{ 'memberProfile.dash.setProfileHint' | translate }}</span>
+                  <button type="button" class="settings-btn" (click)="openEdit()">{{ 'profile.editProfile' | translate }}</button>
+                </div>
+                <div class="settings-row">
+                  <span class="settings-label">{{ 'memberProfile.dash.setLogoutHint' | translate }}</span>
+                  <button type="button" class="settings-btn settings-btn-danger" (click)="logout()" [disabled]="loggingOut()">
+                    {{ 'sidebar.logout' | translate }}
+                  </button>
+                </div>
+              </section>
             </div>
           }
   
@@ -658,15 +781,22 @@
 
 <!-- Edit Profile Overlay -->
 @if (isEditing()) {
-  <div class="edit-overlay" (click)="closeEdit()">
-    <div class="edit-modal" (click)="$event.stopPropagation()">
-      <h3>{{ 'profile.editProfile' | translate }}</h3>
+  <div class="edit-overlay">
+    <div class="edit-modal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle"
+         (keydown)="onEditKeydown($event)">
+      <div class="edit-modal-hdr">
+        <h3 id="editModalTitle">{{ 'profile.editProfile' | translate }}</h3>
+        <button type="button" class="edit-close" (click)="closeEdit()" [disabled]="savingEdit()"
+                [attr.aria-label]="'profile.cancel' | translate">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
       <div class="edit-avatar">
         <div class="edit-avatar-preview">
           @if (editImage()) {
-            <img [src]="editImage()" alt="Profile photo" />
+            <img [src]="editImage()" alt="" />
           } @else {
-            <span class="edit-avatar-ph">{{ editFirstName()?.[0] }}{{ editLastName()?.[0] }}</span>
+            <span class="edit-avatar-ph" aria-hidden="true">{{ editFirstName()?.[0] }}{{ editLastName()?.[0] }}</span>
           }
         </div>
         <div class="edit-avatar-actions">
@@ -680,56 +810,174 @@
           <span class="edit-avatar-hint">{{ 'memberProfile.dash.photoHint' | translate }}</span>
         </div>
       </div>
-      <div class="edit-fields">
-        <label>{{ 'profile.firstName' | translate }}
-          <input type="text" [value]="editFirstName()" (input)="editFirstName.set($any($event.target).value)" />
-        </label>
-        <label>{{ 'profile.lastName' | translate }}
-          <input type="text" [value]="editLastName()" (input)="editLastName.set($any($event.target).value)" />
-        </label>
-        <label>{{ 'profile.weight' | translate }}
-          <input type="number" [value]="editWeight()" (input)="editWeight.set(+$any($event.target).value || null)" />
-        </label>
-        <label>{{ 'profile.height' | translate }}
-          <input type="number" [value]="editHeight()" (input)="editHeight.set(+$any($event.target).value || null)" />
-        </label>
-        <label>{{ 'profile.phone' | translate }}
-          <input type="text" [value]="editPhone()" (input)="editPhone.set($any($event.target).value)" />
-        </label>
-        <label>{{ 'profile.gender' | translate }}
-          <select [value]="editGender()" (change)="editGender.set($any($event.target).value)">
-            <option value="">{{ 'profile.notSet' | translate }}</option>
-            <option value="Male">{{ 'memberProfile.male' | translate }}</option>
-            <option value="Female">{{ 'memberProfile.female' | translate }}</option>
-          </select>
-        </label>
-        <label>{{ 'memberProfile.dash.bodyFat' | translate }} (%)
-          <input type="number" step="0.1" min="0" max="100" [value]="editBodyFat()" (input)="editBodyFat.set(+$any($event.target).value || null)" />
-        </label>
-        <label>{{ 'memberProfile.dash.muscle' | translate }} (kg)
-          <input type="number" step="0.1" min="0" [value]="editMuscle()" (input)="editMuscle.set(+$any($event.target).value || null)" />
-        </label>
-        <label>{{ 'memberProfile.dash.fitnessGoal' | translate }}
-          <select [value]="editGoal()" (change)="editGoal.set($any($event.target).value)">
-            <option value="">{{ 'profile.notSet' | translate }}</option>
-            @for (g of goalOptions; track g.value) {
-              <option [value]="g.value">{{ g.labelKey | translate }}</option>
-            }
-          </select>
-        </label>
-        <label>{{ 'memberProfile.dash.targetWeightKg' | translate }}
-          <input type="number" step="0.1" [value]="editTargetWeight()" (input)="editTargetWeight.set(+$any($event.target).value || null)" />
-        </label>
-      </div>
+
+      <!-- ── Personal ── -->
+      <fieldset class="edit-group">
+        <legend>{{ 'memberProfile.dash.grpPersonal' | translate }}</legend>
+        <div class="edit-fields">
+          <label>{{ 'profile.firstName' | translate }}
+            <input type="text" [value]="editFirstName()" (input)="editFirstName.set($any($event.target).value)"
+                   [attr.aria-invalid]="!!editFieldErrors()['firstName']" />
+            @if (editFieldErrors()['firstName']; as err) { <span class="field-error">{{ err | translate }}</span> }
+          </label>
+          <label>{{ 'profile.lastName' | translate }}
+            <input type="text" [value]="editLastName()" (input)="editLastName.set($any($event.target).value)"
+                   [attr.aria-invalid]="!!editFieldErrors()['lastName']" />
+            @if (editFieldErrors()['lastName']; as err) { <span class="field-error">{{ err | translate }}</span> }
+          </label>
+          <label>{{ 'profile.phone' | translate }}
+            <input type="tel" [value]="editPhone()" (input)="editPhone.set($any($event.target).value)" />
+          </label>
+          <label>{{ 'profile.gender' | translate }}
+            <select [value]="editGender()" (change)="editGender.set($any($event.target).value)">
+              <option value="">{{ 'profile.notSet' | translate }}</option>
+              <option value="Male">{{ 'memberProfile.male' | translate }}</option>
+              <option value="Female">{{ 'memberProfile.female' | translate }}</option>
+            </select>
+          </label>
+        </div>
+      </fieldset>
+
+      <!-- ── Body composition ── -->
+      <fieldset class="edit-group">
+        <legend>{{ 'memberProfile.dash.grpBody' | translate }}</legend>
+        <div class="edit-fields">
+          <label>{{ 'profile.weight' | translate }} (kg)
+            <input type="number" min="0" [value]="editWeight()" (input)="editWeight.set(+$any($event.target).value || null)"
+                   [attr.aria-invalid]="!!editFieldErrors()['weight']" />
+            @if (editFieldErrors()['weight']; as err) { <span class="field-error">{{ err | translate }}</span> }
+          </label>
+          <label>{{ 'profile.height' | translate }} (cm)
+            <input type="number" min="0" [value]="editHeight()" (input)="editHeight.set(+$any($event.target).value || null)"
+                   [attr.aria-invalid]="!!editFieldErrors()['height']" />
+            @if (editFieldErrors()['height']; as err) { <span class="field-error">{{ err | translate }}</span> }
+          </label>
+          <label>{{ 'memberProfile.dash.bodyFat' | translate }} (%)
+            <input type="number" step="0.1" min="0" max="100" [value]="editBodyFat()" (input)="editBodyFat.set(+$any($event.target).value || null)"
+                   [attr.aria-invalid]="!!editFieldErrors()['bodyFat']" />
+            @if (editFieldErrors()['bodyFat']; as err) { <span class="field-error">{{ err | translate }}</span> }
+          </label>
+          <label>{{ 'memberProfile.dash.muscle' | translate }} (kg)
+            <input type="number" step="0.1" min="0" [value]="editMuscle()" (input)="editMuscle.set(+$any($event.target).value || null)"
+                   [attr.aria-invalid]="!!editFieldErrors()['muscle']" />
+            @if (editFieldErrors()['muscle']; as err) { <span class="field-error">{{ err | translate }}</span> }
+          </label>
+        </div>
+      </fieldset>
+
+      <!-- ── Goal ── -->
+      <fieldset class="edit-group">
+        <legend>{{ 'memberProfile.dash.grpGoal' | translate }}</legend>
+        <div class="edit-fields">
+          <label>{{ 'memberProfile.dash.fitnessGoal' | translate }}
+            <select [value]="editGoal()" (change)="editGoal.set($any($event.target).value)">
+              <option value="">{{ 'profile.notSet' | translate }}</option>
+              @for (g of goalOptions; track g.value) {
+                <option [value]="g.value">{{ g.labelKey | translate }}</option>
+              }
+            </select>
+          </label>
+          <label>{{ 'memberProfile.dash.targetWeightKg' | translate }}
+            <input type="number" step="0.1" min="0" [value]="editTargetWeight()" (input)="editTargetWeight.set(+$any($event.target).value || null)"
+                   [attr.aria-invalid]="!!editFieldErrors()['targetWeight']" />
+            @if (editFieldErrors()['targetWeight']; as err) { <span class="field-error">{{ err | translate }}</span> }
+          </label>
+        </div>
+      </fieldset>
+
       @if (editError(); as err) {
-        <p class="edit-error">{{ err }}</p>
+        <p class="edit-error" role="alert">{{ err }}</p>
       }
       <div class="edit-actions">
         <button class="edit-cancel" (click)="closeEdit()" [disabled]="savingEdit()">{{ 'profile.cancel' | translate }}</button>
-        <button class="edit-save" (click)="saveEdit()" [disabled]="savingEdit()">
-          @if (savingEdit()) { <span class="edit-spinner"></span> {{ 'memberProfile.dash.saving' | translate }} } @else { {{ 'profile.saveChanges' | translate }} }
+        <button class="edit-save" (click)="saveEdit()" [disabled]="savingEdit() || !editValid()">
+          @if (savingEdit()) { <span class="edit-spinner" aria-hidden="true"></span> {{ 'memberProfile.dash.saving' | translate }} } @else { {{ 'profile.saveChanges' | translate }} }
         </button>
       </div>
+    </div>
+  </div>
+}
+
+<!-- ════ Streak Welcome / Celebration Modal ════ -->
+@if (showCelebration()) {
+  <div class="welcome-overlay" (click)="closeCelebration()">
+    @if (celebrationConfetti()) {
+      <div class="welcome-confetti" aria-hidden="true">
+        @for (p of confettiPieces; track $index) {
+          <span class="confetti-piece"
+            [class.confetti-round]="p.round"
+            [style.left.%]="p.left"
+            [style.background]="p.color"
+            [style.width.px]="p.size"
+            [style.height.px]="p.size"
+            [style.animation-delay.s]="p.delay"
+            [style.animation-duration.s]="p.duration"></span>
+        }
+      </div>
+    }
+    <div class="welcome-modal" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+      <button type="button" class="welcome-close" (click)="closeCelebration()" aria-label="Close">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="welcome-icon" aria-hidden="true" [innerHTML]="getSvgIcon(streakMessage().icon)"></div>
+      <span class="welcome-eyebrow">{{ 'memberProfile.dash.welcomeBack' | translate:{ firstName: profile()?.firstName } }}</span>
+      <h3 class="welcome-title">{{ streakMessage().titleKey | translate:{ n: streakMessage().n } }}</h3>
+      <p class="welcome-sub">{{ streakMessage().subKey | translate:{ n: streakMessage().n } }}</p>
+
+      <div class="welcome-stats">
+        <div class="welcome-stat">
+          <span class="welcome-stat-val">{{ currentStreak() }}</span>
+          <span class="welcome-stat-lbl">{{ 'memberProfile.dash.currentStreak' | translate }}</span>
+        </div>
+        <div class="welcome-stat">
+          <span class="welcome-stat-val">{{ totalWorkouts() }}</span>
+          <span class="welcome-stat-lbl">{{ 'memberProfile.dash.totalWorkouts' | translate }}</span>
+        </div>
+        <div class="welcome-stat">
+          <span class="welcome-stat-val">{{ sessionsThisMonth() }}<small>/{{ monthlyTarget() }}</small></span>
+          <span class="welcome-stat-lbl">{{ 'memberProfile.dash.thisMonth' | translate }}</span>
+        </div>
+      </div>
+
+      @if (nextStreakMilestone(); as next) {
+        <p class="welcome-next">
+          <span class="welcome-next-num">{{ next.remaining }}</span>
+          {{ (next.remaining > 1 ? 'memberProfile.dash.daysTo' : 'memberProfile.dash.dayTo') | translate }}
+          {{ 'memberProfile.dash.toTarget' | translate:{ n: next.target } }}
+        </p>
+      }
+
+      <button type="button" class="welcome-cta" (click)="closeCelebration()">{{ 'memberProfile.dash.letsTrain' | translate }}</button>
+    </div>
+  </div>
+}
+
+<!-- ════ Achievement Unlocked Modal (fires once on a newly-earned milestone) ════ -->
+@if (achievementUnlock(); as ach) {
+  <div class="welcome-overlay" (click)="closeAchievement()">
+    <div class="welcome-confetti" aria-hidden="true">
+      @for (p of confettiPieces; track $index) {
+        <span class="confetti-piece"
+          [class.confetti-round]="p.round"
+          [style.left.%]="p.left"
+          [style.background]="p.color"
+          [style.width.px]="p.size"
+          [style.height.px]="p.size"
+          [style.animation-delay.s]="p.delay"
+          [style.animation-duration.s]="p.duration"></span>
+      }
+    </div>
+    <div class="welcome-modal ach-unlock-modal" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="achUnlockTitle">
+      <button type="button" class="welcome-close" (click)="closeAchievement()" [attr.aria-label]="'profile.cancel' | translate">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="welcome-icon ach-unlock-icon" aria-hidden="true">
+        @if (ach.isEmoji) { <span class="ach-unlock-emoji">{{ ach.icon }}</span> } @else { <span [innerHTML]="getSvgIcon(ach.icon)"></span> }
+      </div>
+      <span class="welcome-eyebrow">{{ 'memberProfile.dash.achUnlocked' | translate }}</span>
+      <h3 class="welcome-title" id="achUnlockTitle">{{ ach.labelKey | translate:{ n: ach.n } }}</h3>
+      <p class="welcome-sub">{{ 'memberProfile.dash.achUnlockSub' | translate }}</p>
+      <button type="button" class="welcome-cta" (click)="closeAchievement()">{{ 'memberProfile.dash.letsTrain' | translate }}</button>
     </div>
   </div>
 }
