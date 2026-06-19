@@ -36,6 +36,11 @@
           </a>
         </li>
         <li>
+          <a routerLink="/" fragment="membership" class="nav-item-exact">
+            {{ 'header.pricing' | translate }}
+          </a>
+        </li>
+        <li>
           <a routerLink="/contact" routerLinkActive="text-lime-active" class="nav-item-exact">
             {{ 'header.contact' | translate }}
           </a>
@@ -194,6 +199,9 @@
     </a>
     <a routerLink="/about" routerLinkActive="text-lime-active" class="mobile-link" (click)="closeMobileMenu()">
       {{ 'header.about' | translate }}
+    </a>
+    <a routerLink="/" fragment="membership" class="mobile-link" (click)="closeMobileMenu()">
+      {{ 'header.pricing' | translate }}
     </a>
     <a routerLink="/contact" routerLinkActive="text-lime-active" class="mobile-link" (click)="closeMobileMenu()">
       {{ 'header.contact' | translate }}
