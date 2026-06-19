@@ -106,15 +106,18 @@
 
       @if (historySubscriptions().length > 0) {
         <div class="history-grid">
-          @for (sub of historySubscriptions(); track sub.id) {
+          @for (sub of paginatedHistorySubscriptions(); track sub.id) {
             <div class="history-card">
               <div class="history-card-header">
                 <div class="plan-name">{{ getPlanName(sub) }}</div>
                 <span
                   class="status-indicator"
-                  [class.cancelled]="sub.status.toLowerCase() === 'cancelled'"
+                  [class.status-active]="sub.status.toLowerCase() === 'active'"
+                  [class.status-pending]="sub.status.toLowerCase() === 'pending'"
+                  [class.status-expired]="sub.status.toLowerCase() === 'expired'"
+                  [class.status-cancelled]="sub.status.toLowerCase() === 'cancelled'"
                 >
-                  {{ sub.status | uppercase }}
+                  {{ getStatusKey(sub.status) | translate }}
                 </span>
               </div>
               <div class="history-card-body">
@@ -138,6 +141,40 @@
             </div>
           }
         </div>
+
+        @if (totalPages() > 1) {
+          <div class="pagination-controls">
+            <button
+              class="pagination-btn prev-btn"
+              [disabled]="currentPage() === 1"
+              (click)="prevPage()"
+              [attr.aria-label]="'memberProfile.prev' | translate"
+            >
+              <i class="fas fa-chevron-left"></i>
+            </button>
+
+            <div class="page-numbers">
+              @for (page of pageRange(); track page) {
+                <button
+                  class="pagination-btn page-num-btn"
+                  [class.active]="currentPage() === page"
+                  (click)="setPage(page)"
+                >
+                  {{ page }}
+                </button>
+              }
+            </div>
+
+            <button
+              class="pagination-btn next-btn"
+              [disabled]="currentPage() === totalPages()"
+              (click)="nextPage()"
+              [attr.aria-label]="'memberProfile.next' | translate"
+            >
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        }
       } @else {
         <div class="empty-state">
           <i class="fas fa-history" aria-hidden="true"></i>

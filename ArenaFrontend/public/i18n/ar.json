@@ -834,7 +834,16 @@
     "totalSessions": "إجمالي الحصص",
     "paymentAmount": "مبلغ الدفع",
     "noActiveMembership": "لا توجد عضوية نشطة",
-    "noHistoryFound": "لا يوجد سجل عضويات"
+    "noHistoryFound": "لا يوجد سجل عضويات",
+    "prev": "السابق",
+    "next": "التالي",
+    "status": {
+      "active": "نشط",
+      "pending": "قيد الانتظار",
+      "expired": "منتهية",
+      "cancelled": "ملغية",
+      "unknown": "غير معروف"
+    }
   },
   "nutrition": {
     "searchPlaceholder": "ابحث عن خطة غذائية أو وجبة...",
@@ -865,9 +874,16 @@
     "breakfast": "فطار",
     "lunch": "غداء",
     "dinner": "عشاء",
-    "snack": "سناك"
+    "snack": "سناك",
+    "title": "الخطط الغذائيه",
+    "planCountPrefix": "أفضل الخطط والبرامج الاحترافية المتاحة لك —",
+    "planCountSuffix": "خطة تمرين متاحة"
+
   },
   "workout": {
+    "title": "تمارينك اليومية",
+    "planCountPrefix": "أفضل الخطط والبرامج الاحترافية المتاحة لك —",
+    "planCountSuffix": "خطة تمرين متاحة",
     "searchPlaceholder": "ابحث عن خطة تمرين...",
     "active": "نشطة",
     "tryAgain": "إعادة المحاولة",
@@ -930,8 +946,21 @@
       "core": "الجذع",
       "forearms": "الساعد",
       "fullBody": "الجسم بالكامل",
-      "cardio": "كارديو"
-    }
+      "cardio": "كارديو",
+      "arms":"الاذرع",
+      "obliques": "العضلات الجانبية"
+    },
+    "dayFocus": {
+  "upperBody": "الجزء العلوي",
+  "lowerBodyCore": "الجزء السفلي والجذع",
+  "lowerBody": "الجزء السفلي",
+  "fullBody": "الجسم بالكامل",
+  "push": "دفع",
+  "pull": "سحب",
+  "legs": "الأرجل",
+  "core": "الجذع",
+  "cardio": "كارديو"
+}
   },
   "myBookings": "حجوزاتي",
   "upcoming": "الحجوزات القادمة",
@@ -958,5 +987,7 @@
   "bookingHeroSubtitleLight2": "خطوات صغيرة. نتائج كبيرة.",
   "bookingHeroSubtitleLight3": "حافظ على استمراريتك. ابقَ قوياً.",
   "bookingHeroSubtitleLight4": "التقدم أهم من المثالية.",
-  "bookingHeroSubtitleLight5": "تدرب اليوم. لتتألق غداً."
+  "bookingHeroSubtitleLight5": "تدرب اليوم. لتتألق غداً.",
+  "title" : "التمارين",
+  "planCountPrefix": "أفضل الخطط والبرامج الاحترافية المتاحة لك —"
 }
