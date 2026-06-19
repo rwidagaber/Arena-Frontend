@@ -9,6 +9,104 @@
   <div class="nutrition-content">
 
     @if (view() === 'plans') {
+      <div class="meal-image-analyzer">
+        <div class="meal-image-copy">
+          <span class="meal-image-kicker">{{ t.translate('nutrition.mealImageKicker') }}</span>
+          <h3>{{ t.translate('nutrition.mealImageTitle') }}</h3>
+          <p>{{ t.translate('nutrition.mealImageSubtitle') }}</p>
+        </div>
+
+        <div class="meal-image-controls">
+          <input
+            #mealImageInput
+            id="meal-image-input"
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            class="meal-image-input"
+            (change)="onMealImageSelected($event)"
+          />
+          <label class="meal-image-upload" for="meal-image-input">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            {{ mealImagePreview() ? t.translate('nutrition.changeMealImage') : t.translate('nutrition.uploadMealImage') }}
+          </label>
+          <button
+            class="meal-image-analyze-btn"
+            [disabled]="!selectedMealImage() || mealAnalysisLoading()"
+            (click)="analyzeSelectedMealImage()"
+          >
+            {{ mealAnalysisLoading() ? t.translate('nutrition.analyzingMeal') : t.translate('nutrition.analyzeMeal') }}
+          </button>
+        </div>
+
+        @if (mealImagePreview()) {
+          <div class="meal-image-preview-row">
+            <img [src]="mealImagePreview()" alt="Selected meal" class="meal-image-preview" />
+            <button class="meal-image-clear" (click)="clearMealImageAnalysis(mealImageInput)">
+              {{ t.translate('nutrition.clearMealImage') }}
+            </button>
+          </div>
+        }
+
+        @if (mealAnalysisError()) {
+          <div class="meal-image-error">{{ mealAnalysisError() }}</div>
+        }
+
+        @if (mealAnalysis(); as analysis) {
+          <div class="meal-analysis-result">
+            <div class="meal-analysis-header">
+              <div>
+                <span class="meal-image-kicker">{{ t.translate('nutrition.analysisResult') }}</span>
+                <h4>{{ analysis.mealName || t.translate('nutrition.detectedMeal') }}</h4>
+              </div>
+              <div class="analysis-calories">
+                <strong>{{ analysis.estimatedCalories }}</strong>
+                <span>{{ t.translate('nutrition.kcal') }}</span>
+              </div>
+            </div>
+
+            <p class="meal-analysis-summary">{{ analysis.summary }}</p>
+
+            <div class="meal-analysis-macros">
+              <div class="analysis-macro protein">
+                <span>{{ t.translate('nutrition.protein') }}</span>
+                <strong>{{ analysis.protein.grams }}g</strong>
+                <small>{{ analysis.protein.percentage }}%</small>
+              </div>
+              <div class="analysis-macro carbs">
+                <span>{{ t.translate('nutrition.carbs') }}</span>
+                <strong>{{ analysis.carbs.grams }}g</strong>
+                <small>{{ analysis.carbs.percentage }}%</small>
+              </div>
+              <div class="analysis-macro fat">
+                <span>{{ t.translate('nutrition.fat') }}</span>
+                <strong>{{ analysis.fat.grams }}g</strong>
+                <small>{{ analysis.fat.percentage }}%</small>
+              </div>
+            </div>
+
+            @if (analysis.detectedFoods.length) {
+              <div class="analysis-tags">
+                @for (food of analysis.detectedFoods; track food) {
+                  <span>{{ food }}</span>
+                }
+              </div>
+            }
+
+            @if (analysis.notes.length) {
+              <ul class="analysis-notes">
+                @for (note of analysis.notes; track note) {
+                  <li>{{ note }}</li>
+                }
+              </ul>
+            }
+          </div>
+        }
+      </div>
+
       <div class="search-container">
         <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
           <circle cx="11" cy="11" r="8"></circle>

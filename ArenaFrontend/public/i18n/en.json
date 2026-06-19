@@ -810,7 +810,19 @@
     "breakfast": "Breakfast",
     "lunch": "Lunch",
     "dinner": "Dinner",
-    "snack": "Snack"
+    "snack": "Snack",
+    "mealImageKicker": "Meal scanner",
+    "mealImageTitle": "Analyze your meal photo",
+    "mealImageSubtitle": "Upload a clear meal image and Arena will estimate calories plus protein, carbs, and fat percentages.",
+    "uploadMealImage": "Upload meal image",
+    "changeMealImage": "Change image",
+    "analyzeMeal": "Analyze meal",
+    "analyzingMeal": "Analyzing...",
+    "clearMealImage": "Clear image",
+    "mealImageInvalid": "Please choose a valid image file.",
+    "mealImageError": "Could not analyze this meal image. Please try again.",
+    "analysisResult": "Analysis result",
+    "detectedMeal": "Detected meal"
   },
   "workout": {
     "searchPlaceholder": "Search workout plans...",

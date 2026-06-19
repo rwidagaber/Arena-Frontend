@@ -811,7 +811,19 @@
     "breakfast": "فطار",
     "lunch": "غداء",
     "dinner": "عشاء",
-    "snack": "سناك"
+    "snack": "سناك",
+    "mealImageKicker": "ماسح الوجبة",
+    "mealImageTitle": "حلل صورة وجبتك",
+    "mealImageSubtitle": "ارفع صورة واضحة للوجبة وسيقدر Arena السعرات ونسب البروتين والكربوهيدرات والدهون.",
+    "uploadMealImage": "رفع صورة الوجبة",
+    "changeMealImage": "تغيير الصورة",
+    "analyzeMeal": "تحليل الوجبة",
+    "analyzingMeal": "جارٍ التحليل...",
+    "clearMealImage": "مسح الصورة",
+    "mealImageInvalid": "يرجى اختيار ملف صورة صحيح.",
+    "mealImageError": "تعذر تحليل صورة الوجبة. حاول مرة أخرى.",
+    "analysisResult": "نتيجة التحليل",
+    "detectedMeal": "الوجبة المكتشفة"
   },
   "workout": {
     "searchPlaceholder": "ابحث عن خطة تمرين...",

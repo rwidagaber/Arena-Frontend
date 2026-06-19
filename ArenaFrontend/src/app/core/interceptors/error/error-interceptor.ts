@@ -33,15 +33,13 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   return next(req).pipe(
     catchError((err) => {
 
-      if (err instanceof Error) {
-        // لو الرسالة technical → استبدلها
-        const msg = isTechnical(err.message)
-          ? 'Something went wrong. Please try again.'
-          : err.message;
-        return throwError(() => new Error(msg));
-      }
-
       if (!(err instanceof HttpErrorResponse)) {
+        if (err instanceof Error) {
+          const msg = isTechnical(err.message)
+            ? 'Something went wrong. Please try again.'
+            : err.message;
+          return throwError(() => new Error(msg));
+        }
         return throwError(() => new Error('Something went wrong. Please try again.'));
       }
 
