@@ -84,7 +84,7 @@ export class QrDisplayComponent implements OnInit, OnChanges, OnDestroy {
         if (this.memberProfileId !== requestMemberProfileId) return;
 
         this.bookings = bookings
-          .filter(booking => this.isUpcomingConfirmed(booking))
+          .filter(booking => this.isTodayConfirmedAndActive(booking))
           .sort((a, b) => this.sessionStartsAt(a).getTime() - this.sessionStartsAt(b).getTime());
 
         this.isLoadingBookings = false;
@@ -192,6 +192,10 @@ export class QrDisplayComponent implements OnInit, OnChanges, OnDestroy {
       if (diff <= 0) {
         this.isExpired = true;
         this.timeLeft = 'Expired';
+        this.qrData = null;
+        this.qrImageUrl = '';
+        this.selectedBooking = null;
+        this.loadBookings();
         this.clearTimer();
         return;
       }
@@ -210,10 +214,20 @@ export class QrDisplayComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private isUpcomingConfirmed(booking: BookingDto): boolean {
+  private isTodayConfirmedAndActive(booking: BookingDto): boolean {
     const status = String(booking.status).toLowerCase();
     const isConfirmed = status === '1' || status === 'confirmed';
-    return isConfirmed && this.sessionStartsAt(booking).getTime() >= new Date().setHours(0, 0, 0, 0);
+    const sessionStart = this.sessionStartsAt(booking);
+    const sessionEnd = this.sessionEndsAt(booking);
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const tomorrowStart = new Date(todayStart);
+    tomorrowStart.setDate(tomorrowStart.getDate() + 1);
+
+    return isConfirmed
+      && sessionStart >= todayStart
+      && sessionStart < tomorrowStart
+      && sessionEnd.getTime() > Date.now();
   }
 
   private sessionStartsAt(booking: BookingDto): Date {
@@ -221,6 +235,18 @@ export class QrDisplayComponent implements OnInit, OnChanges, OnDestroy {
     const [hours = 0, minutes = 0, seconds = 0] = booking.startTime.split(':').map(Number);
     date.setHours(hours, minutes, seconds, 0);
     return date;
+  }
+
+  private sessionEndsAt(booking: BookingDto): Date {
+    const end = new Date(booking.bookingDate);
+    const fallbackEnd = this.sessionStartsAt(booking);
+    fallbackEnd.setHours(fallbackEnd.getHours() + 2);
+
+    if (!booking.endTime) return fallbackEnd;
+
+    const [hours = 0, minutes = 0, seconds = 0] = booking.endTime.split(':').map(Number);
+    end.setHours(hours + 2, minutes, seconds, 0);
+    return end;
   }
 
   private formatTime(value: string): string {

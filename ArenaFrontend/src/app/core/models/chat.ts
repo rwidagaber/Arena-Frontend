@@ -45,4 +45,7 @@ export interface ChatResponse {
   sentAt?: string;
   timestamp?: string;
   messages?: ChatMessage[];
+  intent?: string;
+  action?: string;
+  bookingChanged?: boolean;
 }
