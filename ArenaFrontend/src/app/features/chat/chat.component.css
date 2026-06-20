@@ -443,12 +443,69 @@
 }
 
 .chat-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   margin: 0 20px 14px;
   padding: 12px 14px;
   border: 1px solid rgba(255, 95, 95, 0.35);
   border-radius: 8px;
   background: rgba(255, 95, 95, 0.1);
   color: #ffb5b5;
+}
+
+.chat-error-text {
+  min-width: 0;
+}
+
+.chat-error-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+.voice-retry-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 181, 181, 0.5);
+  border-radius: 999px;
+  background: transparent;
+  color: #ffd7d7;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.voice-retry-btn:hover:not(:disabled) {
+  background: rgba(255, 181, 181, 0.16);
+  color: #fff;
+}
+
+.voice-retry-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.voice-dismiss-btn {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(255, 181, 181, 0.8);
+  cursor: pointer;
+}
+
+.voice-dismiss-btn:hover {
+  background: rgba(255, 95, 95, 0.18);
+  color: #fff;
 }
 
 .composer {
@@ -521,9 +578,10 @@
   gap: 14px;
   min-height: 52px;
   padding: 0 18px;
-  border: 1px solid rgba(239, 68, 68, 0.45);
+  border: 1px solid rgba(239, 68, 68, 0.5);
   border-radius: 8px;
-  background: rgba(239, 68, 68, 0.08);
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.18), rgba(239, 68, 68, 0.06));
+  box-shadow: 0 0 22px rgba(239, 68, 68, 0.14);
 }
 
 .rec-dot {
@@ -554,7 +612,8 @@
   width: 4px;
   height: 26px;
   border-radius: 2px;
-  background: #cffe21;
+  background: linear-gradient(180deg, #e6ff5a, #cffe21);
+  box-shadow: 0 0 8px rgba(207, 254, 33, 0.5);
   transform: scaleY(0.15);
   transform-origin: center;
   transition: transform 90ms ease-out;
@@ -579,23 +638,74 @@
 }
 
 .composer .cancel-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(239, 68, 68, 0.22);
+  color: #ffb5b5;
 }
 
-/* --- Voice: transcribing indicator --- */
+/* --- Voice: transcribing indicator ---
+   A normal block bubble (like the assistant bubbles): it shrink-wraps to its content,
+   is capped at 78%, and the label is plain inline text that wraps inside the padding —
+   so it can never sit outside the bubble. The equalizer is an inline element before it. */
 .bubble.typing.transcribing {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  display: block;
+  max-width: min(680px, 78%);
+  line-height: 1.5;
 }
 
-.bubble.typing.transcribing i {
-  color: #cffe21;
-  font-size: 18px;
-  animation: typingPulse 1.1s ease-in-out infinite;
+/* Plain inline text — wraps naturally inside the bubble. The generic `.typing span` rule
+   (lime background + border-radius:50% + pulse) also targets this span, painting a lime
+   oval behind the text, so those are explicitly reset here. */
+.bubble.typing.transcribing .typing-label {
+  vertical-align: middle;
+  white-space: normal;
+  width: auto;
+  height: auto;
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+  animation: none;
+}
+
+/* Animated equalizer — reads as live "listening/processing" while transcribing.
+   Inline-flex so it flows inline before the label; scoped selectors override the generic
+   `.typing span` dot styling that would otherwise turn the bars back into round dots. */
+.bubble.typing.transcribing .transcribe-eq {
+  display: inline-flex;
+  vertical-align: middle;
+  align-items: center;
+  gap: 3px;
+  height: 14px;
+  margin-inline-end: 8px;
+}
+
+.bubble.typing.transcribing .transcribe-eq span {
+  width: 3px;
+  height: 100%;
+  min-width: 3px;
+  border-radius: 999px;
+  background: #cffe21;
+  transform: scaleY(0.35);
+  transform-origin: center;
+  animation: transcribeEq 1s ease-in-out infinite;
+}
+
+.bubble.typing.transcribing .transcribe-eq span:nth-child(2) { animation-delay: 0.15s; }
+.bubble.typing.transcribing .transcribe-eq span:nth-child(3) { animation-delay: 0.3s; }
+.bubble.typing.transcribing .transcribe-eq span:nth-child(4) { animation-delay: 0.45s; }
+.bubble.typing.transcribing .transcribe-eq span:nth-child(5) { animation-delay: 0.6s; }
+
+@keyframes transcribeEq {
+  0%, 100% { transform: scaleY(0.35); opacity: 0.65; }
+  50% { transform: scaleY(1); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bubble.typing.transcribing .transcribe-eq span { animation-duration: 2s; }
 }
 
 .typing-label {
+  flex: 0 0 auto;
+  white-space: nowrap;
   font-size: 13px;
   color: rgba(255, 255, 255, 0.75);
 }
@@ -609,40 +719,91 @@
   padding: 2px 9px;
   border-radius: 999px;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.02em;
-  background: rgba(207, 254, 33, 0.15);
-  color: #cffe21;
+  background: rgba(12, 15, 23, 0.12);
+  color: #0c0f17;
 }
 
-.voice-clip {
-  display: block;
-  width: 100%;
-  max-width: 240px;
-  height: 36px;
-  margin-top: 8px;
-}
-
-/* --- Voice: read reply aloud (TTS) --- */
-.speak-btn {
-  display: inline-flex;
+/* Custom voice-note player (sits inside the lime user bubble) */
+.voice-note {
+  display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 10px;
+  width: 100%;
+  max-width: 268px;
   margin-top: 10px;
-  padding: 5px 11px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  padding: 7px 13px 7px 7px;
   border-radius: 999px;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 12px;
-  cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  background: rgba(12, 15, 23, 0.1);
 }
 
-.speak-btn:hover,
-.speak-btn.speaking {
+.vn-audio {
+  display: none;
+}
+
+.vn-play {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  background: #0c0f17;
   color: #cffe21;
-  border-color: rgba(207, 254, 33, 0.6);
+  font-size: 16px;
+  transition: transform 0.12s ease;
+}
+
+.vn-play:hover {
+  transform: scale(1.07);
+}
+
+.voice-note.playing .vn-play {
+  animation: vnPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes vnPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(12, 15, 23, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(12, 15, 23, 0);
+  }
+}
+
+.vn-wave {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 28px;
+  min-width: 0;
+}
+
+.vn-wave span {
+  flex: 1;
+  min-width: 2px;
+  border-radius: 2px;
+  background: rgba(12, 15, 23, 0.26);
+  transition: background 0.1s linear;
+}
+
+.vn-wave span.filled {
+  background: #0c0f17;
+}
+
+.vn-time {
+  flex: 0 0 auto;
+  min-width: 32px;
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(12, 15, 23, 0.78);
+  text-align: right;
 }
 
 @media (max-width: 900px) {

@@ -104,7 +104,35 @@
                 <i class="bi bi-mic-fill"></i> Voice
               </span>
               <p>{{ message.content }}</p>
-              <audio *ngIf="message.audioUrl" class="voice-clip" controls [src]="message.audioUrl"></audio>
+
+              <div *ngIf="message.audioUrl" class="voice-note" [class.playing]="isClipPlaying(message)">
+                <button
+                  type="button"
+                  class="vn-play"
+                  (click)="toggleClip(clipAudio, message)"
+                  [attr.aria-label]="isClipPlaying(message) ? 'Pause voice note' : 'Play voice note'"
+                >
+                  <i [class]="isClipPlaying(message) ? 'bi bi-pause-fill' : 'bi bi-play-fill'"></i>
+                </button>
+                <div class="vn-wave" aria-hidden="true">
+                  <span
+                    *ngFor="let bar of playerBars; let i = index"
+                    [class.filled]="clipBarFilled(message, i)"
+                    [style.height.%]="bar * 100"
+                  ></span>
+                </div>
+                <span class="vn-time">{{ formatDuration(isClipPlaying(message) ? clipElapsed : clipDurationOf(message)) }}</span>
+                <audio
+                  #clipAudio
+                  class="vn-audio"
+                  preload="metadata"
+                  [src]="message.audioUrl"
+                  (loadedmetadata)="onClipMeta(message, clipAudio)"
+                  (durationchange)="onClipMeta(message, clipAudio)"
+                  (timeupdate)="onClipTime(message, clipAudio)"
+                  (ended)="onClipEnded(message)"
+                ></audio>
+              </div>
             </ng-container>
             <ng-template #assistantResponse>
               <ng-container *ngFor="let block of formatMessage(message.content)">
@@ -117,17 +145,6 @@
                   <li *ngFor="let item of block.items ?? []">{{ item }}</li>
                 </ol>
               </ng-container>
-              <button
-                type="button"
-                class="speak-btn"
-                [class.speaking]="speakingMessage === message"
-                (click)="toggleSpeak(message)"
-                [attr.aria-label]="speakingMessage === message ? 'Stop reading aloud' : 'Read reply aloud'"
-                [title]="speakingMessage === message ? 'Stop' : 'Read aloud'"
-              >
-                <i [class]="speakingMessage === message ? 'bi bi-stop-circle' : 'bi bi-volume-up'"></i>
-                <span>{{ speakingMessage === message ? 'Stop' : 'Listen' }}</span>
-              </button>
             </ng-template>
             <time>{{ message.createdAt | date: 'shortTime' }}</time>
           </div>
@@ -139,7 +156,9 @@
           </div>
           <div class="bubble typing" [class.transcribing]="transcribing">
             <ng-container *ngIf="transcribing; else typingDots">
-              <i class="bi bi-soundwave"></i>
+              <div class="transcribe-eq" aria-hidden="true">
+                <span></span><span></span><span></span><span></span><span></span>
+              </div>
               <span class="typing-label">Transcribing your voice…</span>
             </ng-container>
             <ng-template #typingDots>
@@ -151,7 +170,28 @@
         </article>
       </div>
 
-      <p *ngIf="error" class="chat-error">{{ error }}</p>
+      <div *ngIf="error" class="chat-error">
+        <span class="chat-error-text">{{ error }}</span>
+        <span *ngIf="voiceRetry" class="chat-error-actions">
+          <button
+            type="button"
+            class="voice-retry-btn"
+            (click)="retryVoice()"
+            [disabled]="transcribing || sending"
+          >
+            <i class="bi bi-arrow-clockwise"></i> Retry
+          </button>
+          <button
+            type="button"
+            class="voice-dismiss-btn"
+            (click)="dismissVoiceRetry()"
+            aria-label="Dismiss"
+            title="Dismiss"
+          >
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </span>
+      </div>
 
       <form class="composer" [class.is-recording]="recording" (ngSubmit)="send()">
         <textarea
