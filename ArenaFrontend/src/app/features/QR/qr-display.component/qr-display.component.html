@@ -44,8 +44,8 @@
     <div class="qr-header">
       <div>
         <span class="eyebrow">Session access</span>
-        <h1>Upcoming session QR codes</h1>
-        <p>Choose a confirmed upcoming session and show the QR at check-in.</p>
+        <h1>Today session QR codes</h1>
+        <p>Choose a confirmed session for today and show the QR at check-in.</p>
       </div>
       <div class="qr-status-pill">
         <span></span>
@@ -60,7 +60,7 @@
     <div class="qr-grid">
       <aside class="session-panel">
         <div class="panel-heading">
-          <h2>Upcoming sessions</h2>
+          <h2>Today sessions</h2>
           @if (isLoadingBookings) {
             <span>Loading...</span>
           } @else {
@@ -81,8 +81,8 @@
                 <path d="M3 10h18" />
               </svg>
             </div>
-            <h3>No upcoming sessions</h3>
-            <p>Confirmed bookings will appear here automatically.</p>
+            <h3>No QR codes available today</h3>
+            <p>Confirmed bookings appear here only on the booking day.</p>
           </div>
         } @else {
           <div class="session-list">

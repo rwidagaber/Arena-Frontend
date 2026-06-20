@@ -108,6 +108,211 @@
 
 .nutrition-content { padding: 24px 32px; }
 
+.meal-image-analyzer {
+  background: var(--n-card);
+  border: 1px solid var(--n-card-border);
+  border-radius: 18px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 24px var(--n-card-shadow);
+}
+
+.meal-image-copy { margin-bottom: 16px; }
+
+.meal-image-kicker {
+  display: inline-flex;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.meal-image-copy h3,
+.meal-analysis-header h4 {
+  color: var(--n-text);
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.meal-image-copy p,
+.meal-analysis-summary {
+  color: var(--n-text-muted);
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.meal-image-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.meal-image-input { display: none; }
+
+.meal-image-upload,
+.meal-image-analyze-btn,
+.meal-image-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 100px;
+  height: 42px;
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.meal-image-upload {
+  color: var(--n-text);
+  background: var(--n-surface);
+  border: 1px solid var(--n-border);
+}
+
+.meal-image-upload:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.meal-image-analyze-btn {
+  color: #0b0c0c;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+.meal-image-analyze-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.meal-image-preview-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.meal-image-preview {
+  width: 140px;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--n-border);
+}
+
+.meal-image-clear {
+  color: var(--n-text-muted);
+  background: transparent;
+  border: 1px solid var(--n-border);
+}
+
+.meal-image-clear:hover {
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+.meal-image-error {
+  margin-top: 14px;
+  color: #ef4444;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.meal-analysis-result {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--n-border);
+}
+
+.meal-analysis-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.analysis-calories {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  color: var(--n-text);
+}
+
+.analysis-calories strong {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.analysis-calories span {
+  color: var(--n-text-muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.meal-analysis-macros {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.analysis-macro {
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid transparent;
+}
+
+.analysis-macro span,
+.analysis-macro small {
+  font-size: 11px;
+  color: var(--n-text-muted);
+  font-weight: 700;
+}
+
+.analysis-macro strong {
+  color: var(--n-text);
+  font-size: 18px;
+}
+
+.analysis-macro.protein { background: rgba(99,102,241,0.08); border-color: rgba(99,102,241,0.15); }
+.analysis-macro.carbs { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.15); }
+.analysis-macro.fat { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.15); }
+
+.analysis-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.analysis-tags span {
+  background: var(--n-ing-bg);
+  color: var(--n-ing-text);
+  border-radius: 100px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.analysis-notes {
+  margin: 14px 0 0;
+  padding-left: 18px;
+  color: var(--n-text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 /* ==========================================================================
    ── 2. Loading Skeletons ──
    ========================================================================== */
@@ -679,6 +884,7 @@
   .nutrition-page-header { height: 90px; }
   .search-container { max-width: 100%; margin-bottom: 16px; }
   .nutrition-content { padding: 16px; }
+  .meal-analysis-header { align-items: flex-start; }
   .meal-cal-num { font-size: 42px; }
 }
 
@@ -689,6 +895,10 @@
   .plan-hero-img { width: 100%; }
   .modern-meals-grid { grid-template-columns: 1fr; }
   .meal-macro-grid { gap: 8px; }
+  .meal-analysis-macros { grid-template-columns: 1fr; }
+  .meal-image-upload,
+  .meal-image-analyze-btn,
+  .meal-image-clear { width: 100%; }
 }
 
 /* ==========================================================================
