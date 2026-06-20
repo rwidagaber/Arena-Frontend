@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { AuthService } from '../../core/services/auth';
+import { BookingEventsService } from '../../core/services/booking-events.service';
 import { ChatService } from '../../core/services/chat.service';
 import { ChatConversation, ChatMessage, ChatMessageBlock, ChatResponse } from '../../core/models/chat';
 // import { HeaderComponent } from '../../shared/header/header';
@@ -21,6 +22,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private readonly chatService = inject(ChatService);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly bookingEvents = inject(BookingEventsService);
 
   messages: ChatMessage[] = [];
   conversations: ChatConversation[] = [];
@@ -615,6 +617,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   private handleResponse(response: ChatResponse): void {
     this.conversationId = response.conversationId ?? this.conversationId;
+
+    if (response.bookingChanged) {
+      this.bookingEvents.notifyBookingsChanged();
+    }
 
     if (response.messages?.length) {
       this.messages = response.messages;
