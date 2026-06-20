@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewChecked, Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
+import { AfterViewChecked, Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
@@ -16,13 +16,14 @@ import { ChatConversation, ChatMessage, ChatMessageBlock, ChatResponse } from '.
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.css'],
 })
-export class ChatComponent implements OnInit, AfterViewChecked {
+export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('messagesViewport') private messagesViewport?: ElementRef<HTMLDivElement>;
 
   private readonly chatService = inject(ChatService);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly bookingEvents = inject(BookingEventsService);
+  private readonly zone = inject(NgZone);
 
   messages: ChatMessage[] = [];
   conversations: ChatConversation[] = [];
@@ -30,11 +31,30 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   loadingHistory = true;
   loadingConversations = true;
   sending = false;
+  recording = false;
+  transcribing = false;
   creatingChat = false;
   deletingConversationId = '';
   error = '';
   conversationId?: string;
   memberProfileId = '';
+
+  // Voice recording UX state
+  recordingSeconds = 0;
+  audioLevel = 0;
+  speakingMessage?: ChatMessage;
+  readonly maxRecordingSeconds = 60;
+  readonly waveBars = [0.45, 0.75, 1, 0.75, 0.45];
+
+  private mediaRecorder?: MediaRecorder;
+  private audioChunks: Blob[] = [];
+  private mediaStream?: MediaStream;
+  private recordingTimer?: ReturnType<typeof setInterval>;
+  private audioContext?: AudioContext;
+  private analyser?: AnalyserNode;
+  private levelRaf?: number;
+  private cancelled = false;
+  private readonly objectUrls: string[] = [];
 
   readonly quickPrompts = [
     'Build me a balanced workout plan',
@@ -194,6 +214,230 @@ export class ChatComponent implements OnInit, AfterViewChecked {
       });
   }
 
+  toggleRecording(): void {
+    if (this.recording) {
+      this.stopRecording();
+    } else {
+      void this.startRecording();
+    }
+  }
+
+  private async startRecording(): Promise<void> {
+    if (this.sending || this.transcribing) {
+      return;
+    }
+
+    if (!this.memberProfileId) {
+      this.error = 'Please complete your profile before using chat.';
+      return;
+    }
+
+    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
+      this.error = 'Voice recording is not supported in this browser.';
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      this.mediaStream = stream;
+      this.audioChunks = [];
+      this.cancelled = false;
+      this.mediaRecorder = new MediaRecorder(stream);
+
+      this.mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          this.audioChunks.push(event.data);
+        }
+      };
+
+      this.mediaRecorder.onstop = () => {
+        this.teardownRecording();
+        stream.getTracks().forEach((track) => track.stop());
+        const blob = new Blob(this.audioChunks, { type: 'audio/webm' });
+
+        if (this.cancelled) {
+          this.cancelled = false;
+          return;
+        }
+
+        if (blob.size > 0) {
+          this.sendVoice(blob);
+        }
+      };
+
+      this.mediaRecorder.start();
+      this.recording = true;
+      this.recordingSeconds = 0;
+      this.error = '';
+      this.startTimer();
+      this.startLevelMeter(stream);
+    } catch {
+      this.error = 'Microphone access was blocked. Please allow it and try again.';
+    }
+  }
+
+  private stopRecording(): void {
+    if (this.mediaRecorder && this.recording) {
+      this.mediaRecorder.stop();
+      this.recording = false;
+    }
+  }
+
+  /** Stop recording and throw the clip away without sending it. */
+  cancelRecording(): void {
+    if (this.mediaRecorder && this.recording) {
+      this.cancelled = true;
+      this.mediaRecorder.stop();
+      this.recording = false;
+      this.recordingSeconds = 0;
+    }
+  }
+
+  formatDuration(totalSeconds: number): string {
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  }
+
+  /** Read an assistant reply aloud (browser text-to-speech). */
+  toggleSpeak(message: ChatMessage): void {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      this.error = 'Text-to-speech is not supported in this browser.';
+      return;
+    }
+
+    if (this.speakingMessage === message) {
+      this.stopSpeaking();
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(this.cleanForSpeech(message.content));
+    const clear = () => this.zone.run(() => {
+      if (this.speakingMessage === message) {
+        this.speakingMessage = undefined;
+      }
+    });
+    utterance.onend = clear;
+    utterance.onerror = clear;
+    this.speakingMessage = message;
+    window.speechSynthesis.speak(utterance);
+  }
+
+  stopSpeaking(): void {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    this.speakingMessage = undefined;
+  }
+
+  private startTimer(): void {
+    this.recordingTimer = setInterval(() => {
+      this.recordingSeconds += 1;
+      if (this.recordingSeconds >= this.maxRecordingSeconds) {
+        this.stopRecording();
+      }
+    }, 1000);
+  }
+
+  private startLevelMeter(stream: MediaStream): void {
+    try {
+      const AudioCtx = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      this.audioContext = new AudioCtx();
+      const source = this.audioContext.createMediaStreamSource(stream);
+      this.analyser = this.audioContext.createAnalyser();
+      this.analyser.fftSize = 256;
+      source.connect(this.analyser);
+
+      const data = new Uint8Array(this.analyser.frequencyBinCount);
+      const tick = () => {
+        if (!this.analyser) {
+          return;
+        }
+        this.analyser.getByteTimeDomainData(data);
+        let sum = 0;
+        for (let i = 0; i < data.length; i += 1) {
+          const v = (data[i] - 128) / 128;
+          sum += v * v;
+        }
+        const rms = Math.sqrt(sum / data.length);
+        this.audioLevel = Math.min(1, rms * 3.2);
+        this.levelRaf = requestAnimationFrame(tick);
+      };
+      tick();
+    } catch {
+      // Level meter is optional — recording still works without it.
+    }
+  }
+
+  private teardownRecording(): void {
+    if (this.recordingTimer) {
+      clearInterval(this.recordingTimer);
+      this.recordingTimer = undefined;
+    }
+    if (this.levelRaf) {
+      cancelAnimationFrame(this.levelRaf);
+      this.levelRaf = undefined;
+    }
+    this.analyser = undefined;
+    if (this.audioContext) {
+      void this.audioContext.close().catch(() => undefined);
+      this.audioContext = undefined;
+    }
+    this.audioLevel = 0;
+  }
+
+  private cleanForSpeech(text: string): string {
+    return text
+      // strip markdown emphasis / heading markers
+      .replace(/[#*_`>]/g, '')
+      // strip emoji & pictographs (incl. flags, skin tones, variation selectors, ZWJ, keycaps)
+      .replace(
+        /[\p{Extended_Pictographic}\u{1F1E6}-\u{1F1FF}\u{1F3FB}-\u{1F3FF}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}]/gu,
+        ''
+      )
+      // collapse the whitespace left behind
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  private sendVoice(blob: Blob): void {
+    this.transcribing = true;
+    this.error = '';
+
+    const audioUrl = URL.createObjectURL(blob);
+    this.objectUrls.push(audioUrl);
+
+    const formData = new FormData();
+    formData.append('audio', blob, 'voice-command.webm');
+    formData.append('memberProfileId', this.memberProfileId);
+
+    if (this.conversationId) {
+      formData.append('conversationId', this.conversationId);
+    }
+
+    this.chatService
+      .sendVoiceMessage(formData)
+      .pipe(finalize(() => (this.transcribing = false)))
+      .subscribe({
+        next: (response) => {
+          const transcript = response.transcript?.trim();
+
+          if (transcript) {
+            this.messages = [
+              ...this.messages,
+              this.createMessage('user', transcript, { isVoice: true, audioUrl }),
+            ];
+          }
+
+          this.handleResponse(response);
+        },
+        error: (err: Error) => {
+          this.error = err.message || 'Could not process your voice note. Please try again.';
+        },
+      });
+  }
+
   trackMessage(index: number, message: ChatMessage): string {
     return message.id ?? `${message.sender}-${message.createdAt}-${index}`;
   }
@@ -297,12 +541,24 @@ export class ChatComponent implements OnInit, AfterViewChecked {
     );
   }
 
-  private createMessage(sender: ChatMessage['sender'], content: string): ChatMessage {
+  private createMessage(
+    sender: ChatMessage['sender'],
+    content: string,
+    extra: Partial<ChatMessage> = {}
+  ): ChatMessage {
     return {
       sender,
       content,
       createdAt: new Date().toISOString(),
+      ...extra,
     };
+  }
+
+  ngOnDestroy(): void {
+    this.stopSpeaking();
+    this.teardownRecording();
+    this.mediaStream?.getTracks().forEach((track) => track.stop());
+    this.objectUrls.forEach((url) => URL.revokeObjectURL(url));
   }
 
   private scrollToBottom(): void {

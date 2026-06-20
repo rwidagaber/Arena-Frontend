@@ -5,7 +5,8 @@ import { NutritionPlanDto, MealDto, MealImageAnalysisDto } from '../../../core/m
 import { ThemeService } from '../../../core/services/themeservice';
 type View = 'plans' | 'plan-detail' | 'meal-detail';
 import { TranslationService } from '../../../core/services/translation.service';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
+import { catchError, of } from 'rxjs';
 
 @Component({
   selector: 'app-nutritionplan',
@@ -16,14 +17,13 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 })
 export class Nutritionplan implements OnInit {
   private nutritionService = inject(NutritionService);
-  private themeservice = inject(ThemeService);
-  private translate = inject(TranslationService);
-  readonly t        = inject(TranslationService);
+  private themeservice     = inject(ThemeService);
+  readonly t               = inject(TranslationService);
 
   memberProfileId = input<string>('');
 
-  
-  plans        = signal<NutritionPlanDto[]>([]);
+  // ── State ─────────────────────────────────────────────────────────────────────
+  allPlans     = signal<NutritionPlanDto[]>([]); // كل الداتا من الـ API مرة واحدة
   selectedPlan = signal<NutritionPlanDto | null>(null);
   selectedMeal = signal<MealDto | null>(null);
   loading      = signal(true);
@@ -35,26 +35,27 @@ export class Nutritionplan implements OnInit {
   mealAnalysisLoading = signal(false);
   mealAnalysisError = signal<string | null>(null);
 
-  // ── Search & Filter ────────────────────────────────
+  // ── Search & Filter ───────────────────────────────────────────────────────────
   searchQuery    = signal('');
   showActiveOnly = signal(false);
 
+  // ── Filtered (بدون API call) ──────────────────────────────────────────────────
   filteredPlans = computed(() => {
     const q = this.searchQuery().toLowerCase().trim();
-    let result = this.plans();
+    let result = this.allPlans();
 
     if (this.showActiveOnly()) {
-      result = result.filter(plan => plan.isActive);
+      result = result.filter(p => p.isActive);
     }
 
     if (q) {
-      result = result.filter(plan =>
-        plan.dailyCalories.toString().includes(q) ||
-        `diet plan ${plan.dailyCalories}`.toLowerCase().includes(q) ||
-        plan.meals.some(meal =>
-          meal.name.toLowerCase().includes(q) ||
-          meal.mealType.toLowerCase().includes(q) ||
-          meal.ingredients.toLowerCase().includes(q)
+      result = result.filter(p =>
+        p.dailyCalories.toString().includes(q) ||
+        `diet plan ${p.dailyCalories}`.toLowerCase().includes(q) ||
+        p.meals.some(m =>
+          m.name.toLowerCase().includes(q) ||
+          m.mealType.toLowerCase().includes(q) ||
+          m.ingredients.toLowerCase().includes(q)
         )
       );
     }
@@ -62,7 +63,39 @@ export class Nutritionplan implements OnInit {
     return result;
   });
 
-  // ── Meal Type Tabs ─────────────────────────────────
+  // ── Pagination (frontend-only) ────────────────────────────────────────────────
+  currentPage = signal(0);
+  readonly pageSize = 8;
+
+  totalPages = computed(() =>
+    Math.max(1, Math.ceil(this.filteredPlans().length / this.pageSize))
+  );
+
+  paginatedPlans = computed(() => {
+    const start = this.currentPage() * this.pageSize;
+    return this.filteredPlans().slice(start, start + this.pageSize);
+  });
+
+  // reset الصفحة لما يتغير الـ search أو الـ filter — بدون API call
+  private resetPageOnFilter = effect(() => {
+    this.searchQuery();
+    this.showActiveOnly();
+    this.currentPage.set(0);
+  });
+
+  goToPage(page: number): void {
+    if (page >= 0 && page < this.totalPages()) {
+      this.currentPage.set(page);
+      // scroll للأعلى عشان تجربة أحسن
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  pageArray(): number[] {
+    return Array.from({ length: this.totalPages() }, (_, i) => i);
+  }
+
+  // ── Meal Type Tabs ────────────────────────────────────────────────────────────
   activeMealTab = signal<string>('all');
 
   mealTabs = computed(() => {
@@ -77,13 +110,11 @@ export class Nutritionplan implements OnInit {
     if (!plan) return [];
     const tab = this.activeMealTab();
     if (tab === 'all') return plan.meals;
-    return plan.meals.filter(m =>
-      m.mealType.toLowerCase() === tab.toLowerCase()
-    );
+    return plan.meals.filter(m => m.mealType.toLowerCase() === tab.toLowerCase());
   });
 
-  // ── Plan Images ────────────────────────────────────
-  planImages: string[] = [
+  // ── Plan Images ───────────────────────────────────────────────────────────────
+  private readonly planImages: string[] = [
     'assets/images/veg.jpg',
     'assets/images/nut.png',
     'assets/images/fruit.png',
@@ -91,49 +122,74 @@ export class Nutritionplan implements OnInit {
     'assets/images/dinner.jpg',
     'assets/images/lunch.jpg',
     'assets/images/fruit.jpg',
+    'assets/images/all.jpeg'
+
   ];
-  langSub: any;
 
   getPlanImage(index: number): string {
     return this.planImages[index % this.planImages.length];
   }
 
-  // ── Lifecycle ──────────────────────────────────────
-  ngOnInit(): void {
-    this.loadPlans();
+  // ── Theme ─────────────────────────────────────────────────────────────────────
+  isDarkMode = computed(() => this.themeservice.isDark);
+
+  // ── Animated Counter ──────────────────────────────────────────────────────────
+  animatedCount = signal<number>(0);
+
+  startCounter(target: number): void {
+    this.animatedCount.set(0);
+    if (target === 0) return;
+
+    const steps    = 50;
+    const stepTime = 1500 / steps;
+    const increment = target / steps;
+    let current = 0;
+
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= target) {
+        this.animatedCount.set(target);
+        clearInterval(timer);
+      } else {
+        this.animatedCount.set(Math.ceil(current));
+      }
+    }, stepTime);
   }
 
- 
+  // ── Lifecycle ─────────────────────────────────────────────────────────────────
+  ngOnInit(): void {
+    this.loadData();
+  }
 
- isDarkMode = computed(() => this.themeservice.isDark);
-
-  loadPlans(): void {
+  // جيب الداتا مرة واحدة بس — الـ pagination والـ filter شغالين على الـ frontend
+  loadData(): void {
     this.loading.set(true);
     this.error.set(null);
-    this.nutritionService.getMyPlans().subscribe({
-      next: (plans) => {
-        this.plans.set(plans);
+
+    this.nutritionService.getMyPlans().pipe(
+      catchError(() => {
+        this.error.set(this.t.translate('nutrition.loadError'));
+        return of([]);
+      })
+    ).subscribe(plans => {
+      this.allPlans.set(plans);
       this.loading.set(false);
-      },
-      error: () => {
-        this.error.set('Failed to load nutrition plans');
-        this.loading.set(false);
-      }
+      setTimeout(() => this.startCounter(plans.length), 300);
     });
   }
 
-  // ── Navigation ─────────────────────────────────────
+  // retry button في الـ template بيستخدم loadPlans
+  loadPlans(): void {
+    this.loadData();
+  }
+
+  // ── Navigation ────────────────────────────────────────────────────────────────
   openPlan(plan: NutritionPlanDto): void {
     this.selectedPlan.set(plan);
     this.selectedMeal.set(null);
-    this.activeMealTab.set('all'); // ✅ reset tab
+    this.activeMealTab.set('all');
     this.view.set('plan-detail');
   }
-
-  // openMeal(meal: MealDto): void {
-  //   this.selectedMeal.set(meal);
-  //   this.view.set('meal-detail');
-  // }
 
   goBack(): void {
     if (this.view() === 'meal-detail') {
@@ -146,7 +202,7 @@ export class Nutritionplan implements OnInit {
     }
   }
 
-  // ── Helpers ────────────────────────────────────────
+  // ── Helpers ───────────────────────────────────────────────────────────────────
   getMealTypeColor(type: string): string {
     const t = type?.toLowerCase();
     if (t === 'breakfast') return 'meal-breakfast';
@@ -154,7 +210,8 @@ export class Nutritionplan implements OnInit {
     if (t === 'dinner')    return 'meal-dinner';
     return 'meal-snack';
   }
-private mealTypeKeyMap: Record<string, string> = {
+
+  private readonly mealTypeKeyMap: Record<string, string> = {
     breakfast: 'nutrition.breakfast',
     lunch:     'nutrition.lunch',
     dinner:    'nutrition.dinner',
