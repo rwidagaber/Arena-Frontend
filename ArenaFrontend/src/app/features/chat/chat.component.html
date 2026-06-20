@@ -100,11 +100,7 @@
           </div>
           <div class="bubble" [class.rich-response]="message.sender !== 'user'">
             <ng-container *ngIf="message.sender === 'user'; else assistantResponse">
-              <span *ngIf="message.isVoice" class="voice-tag">
-                <i class="bi bi-mic-fill"></i> Voice
-              </span>
               <p>{{ message.content }}</p>
-              <audio *ngIf="message.audioUrl" class="voice-clip" controls [src]="message.audioUrl"></audio>
             </ng-container>
             <ng-template #assistantResponse>
               <ng-container *ngFor="let block of formatMessage(message.content)">
@@ -117,98 +113,35 @@
                   <li *ngFor="let item of block.items ?? []">{{ item }}</li>
                 </ol>
               </ng-container>
-              <button
-                type="button"
-                class="speak-btn"
-                [class.speaking]="speakingMessage === message"
-                (click)="toggleSpeak(message)"
-                [attr.aria-label]="speakingMessage === message ? 'Stop reading aloud' : 'Read reply aloud'"
-                [title]="speakingMessage === message ? 'Stop' : 'Read aloud'"
-              >
-                <i [class]="speakingMessage === message ? 'bi bi-stop-circle' : 'bi bi-volume-up'"></i>
-                <span>{{ speakingMessage === message ? 'Stop' : 'Listen' }}</span>
-              </button>
             </ng-template>
             <time>{{ message.createdAt | date: 'shortTime' }}</time>
           </div>
         </article>
 
-        <article *ngIf="sending || transcribing" class="message-row">
+        <article *ngIf="sending" class="message-row">
           <div class="avatar" aria-hidden="true">
             <i class="bi bi-stars"></i>
           </div>
-          <div class="bubble typing" [class.transcribing]="transcribing">
-            <ng-container *ngIf="transcribing; else typingDots">
-              <i class="bi bi-soundwave"></i>
-              <span class="typing-label">Transcribing your voice…</span>
-            </ng-container>
-            <ng-template #typingDots>
-              <span></span>
-              <span></span>
-              <span></span>
-            </ng-template>
+          <div class="bubble typing">
+            <span></span>
+            <span></span>
+            <span></span>
           </div>
         </article>
       </div>
 
       <p *ngIf="error" class="chat-error">{{ error }}</p>
 
-      <form class="composer" [class.is-recording]="recording" (ngSubmit)="send()">
+      <form class="composer" (ngSubmit)="send()">
         <textarea
-          *ngIf="!recording"
           name="message"
           [(ngModel)]="draft"
           rows="1"
           placeholder="Message Arena assistant..."
           aria-label="Message Arena assistant"
-          [disabled]="sending || transcribing || !memberProfileId"
+          [disabled]="sending || !memberProfileId"
         ></textarea>
-
-        <div *ngIf="recording" class="recording-bar" role="status" aria-live="polite">
-          <span class="rec-dot" aria-hidden="true"></span>
-          <span class="rec-time">{{ formatDuration(recordingSeconds) }}</span>
-          <div class="rec-wave" aria-hidden="true">
-            <span
-              *ngFor="let bar of waveBars"
-              [style.transform]="'scaleY(' + (0.15 + audioLevel * bar) + ')'"
-            ></span>
-          </div>
-          <span class="rec-hint">
-            {{ recordingSeconds >= maxRecordingSeconds - 10
-              ? 'Max ' + formatDuration(maxRecordingSeconds)
-              : 'Listening…' }}
-          </span>
-        </div>
-
-        <button
-          *ngIf="recording"
-          type="button"
-          class="cancel-btn"
-          (click)="cancelRecording()"
-          aria-label="Discard recording"
-          title="Discard recording"
-        >
-          <i class="bi bi-x-lg"></i>
-        </button>
-
-        <button
-          type="button"
-          class="mic-btn"
-          [class.recording]="recording"
-          (click)="toggleRecording()"
-          [disabled]="sending || transcribing || !memberProfileId"
-          [attr.aria-label]="recording ? 'Stop recording and send' : 'Record voice command'"
-          [title]="recording ? 'Stop & send' : 'Record voice command'"
-        >
-          <i [class]="recording ? 'bi bi-stop-fill' : 'bi bi-mic-fill'"></i>
-        </button>
-
-        <button
-          *ngIf="!recording"
-          type="submit"
-          [disabled]="!draft.trim() || sending || transcribing || !memberProfileId"
-          aria-label="Send message"
-        >
+        <button type="submit" [disabled]="!draft.trim() || sending || !memberProfileId" aria-label="Send message">
           <i class="bi bi-send-fill"></i>
         </button>
       </form>

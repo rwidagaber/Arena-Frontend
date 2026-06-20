@@ -1,5 +1,5 @@
 import {
-  Component, OnInit, inject, signal, computed, effect,
+  Component, OnInit, inject, signal, computed,
   ChangeDetectionStrategy, input,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -36,32 +36,6 @@ export class WorkoutComponent implements OnInit {
   loading          = signal(true);
   error            = signal<string | null>(null);
 
-  // ── Animated counter ──────────────────────────────────────────────────────────
-  animatedCount = signal<number>(0);
-
-  startCounter(target: number) {
-    this.animatedCount.set(0);
-    if (target === 0) return;
-
-    const duration = 1500;
-    const steps = 50;
-    const stepTime = duration / steps;
-    const increment = target / steps;
-
-    let currentCount = 0;
-
-    const timer = setInterval(() => {
-      currentCount += increment;
-
-      if (currentCount >= target) {
-        this.animatedCount.set(target);
-        clearInterval(timer);
-      } else {
-        this.animatedCount.set(Math.ceil(currentCount));
-      }
-    }, stepTime);
-  }
-
   // ── Filters ───────────────────────────────────────────────────────────────────
   searchQuery    = signal('');
   showActiveOnly = signal(false);
@@ -74,33 +48,6 @@ export class WorkoutComponent implements OnInit {
       const matchActive = !active || p.isActive;
       return matchSearch && matchActive;
     });
-  });
-
-  // ── Pagination ────────────────────────────────────────────────────────────────
-  currentPage = signal(0);
-  pageSize = 8;
-
-  totalPages = computed(() => Math.max(1, Math.ceil(this.filteredPlans().length / this.pageSize)));
-
-  paginatedPlans = computed(() => {
-    const start = this.currentPage() * this.pageSize;
-    return this.filteredPlans().slice(start, start + this.pageSize);
-  });
-
-  goToPage(page: number): void {
-    if (page >= 0 && page < this.totalPages()) {
-      this.currentPage.set(page);
-    }
-  }
-
-  pageArray(): number[] {
-    return Array.from({ length: this.totalPages() }, (_, i) => i);
-  }
-
-  private resetPageOnFilter = effect(() => {
-    this.searchQuery();
-    this.showActiveOnly();
-    this.currentPage.set(0);
   });
 
   // 🌟 تعديل: تغيير البحث ليعتمد على days بدلاً من workoutDays
@@ -125,10 +72,6 @@ export class WorkoutComponent implements OnInit {
     ).subscribe(plans => {
       this.plans.set(plans);
       this.loading.set(false);
-      setTimeout(() => {
-        const totalPlans = this.filteredPlans().length;
-        this.startCounter(totalPlans);
-      }, 300);
     });
   }
 
@@ -167,26 +110,14 @@ export class WorkoutComponent implements OnInit {
   }
 
   selectDay(dayId: string): void { this.selectedDayId.set(dayId); }
-// ── Plan Images ───────────────────────────────────────────────────────────────
-  private readonly planImages: string[] = [
-    'assets/images/scale.jpg',
-    'assets/images/mat.jpg',
-    'assets/images/dumble.jpg',
-    'assets/images/weight.jpeg',
-    'assets/images/calis.jpeg',
-    'assets/images/stick.jpeg',
-    'assets/images/steal.jpeg',
-    'assets/images/hand.jpeg'
-
-  ];
-
- getPlanImage(index: number): string {
-    return this.planImages[index % this.planImages.length];
-  }
 
   // ── Helpers ───────────────────────────────────────────────────────────────────
-  
-
+  getPlanImage(plan: WorkoutPlanDto): string {
+    const name = plan.name?.toLowerCase() || '';
+    if (name.includes('cardio') || name.includes('cut') || name.includes('تنشيف')) return 'assets/images/scale.jpg';
+    if (name.includes('bulk') || name.includes('strength') || name.includes('تضخيم')) return 'assets/images/dumble.jpg';
+    return 'assets/images/mat.jpg';
+  }
 
   // 🌟 تعديل هنا لاستخدام التجميع بناءً على الـ days الجديدة القادمة من الباك
   getTotalExercises(plan: WorkoutPlanDto): number {
@@ -199,42 +130,40 @@ export class WorkoutComponent implements OnInit {
 
   muscleGroupIcon(group: string): string {
     const g = (group ?? '').toLowerCase();
-    if (g.includes('chest'))    return '/assets/images/body.png';
-    if (g.includes('back'))     return '/assets/images/back.png';
-    if (g.includes('leg') || g.includes('quad') || g.includes('hamstring')) return '/assets/images/leg.png';
-    if (g.includes('shoulder')) return '/assets/images/shoulders.png';
-    if (g.includes('arm') || g.includes('bicep') || g.includes('tricep'))   return '/assets/images/arm.png';
-    if (g.includes('core') || g.includes('ab'))   return '/assets/images/upper-body.png';
-    if (g.includes('cardio'))   return '/assets/images/heart.png';
-    if (g.includes('glute'))    return '/assets/images/back.png';
-    return '/assets/images/human-body.png';
+    if (g.includes('chest'))    return '🫁';
+    if (g.includes('back'))     return '🔙';
+    if (g.includes('leg') || g.includes('quad') || g.includes('hamstring')) return '🦵';
+    if (g.includes('shoulder')) return '🦾';
+    if (g.includes('arm') || g.includes('bicep') || g.includes('tricep'))   return '💪';
+    if (g.includes('core') || g.includes('ab'))   return '🎯';
+    if (g.includes('cardio'))   return '❤️';
+    if (g.includes('glute'))    return '🍑';
+    return '🏋️';
   }
-translateMuscleGroup(group: string): string {
-  const g = (group ?? '').toLowerCase();
-  const key = (() => {
-    if (g.includes('chest'))    return 'workout.muscleGroups.chest';
-    if (g.includes('back'))     return 'workout.muscleGroups.back';
-    if (g.includes('shoulder')) return 'workout.muscleGroups.shoulders';
-    if (g.includes('bicep'))    return 'workout.muscleGroups.biceps';
-    if (g.includes('tricep'))   return 'workout.muscleGroups.triceps';
-    if (g.includes('leg'))      return 'workout.muscleGroups.legs';
-    if (g.includes('quad'))     return 'workout.muscleGroups.quadriceps';
-    if (g.includes('hamstring'))return 'workout.muscleGroups.hamstrings';
-    if (g.includes('glute'))    return 'workout.muscleGroups.glutes';
-    if (g.includes('calve'))    return 'workout.muscleGroups.calves';
-    if (g.includes('lower abdomin')) return 'workout.muscleGroups.lowerAbs';
-     if (g.includes('abdomin'))   return 'workout.muscleGroups.abs';      // ← يغطي Abdominal/Abdominals/Lower Abdominals
-    if (g.includes('oblique'))   return 'workout.muscleGroups.obliques'; // ← جديد
-    if (g.includes('abs'))      return 'workout.muscleGroups.abs';
-    if (g.includes('core'))     return 'workout.muscleGroups.core';
-    if (g.includes('forearm'))  return 'workout.muscleGroups.forearms';
-    if (g.includes('arm'))      return 'workout.muscleGroups.arms';   // ← السطر الجديد
-    if (g.includes('full'))     return 'workout.muscleGroups.fullBody';
-    if (g.includes('cardio'))   return 'workout.muscleGroups.cardio';
-    return null;
-  })();
-  return key ? this.t.instant(key) : group;
-}
+
+  translateMuscleGroup(group: string): string {
+    const g = (group ?? '').toLowerCase();
+    const key = (() => {
+      if (g.includes('chest'))    return 'workout.muscleGroups.chest';
+      if (g.includes('back'))     return 'workout.muscleGroups.back';
+      if (g.includes('shoulder')) return 'workout.muscleGroups.shoulders';
+      if (g.includes('bicep'))    return 'workout.muscleGroups.biceps';
+      if (g.includes('tricep'))   return 'workout.muscleGroups.triceps';
+      if (g.includes('leg'))      return 'workout.muscleGroups.legs';
+      if (g.includes('quad'))     return 'workout.muscleGroups.quadriceps';
+      if (g.includes('hamstring'))return 'workout.muscleGroups.hamstrings';
+      if (g.includes('glute'))    return 'workout.muscleGroups.glutes';
+      if (g.includes('calve'))    return 'workout.muscleGroups.calves';
+      if (g.includes('abs'))      return 'workout.muscleGroups.abs';
+      if (g.includes('core'))     return 'workout.muscleGroups.core';
+      if (g.includes('forearm'))  return 'workout.muscleGroups.forearms';
+      if (g.includes('full'))     return 'workout.muscleGroups.fullBody';
+      if (g.includes('cardio'))   return 'workout.muscleGroups.cardio';
+      return null;
+    })();
+    return key ? this.t.instant(key) : group;
+  }
+
   getMuscleGroupColor(group: string): string {
     const g = (group ?? '').toLowerCase();
     if (g.includes('chest'))    return 'mg-chest';
@@ -250,81 +179,4 @@ translateMuscleGroup(group: string): string {
   trackByPlan(_: number, p: WorkoutPlanDto)         { return p.id; }
   trackByDay(_: number, d: WorkoutDayDto)           { return d.id; }
   trackByExercise(_: number, e: WorkoutExerciseDto) { return e.id; }
-
-  private weekdayMap: Record<string, string> = {
-  'sunday': 'workout.sunday',
-  'monday': 'workout.monday',
-  'tuesday': 'workout.tuesday',
-  'wednesday': 'workout.wednesday',
-  'thursday': 'workout.thursday',
-  'friday': 'workout.friday',
-  'saturday': 'workout.saturday',
-};
-
-private dayFocusMap: Record<string, string> = {
-  'upper body': 'workout.dayFocus.upperBody',
-  'lower body and core': 'workout.dayFocus.lowerBodyCore',
-  'lower body': 'workout.dayFocus.lowerBody',
-  'full body': 'workout.dayFocus.fullBody',
-  'push': 'workout.dayFocus.push',
-  'pull': 'workout.dayFocus.pull',
-  'legs': 'workout.dayFocus.legs',
-  'core': 'workout.dayFocus.core',
-  'cardio': 'workout.dayFocus.cardio',
-};
-
-translateDayName(dayName: string): string {
-  if (!dayName) return dayName;
-
-  const trimmed = dayName.trim();
-  const lower = trimmed.toLowerCase();
-
-  // الحالة الأولى: اسم يوم عادي زي "Monday" أو "Wednesday"
-  if (this.weekdayMap[lower]) {
-    return this.t.instant(this.weekdayMap[lower]);
-  }
-
-  // الحالة الثانية: فورمات "Day 1 - Upper Body"
-  const match = trimmed.match(/^Day\s+(\d+)\s*-\s*(.+)$/i);
-  if (match) {
-    const dayNumber = match[1];
-    const focusText = match[2].trim().toLowerCase();
-    const key = this.dayFocusMap[focusText];
-    const translatedFocus = key ? this.t.instant(key) : match[2].trim();
-    return `${this.t.instant('workout.day')} ${dayNumber} - ${translatedFocus}`;
-  }
-
-  // فورمات غير معروف — رجّع القيمة زي ما هي
-  return dayName;
-}
-private weekdayOrder: Record<string, number> = {
- 'saturday': 0, 'sunday': 1, 'monday': 2, 'tuesday': 3,
-  'wednesday': 4, 'thursday': 5, 'friday': 6,
-};
-
-private getDaySortKey(dayName: string): number {
-  if (!dayName) return 999;
-  const trimmed = dayName.trim().toLowerCase();
-
-  // الحالة الأولى: اسم يوم عادي زي "Monday"
-  if (this.weekdayOrder[trimmed] !== undefined) {
-    return this.weekdayOrder[trimmed];
-  }
-
-  // الحالة الثانية: فورمات "Day 1 - Upper Body"
-  const match = trimmed.match(/^day\s+(\d+)/);
-  if (match) {
-    return parseInt(match[1], 10);
-  }
-
-  // فورمات غير معروف — يتسرّب لآخر القايمة
-  return 999;
-}
-
-sortedDays(plan: any): any[] {
-  return [...(plan.days ?? [])].sort(
-    (a, b) => this.getDaySortKey(a.dayName) - this.getDaySortKey(b.dayName)
-  );
-}
-
 }
