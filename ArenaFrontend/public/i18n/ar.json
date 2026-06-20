@@ -851,7 +851,7 @@
     "mealImageInvalid": "يرجى اختيار ملف صورة صحيح.",
     "mealImageError": "تعذر تحليل صورة الوجبة. حاول مرة أخرى.",
     "analysisResult": "نتيجة التحليل",
-    "detectedMeal": "الوجبة المكتشفة"
+    "detectedMeal": "الوجبة المكتشفة",
     "title": "الخطط الغذائيه",
     "planCountPrefix": "أفضل الخطط والبرامج الاحترافية المتاحة لك —",
     "planCountSuffix": "خطة تمرين متاحة"
