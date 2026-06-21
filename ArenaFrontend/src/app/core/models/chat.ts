@@ -5,6 +5,8 @@ export interface ChatMessage {
   sender: ChatSender;
   content: string;
   createdAt: string;
+   audioUrl?: string;
+    isVoice?: boolean;   
 }
 
 export interface ChatRequest {
