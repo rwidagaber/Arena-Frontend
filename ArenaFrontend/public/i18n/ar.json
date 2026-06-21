@@ -827,7 +827,6 @@
     "title": "الخطط الغذائيه",
     "planCountPrefix": "أفضل الخطط والبرامج الاحترافية المتاحة لك —",
     "planCountSuffix": "خطة تمرين متاحة"
-
   },
   "workout": {
     "searchPlaceholder": "ابحث عن خطة تمرين...",
@@ -892,6 +891,19 @@
       "core": "الجذع",
       "forearms": "الساعد",
       "fullBody": "الجسم بالكامل",
+      "cardio": "كارديو",
+      "arms": "الاذرع",
+      "obliques": "العضلات الجانبية"
+    },
+    "dayFocus": {
+      "upperBody": "الجزء العلوي",
+      "lowerBodyCore": "الجزء السفلي والجذع",
+      "lowerBody": "الجزء السفلي",
+      "fullBody": "الجسم بالكامل",
+      "push": "دفع",
+      "pull": "سحب",
+      "legs": "الأرجل",
+      "core": "الجذع",
       "cardio": "كارديو"
     }
   },
@@ -920,5 +932,30 @@
   "bookingHeroSubtitleLight2": "خطوات صغيرة. نتائج كبيرة.",
   "bookingHeroSubtitleLight3": "حافظ على استمراريتك. ابقَ قوياً.",
   "bookingHeroSubtitleLight4": "التقدم أهم من المثالية.",
-  "bookingHeroSubtitleLight5": "تدرب اليوم. لتتألق غداً."
+  "bookingHeroSubtitleLight5": "تدرب اليوم. لتتألق غداً.",
+  "title": "التمارين",
+  "planCountPrefix": "أفضل الخطط والبرامج الاحترافية المتاحة لك —",
+  "workingHours": {
+    "title": "ساعات عمل الصالة الرياضية",
+    "subtitle": "تحقق من جدولنا الأسبوعي، واعرض ساعات العمل الحالية، وابحث عن الوقت الأنسب للتمرين.",
+    "today": "اليوم",
+    "status": "الحالة الحالية",
+    "openNow": "مفتوح الآن",
+    "closedNow": "مغلق الآن",
+    "open": "مفتوح",
+    "closed": "مغلق",
+    "loading": "جاري تحميل جدول العمل...",
+    "errorLoading": "فشل تحميل ساعات العمل. يرجى التحقق من اتصالك بالإنترنت.",
+    "retryBtn": "إعادة المحاولة",
+    "backBtn": "العودة للرئيسية",
+    "days": {
+      "Monday": "الإثنين",
+      "Tuesday": "الثلاثاء",
+      "Wednesday": "الأربعاء",
+      "Thursday": "الخميس",
+      "Friday": "الجمعة",
+      "Saturday": "السبت",
+      "Sunday": "الأحد"
+    }
+  }
 }
