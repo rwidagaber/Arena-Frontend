@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewChecked, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { AfterViewChecked, Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
@@ -16,7 +17,7 @@ import { ChatConversation, ChatMessage, ChatMessageBlock, ChatResponse } from '.
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.css'],
 })
-export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
+export class ChatComponent implements OnInit, AfterViewChecked {
   @ViewChild('messagesViewport') private messagesViewport?: ElementRef<HTMLDivElement>;
 
   private readonly chatService = inject(ChatService);
@@ -30,13 +31,12 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   loadingHistory = true;
   loadingConversations = true;
   sending = false;
-  recording = false;
-  transcribing = false;
   creatingChat = false;
   deletingConversationId = '';
   error = '';
   conversationId?: string;
   memberProfileId = '';
+
 
   // Voice recording UX state
   recordingSeconds = 0;
@@ -234,6 +234,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         },
       });
   }
+
 
   toggleRecording(): void {
     if (this.recording) {
@@ -541,6 +542,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.lastVoiceBlob = undefined;
   }
 
+
   trackMessage(index: number, message: ChatMessage): string {
     return message.id ?? `${message.sender}-${message.createdAt}-${index}`;
   }
@@ -644,18 +646,14 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     );
   }
 
-  private createMessage(
-    sender: ChatMessage['sender'],
-    content: string,
-    extra: Partial<ChatMessage> = {}
-  ): ChatMessage {
+  private createMessage(sender: ChatMessage['sender'], content: string): ChatMessage {
     return {
       sender,
       content,
       createdAt: new Date().toISOString(),
-      ...extra,
     };
   }
+
 
   ngOnDestroy(): void {
     this.activeAudio?.pause();
@@ -663,6 +661,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.mediaStream?.getTracks().forEach((track) => track.stop());
     this.objectUrls.forEach((url) => URL.revokeObjectURL(url));
   }
+
 
   private scrollToBottom(): void {
     const element = this.messagesViewport?.nativeElement;

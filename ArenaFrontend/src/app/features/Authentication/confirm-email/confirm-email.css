@@ -157,7 +157,7 @@
 }
 
 .otp-box:focus {
-  border-color: #C6EF2E !important;
+  border-color: #418C27 !important;
   background-color: var(--input-focus-bg, rgba(0, 0, 0, 0.5)) !important;
   box-shadow: 0 0 0 4px rgba(212, 250, 36, 0.15) !important;
 }
@@ -181,7 +181,7 @@
   align-items: center !important;
   width: 100% !important;
   height: 50px !important;
-  background-color: #C6EF2E !important;
+  background-color: #418C27 !important;
   color: #0b0c0c !important;
   border: none !important;
   border-radius: 100px !important;
@@ -251,7 +251,7 @@
 .link-btn {
   background: none;
   border: none;
-  color: #C6EF2E !important;
+  color: #418C27 !important;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;

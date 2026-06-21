@@ -5,10 +5,6 @@ export interface ChatMessage {
   sender: ChatSender;
   content: string;
   createdAt: string;
-  /** True when this user message came from a transcribed voice note. */
-  isVoice?: boolean;
-  /** Object URL of the recorded clip, for in-bubble playback. */
-  audioUrl?: string;
 }
 
 export interface ChatRequest {
@@ -39,7 +35,6 @@ export interface ChatMessageBlock {
 export interface ChatResponse {
   id?: string;
   conversationId?: string;
-  transcript?: string;
   message?: string;
   messageText?: string;
   response?: string;
