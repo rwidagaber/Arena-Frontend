@@ -1,7 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewChecked, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
-import { AfterViewChecked, Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit, OnDestroy, AfterViewChecked, ElementRef, ViewChild, inject } from '@angular/core';import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { AuthService } from '../../core/services/auth';
@@ -37,6 +35,8 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   conversationId?: string;
   memberProfileId = '';
 
+recording: boolean = false;
+transcribing: boolean = false;
 
   // Voice recording UX state
   recordingSeconds = 0;
@@ -509,7 +509,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
           }
 
           this.objectUrls.push(audioUrl);
-          const voiceMessage = this.createMessage('user', transcript, { isVoice: true, audioUrl });
+          const voiceMessage = this.createMessage('user', transcript,  { isVoice: true, audioUrl });
           // Seed the duration we measured while recording so the player shows the real
           // length immediately, even before <audio> metadata resolves (or if it never does).
           if (this.lastRecordingDuration > 0) {
@@ -646,13 +646,19 @@ export class ChatComponent implements OnInit, AfterViewChecked {
     );
   }
 
-  private createMessage(sender: ChatMessage['sender'], content: string): ChatMessage {
-    return {
-      sender,
-      content,
-      createdAt: new Date().toISOString(),
-    };
-  }
+  private createMessage(
+  sender: ChatMessage['sender'],
+  content: string,
+  options?: { isVoice?: boolean; audioUrl?: string }
+): ChatMessage {
+  return {
+    sender,
+    content,
+    createdAt: new Date().toISOString(),
+    isVoice: options?.isVoice ?? false,
+    audioUrl: options?.audioUrl,
+  };
+}
 
 
   ngOnDestroy(): void {

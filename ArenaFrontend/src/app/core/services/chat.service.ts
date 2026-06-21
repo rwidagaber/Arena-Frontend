@@ -77,4 +77,8 @@ export class ChatService {
       createdAt: message.sentAt ?? message.timestamp ?? new Date().toISOString(),
     };
   }
+
+  sendVoiceMessage(formData: FormData) {
+  return this.http.post<any>('/api/chat/voice', formData);
+}
 }
