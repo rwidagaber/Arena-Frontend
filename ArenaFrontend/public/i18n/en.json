@@ -822,7 +822,11 @@
     "mealImageInvalid": "Please choose a valid image file.",
     "mealImageError": "Could not analyze this meal image. Please try again.",
     "analysisResult": "Analysis result",
-    "detectedMeal": "Detected meal"
+    "detectedMeal": "Detected meal",
+    "title": "Diet plans",
+       "planCountPrefix": "Best diet plans available —",
+    "planCountSuffix": "diet plans available"
+
   },
   "workout": {
     "searchPlaceholder": "Search workout plans...",

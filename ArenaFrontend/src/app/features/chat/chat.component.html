@@ -101,6 +101,37 @@
           <div class="bubble" [class.rich-response]="message.sender !== 'user'">
             <ng-container *ngIf="message.sender === 'user'; else assistantResponse">
               <p>{{ message.content }}</p>
+
+
+              <div *ngIf="message.audioUrl" class="voice-note" [class.playing]="isClipPlaying(message)">
+                <button
+                  type="button"
+                  class="vn-play"
+                  (click)="toggleClip(clipAudio, message)"
+                  [attr.aria-label]="isClipPlaying(message) ? 'Pause voice note' : 'Play voice note'"
+                >
+                  <i [class]="isClipPlaying(message) ? 'bi bi-pause-fill' : 'bi bi-play-fill'"></i>
+                </button>
+                <div class="vn-wave" aria-hidden="true">
+                  <span
+                    *ngFor="let bar of playerBars; let i = index"
+                    [class.filled]="clipBarFilled(message, i)"
+                    [style.height.%]="bar * 100"
+                  ></span>
+                </div>
+                <span class="vn-time">{{ formatDuration(isClipPlaying(message) ? clipElapsed : clipDurationOf(message)) }}</span>
+                <audio
+                  #clipAudio
+                  class="vn-audio"
+                  preload="metadata"
+                  [src]="message.audioUrl"
+                  (loadedmetadata)="onClipMeta(message, clipAudio)"
+                  (durationchange)="onClipMeta(message, clipAudio)"
+                  (timeupdate)="onClipTime(message, clipAudio)"
+                  (ended)="onClipEnded(message)"
+                ></audio>
+              </div>
+
             </ng-container>
             <ng-template #assistantResponse>
               <ng-container *ngFor="let block of formatMessage(message.content)">
@@ -122,15 +153,44 @@
           <div class="avatar" aria-hidden="true">
             <i class="bi bi-stars"></i>
           </div>
-          <div class="bubble typing">
-            <span></span>
-            <span></span>
-            <span></span>
+          <div class="bubble typing" [class.transcribing]="transcribing">
+            <ng-container *ngIf="transcribing; else typingDots">
+              <div class="transcribe-eq" aria-hidden="true">
+                <span></span><span></span><span></span><span></span><span></span>
+              </div>
+              <span class="typing-label">Transcribing your voice…</span>
+            </ng-container>
+            <ng-template #typingDots>
+              <span></span>
+              <span></span>
+              <span></span>
+            </ng-template>
           </div>
         </article>
       </div>
 
-      <p *ngIf="error" class="chat-error">{{ error }}</p>
+      <div *ngIf="error" class="chat-error">
+        <span class="chat-error-text">{{ error }}</span>
+        <span *ngIf="voiceRetry" class="chat-error-actions">
+          <button
+            type="button"
+            class="voice-retry-btn"
+            (click)="retryVoice()"
+            [disabled]="transcribing || sending"
+          >
+            <i class="bi bi-arrow-clockwise"></i> Retry
+          </button>
+          <button
+            type="button"
+            class="voice-dismiss-btn"
+            (click)="dismissVoiceRetry()"
+            aria-label="Dismiss"
+            title="Dismiss"
+          >
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </span>
+      </div>
 
       <form class="composer" (ngSubmit)="send()">
         <textarea

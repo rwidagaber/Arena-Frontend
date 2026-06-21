@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed, effect, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,7 +8,7 @@ import { MemberService } from '../../core/services/member.service';
 import { ProgressReportService, AttendanceRecord, ProgressSummaryDto, CreateProgressLogDto } from '../../core/services/progress-report.service';
 import { switchMap } from 'rxjs/operators';
 import type { GetProfileDto, UserSubscriptionDto } from '../../core/models/auth';
-import type { MemberProfile as MemberProfileModel, MembershipDetails, UpdateProfileDto, WorkoutSession } from '../../core/models/member';
+import type { MemberProfile as MemberProfileModel, UpdateProfileDto, WorkoutSession } from '../../core/models/member';
 import { DashboardSidebar, DashboardSection } from './dashboard-sidebar/dashboard-sidebar';
 import { RecentWorkouts } from './recent-workouts/recent-workouts';
 import { MembershipSection } from './membership-section/membership-section';
@@ -17,7 +17,6 @@ import { QrDisplayComponent } from '../../features/QR/qr-display.component/qr-di
 import { ProgressReportComponent } from '../progress-report/progress-report.component';
 import { RevealDirective } from '../progress-report/reveal.directive';
 import { Nutritionplan } from './nutritionplan/nutritionplan';
-import { ThemeService } from '../../core/services/themeservice';
 import { WorkoutComponent } from "./workoutplan/workout";
 import { BookingSection } from './booking-section/booking-section';
 
@@ -41,17 +40,6 @@ function mapAuthToProfile(dto: GetProfileDto): MemberProfileModel {
     profileImage: dto.profileImage ?? null,
     birthday: dto.birthday ?? null,
     activeSubscription: dto.activeSubscription ?? null,
-  };
-}
-
-function mapSubscriptionToMembership(sub: UserSubscriptionDto): MembershipDetails {
-  return {
-    type: sub.planNameEn,
-    startDate: sub.startDate,
-    endDate: sub.endDate,
-    isActive: sub.status === 'Active',
-    price: 0,
-    features: [],
   };
 }
 
@@ -82,13 +70,10 @@ export class MemberProfile implements OnInit {
   private progressService = inject(ProgressReportService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  private themeService = inject(ThemeService);
   private translate = inject(TranslateService);
   private sanitizer = inject(DomSanitizer);
 
   protected Math = Math;
-
-  isDarkMode = computed(() => this.themeService.isDark);
 
   private readonly svgIcons: Record<string, string> = {
     fire: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>',
@@ -112,8 +97,6 @@ export class MemberProfile implements OnInit {
 
   activeSection = signal<DashboardSection>('profile');
 
-  isMobileSidebarOpen = signal(false);
-
   timeOfDay = computed(() => {
     const h = new Date().getHours();
     if (h < 12) return 'morning';
@@ -134,20 +117,10 @@ export class MemberProfile implements OnInit {
     return `memberProfile.quotes.q${dayOfYear % this.quoteCount}`;
   });
 
-  mappedMembership = computed<MembershipDetails | null>(() => {
-    const sub = this.profile()?.activeSubscription;
-    return sub ? mapSubscriptionToMembership(sub) : null;
-  });
-
   planLevel = computed(() => {
     const sub = this.profile()?.activeSubscription;
     if (!sub) return '';
     return sub.planNameEn || '';
-  });
-
-  planName = computed(() => {
-    const level = this.planLevel();
-    return level || 'Member';
   });
 
   planMonthlyCap = computed(() => {
@@ -252,17 +225,6 @@ export class MemberProfile implements OnInit {
       checkDate.setDate(checkDate.getDate() - 1);
     }
     return streak;
-  });
-
-  age = computed(() => {
-    const b = this.profile()?.birthday;
-    if (!b) return null;
-    const birth = new Date(b);
-    const today = new Date();
-    let age = today.getFullYear() - birth.getFullYear();
-    const m = today.getMonth() - birth.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-    return age;
   });
 
   calendarDays = computed(() => {
@@ -661,123 +623,13 @@ export class MemberProfile implements OnInit {
     });
   }
 
-  // ════════ Celebration modal (streak / achievement) ════════
-  showCelebration = signal(false);
-  confettiPieces = Array.from({ length: 32 }, (_, i) => ({
-    left: (i * 7 + (i % 5) * 11) % 100,
-    delay: (i % 8) * 0.13,
-    duration: 2.3 + (i % 5) * 0.45,
-    color: ['#C6EF2E', '#38BDF8', '#A78BFA', '#FB7185', '#FBBF24'][i % 5],
-    size: 6 + (i % 4) * 3,
-    round: i % 3 === 0,
-  }));
-
-  openCelebration(): void { this.showCelebration.set(true); }
-  closeCelebration(): void { this.showCelebration.set(false); }
-
-  // Auto-pop once when a new streak milestone is reached
-  private celebratedStreak = 0;
-  private celebrationEffect = effect(() => {
-    const s = this.currentStreak();
-    const milestones = [1, 2, 3, 7, 14, 21, 30, 60, 100];
-    if (!milestones.includes(s)) return;
-    if (s > this.celebratedStreak) {
-      this.celebratedStreak = s;
-      setTimeout(() => this.showCelebration.set(true), 700);
-    }
-  });
-
-  // ════════ Stat detail modal ════════
-  activeStat = signal<string | null>(null);
-  openStat(key: string): void { this.activeStat.set(key); }
-  closeStat(): void { this.activeStat.set(null); }
-
-  private daysAgoLabel(): string {
-    const d = this.daysSinceLastWorkout();
-    if (d == null) return '—';
-    if (d === 0) return 'Today';
-    if (d === 1) return 'Yesterday';
-    return `${d} days ago`;
-  }
-
-  statDetail = computed(() => {
-    const key = this.activeStat();
-    if (!key) return null;
-    const rem = this.subscriptionDaysRemaining();
-    const map: Record<string, { title: string; value: string; accent: string; rows: { label: string; value: string }[] }> = {
-      workouts: {
-        title: 'Total Workouts', value: `${this.totalWorkouts()}`, accent: '#C6EF2E',
-        rows: [
-          { label: 'This month', value: `${this.sessionsThisMonth()}` },
-          { label: 'Current streak', value: `${this.currentStreak()} days` },
-          { label: 'Best streak', value: `${this.bestStreak()} days` },
-        ],
-      },
-      streak: {
-        title: 'Current Streak', value: `${this.currentStreak()}d`, accent: '#FB7185',
-        rows: [
-          { label: 'Best streak', value: `${this.bestStreak()} days` },
-          { label: 'Last visit', value: this.daysAgoLabel() },
-          { label: 'Total workouts', value: `${this.totalWorkouts()}` },
-        ],
-      },
-      best: {
-        title: 'Best Streak', value: `${this.bestStreak()}d`, accent: '#A78BFA',
-        rows: [
-          { label: 'Current streak', value: `${this.currentStreak()} days` },
-          { label: 'Total workouts', value: `${this.totalWorkouts()}` },
-          { label: 'Last visit', value: this.daysAgoLabel() },
-        ],
-      },
-      month: {
-        title: 'This Month', value: `${this.sessionsThisMonth()}/${this.monthlyTarget()}`, accent: '#38BDF8',
-        rows: [
-          { label: 'Completed', value: `${this.sessionsThisMonth()}` },
-          { label: 'Monthly target', value: `${this.monthlyTarget()}` },
-          { label: 'Remaining', value: `${Math.max(0, this.monthlyTarget() - this.sessionsThisMonth())}` },
-        ],
-      },
-      plan: {
-        title: 'Plan', value: rem != null ? `${rem}d` : '—', accent: '#FBBF24',
-        rows: [
-          { label: 'Days remaining', value: rem != null ? `${rem}` : '—' },
-          { label: 'This month', value: `${this.sessionsThisMonth()} / ${this.monthlyTarget()}` },
-        ],
-      },
-    };
-    return map[key] ?? null;
-  });
-
-  onImageSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (!input.files?.length) return;
-    const file = input.files[0];
-    const reader = new FileReader();
-    reader.onload = () => {
-      const p = this.profile();
-      if (p && reader.result) {
-        this.profile.set({ ...p, profileImage: reader.result as string });
-      }
-    };
-    reader.readAsDataURL(file);
-  }
-
   onSectionChange(section: DashboardSection): void {
     this.activeSection.set(section);
-    this.isMobileSidebarOpen.set(false);
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { section },
       queryParamsHandling: 'merge',
     });
-  }
-
-  toggleMobileSidebar(): void {
-    this.isMobileSidebarOpen.set(!this.isMobileSidebarOpen());
-  }
-
-  closeMobileSidebar(): void {
-    this.isMobileSidebarOpen.set(false);
   }
 
   ngOnInit(): void {
