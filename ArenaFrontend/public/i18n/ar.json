@@ -892,6 +892,9 @@
     "mealImageError": "تعذر تحليل صورة الوجبة. حاول مرة أخرى.",
     "analysisResult": "نتيجة التحليل",
     "detectedMeal": "الوجبة المكتشفة",
+    "mealLoggedToPlan": "أُضيفت إلى إجمالي اليوم",
+    "undoMeal": "تراجع",
+    "undoingMeal": "جارٍ الحذف...",
     "title": "الخطط الغذائيه",
     "planCountPrefix": "أفضل الخطط والبرامج الاحترافية المتاحة لك —",
     "planCountSuffix": "خطة تمرين متاحة"

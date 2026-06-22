@@ -75,4 +75,9 @@ export class NutritionService {
       : `${BASE}/daily-summary`;
     return this.http.get<DailyNutritionSummaryDto>(url);
   }
+
+  /** Undo a logged meal; returns the recalculated daily summary for that day. */
+  deleteMealLog(mealLogId: string): Observable<DailyNutritionSummaryDto> {
+    return this.http.delete<DailyNutritionSummaryDto>(`${BASE}/meal-logs/${mealLogId}`);
+  }
 }

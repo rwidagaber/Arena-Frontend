@@ -89,6 +89,24 @@
               <p class="meal-analysis-noplan-hint">{{ t.translate('nutrition.noActivePlanTarget') }}</p>
             }
 
+            @if (lastLoggedMeal(); as logged) {
+              <div class="meal-analysis-logged">
+                <span class="meal-logged-note">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  {{ t.translate('nutrition.mealLoggedToPlan') }}
+                </span>
+                <button
+                  class="meal-undo-btn"
+                  [disabled]="mealUndoLoading()"
+                  (click)="undoLastMeal()"
+                >
+                  {{ mealUndoLoading() ? t.translate('nutrition.undoingMeal') : t.translate('nutrition.undoMeal') }}
+                </button>
+              </div>
+            }
+
             <div class="meal-analysis-macros">
               <div class="analysis-macro protein">
                 <span>{{ t.translate('nutrition.protein') }}</span>

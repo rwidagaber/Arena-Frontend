@@ -6,6 +6,7 @@ import {
   MealDto,
   MealImageAnalysisDto,
   DailyNutritionSummaryDto,
+  MealLogResponseDto,
 } from '../../../core/models/nutrition';
 import { ThemeService } from '../../../core/services/themeservice';
 type View = 'plans' | 'plan-detail' | 'meal-detail';
@@ -39,6 +40,9 @@ export class Nutritionplan implements OnInit {
   mealAnalysis = signal<MealImageAnalysisDto | null>(null);
   mealAnalysisLoading = signal(false);
   mealAnalysisError = signal<string | null>(null);
+  /** The meal just logged by the last analysis, available to undo. */
+  lastLoggedMeal = signal<MealLogResponseDto | null>(null);
+  mealUndoLoading = signal(false);
 
   // ── Daily calorie target tracking (backend-driven) ────────────────────────
   // The backend logs each analyzed meal against the active plan and returns the
@@ -244,6 +248,8 @@ private mealTypeKeyMap: Record<string, string> = {
     this.nutritionService.analyzeAndLogMeal(file).subscribe({
       next: (result) => {
         this.mealAnalysis.set(result.analysis);
+        // Remember the persisted meal so the user can undo this log.
+        this.lastLoggedMeal.set(result.loggedMeal ?? null);
         // The backend logged the meal and deducted it from the daily target.
         // Use the returned summary, or refetch it if the backend didn't echo one.
         if (result.dailySummary) {
@@ -265,6 +271,31 @@ private mealTypeKeyMap: Record<string, string> = {
     });
   }
 
+  undoLastMeal(): void {
+    const logged = this.lastLoggedMeal();
+    if (!logged || this.mealUndoLoading()) return;
+
+    this.mealUndoLoading.set(true);
+    this.nutritionService.deleteMealLog(logged.id).subscribe({
+      next: (summary) => {
+        // Meal removed: refresh the day's deduction and drop the analysis card.
+        this.dailySummary.set(summary);
+        this.lastLoggedMeal.set(null);
+        this.mealAnalysis.set(null);
+        this.mealUndoLoading.set(false);
+      },
+      error: (error) => {
+        const message = error?.message
+          ? error.message
+          : typeof error?.error === 'string'
+          ? error.error
+          : this.t.translate('nutrition.mealImageError');
+        this.mealAnalysisError.set(message);
+        this.mealUndoLoading.set(false);
+      },
+    });
+  }
+
   clearMealImageAnalysis(fileInput?: HTMLInputElement): void {
     const oldPreview = this.mealImagePreview();
     if (oldPreview) {
@@ -275,6 +306,7 @@ private mealTypeKeyMap: Record<string, string> = {
     this.mealImagePreview.set(null);
     this.mealAnalysis.set(null);
     this.mealAnalysisError.set(null);
+    this.lastLoggedMeal.set(null);
 
     if (fileInput) {
       fileInput.value = '';
