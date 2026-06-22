@@ -33,6 +33,8 @@ export class Nutritionplan implements OnInit {
   selectedPlan = signal<NutritionPlanDto | null>(null);
   selectedMeal = signal<MealDto | null>(null);
   loading      = signal(true);
+  /** Id of the plan whose active state is currently being toggled. */
+  togglingPlanId = signal<string | null>(null);
   error        = signal<string | null>(null);
   view         = signal<View>('plans');
   selectedMealImage = signal<File | null>(null);
@@ -67,6 +69,12 @@ export class Nutritionplan implements OnInit {
   isOverTarget = computed(() => {
     const s = this.dailySummary();
     return s ? s.isOverTarget : this.dailyCalorieTarget() > 0 && this.remainingCalories() < 0;
+  });
+  /** 0–100 fill of consumed vs target, for the persistent daily bar. */
+  progressPercent = computed(() => {
+    const target = this.dailyCalorieTarget();
+    if (target <= 0) return 0;
+    return Math.min(100, Math.round((this.consumedCalories() / target) * 100));
   });
 
   // ── Search & Filter ────────────────────────────────
@@ -162,6 +170,27 @@ export class Nutritionplan implements OnInit {
         this.error.set('Failed to load nutrition plans');
         this.loading.set(false);
       }
+    });
+  }
+
+  togglePlanActive(plan: NutritionPlanDto, event: Event): void {
+    event.stopPropagation(); // don't open the plan while toggling its state
+    if (this.togglingPlanId()) return;
+
+    const activate = !plan.isActive;
+    this.togglingPlanId.set(plan.id);
+    this.nutritionService.setPlanActive(plan.id, activate).subscribe({
+      next: () => {
+        // Single active plan: reload so the other cards reflect the change,
+        // and refresh the daily summary since the active target may have moved.
+        this.loadPlans();
+        this.loadDailySummary();
+        this.togglingPlanId.set(null);
+      },
+      error: () => {
+        this.error.set(this.t.translate('nutrition.planUpdateFailed'));
+        this.togglingPlanId.set(null);
+      },
     });
   }
 

@@ -894,6 +894,11 @@
     "mealLoggedToPlan": "Added to today's total",
     "undoMeal": "Undo",
     "undoingMeal": "Removing...",
+    "todayIntake": "Today",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "updatingPlan": "Updating...",
+    "planUpdateFailed": "Could not update the plan. Please try again.",
     "title": "Diet plans",
        "planCountPrefix": "Best diet plans available —",
     "planCountSuffix": "diet plans available"

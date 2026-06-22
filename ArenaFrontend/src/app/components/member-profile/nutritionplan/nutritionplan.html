@@ -9,6 +9,24 @@
   <div class="nutrition-content">
 
     @if (view() === 'plans') {
+      @if (dailyCalorieTarget() > 0) {
+        <div class="today-intake-bar" [class.over]="isOverTarget()">
+          <div class="today-intake-row">
+            <span class="today-intake-label">{{ t.translate('nutrition.todayIntake') }}</span>
+            <span class="today-intake-values">
+              <strong>{{ consumedCalories() }}</strong> / {{ dailyCalorieTarget() }} {{ t.translate('nutrition.kcal') }}
+              <span class="today-intake-remaining">
+                · {{ (isOverTarget() ? -remainingCalories() : remainingCalories()) }}
+                {{ isOverTarget() ? t.translate('nutrition.overTarget') : t.translate('nutrition.remainingCalories') }}
+              </span>
+            </span>
+          </div>
+          <div class="today-intake-progress">
+            <div class="today-intake-progress-fill" [style.width.%]="progressPercent()"></div>
+          </div>
+        </div>
+      }
+
       <div class="meal-image-analyzer">
         <div class="meal-image-copy">
           <span class="meal-image-kicker">{{ t.translate('nutrition.mealImageKicker') }}</span>
@@ -70,22 +88,7 @@
 
             <p class="meal-analysis-summary">{{ analysis.summary }}</p>
 
-            @if (dailyCalorieTarget() > 0) {
-              <div class="meal-analysis-budget" [class.over]="isOverTarget()">
-                <div class="budget-row">
-                  <span>{{ t.translate('nutrition.dailyTarget') }}</span>
-                  <strong>{{ dailyCalorieTarget() }} {{ t.translate('nutrition.kcal') }}</strong>
-                </div>
-                <div class="budget-row">
-                  <span>{{ t.translate('nutrition.consumedToday') }}</span>
-                  <strong>{{ consumedCalories() }} {{ t.translate('nutrition.kcal') }}</strong>
-                </div>
-                <div class="budget-row budget-remaining">
-                  <span>{{ isOverTarget() ? t.translate('nutrition.overTarget') : t.translate('nutrition.remainingCalories') }}</span>
-                  <strong>{{ (isOverTarget() ? -remainingCalories() : remainingCalories()) }} {{ t.translate('nutrition.kcal') }}</strong>
-                </div>
-              </div>
-            } @else {
+            @if (dailyCalorieTarget() <= 0) {
               <p class="meal-analysis-noplan-hint">{{ t.translate('nutrition.noActivePlanTarget') }}</p>
             }
 
@@ -242,6 +245,16 @@
                     } @else {
                       <span class="custom-inactive-badge">{{ t.translate('nutrition.plan') }}</span>
                     }
+                    <button
+                      class="plan-toggle-btn"
+                      [class.is-active]="plan.isActive"
+                      [disabled]="togglingPlanId() === plan.id"
+                      (click)="togglePlanActive(plan, $event)"
+                    >
+                      {{ togglingPlanId() === plan.id
+                          ? t.translate('nutrition.updatingPlan')
+                          : (plan.isActive ? t.translate('nutrition.deactivate') : t.translate('nutrition.activate')) }}
+                    </button>
                   </div>
                   <h3 class="card-plan-title">{{ t.translate('nutrition.dietPlan') }} {{ plan.dailyCalories }}</h3>
                   <div class="card-stats-grid">

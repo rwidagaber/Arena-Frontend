@@ -895,6 +895,11 @@
     "mealLoggedToPlan": "أُضيفت إلى إجمالي اليوم",
     "undoMeal": "تراجع",
     "undoingMeal": "جارٍ الحذف...",
+    "todayIntake": "اليوم",
+    "activate": "تفعيل",
+    "deactivate": "إلغاء التفعيل",
+    "updatingPlan": "جارٍ التحديث...",
+    "planUpdateFailed": "تعذر تحديث الخطة. حاول مرة أخرى.",
     "title": "الخطط الغذائيه",
     "planCountPrefix": "أفضل الخطط والبرامج الاحترافية المتاحة لك —",
     "planCountSuffix": "خطة تمرين متاحة"

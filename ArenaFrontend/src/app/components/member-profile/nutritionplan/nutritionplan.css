@@ -215,6 +215,75 @@
 }
 .meal-undo-btn:disabled { opacity: 0.6; cursor: default; }
 
+/* Persistent "Today" intake bar */
+.today-intake-bar {
+  margin: 0 0 14px;
+  padding: 12px 16px;
+  border: 1px solid var(--n-border, rgba(255, 255, 255, 0.12));
+  border-radius: 14px;
+  background: rgba(207, 254, 33, 0.06);
+}
+.today-intake-bar.over {
+  background: rgba(255, 99, 99, 0.08);
+  border-color: rgba(255, 99, 99, 0.4);
+}
+.today-intake-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.today-intake-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--n-text-muted);
+  font-weight: 700;
+}
+.today-intake-values { font-size: 14px; color: var(--n-text-muted); }
+.today-intake-values strong { color: var(--n-text, #fff); font-size: 16px; }
+.today-intake-remaining { color: var(--n-text, #fff); font-weight: 600; }
+.today-intake-bar.over .today-intake-remaining { color: #ff6363; }
+.today-intake-progress {
+  margin-top: 10px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+.today-intake-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: rgba(207, 254, 33, 0.9);
+  transition: width 0.3s ease;
+}
+.today-intake-bar.over .today-intake-progress-fill { background: #ff6363; }
+
+/* Activate / deactivate plan toggle on plan cards */
+.plan-toggle-btn {
+  margin-inline-start: auto;
+  border: 1px solid var(--n-border, rgba(255, 255, 255, 0.18));
+  background: transparent;
+  color: var(--n-text, #fff);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.plan-toggle-btn:hover:not(:disabled) {
+  background: rgba(207, 254, 33, 0.1);
+  border-color: rgba(207, 254, 33, 0.5);
+}
+.plan-toggle-btn.is-active:hover:not(:disabled) {
+  background: rgba(255, 99, 99, 0.12);
+  border-color: rgba(255, 99, 99, 0.45);
+  color: #ff6363;
+}
+.plan-toggle-btn:disabled { opacity: 0.6; cursor: default; }
+
 .meal-image-controls {
   display: flex;
   align-items: center;

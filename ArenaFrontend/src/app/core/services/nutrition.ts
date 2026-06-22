@@ -80,4 +80,10 @@ export class NutritionService {
   deleteMealLog(mealLogId: string): Observable<DailyNutritionSummaryDto> {
     return this.http.delete<DailyNutritionSummaryDto>(`${BASE}/meal-logs/${mealLogId}`);
   }
+
+  /** Activate or deactivate a plan. Activating one deactivates the member's others. */
+  setPlanActive(planId: string, active: boolean): Observable<void> {
+    const action = active ? 'activate' : 'deactivate';
+    return this.http.put<void>(`${BASE}/${planId}/${action}`, {});
+  }
 }
