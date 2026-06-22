@@ -131,8 +131,10 @@ export class BookingSection implements OnInit, OnDestroy {
   pastBookings = computed(() => {
     const now = Date.now();
     const filtered = this.bookings().filter(b => {
+      const isCancelled = b.status === 2 || b.status === '2' || b.status === 'Cancelled';
+      if (isCancelled) return true; // Cancelled bookings always appear in history
       const isConfirmed = b.status === 1 || b.status === '1' || b.status === 'Confirmed';
-      if (!isConfirmed) return true;
+      if (!isConfirmed) return false; // Hide Pending/Unknown from history
       try {
         const bDateTime = new Date(`${b.bookingDate.split('T')[0]}T${b.startTime}`);
         return bDateTime.getTime() <= now;
@@ -280,11 +282,10 @@ export class BookingSection implements OnInit, OnDestroy {
     this.bookingService
       .cancelBooking(bookingId)
       .pipe(catchError(() => of(null)))
-      .subscribe(res => {
-        if (res) {
-          this.loadBookings();
-          this.bookingCancelled.emit(bookingId);
-        }
+      .subscribe(() => {
+        // Always reload regardless of success/failure so UI never stays stale
+        this.loadBookings();
+        this.bookingCancelled.emit(bookingId);
       });
   }
 
@@ -349,10 +350,13 @@ export class BookingSection implements OnInit, OnDestroy {
       const selectedDayName = days[workingDayEnumIndex];
 
       const workingHour = this.workingHours().find(wh => {
-        if (typeof wh.dayOfWeek === 'number') {
-          return wh.dayOfWeek === workingDayEnumIndex;
-        }
-        return String(wh.dayOfWeek).toLowerCase() === selectedDayName.toLowerCase();
+        const dayVal = wh.dayOfWeek;
+        if (typeof dayVal === 'number') return dayVal === workingDayEnumIndex;
+        // Handle numeric strings like '0', '1', etc. (some serializers return strings)
+        const numericVal = parseInt(String(dayVal), 10);
+        if (!isNaN(numericVal)) return numericVal === workingDayEnumIndex;
+        // Handle day-name strings like 'Monday', 'Tuesday', etc.
+        return String(dayVal).toLowerCase() === selectedDayName.toLowerCase();
       });
 
       if (!workingHour || workingHour.isClosed) {
@@ -387,7 +391,7 @@ export class BookingSection implements OnInit, OnDestroy {
       for (let h = openH; h < 24; h++) {
         slots.push(`${String(h).padStart(2, '0')}:00:00`);
       }
-      for (let h = 0; h < closeH; h++) {
+      for (let h = 0; h <= closeH; h++) {
         slots.push(`${String(h).padStart(2, '0')}:00:00`);
       }
     } else {
@@ -404,27 +408,84 @@ export class BookingSection implements OnInit, OnDestroy {
 
     const egyptNow = this.getEgyptTime();
     const todayStr = egyptNow.toISOString().split('T')[0];
+    const [slotH] = slot.split(':').map(Number);
 
     if (this.selectedDate() === todayStr) {
-      const [slotH] = slot.split(':').map(Number);
       const currentH = egyptNow.getHours();
-      if (slotH <= currentH) {
-        return true;
+
+      // Find today's working hours to detect midnight-crossing shifts
+      const [yr, mo, dy] = this.selectedDate().split('-').map(Number);
+      const dayIdx = new Date(yr, mo - 1, dy).getDay();
+      const wdIdx = (dayIdx + 6) % 7;
+      const todayWH = this.workingHours().find(wh => {
+        const d = typeof wh.dayOfWeek === 'number'
+          ? wh.dayOfWeek
+          : parseInt(String(wh.dayOfWeek), 10);
+        return !isNaN(d) ? d === wdIdx : String(wh.dayOfWeek).toLowerCase() ===
+          ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'][wdIdx];
+      });
+
+      if (todayWH) {
+        const openH  = parseInt(String(todayWH.openTime).split(':')[0], 10);
+        const closeH = parseInt(String(todayWH.closeTime).split(':')[0], 10);
+        const isMidnightCrossing = closeH < openH;          // e.g. open=8, close=3
+        const isMidnightSlot     = isMidnightCrossing && slotH <= closeH; // 0,1,2,3 AM
+
+        if (isMidnightSlot) {
+          // We are already past midnight (currentH < openH, e.g. 01:00)
+          // → disable only if we have passed this slot
+          if (currentH < openH && slotH <= currentH) {
+            return true;
+          }
+        } else {
+          // Normal slot past-time check
+          if (slotH <= currentH) return true;
+        }
+      } else {
+        // Normal past-time check
+        if (slotH <= currentH) return true;
       }
     }
 
-    const dayBookings = this.bookings().filter(b => {
+    // --- Shift-aware Booking conflict checks ---
+    const [yr, mo, dy] = this.selectedDate().split('-').map(Number);
+    const slotDate = new Date(yr, mo - 1, dy);
+    
+    const dayIdx = slotDate.getDay();
+    const wdIdx = (dayIdx + 6) % 7;
+    const selectedWH = this.workingHours().find(wh => {
+      const d = typeof wh.dayOfWeek === 'number' ? wh.dayOfWeek : parseInt(String(wh.dayOfWeek), 10);
+      return !isNaN(d) ? d === wdIdx : String(wh.dayOfWeek).toLowerCase() ===
+        ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'][wdIdx];
+    });
+
+    if (selectedWH) {
+      const openH  = parseInt(String(selectedWH.openTime).split(':')[0], 10);
+      const closeH = parseInt(String(selectedWH.closeTime).split(':')[0], 10);
+      const isMidnightCrossing = closeH < openH;
+      const isMidnightSlot     = isMidnightCrossing && slotH <= closeH;
+      if (isMidnightSlot) {
+        slotDate.setDate(slotDate.getDate() + 1);
+      }
+    }
+
+    slotDate.setHours(slotH, 0, 0, 0);
+    const targetTimeMs = slotDate.getTime();
+
+    const hasConflict = this.bookings().some(b => {
       const isConfirmed = b.status === 1 || b.status === '1' || b.status === 'Confirmed';
-      return isConfirmed && b.bookingDate.split('T')[0] === this.selectedDate();
+      if (!isConfirmed) return false;
+
+      const [bYr, bMo, bDy] = b.bookingDate.split('T')[0].split('-').map(Number);
+      const [bH] = b.startTime.split(':').map(Number);
+      const bDate = new Date(bYr, bMo - 1, bDy);
+      bDate.setHours(bH, 0, 0, 0);
+
+      const diffHours = Math.abs(bDate.getTime() - targetTimeMs) / 3600000;
+      return diffHours < 5;
     });
 
-    const slotH = Number(slot.split(':')[0]);
-    const hasGapConflict = dayBookings.some(b => {
-      const bH = Number(b.startTime.split(':')[0]);
-      return Math.abs(bH - slotH) < 5;
-    });
-
-    return hasGapConflict;
+    return hasConflict;
   }
 
   formatSlotTime(slot: string): string {
@@ -465,9 +526,41 @@ export class BookingSection implements OnInit, OnDestroy {
     const endH = (h + 1) % 24;
     const endTimeStr = `${String(endH).padStart(2, '0')}:00:00`;
 
+    // ── Midnight-crossing correction ──────────────────────────────────────
+    // Slots 12 AM / 1 AM / 2 AM / 3 AM belong to the NEXT calendar day
+    // when the shift crosses midnight (e.g. 08:00 → 03:00).
+    // We detect this by comparing the slot hour with the shift's open hour.
+    let bookingDate = this.selectedDate();
+    const [yr, mo, dy] = bookingDate.split('-').map(Number);
+    const dayIdx = new Date(yr, mo - 1, dy).getDay();
+    const wdIdx  = (dayIdx + 6) % 7;
+    const selectedWH = this.workingHours().find(wh => {
+      const d = typeof wh.dayOfWeek === 'number'
+        ? wh.dayOfWeek
+        : parseInt(String(wh.dayOfWeek), 10);
+      return !isNaN(d) ? d === wdIdx
+        : String(wh.dayOfWeek).toLowerCase() ===
+          ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'][wdIdx];
+    });
+    if (selectedWH) {
+      const openH  = parseInt(String(selectedWH.openTime).split(':')[0], 10);
+      const closeH = parseInt(String(selectedWH.closeTime).split(':')[0], 10);
+      const isMidnightCrossing = closeH < openH;      // e.g. open=8, close=3
+      const isMidnightSlot     = isMidnightCrossing && h <= closeH; // 0,1,2,3 AM
+      if (isMidnightSlot) {
+        // Advance date by 1 day — these hours happen after midnight in a timezone-safe manner
+        const next = new Date(yr, mo - 1, dy + 1);
+        const y = next.getFullYear();
+        const m = String(next.getMonth() + 1).padStart(2, '0');
+        const d = String(next.getDate()).padStart(2, '0');
+        bookingDate = `${y}-${m}-${d}`;
+      }
+    }
+    // ─────────────────────────────────────────────────────────────────────
+
     const dto = {
       memberProfileId: id,
-      bookingDate: this.selectedDate(),
+      bookingDate,          // corrected date (next day for midnight-crossing slots)
       startTime: this.selectedSlot(),
       endTime: endTimeStr,
       source: BookingSource.Manual
