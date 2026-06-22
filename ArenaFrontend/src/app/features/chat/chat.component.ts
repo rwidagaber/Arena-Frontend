@@ -95,10 +95,13 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       .pipe(finalize(() => (this.loadingHistory = false)))
       .subscribe({
         next: (profile) => {
-          if (!profile?.activeSubscription) {
-            this.router.navigate(['/home']);
-            return;
-          }
+          // TODO: Temporary bypass — skip subscription check
+          // until the hasAI / subscription issue is properly fixed.
+          // Original check:
+          // if (!profile?.activeSubscription) {
+          //   this.router.navigate(['/home']);
+          //   return;
+          // }
 
           this.memberProfileId = profile.memberProfileId ?? profile.id;
           this.loadConversations();

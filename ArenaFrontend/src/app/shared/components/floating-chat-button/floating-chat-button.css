@@ -1,0 +1,379 @@
+/* ═══════════════════════════════════════════ */
+/*       FLOATING AI CHAT BUTTON (FAB)        */
+/* ═══════════════════════════════════════════ */
+
+/* ── FAB Button ── */
+.fab-chat {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 9999;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #D4FA24 0%, #b8e636 60%, #9dd42a 100%);
+  color: #0b0c0c;
+  box-shadow:
+    0 4px 16px rgba(212, 250, 36, 0.35),
+    0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: fabPulse 2.5s ease-in-out infinite;
+  outline: none;
+}
+
+.fab-chat:hover {
+  transform: scale(1.12);
+  box-shadow:
+    0 8px 28px rgba(212, 250, 36, 0.5),
+    0 4px 12px rgba(0, 0, 0, 0.2);
+  animation: none;
+}
+
+.fab-chat:active {
+  transform: scale(0.95);
+}
+
+.fab-chat:focus-visible {
+  outline: 3px solid #D4FA24;
+  outline-offset: 4px;
+}
+
+.fab-loading {
+  cursor: wait;
+  animation: none;
+  opacity: 0.7;
+}
+
+/* ── FAB Icon ── */
+.fab-icon {
+  transition: transform 0.3s ease;
+}
+
+.fab-chat:hover .fab-icon {
+  transform: rotate(-8deg) scale(1.05);
+}
+
+/* ── Loading Spinner ── */
+.fab-spinner {
+  animation: fabSpin 1s linear infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Tooltip ── */
+.fab-tooltip {
+  position: absolute;
+  right: calc(100% + 14px);
+  top: 50%;
+  transform: translateY(-50%) translateX(8px);
+  background: var(--bg-primary, #0b0c0c);
+  color: var(--text-primary, #fff);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.fab-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -6px;
+  transform: translateY(-50%) rotate(45deg);
+  width: 10px;
+  height: 10px;
+  background: var(--bg-primary, #0b0c0c);
+  border-right: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+  border-top: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+}
+
+.fab-tooltip-visible {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+
+/* ═══════════════════════════════════════════ */
+/*          ACCESS DENIED MODAL               */
+/* ═══════════════════════════════════════════ */
+
+.fab-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(11, 14, 20, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.fab-modal-card {
+  background: var(--bg-primary, #0b0c0c);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+  border-radius: 24px;
+  padding: 44px 36px 36px;
+  max-width: 460px;
+  width: 90%;
+  text-align: center;
+  position: relative;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.4),
+    0 0 40px rgba(212, 250, 36, 0.06);
+  animation: scaleUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ── Close Button ── */
+.fab-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: var(--text-secondary, #a0a0a0);
+  cursor: pointer;
+  transition: color 0.2s ease, transform 0.2s ease;
+  line-height: 1;
+  padding: 4px;
+}
+
+.fab-modal-close:hover {
+  color: var(--text-primary, #fff);
+  transform: rotate(90deg);
+}
+
+/* ── Modal Icon ── */
+.fab-modal-icon {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  animation: iconFloat 3s ease-in-out infinite;
+}
+
+/* ── Modal Content ── */
+.fab-modal-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary, #fff);
+  margin: 0 0 14px;
+}
+
+.fab-modal-desc {
+  font-family: 'Inter', sans-serif;
+  font-size: 14.5px;
+  color: var(--text-secondary, #a0a0a0);
+  line-height: 1.7;
+  margin: 0 0 30px;
+}
+
+/* ── Modal Buttons ── */
+.fab-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fab-modal-btn {
+  border: none;
+  border-radius: 14px;
+  padding: 14px 24px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  width: 100%;
+}
+
+.fab-modal-btn-primary {
+  background: linear-gradient(135deg, #D4FA24 0%, #b8e636 100%);
+  color: #0b0c0c;
+}
+
+.fab-modal-btn-primary:hover {
+  background: linear-gradient(135deg, #c0df4a 0%, #a5d32a 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(212, 250, 36, 0.35);
+}
+
+.fab-modal-btn-secondary {
+  background: var(--input-bg, rgba(255, 255, 255, 0.05));
+  color: var(--text-secondary, #a0a0a0);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+}
+
+.fab-modal-btn-secondary:hover {
+  background: var(--input-bg, rgba(255, 255, 255, 0.08));
+  color: var(--text-primary, #fff);
+  border-color: var(--text-secondary, rgba(255, 255, 255, 0.2));
+  transform: translateY(-1px);
+}
+
+
+/* ═══════════════════════════════════════════ */
+/*              ANIMATIONS                    */
+/* ═══════════════════════════════════════════ */
+
+@keyframes fabPulse {
+  0%, 100% {
+    box-shadow:
+      0 4px 16px rgba(212, 250, 36, 0.35),
+      0 2px 6px rgba(0, 0, 0, 0.15);
+  }
+  50% {
+    box-shadow:
+      0 4px 24px rgba(212, 250, 36, 0.55),
+      0 2px 6px rgba(0, 0, 0, 0.15),
+      0 0 0 8px rgba(212, 250, 36, 0.08);
+  }
+}
+
+@keyframes fabSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.88); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+
+/* ═══════════════════════════════════════════ */
+/*              RESPONSIVE                    */
+/* ═══════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .fab-chat {
+    width: 52px;
+    height: 52px;
+    bottom: 20px;
+    right: 20px;
+  }
+
+  .fab-chat svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .fab-tooltip {
+    display: none;
+  }
+
+  .fab-modal-card {
+    padding: 36px 24px 28px;
+    border-radius: 20px;
+    width: 92%;
+  }
+
+  .fab-modal-title {
+    font-size: 20px;
+  }
+
+  .fab-modal-desc {
+    font-size: 13.5px;
+  }
+}
+
+@media (max-width: 380px) {
+  .fab-chat {
+    width: 48px;
+    height: 48px;
+    bottom: 16px;
+    right: 16px;
+  }
+}
+
+
+/* ═══════════════════════════════════════════ */
+/*           RTL SUPPORT                      */
+/* ═══════════════════════════════════════════ */
+
+:host-context([dir="rtl"]) .fab-chat {
+  right: auto;
+  left: 28px;
+}
+
+:host-context([dir="rtl"]) .fab-tooltip {
+  right: auto;
+  left: calc(100% + 14px);
+}
+
+:host-context([dir="rtl"]) .fab-tooltip::after {
+  right: auto;
+  left: -6px;
+  border-right: none;
+  border-top: none;
+  border-left: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+  border-bottom: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+}
+
+:host-context([dir="rtl"]) .fab-modal-close {
+  right: auto;
+  left: 20px;
+}
+
+@media (max-width: 768px) {
+  :host-context([dir="rtl"]) .fab-chat {
+    left: 20px;
+    right: auto;
+  }
+}
+
+@media (max-width: 380px) {
+  :host-context([dir="rtl"]) .fab-chat {
+    left: 16px;
+    right: auto;
+  }
+}
+
+
+/* ═══════════════════════════════════════════ */
+/*      REDUCED MOTION PREFERENCE             */
+/* ═══════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  .fab-chat {
+    animation: none;
+  }
+
+  .fab-chat:hover {
+    transform: none;
+  }
+
+  .fab-modal-overlay,
+  .fab-modal-card,
+  .fab-modal-icon {
+    animation: none;
+  }
+}
