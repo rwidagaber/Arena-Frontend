@@ -78,6 +78,7 @@ export class FloatingChatButtonComponent implements OnInit, OnDestroy {
   }
 
   private resolveAccess(): void {
+    console.log('[FAB] resolveAccess called, isLoggedIn:', this.isLoggedIn);
     if (!this.isLoggedIn) {
       this.hasAIAccess = false;
       this.isLoading = false;
@@ -87,10 +88,14 @@ export class FloatingChatButtonComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.auth.getMe().subscribe({
       next: (profile) => {
+        console.log('[FAB] getMe() response:', JSON.stringify(profile?.activeSubscription));
+        console.log('[FAB] hasAI:', profile?.activeSubscription?.hasAI);
         this.hasAIAccess = !!profile?.activeSubscription?.hasAI;
+        console.log('[FAB] hasAIAccess set to:', this.hasAIAccess);
         this.isLoading = false;
       },
-      error: () => {
+      error: (err) => {
+        console.error('[FAB] getMe() ERROR:', err);
         this.hasAIAccess = false;
         this.isLoading = false;
       }
