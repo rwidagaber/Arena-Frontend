@@ -1,7 +1,13 @@
 import { Component, computed, inject, input, OnInit, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NutritionService } from '../../../core/services/nutrition';
-import { NutritionPlanDto, MealDto, MealImageAnalysisDto } from '../../../core/models/nutrition';
+import {
+  NutritionPlanDto,
+  MealDto,
+  MealImageAnalysisDto,
+  DailyNutritionSummaryDto,
+  MealLogResponseDto,
+} from '../../../core/models/nutrition';
 import { ThemeService } from '../../../core/services/themeservice';
 type View = 'plans' | 'plan-detail' | 'meal-detail';
 import { TranslationService } from '../../../core/services/translation.service';
@@ -27,6 +33,8 @@ export class Nutritionplan implements OnInit {
   selectedPlan = signal<NutritionPlanDto | null>(null);
   selectedMeal = signal<MealDto | null>(null);
   loading      = signal(true);
+  /** Id of the plan whose active state is currently being toggled. */
+  togglingPlanId = signal<string | null>(null);
   error        = signal<string | null>(null);
   view         = signal<View>('plans');
   selectedMealImage = signal<File | null>(null);
@@ -34,6 +42,40 @@ export class Nutritionplan implements OnInit {
   mealAnalysis = signal<MealImageAnalysisDto | null>(null);
   mealAnalysisLoading = signal(false);
   mealAnalysisError = signal<string | null>(null);
+  /** The meal just logged by the last analysis, available to undo. */
+  lastLoggedMeal = signal<MealLogResponseDto | null>(null);
+  mealUndoLoading = signal(false);
+
+  // ── Daily calorie target tracking (backend-driven) ────────────────────────
+  // The backend logs each analyzed meal against the active plan and returns the
+  // recalculated day summary, where the calorie deduction (target − consumed)
+  // is computed server-side. We just render those values.
+  /** The backend's day-vs-target summary; null until loaded / no active plan. */
+  dailySummary = signal<DailyNutritionSummaryDto | null>(null);
+  /** Active plan, used as a fallback target source before the summary loads. */
+  activePlan = computed(() => this.plans().find((p) => p.isActive) ?? null);
+  /** Daily calorie target (backend summary, falling back to the active plan). */
+  dailyCalorieTarget = computed(
+    () => this.dailySummary()?.dailyCalorieTarget ?? this.activePlan()?.dailyCalories ?? 0
+  );
+  /** Calories consumed today, per the backend. */
+  consumedCalories = computed(() => this.dailySummary()?.consumedCalories ?? 0);
+  /** Calories remaining against the target (target − consumed). */
+  remainingCalories = computed(() => {
+    const s = this.dailySummary();
+    return s ? s.remainingCalories : this.dailyCalorieTarget() - this.consumedCalories();
+  });
+  /** True once consumed calories exceed the daily target. */
+  isOverTarget = computed(() => {
+    const s = this.dailySummary();
+    return s ? s.isOverTarget : this.dailyCalorieTarget() > 0 && this.remainingCalories() < 0;
+  });
+  /** 0–100 fill of consumed vs target, for the persistent daily bar. */
+  progressPercent = computed(() => {
+    const target = this.dailyCalorieTarget();
+    if (target <= 0) return 0;
+    return Math.min(100, Math.round((this.consumedCalories() / target) * 100));
+  });
 
   // ── Search & Filter ────────────────────────────────
   searchQuery    = signal('');
@@ -101,6 +143,15 @@ export class Nutritionplan implements OnInit {
   // ── Lifecycle ──────────────────────────────────────
   ngOnInit(): void {
     this.loadPlans();
+    this.loadDailySummary();
+  }
+
+  /** Fetches the backend's day-vs-target summary (target, consumed, remaining). */
+  loadDailySummary(): void {
+    this.nutritionService.getDailySummary().subscribe({
+      next: (summary) => this.dailySummary.set(summary),
+      error: () => this.dailySummary.set(null),
+    });
   }
 
  
@@ -119,6 +170,32 @@ export class Nutritionplan implements OnInit {
         this.error.set('Failed to load nutrition plans');
         this.loading.set(false);
       }
+    });
+  }
+
+  togglePlanActive(plan: NutritionPlanDto, event: Event): void {
+    event.stopPropagation(); // don't open the plan while toggling its state
+    if (this.togglingPlanId()) return;
+
+    const activate = !plan.isActive;
+    this.togglingPlanId.set(plan.id);
+    this.nutritionService.setPlanActive(plan.id, activate).subscribe({
+      next: () => {
+        // Single active plan: reload so the other cards reflect the change,
+        // and refresh the daily summary since the active target may have moved.
+        this.loadPlans();
+        this.loadDailySummary();
+        // Keep the open plan-detail view in sync with the new active state.
+        const selected = this.selectedPlan();
+        if (selected && selected.id === plan.id) {
+          this.selectedPlan.set({ ...selected, isActive: activate });
+        }
+        this.togglingPlanId.set(null);
+      },
+      error: () => {
+        this.error.set(this.t.translate('nutrition.planUpdateFailed'));
+        this.togglingPlanId.set(null);
+      },
     });
   }
 
@@ -202,9 +279,18 @@ private mealTypeKeyMap: Record<string, string> = {
     this.mealAnalysisLoading.set(true);
     this.mealAnalysisError.set(null);
 
-    this.nutritionService.analyzeMealImage(file).subscribe({
-      next: (analysis) => {
-        this.mealAnalysis.set(analysis);
+    this.nutritionService.analyzeAndLogMeal(file).subscribe({
+      next: (result) => {
+        this.mealAnalysis.set(result.analysis);
+        // Remember the persisted meal so the user can undo this log.
+        this.lastLoggedMeal.set(result.loggedMeal ?? null);
+        // The backend logged the meal and deducted it from the daily target.
+        // Use the returned summary, or refetch it if the backend didn't echo one.
+        if (result.dailySummary) {
+          this.dailySummary.set(result.dailySummary);
+        } else {
+          this.loadDailySummary();
+        }
         this.mealAnalysisLoading.set(false);
       },
       error: (error) => {
@@ -219,6 +305,31 @@ private mealTypeKeyMap: Record<string, string> = {
     });
   }
 
+  undoLastMeal(): void {
+    const logged = this.lastLoggedMeal();
+    if (!logged || this.mealUndoLoading()) return;
+
+    this.mealUndoLoading.set(true);
+    this.nutritionService.deleteMealLog(logged.id).subscribe({
+      next: (summary) => {
+        // Meal removed: refresh the day's deduction and drop the analysis card.
+        this.dailySummary.set(summary);
+        this.lastLoggedMeal.set(null);
+        this.mealAnalysis.set(null);
+        this.mealUndoLoading.set(false);
+      },
+      error: (error) => {
+        const message = error?.message
+          ? error.message
+          : typeof error?.error === 'string'
+          ? error.error
+          : this.t.translate('nutrition.mealImageError');
+        this.mealAnalysisError.set(message);
+        this.mealUndoLoading.set(false);
+      },
+    });
+  }
+
   clearMealImageAnalysis(fileInput?: HTMLInputElement): void {
     const oldPreview = this.mealImagePreview();
     if (oldPreview) {
@@ -229,6 +340,7 @@ private mealTypeKeyMap: Record<string, string> = {
     this.mealImagePreview.set(null);
     this.mealAnalysis.set(null);
     this.mealAnalysisError.set(null);
+    this.lastLoggedMeal.set(null);
 
     if (fileInput) {
       fileInput.value = '';
