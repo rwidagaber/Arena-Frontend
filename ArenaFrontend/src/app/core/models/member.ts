@@ -9,6 +9,7 @@ export interface ActiveSubscription {
   totalSessions: number;
   paymentAmount: number;
   reminderSent: boolean;
+  hasAI: boolean;
 }
 
 export interface MemberProfile {
