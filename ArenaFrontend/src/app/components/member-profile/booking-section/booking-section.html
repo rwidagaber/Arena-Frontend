@@ -23,6 +23,12 @@
       <div class="quote-container glass-card-sub">
         <span class="quote-text">{{ currentSlide().quoteKey | translate }}</span>
       </div>
+
+      <!-- Create Booking Action Button -->
+      <button class="create-booking-btn" (click)="toggleBookingForm()">
+        <i class="fas fa-calendar-plus"></i>
+        <span>{{ 'createBooking' | translate }}</span>
+      </button>
     </div>
 
     <!-- Right: Redesigned Stats Cards Wrapper -->
@@ -54,6 +60,98 @@
           }
         </div>
       }
+    </div>
+  </div>
+</div>
+
+<!-- Collapsible Glassmorphic Booking Panel -->
+<div class="booking-form-panel glass-card" [class.show]="showBookingForm()">
+  <div class="panel-header">
+    <h2><i class="fas fa-calendar-alt"></i> {{ 'createBooking' | translate }}</h2>
+    <button class="close-btn" (click)="toggleBookingForm()" aria-label="Close">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+  </div>
+
+  <div class="panel-body">
+    <div class="form-grid">
+      <!-- Step 1: Select Date -->
+      <div class="form-group">
+        <label for="booking-date"><i class="fas fa-calendar-day"></i> {{ 'selectDate' | translate }}</label>
+        <input 
+          type="date" 
+          id="booking-date" 
+          class="form-control" 
+          [min]="minDate" 
+          [value]="selectedDate()"
+          (change)="onDateChange($event)" />
+      </div>
+
+      <!-- Step 2: Time Slots Grid -->
+      <div class="slots-container">
+        <label><i class="fas fa-clock"></i> {{ 'selectTime' | translate }}</label>
+        
+        @if (isLoadingSlots()) {
+          <div class="slots-loading">
+            <div class="spinner-small"></div>
+            <span>{{ 'slotsLoading' | translate }}</span>
+          </div>
+        } @else if (selectedDate() && availableSlots().length === 0) {
+          <div class="slots-empty text-warning">
+            <i class="fas fa-info-circle"></i>
+            <span>{{ 'noSlotsAvailable' | translate }}</span>
+          </div>
+        } @else if (!selectedDate()) {
+          <div class="slots-empty">
+            <span>{{ 'selectDate' | translate }}</span>
+          </div>
+        } @else {
+          <div class="slots-grid">
+            @for (slot of availableSlots(); track slot) {
+              <button 
+                type="button" 
+                class="slot-btn" 
+                [class.active]="selectedSlot() === slot"
+                [class.disabled]="isSlotDisabled(slot)"
+                [disabled]="isSlotDisabled(slot)"
+                (click)="selectSlot(slot)">
+                {{ formatSlotTime(slot) }}
+              </button>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Feedback and Confirm -->
+    @if (bookingError()) {
+      <div class="error-alert">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>{{ bookingError() }}</span>
+      </div>
+    }
+
+    @if (bookingSuccess()) {
+      <div class="success-alert">
+        <i class="fas fa-check-circle"></i>
+        <span>{{ 'bookingSuccess' | translate }}</span>
+      </div>
+    }
+
+    <div class="panel-actions">
+      <button 
+        type="button" 
+        class="confirm-btn" 
+        [disabled]="!selectedDate() || !selectedSlot() || bookingSubmitLoading() || bookingSuccess()"
+        (click)="confirmBookingSubmit()">
+        @if (bookingSubmitLoading()) {
+          <div class="spinner-small"></div>
+          <span>{{ 'bookingLoading' | translate }}</span>
+        } @else {
+          <i class="fas fa-check"></i>
+          <span>{{ 'confirmBooking' | translate }}</span>
+        }
+      </button>
     </div>
   </div>
 </div>

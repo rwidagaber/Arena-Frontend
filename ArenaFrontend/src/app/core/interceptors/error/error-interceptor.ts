@@ -50,7 +50,9 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         const errorBody = err.error;
         let bodyMsg = '';
 
-        if (typeof errorBody === 'string') {
+        if (Array.isArray(errorBody)) {
+          bodyMsg = errorBody.join(', ');
+        } else if (typeof errorBody === 'string') {
           bodyMsg = errorBody;
         } else if (errorBody.message) {
           bodyMsg = Array.isArray(errorBody.message)

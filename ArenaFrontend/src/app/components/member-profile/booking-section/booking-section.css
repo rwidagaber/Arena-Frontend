@@ -755,3 +755,286 @@
     font-size: 13px;
   }
 }
+
+/* ── Create Booking Action Button ───────────────────────────────── */
+.create-booking-btn {
+  margin-top: 16px;
+  background: var(--primary);
+  color: #000;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(212, 250, 36, 0.2);
+}
+.create-booking-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(212, 250, 36, 0.4);
+  background: #e2ff3b;
+}
+.create-booking-btn:active {
+  transform: translateY(0);
+}
+
+/* ── Collapsible Glassmorphic Booking Panel ───────────────────────── */
+.booking-form-panel {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  margin-bottom: 0px;
+  padding: 0 24px;
+  border: 0px solid transparent;
+  border-radius: 20px;
+  transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease, padding 0.5s ease, margin 0.5s ease, border-width 0.1s ease;
+}
+.booking-form-panel.show {
+  max-height: 1000px;
+  opacity: 1;
+  margin-bottom: 28px;
+  padding: 24px;
+  border: 1px solid var(--border);
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+}
+.panel-header h2 {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.panel-header h2 i {
+  color: var(--primary);
+}
+.panel-header .close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+.panel-header .close-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 28px;
+  margin-bottom: 24px;
+}
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.form-group label, .slots-container label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.form-group label i, .slots-container label i {
+  color: var(--primary);
+}
+.form-control {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.25s ease;
+}
+.form-control:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ── Time Slots Grid ────────────────────────────────────────────── */
+.slots-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 12px;
+  margin-top: 4px;
+}
+.slot-btn {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 8px;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.slot-btn:hover:not(.disabled):not([disabled]) {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  transform: translateY(-2px);
+}
+.slot-btn.active {
+  background: var(--primary);
+  color: #000;
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(212, 250, 36, 0.2);
+}
+.slot-btn.disabled, .slot-btn[disabled] {
+  opacity: 0.25;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.01);
+  border-color: rgba(255, 255, 255, 0.03);
+  text-decoration: line-through;
+}
+.slots-loading, .slots-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 30px;
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+.slots-empty.text-warning {
+  color: #ff9f43;
+  border-color: rgba(255, 159, 67, 0.2);
+  background: rgba(255, 159, 67, 0.02);
+}
+
+/* ── Alerts ─────────────────────────────────────────────────────── */
+.error-alert, .success-alert {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  animation: slideUp 0.3s ease;
+}
+.error-alert {
+  background: var(--danger-light);
+  border: 1px solid rgba(255, 77, 109, 0.2);
+  color: var(--danger);
+}
+.success-alert {
+  background: var(--success-light);
+  border: 1px solid rgba(0, 214, 143, 0.2);
+  color: var(--success);
+}
+@keyframes slideUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ── Confirm Panel actions ───────────────────────────────────────── */
+.panel-actions {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid var(--border);
+  padding-top: 20px;
+}
+.confirm-btn {
+  background: var(--primary);
+  color: #000;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 28px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(212, 250, 36, 0.2);
+}
+.confirm-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(212, 250, 36, 0.35);
+  background: #e2ff3b;
+}
+.confirm-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+  background: var(--border);
+  color: var(--text-muted);
+}
+.spinner-small {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── RTL Alignments ─────────────────────────────────────────────── */
+:host-context([dir="rtl"]) .create-booking-btn i {
+  order: 2;
+}
+:host-context([dir="rtl"]) .panel-actions {
+  justify-content: flex-start;
+}
+:host-context([dir="rtl"]) .confirm-btn i {
+  order: 2;
+}
