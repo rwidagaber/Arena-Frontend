@@ -112,6 +112,13 @@ export const routes: Routes = [
     path: 'my-payments',
     component: MyPaymentsComponent     // ✅ ممكن تضيف authGuard لو محتاج
   },
+  {
+    path: 'working-hours',
+    loadComponent: () =>
+      import('./features/working-hours/working-hours.component').then(
+        (m) => m.WorkingHoursComponent
+      ),
+  },
 
   // ─── Redirects ───
   {

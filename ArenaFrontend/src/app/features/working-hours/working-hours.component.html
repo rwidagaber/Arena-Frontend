@@ -1,0 +1,141 @@
+<main class="working-hours-page">
+  <div class="glow-bg-radial"></div>
+
+  <div class="container py-5 content-wrapper">
+    <!-- Header Section -->
+    <header class="page-header text-center mb-5 animate-fade-in">
+      <div class="badge-container">
+        <div class="badge">
+          <span class="dot"></span>
+          {{ 'workingHours.status' | translate }}
+        </div>
+      </div>
+      <h1 class="main-title mt-2">{{ 'workingHours.title' | translate }}</h1>
+      <p class="subtitle mx-auto">{{ 'workingHours.subtitle' | translate }}</p>
+    </header>
+
+    <!-- LOADING STATE -->
+    @if (loading()) {
+      <div class="loading-wrapper py-5">
+        <!-- Status Card Skeleton -->
+        <div class="skeleton-card status-skeleton mb-5 mx-auto">
+          <div class="shimmer circle"></div>
+          <div class="shimmer line short"></div>
+          <div class="shimmer line long"></div>
+        </div>
+
+        <!-- Weekly Cards Grid Skeleton -->
+        <div class="row g-4 justify-content-center">
+          @for (i of [1, 2, 3, 4, 5, 6, 7]; track i) {
+            <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+              <div class="skeleton-card day-skeleton">
+                <div class="skeleton-header">
+                  <div class="shimmer circle small"></div>
+                  <div class="shimmer line title-shimmer"></div>
+                </div>
+                <div class="shimmer line body-shimmer"></div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- ERROR STATE -->
+    @if (!loading() && error()) {
+      <div class="error-wrapper text-center py-5 animate-scale-in">
+        <div class="error-card mx-auto p-5">
+          <div class="error-icon-container mb-4">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+          </div>
+          <h3>{{ 'common.error' | translate }}</h3>
+          <p class="error-msg my-3">{{ error() | translate }}</p>
+          <div class="d-flex justify-content-center gap-3">
+            <button class="btn btn-primary px-4 py-2" (click)="fetchSchedule()">
+              <i class="bi bi-arrow-clockwise me-2"></i>{{ 'workingHours.retryBtn' | translate }}
+            </button>
+            <button class="btn btn-secondary px-4 py-2" routerLink="/">
+              {{ 'workingHours.backBtn' | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- MAIN WORKING HOURS LAYOUT -->
+    @if (!loading() && !error() && schedule().length > 0) {
+      <div class="schedule-content animate-fade-in-up">
+        
+        <!-- Live Gym Status Card -->
+        <section class="live-status-card mb-5 mx-auto text-center" [class.open-status]="isOpen()">
+          <div class="card-glow"></div>
+          <div class="pulse-indicator-container">
+            <div class="pulse-dot"></div>
+            <div class="pulse-ring"></div>
+          </div>
+          
+          <h2 class="status-heading mt-3">
+            @if (isOpen()) {
+              {{ 'workingHours.openNow' | translate }}
+            } @else {
+              {{ 'workingHours.closedNow' | translate }}
+            }
+          </h2>
+          
+          <p class="status-description mt-2">
+            @if (isOpen()) {
+              <span class="active-shift">
+                <i class="bi bi-clock-history me-1"></i>
+                {{ 'workingHours.today' | translate }} ({{ 'workingHours.days.' + activeShiftDay() | translate }})
+              </span>
+            } @else {
+              <span>{{ 'footer.locationDesc' | translate }}</span>
+            }
+          </p>
+        </section>
+
+        <!-- Weekly Grid Saturday -> Friday -->
+        <div class="row g-4 justify-content-center days-grid">
+          @for (item of schedule(); track item.id) {
+            <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+              <article class="day-card" 
+                       [class.today-card]="item.isToday"
+                       [class.closed-card]="item.isClosed">
+                @if (item.isToday) {
+                  <span class="today-badge">{{ 'workingHours.today' | translate }}</span>
+                }
+                
+                <div class="card-header-custom d-flex align-items-center mb-3">
+                  <div class="icon-box" [class.today-icon]="item.isToday">
+                    <i [class]="item.iconClass"></i>
+                  </div>
+                  <h3 class="day-title ms-3">{{ 'workingHours.days.' + item.dayName | translate }}</h3>
+                </div>
+
+                <div class="card-body-custom">
+                  @if (item.isClosed) {
+                    <div class="time-slot closed-text">
+                      <i class="bi bi-slash-circle me-2"></i>
+                      <span>{{ 'workingHours.closed' | translate }}</span>
+                    </div>
+                  } @else {
+                    <div class="time-slot">
+                      <div class="time-row">
+                        <span class="time-label">{{ currentLang === 'ar' ? 'من:' : 'From:' }}</span>
+                        <span class="time-value">{{ formatTime(item.openTime) }}</span>
+                      </div>
+                      <div class="time-row mt-2">
+                        <span class="time-label">{{ currentLang === 'ar' ? 'إلى:' : 'To:' }}</span>
+                        <span class="time-value">{{ formatTime(item.closeTime) }}</span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </article>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</main>
