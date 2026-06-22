@@ -70,7 +70,7 @@ export class FloatingChatButtonComponent implements OnInit, OnDestroy {
 
   goToSubscription(): void {
     this.showModal = false;
-    this.router.navigate(['/'], { fragment: 'pricing-section' });
+    this.router.navigate(['/'], { fragment: 'membership' });
   }
 
   stayHome(): void {
@@ -87,10 +87,7 @@ export class FloatingChatButtonComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.auth.getMe().subscribe({
       next: (profile) => {
-        // TODO: Temporary bypass — always grant access
-        // until the hasAI / subscription issue is properly fixed.
-        // Original: this.hasAIAccess = !!profile?.activeSubscription?.hasAI;
-        this.hasAIAccess = true;
+        this.hasAIAccess = !!profile?.activeSubscription?.hasAI;
         this.isLoading = false;
       },
       error: () => {

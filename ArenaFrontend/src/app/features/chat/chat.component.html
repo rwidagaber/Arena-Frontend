@@ -207,4 +207,36 @@
       </form>
     </section>
   </section>
+
+  <!-- Access Denied Modal -->
+  <div *ngIf="showSubscriptionModal" class="fab-modal-overlay" role="dialog" aria-modal="true">
+    <div class="fab-modal-card">
+      <!-- Icon -->
+      <div class="fab-modal-icon">
+        <svg viewBox="0 0 64 64" width="72" height="72" fill="none">
+          <circle cx="32" cy="32" r="28" fill="#D4FA24" opacity="0.12"/>
+          <circle cx="32" cy="32" r="24" stroke="#D4FA24" stroke-width="2.5" opacity="0.4"/>
+          <!-- Chat bubble -->
+          <path d="M44 28a12 12 0 0 0-24 0c0 5.2 3.4 9.6 8 11.2V44l5-4h3a12 12 0 0 0 8-11.2 12 12 0 0 0 0-.8z" stroke="#D4FA24" stroke-width="2" stroke-linejoin="round"/>
+          <!-- AI sparkle -->
+          <path d="M32 24v8M28 28h8" stroke="#D4FA24" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <!-- Content -->
+      <h3 class="fab-modal-title">{{ 'FLOATING_CHAT.MODAL_TITLE' | translate }}</h3>
+      <p class="fab-modal-desc">{{ 'FLOATING_CHAT.MODAL_DESC' | translate }}</p>
+
+      <!-- Buttons -->
+      <div class="fab-modal-actions">
+        <button class="fab-modal-btn fab-modal-btn-primary" (click)="goToSubscription()">
+          {{ 'FLOATING_CHAT.BTN_SUBSCRIBE' | translate }}
+        </button>
+        <button class="fab-modal-btn fab-modal-btn-secondary" (click)="goToHome()">
+          {{ 'FLOATING_CHAT.BTN_STAY' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
 </main>
+
