@@ -1,0 +1,54 @@
+@if (summary(); as s) {
+  <div class="daily-summary-card" [class.over-target]="s.isOverTarget">
+    <div class="daily-summary-head">
+      <span class="daily-summary-kicker">{{ t.translate('nutrition.todaysIntake') }}</span>
+      <p class="daily-summary-message">{{ s.message }}</p>
+    </div>
+
+    @if (s.hasActivePlan) {
+      <div class="daily-summary-calories">
+        <div class="daily-cal-block">
+          <span>{{ t.translate('nutrition.consumed') }}</span>
+          <strong>{{ s.consumedCalories | number:'1.0-0' }}</strong>
+          <small>{{ t.translate('nutrition.kcal') }}</small>
+        </div>
+        <div class="daily-cal-block remaining" [class.negative]="s.remainingCalories < 0">
+          <span>{{ s.isOverTarget ? t.translate('nutrition.overBy') : t.translate('nutrition.remaining') }}</span>
+          <strong>{{ (s.remainingCalories < 0 ? -s.remainingCalories : s.remainingCalories) | number:'1.0-0' }}</strong>
+          <small>{{ t.translate('nutrition.kcal') }}</small>
+        </div>
+        <div class="daily-cal-block">
+          <span>{{ t.translate('nutrition.target') }}</span>
+          <strong>{{ s.dailyCalorieTarget | number:'1.0-0' }}</strong>
+          <small>{{ t.translate('nutrition.kcal') }}</small>
+        </div>
+      </div>
+
+      <div class="daily-summary-bar">
+        <div class="daily-summary-bar-fill" [style.width.%]="consumedPercent(s)"></div>
+      </div>
+
+      <div class="daily-summary-macros">
+        <div class="daily-macro protein">
+          <span>{{ t.translate('nutrition.protein') }}</span>
+          <strong>{{ s.remainingProtein | number:'1.0-0' }}g</strong>
+          <small>{{ t.translate('nutrition.left') }}</small>
+        </div>
+        <div class="daily-macro carbs">
+          <span>{{ t.translate('nutrition.carbs') }}</span>
+          <strong>{{ s.remainingCarbs | number:'1.0-0' }}g</strong>
+          <small>{{ t.translate('nutrition.left') }}</small>
+        </div>
+        <div class="daily-macro fat">
+          <span>{{ t.translate('nutrition.fat') }}</span>
+          <strong>{{ s.remainingFat | number:'1.0-0' }}g</strong>
+          <small>{{ t.translate('nutrition.left') }}</small>
+        </div>
+      </div>
+
+      <p class="daily-summary-meals">
+        {{ s.mealsLoggedToday }} {{ t.translate('nutrition.mealsLoggedToday') }}
+      </p>
+    }
+  </div>
+}

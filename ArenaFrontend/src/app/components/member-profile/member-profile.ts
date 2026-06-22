@@ -17,6 +17,7 @@ import { QrDisplayComponent } from '../../features/QR/qr-display.component/qr-di
 import { ProgressReportComponent } from '../progress-report/progress-report.component';
 import { RevealDirective } from '../progress-report/reveal.directive';
 import { Nutritionplan } from './nutritionplan/nutritionplan';
+import { DailyNutritionSummary } from './daily-nutrition-summary/daily-nutrition-summary';
 import { ThemeService } from '../../core/services/themeservice';
 import { TranslationService, type Lang } from '../../core/services/translation.service';
 import { WorkoutComponent } from "./workoutplan/workout";
@@ -74,6 +75,7 @@ function mapSubscriptionToMembership(sub: UserSubscriptionDto): MembershipDetail
     ProgressReportComponent,
     RevealDirective,
     Nutritionplan,
+    DailyNutritionSummary,
     WorkoutComponent,
 
     BookingSection,

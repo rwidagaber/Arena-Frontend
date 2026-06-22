@@ -1,7 +1,7 @@
 import { Component, computed, inject, input, OnInit, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NutritionService } from '../../../core/services/nutrition';
-import { NutritionPlanDto, MealDto } from '../../../core/models/nutrition';
+import { NutritionPlanDto, MealDto, MealImageAnalysisDto, DailyNutritionSummaryDto } from '../../../core/models/nutrition';
 import { ThemeService } from '../../../core/services/themeservice';
 type View = 'plans' | 'plan-detail' | 'meal-detail';
 import { TranslationService } from '../../../core/services/translation.service';
@@ -29,6 +29,12 @@ export class Nutritionplan implements OnInit {
   loading      = signal(true);
   error        = signal<string | null>(null);
   view         = signal<View>('plans');
+  selectedMealImage = signal<File | null>(null);
+  mealImagePreview = signal<string | null>(null);
+  mealAnalysis = signal<MealImageAnalysisDto | null>(null);
+  mealAnalysisLoading = signal(false);
+  mealAnalysisError = signal<string | null>(null);
+  dailySummary = signal<DailyNutritionSummaryDto | null>(null);
 
   // ── Search & Filter ───────────────────────────────────────────────────────────
   searchQuery    = signal('');
@@ -217,5 +223,76 @@ export class Nutritionplan implements OnInit {
     if (!type) return type;
     const key = this.mealTypeKeyMap[type.toLowerCase()];
     return key ? this.t.translate(key) : type;
+  }
+
+  onMealImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0] ?? null;
+
+    this.mealAnalysis.set(null);
+    this.mealAnalysisError.set(null);
+    this.selectedMealImage.set(file);
+
+    const oldPreview = this.mealImagePreview();
+    if (oldPreview) {
+      URL.revokeObjectURL(oldPreview);
+    }
+
+    if (!file) {
+      this.mealImagePreview.set(null);
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      this.mealImagePreview.set(null);
+      this.selectedMealImage.set(null);
+      this.mealAnalysisError.set(this.t.translate('nutrition.mealImageInvalid'));
+      return;
+    }
+
+    this.mealImagePreview.set(URL.createObjectURL(file));
+  }
+
+  analyzeSelectedMealImage(): void {
+    const file = this.selectedMealImage();
+    if (!file || this.mealAnalysisLoading()) return;
+
+    this.mealAnalysisLoading.set(true);
+    this.mealAnalysisError.set(null);
+
+    this.nutritionService.analyzeMealImage(file).subscribe({
+      next: (result) => {
+        this.mealAnalysis.set(result.analysis);
+        if (result.dailySummary) {
+          this.dailySummary.set(result.dailySummary);
+        }
+        this.mealAnalysisLoading.set(false);
+      },
+      error: (error) => {
+        const message = error?.message
+          ? error.message
+          : typeof error?.error === 'string'
+          ? error.error
+          : this.t.translate('nutrition.mealImageError');
+        this.mealAnalysisError.set(message);
+        this.mealAnalysisLoading.set(false);
+      }
+    });
+  }
+
+  clearMealImageAnalysis(fileInput?: HTMLInputElement): void {
+    const oldPreview = this.mealImagePreview();
+    if (oldPreview) {
+      URL.revokeObjectURL(oldPreview);
+    }
+
+    this.selectedMealImage.set(null);
+    this.mealImagePreview.set(null);
+    this.mealAnalysis.set(null);
+    this.mealAnalysisError.set(null);
+
+    if (fileInput) {
+      fileInput.value = '';
+    }
   }
 }
