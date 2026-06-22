@@ -3,6 +3,7 @@ import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, inject }
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import QRCode from 'qrcode';
 import { AuthService } from '../../../core/services/auth';
+import { BookingService } from '../../../core/services/booking.service';
 import { environment } from '../../../../environments/environment';
 import { BookingDto, QrDto, QrScanResultDto } from '../qr.model';
 import { QrService } from '../qr.service';
@@ -19,6 +20,7 @@ export class QrDisplayComponent implements OnInit, OnChanges, OnDestroy {
 
   private route = inject(ActivatedRoute);
   private qrService = inject(QrService);
+  private bookingService = inject(BookingService);
   private auth = inject(AuthService);
 
   bookingId = '';
@@ -79,7 +81,7 @@ export class QrDisplayComponent implements OnInit, OnChanges, OnDestroy {
     this.isLoadingBookings = true;
     this.error = '';
 
-    this.qrService.getBookings(requestMemberProfileId).subscribe({
+    this.bookingService.getBookings(requestMemberProfileId).subscribe({
       next: bookings => {
         if (this.memberProfileId !== requestMemberProfileId) return;
 

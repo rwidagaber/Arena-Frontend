@@ -1,10 +1,12 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed, input, output, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
 import { catchError, of, Subscription } from 'rxjs';
 
-import { QrService } from '../../../features/QR/qr.service';
-import { BookingDto } from '../../../features/QR/qr.model';
+import { BookingDto, BookingSource } from '../../../core/models/booking';
+import { BookingService } from '../../../core/services/booking.service';
+import { WorkingHoursService, WorkingHoursDto } from '../../../features/working-hours/working-hours.service';
 import { BookingCalendarComponent } from '../booking-calendar/booking-calendar';
 import { BookingCardComponent } from '../booking-card/booking-card';
 import { StatsOverview, StatItem } from '../stats-overview/stats-overview';
@@ -18,15 +20,17 @@ import { ThemeService } from '../../../core/services/themeservice';
   imports: [
     CommonModule,
     TranslateModule,
+    FormsModule,
     BookingCalendarComponent,
     BookingCardComponent,
-    StatsOverview,
   ],
   templateUrl: './booking-section.html',
   styleUrl: './booking-section.css',
 })
 export class BookingSection implements OnInit, OnDestroy {
-  private qrService = inject(QrService);
+  private bookingService = inject(BookingService);
+  private workingHoursService = inject(WorkingHoursService);
+  private translate = inject(TranslateService);
   private authService = inject(AuthService);
   private bookingEvents = inject(BookingEventsService);
   private themeService = inject(ThemeService);
@@ -188,6 +192,7 @@ export class BookingSection implements OnInit, OnDestroy {
   // ── Lifecycle ──────────────────────────────────────────────────────
   ngOnInit(): void {
     this.loadBookings();
+    this.loadWorkingHours();
     this.bookingEventsSub = this.bookingEvents.bookingsChanged$.subscribe(() => {
       this.loadBookings();
     });
@@ -257,7 +262,7 @@ export class BookingSection implements OnInit, OnDestroy {
     this.loading.set(true);
     this.error.set(null);
 
-    this.qrService
+    this.bookingService
       .getBookings(id)
       .pipe(
         catchError(() => {
@@ -272,7 +277,7 @@ export class BookingSection implements OnInit, OnDestroy {
   }
 
   onCancelBooking(bookingId: string): void {
-    this.qrService
+    this.bookingService
       .cancelBooking(bookingId)
       .pipe(catchError(() => of(null)))
       .subscribe(res => {
@@ -281,5 +286,222 @@ export class BookingSection implements OnInit, OnDestroy {
           this.bookingCancelled.emit(bookingId);
         }
       });
+  }
+
+  // ── Manual Booking Form Panel State & Methods ──────────────────────────
+  showBookingForm = signal(false);
+  selectedDate = signal('');
+  selectedSlot = signal('');
+  availableSlots = signal<string[]>([]);
+  isLoadingSlots = signal(false);
+  bookingError = signal('');
+  bookingSuccess = signal(false);
+  bookingSubmitLoading = signal(false);
+  workingHours = signal<WorkingHoursDto[]>([]);
+
+  loadWorkingHours(): void {
+    this.workingHoursService.getWorkingHours().subscribe({
+      next: data => {
+        this.workingHours.set(data ?? []);
+      },
+      error: err => {
+        console.error('Failed to load working hours', err);
+      }
+    });
+  }
+
+  toggleBookingForm(): void {
+    this.showBookingForm.set(!this.showBookingForm());
+    if (!this.showBookingForm()) {
+      this.resetForm();
+    }
+  }
+
+  resetForm(): void {
+    this.selectedDate.set('');
+    this.selectedSlot.set('');
+    this.availableSlots.set([]);
+    this.bookingError.set('');
+    this.bookingSuccess.set(false);
+  }
+
+  onDateChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const dateVal = target.value;
+    this.selectedDate.set(dateVal);
+    this.selectedSlot.set('');
+    this.bookingError.set('');
+    this.bookingSuccess.set(false);
+
+    if (!dateVal) {
+      this.availableSlots.set([]);
+      return;
+    }
+
+    this.isLoadingSlots.set(true);
+    try {
+      const [year, month, day] = dateVal.split('-').map(Number);
+      const parsedDate = new Date(year, month - 1, day);
+      const dayIndex = parsedDate.getDay();
+      const workingDayEnumIndex = (dayIndex + 6) % 7;
+
+      const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+      const selectedDayName = days[workingDayEnumIndex];
+
+      const workingHour = this.workingHours().find(wh => {
+        if (typeof wh.dayOfWeek === 'number') {
+          return wh.dayOfWeek === workingDayEnumIndex;
+        }
+        return String(wh.dayOfWeek).toLowerCase() === selectedDayName.toLowerCase();
+      });
+
+      if (!workingHour || workingHour.isClosed) {
+        this.availableSlots.set([]);
+        this.bookingError.set(this.translate.instant('GymIsClosed'));
+      } else {
+        const slots = this.generateSlots(workingHour.openTime, workingHour.closeTime);
+        this.availableSlots.set(slots);
+      }
+    } catch (e) {
+      console.error(e);
+      this.bookingError.set('Invalid date selection');
+    } finally {
+      this.isLoadingSlots.set(false);
+    }
+  }
+
+  selectSlot(slot: string): void {
+    if (this.isSlotDisabled(slot)) return;
+    this.selectedSlot.set(slot);
+    this.bookingError.set('');
+    this.bookingSuccess.set(false);
+  }
+
+  generateSlots(openTime: string, closeTime: string): string[] {
+    const slots: string[] = [];
+    const [openH] = openTime.split(':').map(Number);
+    const [closeH] = closeTime.split(':').map(Number);
+
+    if (closeH < openH) {
+      // Shift crosses midnight
+      for (let h = openH; h < 24; h++) {
+        slots.push(`${String(h).padStart(2, '0')}:00:00`);
+      }
+      for (let h = 0; h < closeH; h++) {
+        slots.push(`${String(h).padStart(2, '0')}:00:00`);
+      }
+    } else {
+      // Normal shift
+      for (let h = openH; h < closeH; h++) {
+        slots.push(`${String(h).padStart(2, '0')}:00:00`);
+      }
+    }
+    return slots;
+  }
+
+  isSlotDisabled(slot: string): boolean {
+    if (!this.selectedDate()) return true;
+
+    const egyptNow = this.getEgyptTime();
+    const todayStr = egyptNow.toISOString().split('T')[0];
+
+    if (this.selectedDate() === todayStr) {
+      const [slotH] = slot.split(':').map(Number);
+      const currentH = egyptNow.getHours();
+      if (slotH <= currentH) {
+        return true;
+      }
+    }
+
+    const dayBookings = this.bookings().filter(b => {
+      const isConfirmed = b.status === 1 || b.status === '1' || b.status === 'Confirmed';
+      return isConfirmed && b.bookingDate.split('T')[0] === this.selectedDate();
+    });
+
+    const slotH = Number(slot.split(':')[0]);
+    const hasGapConflict = dayBookings.some(b => {
+      const bH = Number(b.startTime.split(':')[0]);
+      return Math.abs(bH - slotH) < 5;
+    });
+
+    return hasGapConflict;
+  }
+
+  formatSlotTime(slot: string): string {
+    const lang = this.translate.currentLang || 'en';
+    const [hStr] = slot.split(':');
+    let hours = parseInt(hStr, 10);
+    
+    let ampm = hours >= 12 ? 'PM' : 'AM';
+    if (lang === 'ar') {
+      ampm = hours >= 12 ? 'م' : 'ص';
+    }
+    
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    return `${hours}:00 ${ampm}`;
+  }
+
+  getEgyptTime(): Date {
+    const now = new Date();
+    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+    return new Date(utc + (3600000 * 3));
+  }
+
+  get minDate(): string {
+    const egyptNow = this.getEgyptTime();
+    return egyptNow.toISOString().split('T')[0];
+  }
+
+  confirmBookingSubmit(): void {
+    const id = this.memberProfileId();
+    if (!id || !this.selectedDate() || !this.selectedSlot()) return;
+
+    this.bookingSubmitLoading.set(true);
+    this.bookingError.set('');
+    this.bookingSuccess.set(false);
+
+    const [h] = this.selectedSlot().split(':').map(Number);
+    const endH = (h + 1) % 24;
+    const endTimeStr = `${String(endH).padStart(2, '0')}:00:00`;
+
+    const dto = {
+      memberProfileId: id,
+      bookingDate: this.selectedDate(),
+      startTime: this.selectedSlot(),
+      endTime: endTimeStr,
+      source: BookingSource.Manual
+    };
+
+    this.bookingService.createBooking(dto).subscribe({
+      next: () => {
+        this.bookingSubmitLoading.set(false);
+        this.bookingSuccess.set(true);
+        this.selectedSlot.set('');
+        
+        this.loadBookings();
+        this.bookingEvents.notifyBookingsChanged();
+        
+        setTimeout(() => {
+          this.showBookingForm.set(false);
+          this.resetForm();
+        }, 2000);
+      },
+      error: err => {
+        this.bookingSubmitLoading.set(false);
+        const rawMsg = err.message || 'An error occurred';
+        const keyMapping: Record<string, string> = {
+          'BookingGapViolation': 'bookingGapError',
+          'ActiveSubscriptionRequired': 'noActiveSubscriptionError',
+          'NoRemainingSessions': 'noRemainingSessionsError',
+          'BookingTimeCannotBeInPast': 'BookingTimeCannotBeInPast',
+          'DuplicateBooking': 'DuplicateBooking',
+          'GymIsClosed': 'GymIsClosed'
+        };
+        const mappedKey = keyMapping[rawMsg];
+        const translatedMsg = mappedKey ? this.translate.instant(mappedKey) : this.translate.instant(rawMsg);
+        this.bookingError.set(translatedMsg);
+      }
+    });
   }
 }
