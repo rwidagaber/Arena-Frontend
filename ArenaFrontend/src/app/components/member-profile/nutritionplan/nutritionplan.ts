@@ -35,6 +35,20 @@ export class Nutritionplan implements OnInit {
   mealAnalysisLoading = signal(false);
   mealAnalysisError = signal<string | null>(null);
 
+  // ── Daily calorie target tracking ─────────────────────────────────────────
+  // Each analyzed meal is deducted from the active plan's daily target so the
+  // member can see how many calories they have left for the day.
+  /** The member's currently active nutrition plan (the source of the target). */
+  activePlan = computed(() => this.plans().find((p) => p.isActive) ?? null);
+  /** Daily calorie target from the active plan (0 when no plan is active). */
+  dailyCalorieTarget = computed(() => this.activePlan()?.dailyCalories ?? 0);
+  /** Running total of calories from meals analyzed this session. */
+  consumedCalories = signal(0);
+  /** Target minus consumed; negative once the member goes over the target. */
+  remainingCalories = computed(() => this.dailyCalorieTarget() - this.consumedCalories());
+  /** True once consumed calories exceed the daily target. */
+  isOverTarget = computed(() => this.dailyCalorieTarget() > 0 && this.remainingCalories() < 0);
+
   // ── Search & Filter ────────────────────────────────
   searchQuery    = signal('');
   showActiveOnly = signal(false);
@@ -205,6 +219,8 @@ private mealTypeKeyMap: Record<string, string> = {
     this.nutritionService.analyzeMealImage(file).subscribe({
       next: (analysis) => {
         this.mealAnalysis.set(analysis);
+        // Deduct this meal's calories from the daily target.
+        this.consumedCalories.update((c) => c + (analysis.estimatedCalories || 0));
         this.mealAnalysisLoading.set(false);
       },
       error: (error) => {

@@ -1,0 +1,257 @@
+<section class="ma-page">
+
+  <!-- ── Hero ─────────────────────────────────────────────────────────────── -->
+  <header class="ma-hero">
+    <div class="ma-hero-text">
+      <span class="ma-kicker">{{ 'mealAnalysis.kicker' | translate }}</span>
+      <h1 class="ma-title">{{ 'mealAnalysis.title' | translate }}</h1>
+      <p class="ma-subtitle">{{ 'mealAnalysis.subtitle' | translate }}</p>
+    </div>
+  </header>
+
+  <div class="ma-grid">
+
+    <!-- ── Scanner ────────────────────────────────────────────────────────── -->
+    <div class="ma-card ma-scanner">
+      <div class="ma-card-head">
+        <h2>{{ 'mealAnalysis.scanTitle' | translate }}</h2>
+        <p>{{ 'mealAnalysis.scanSubtitle' | translate }}</p>
+      </div>
+
+      <input
+        #imageInput
+        id="ma-image-input"
+        type="file"
+        accept="image/png,image/jpeg,image/webp"
+        class="ma-file-input"
+        (change)="onImageSelected($event)"
+      />
+
+      @if (!preview()) {
+        <label class="ma-dropzone" for="ma-image-input">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="40" height="40">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          <span class="ma-dropzone-title">{{ 'mealAnalysis.chooseImage' | translate }}</span>
+          <span class="ma-dropzone-hint">{{ 'mealAnalysis.chooseImageHint' | translate }}</span>
+        </label>
+      } @else {
+        <div class="ma-preview-wrap">
+          <img [src]="preview()" alt="Selected meal" class="ma-preview" />
+          <div class="ma-preview-actions">
+            <label class="ma-btn ma-btn-ghost" for="ma-image-input">
+              {{ 'mealAnalysis.changeImage' | translate }}
+            </label>
+            <button class="ma-btn ma-btn-ghost" type="button" (click)="clear(imageInput)">
+              {{ 'mealAnalysis.clear' | translate }}
+            </button>
+          </div>
+        </div>
+      }
+
+      <button
+        class="ma-btn ma-btn-primary ma-analyze"
+        type="button"
+        [disabled]="!selectedImage() || analyzing()"
+        (click)="analyze()"
+      >
+        @if (analyzing()) {
+          <span class="ma-spinner" aria-hidden="true"></span>
+          {{ 'mealAnalysis.analyzing' | translate }}
+        } @else {
+          {{ 'mealAnalysis.analyze' | translate }}
+        }
+      </button>
+
+      @if (scanError()) {
+        <div class="ma-error" role="alert">{{ scanError() }}</div>
+      }
+
+      <!-- Analysis result of the meal just entered -->
+      @if (analysis(); as a) {
+        <div class="ma-result">
+          <div class="ma-result-head">
+            <div>
+              <span class="ma-kicker">{{ 'mealAnalysis.detected' | translate }}</span>
+              <h3>{{ a.mealName || ('mealAnalysis.detectedMeal' | translate) }}</h3>
+            </div>
+            <div class="ma-result-cal">
+              <strong>{{ a.estimatedCalories | number:'1.0-0' }}</strong>
+              <span>{{ 'mealAnalysis.kcal' | translate }}</span>
+            </div>
+          </div>
+
+          @if (a.summary) { <p class="ma-result-summary">{{ a.summary }}</p> }
+
+          <div class="ma-macros">
+            <div class="ma-macro protein">
+              <span>{{ 'mealAnalysis.protein' | translate }}</span>
+              <strong>{{ a.protein.grams | number:'1.0-0' }}g</strong>
+              <small>{{ a.protein.percentage | number:'1.0-0' }}%</small>
+            </div>
+            <div class="ma-macro carbs">
+              <span>{{ 'mealAnalysis.carbs' | translate }}</span>
+              <strong>{{ a.carbs.grams | number:'1.0-0' }}g</strong>
+              <small>{{ a.carbs.percentage | number:'1.0-0' }}%</small>
+            </div>
+            <div class="ma-macro fat">
+              <span>{{ 'mealAnalysis.fat' | translate }}</span>
+              <strong>{{ a.fat.grams | number:'1.0-0' }}g</strong>
+              <small>{{ a.fat.percentage | number:'1.0-0' }}%</small>
+            </div>
+          </div>
+
+          @if (a.detectedFoods?.length) {
+            <div class="ma-tags">
+              @for (food of a.detectedFoods; track food) {
+                <span class="ma-tag">{{ food }}</span>
+              }
+            </div>
+          }
+
+          @if (a.notes?.length) {
+            <ul class="ma-notes">
+              @for (note of a.notes; track note) { <li>{{ note }}</li> }
+            </ul>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- ── Day column: remaining calories + today's meals ─────────────────── -->
+    <div class="ma-col">
+
+      <!-- Remaining calories -->
+      <div class="ma-card ma-summary" [class.over]="summary()?.isOverTarget">
+        <div class="ma-card-head">
+          <h2>{{ 'mealAnalysis.todayTitle' | translate }}</h2>
+        </div>
+
+        @if (summary(); as s) {
+          @if (s.hasActivePlan) {
+            <div class="ma-ring-row">
+              <div class="ma-ring">
+                <svg viewBox="0 0 120 120" width="140" height="140">
+                  <circle class="ma-ring-track" cx="60" cy="60" r="52" />
+                  <circle
+                    class="ma-ring-value"
+                    cx="60" cy="60" r="52"
+                    [attr.stroke-dasharray]="ringCircumference"
+                    [attr.stroke-dashoffset]="ringOffset()"
+                  />
+                </svg>
+                <div class="ma-ring-center">
+                  <strong [class.negative]="s.remainingCalories < 0">
+                    {{ (s.remainingCalories < 0 ? -s.remainingCalories : s.remainingCalories) | number:'1.0-0' }}
+                  </strong>
+                  <span>{{ (s.isOverTarget ? 'mealAnalysis.overBy' : 'mealAnalysis.remaining') | translate }}</span>
+                  <small>{{ 'mealAnalysis.kcal' | translate }}</small>
+                </div>
+              </div>
+
+              <div class="ma-ring-side">
+                <div class="ma-stat">
+                  <span>{{ 'mealAnalysis.consumed' | translate }}</span>
+                  <strong>{{ s.consumedCalories | number:'1.0-0' }}</strong>
+                </div>
+                <div class="ma-stat">
+                  <span>{{ 'mealAnalysis.target' | translate }}</span>
+                  <strong>{{ s.dailyCalorieTarget | number:'1.0-0' }}</strong>
+                </div>
+              </div>
+            </div>
+
+            <p class="ma-summary-msg">{{ s.message }}</p>
+
+            <div class="ma-macros ma-macros-remaining">
+              <div class="ma-macro protein">
+                <span>{{ 'mealAnalysis.protein' | translate }}</span>
+                <strong>{{ s.remainingProtein | number:'1.0-0' }}g</strong>
+                <small>{{ 'mealAnalysis.left' | translate }}</small>
+              </div>
+              <div class="ma-macro carbs">
+                <span>{{ 'mealAnalysis.carbs' | translate }}</span>
+                <strong>{{ s.remainingCarbs | number:'1.0-0' }}g</strong>
+                <small>{{ 'mealAnalysis.left' | translate }}</small>
+              </div>
+              <div class="ma-macro fat">
+                <span>{{ 'mealAnalysis.fat' | translate }}</span>
+                <strong>{{ s.remainingFat | number:'1.0-0' }}g</strong>
+                <small>{{ 'mealAnalysis.left' | translate }}</small>
+              </div>
+            </div>
+          } @else {
+            <div class="ma-noplan">
+              <p>{{ 'mealAnalysis.noPlan' | translate }}</p>
+              <a routerLink="/pricing" class="ma-btn ma-btn-ghost">{{ 'mealAnalysis.viewPlans' | translate }}</a>
+            </div>
+          }
+        } @else if (loading()) {
+          <div class="ma-skeleton ma-skeleton-ring"></div>
+        } @else {
+          <p class="ma-summary-msg muted">{{ 'mealAnalysis.noSummary' | translate }}</p>
+        }
+      </div>
+
+      <!-- Today's meals -->
+      <div class="ma-card ma-meals">
+        <div class="ma-card-head ma-meals-head">
+          <div>
+            <h2>{{ 'mealAnalysis.mealsTitle' | translate }}</h2>
+            <p>{{ 'mealAnalysis.mealsSubtitle' | translate }}</p>
+          </div>
+          @if (meals().length) {
+            <span class="ma-count">{{ meals().length }}</span>
+          }
+        </div>
+
+        @if (loading() && !meals().length) {
+          @for (i of [1,2,3]; track i) { <div class="ma-skeleton ma-skeleton-row"></div> }
+        } @else if (!meals().length) {
+          <div class="ma-empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" width="46" height="46">
+              <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
+              <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+              <line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>
+            </svg>
+            <h3>{{ 'mealAnalysis.empty' | translate }}</h3>
+            <p>{{ 'mealAnalysis.emptyHint' | translate }}</p>
+          </div>
+        } @else {
+          <ul class="ma-meal-list">
+            @for (meal of meals(); track trackMeal($index, meal)) {
+              <li class="ma-meal">
+                <div class="ma-meal-thumb">
+                  @if (meal.imageUrl) {
+                    <img [src]="meal.imageUrl" [alt]="meal.foodItems" loading="lazy" />
+                  } @else {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22">
+                      <path d="M3 2v7c0 1.1.9 2 2 2h0c1.1 0 2-.9 2-2V2M5 2v20M21 15V2a5 5 0 0 0-3 4.5V13c0 1.1.9 2 2 2h1zm0 0v7"/>
+                    </svg>
+                  }
+                </div>
+                <div class="ma-meal-body">
+                  <div class="ma-meal-top">
+                    <span class="ma-meal-name">{{ meal.foodItems || ('mealAnalysis.detectedMeal' | translate) }}</span>
+                    <span class="ma-meal-time">{{ meal.logDate | date:'shortTime' }}</span>
+                  </div>
+                  <div class="ma-meal-macros">
+                    <span class="ma-chip cal">{{ meal.calories | number:'1.0-0' }} {{ 'mealAnalysis.kcal' | translate }}</span>
+                    <span class="ma-chip p">{{ 'mealAnalysis.protein' | translate }} {{ meal.protein | number:'1.0-0' }}g</span>
+                    <span class="ma-chip c">{{ 'mealAnalysis.carbs' | translate }} {{ meal.carbs | number:'1.0-0' }}g</span>
+                    <span class="ma-chip f">{{ 'mealAnalysis.fat' | translate }} {{ meal.fat | number:'1.0-0' }}g</span>
+                  </div>
+                  @if (meal.aiComment) {
+                    <p class="ma-meal-comment">{{ meal.aiComment }}</p>
+                  }
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </div>
+  </div>
+</section>

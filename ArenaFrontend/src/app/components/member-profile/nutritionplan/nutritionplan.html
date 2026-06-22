@@ -70,6 +70,25 @@
 
             <p class="meal-analysis-summary">{{ analysis.summary }}</p>
 
+            @if (dailyCalorieTarget() > 0) {
+              <div class="meal-analysis-budget" [class.over]="isOverTarget()">
+                <div class="budget-row">
+                  <span>{{ t.translate('nutrition.dailyTarget') }}</span>
+                  <strong>{{ dailyCalorieTarget() }} {{ t.translate('nutrition.kcal') }}</strong>
+                </div>
+                <div class="budget-row">
+                  <span>{{ t.translate('nutrition.consumedToday') }}</span>
+                  <strong>{{ consumedCalories() }} {{ t.translate('nutrition.kcal') }}</strong>
+                </div>
+                <div class="budget-row budget-remaining">
+                  <span>{{ isOverTarget() ? t.translate('nutrition.overTarget') : t.translate('nutrition.remainingCalories') }}</span>
+                  <strong>{{ (isOverTarget() ? -remainingCalories() : remainingCalories()) }} {{ t.translate('nutrition.kcal') }}</strong>
+                </div>
+              </div>
+            } @else {
+              <p class="meal-analysis-noplan-hint">{{ t.translate('nutrition.noActivePlanTarget') }}</p>
+            }
+
             <div class="meal-analysis-macros">
               <div class="analysis-macro protein">
                 <span>{{ t.translate('nutrition.protein') }}</span>

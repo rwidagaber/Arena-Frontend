@@ -145,6 +145,43 @@
   line-height: 1.5;
 }
 
+/* Daily-target deduction: shows target − consumed = remaining for the active plan. */
+.meal-analysis-budget {
+  margin: 12px 0 0;
+  padding: 12px 14px;
+  border: 1px solid var(--n-border, rgba(255, 255, 255, 0.12));
+  border-radius: 12px;
+  background: rgba(207, 254, 33, 0.06);
+  display: grid;
+  gap: 6px;
+}
+.meal-analysis-budget.over {
+  background: rgba(255, 99, 99, 0.08);
+  border-color: rgba(255, 99, 99, 0.4);
+}
+.meal-analysis-budget .budget-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--n-text-muted);
+}
+.meal-analysis-budget .budget-row strong { color: var(--n-text, #fff); }
+.meal-analysis-budget .budget-remaining {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--n-border, rgba(255, 255, 255, 0.1));
+  font-size: 14px;
+}
+.meal-analysis-budget .budget-remaining span { color: var(--n-text, #fff); font-weight: 600; }
+.meal-analysis-budget.over .budget-remaining strong { color: #ff6363; }
+.meal-analysis-noplan-hint {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  color: var(--n-text-muted);
+  font-style: italic;
+}
+
 .meal-image-controls {
   display: flex;
   align-items: center;
