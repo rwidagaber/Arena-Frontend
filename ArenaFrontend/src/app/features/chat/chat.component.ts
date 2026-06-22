@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy, AfterViewChecked, ElementRef, ViewChild, inject } from '@angular/core';import { FormsModule } from '@angular/forms';
+import { AfterViewChecked, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { AuthService } from '../../core/services/auth';
@@ -15,7 +16,7 @@ import { ChatConversation, ChatMessage, ChatMessageBlock, ChatResponse } from '.
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.css'],
 })
-export class ChatComponent implements OnInit, AfterViewChecked {
+export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('messagesViewport') private messagesViewport?: ElementRef<HTMLDivElement>;
 
   private readonly chatService = inject(ChatService);
@@ -29,14 +30,13 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   loadingHistory = true;
   loadingConversations = true;
   sending = false;
+  recording = false;
+  transcribing = false;
   creatingChat = false;
   deletingConversationId = '';
   error = '';
   conversationId?: string;
   memberProfileId = '';
-
-recording: boolean = false;
-transcribing: boolean = false;
 
   // Voice recording UX state
   recordingSeconds = 0;
@@ -647,18 +647,17 @@ transcribing: boolean = false;
   }
 
   private createMessage(
-  sender: ChatMessage['sender'],
-  content: string,
-  options?: { isVoice?: boolean; audioUrl?: string }
-): ChatMessage {
-  return {
-    sender,
-    content,
-    createdAt: new Date().toISOString(),
-    isVoice: options?.isVoice ?? false,
-    audioUrl: options?.audioUrl,
-  };
-}
+    sender: ChatMessage['sender'],
+    content: string,
+    extra: Partial<ChatMessage> = {}
+  ): ChatMessage {
+    return {
+      sender,
+      content,
+      createdAt: new Date().toISOString(),
+      ...extra,
+    };
+  }
 
 
   ngOnDestroy(): void {
