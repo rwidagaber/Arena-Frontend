@@ -7,13 +7,15 @@ import { AuthService } from '../../core/services/auth';
 import { MemberService } from '../../core/services/member.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { ThemeService } from '../../core/services/themeservice';
+import { NotificationBellComponent } from "../../features/notifications/notification-bell/notification-bell";
+import { NotificationToastComponent } from "../../features/notifications/notification-toast/notification-toast";
 
 export type DropdownSection = 'profile' | 'workout' | 'diet' | 'membership' | 'progress' | 'settings';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, TranslateModule],
+  imports: [CommonModule, RouterLink, RouterLinkActive, TranslateModule, NotificationBellComponent, NotificationToastComponent],
   templateUrl: './header.html',
   styleUrls: ['./header.css']
 })
