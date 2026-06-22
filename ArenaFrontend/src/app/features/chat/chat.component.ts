@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { AfterViewChecked, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { finalize } from 'rxjs';
 import { AuthService } from '../../core/services/auth';
 import { BookingEventsService } from '../../core/services/booking-events.service';
@@ -12,7 +13,7 @@ import { ChatConversation, ChatMessage, ChatMessageBlock, ChatResponse } from '.
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, TranslateModule],
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.css'],
 })
@@ -83,6 +84,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     'How can I recover faster?',
   ];
 
+  showSubscriptionModal = false;
+
   ngOnInit(): void {
     if (!this.auth.isLoggedIn) {
       this.router.navigate(['/login'], { queryParams: { returnUrl: '/chat' } });
@@ -95,15 +98,14 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       .pipe(finalize(() => (this.loadingHistory = false)))
       .subscribe({
         next: (profile) => {
-          // TODO: Temporary bypass — skip subscription check
-          // until the hasAI / subscription issue is properly fixed.
-          // Original check:
-          // if (!profile?.activeSubscription) {
-          //   this.router.navigate(['/home']);
-          //   return;
-          // }
+          this.memberProfileId = profile?.memberProfileId ?? profile?.id ?? '';
 
-          this.memberProfileId = profile.memberProfileId ?? profile.id;
+          if (!profile?.activeSubscription || !profile.activeSubscription.hasAI) {
+            this.showSubscriptionModal = true;
+            this.loadingConversations = false;
+            return;
+          }
+
           this.loadConversations();
         },
         error: () => {
@@ -111,6 +113,16 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
           this.loadingConversations = false;
         },
       });
+  }
+
+  goToSubscription(): void {
+    this.showSubscriptionModal = false;
+    this.router.navigate(['/'], { fragment: 'membership' });
+  }
+
+  goToHome(): void {
+    this.showSubscriptionModal = false;
+    this.router.navigate(['/']);
   }
 
   ngAfterViewChecked(): void {
