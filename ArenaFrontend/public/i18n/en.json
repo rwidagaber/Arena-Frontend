@@ -899,6 +899,7 @@
     "deactivate": "Deactivate",
     "updatingPlan": "Updating...",
     "planUpdateFailed": "Could not update the plan. Please try again.",
+    "mustKeepOneActive": "You must keep at least one active plan.",
     "title": "Diet plans",
        "planCountPrefix": "Best diet plans available —",
     "planCountSuffix": "diet plans available"

@@ -900,6 +900,7 @@
     "deactivate": "إلغاء التفعيل",
     "updatingPlan": "جارٍ التحديث...",
     "planUpdateFailed": "تعذر تحديث الخطة. حاول مرة أخرى.",
+    "mustKeepOneActive": "يجب الإبقاء على خطة واحدة نشطة على الأقل.",
     "title": "الخطط الغذائيه",
     "planCountPrefix": "أفضل الخطط والبرامج الاحترافية المتاحة لك —",
     "planCountSuffix": "خطة تمرين متاحة"

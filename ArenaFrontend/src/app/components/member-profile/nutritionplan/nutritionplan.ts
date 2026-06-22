@@ -54,6 +54,8 @@ export class Nutritionplan implements OnInit {
   dailySummary = signal<DailyNutritionSummaryDto | null>(null);
   /** Active plan, used as a fallback target source before the summary loads. */
   activePlan = computed(() => this.plans().find((p) => p.isActive) ?? null);
+  /** How many of the member's plans are active (must stay >= 1). */
+  activePlanCount = computed(() => this.plans().filter((p) => p.isActive).length);
   /** Daily calorie target (backend summary, falling back to the active plan). */
   dailyCalorieTarget = computed(
     () => this.dailySummary()?.dailyCalorieTarget ?? this.activePlan()?.dailyCalories ?? 0
@@ -192,8 +194,10 @@ export class Nutritionplan implements OnInit {
         }
         this.togglingPlanId.set(null);
       },
-      error: () => {
-        this.error.set(this.t.translate('nutrition.planUpdateFailed'));
+      error: (err) => {
+        const e = err?.error;
+        const msg = Array.isArray(e) ? e[0] : (typeof e === 'string' ? e : this.t.translate('nutrition.planUpdateFailed'));
+        this.error.set(msg);
         this.togglingPlanId.set(null);
       },
     });

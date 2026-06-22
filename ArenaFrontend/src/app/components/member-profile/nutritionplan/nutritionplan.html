@@ -282,7 +282,8 @@
           <button
             class="plan-toggle-btn"
             [class.is-active]="plan.isActive"
-            [disabled]="togglingPlanId() === plan.id"
+            [disabled]="togglingPlanId() === plan.id || (plan.isActive && activePlanCount() <= 1)"
+            [title]="plan.isActive && activePlanCount() <= 1 ? t.translate('nutrition.mustKeepOneActive') : ''"
             (click)="togglePlanActive(plan, $event)"
           >
             {{ togglingPlanId() === plan.id
