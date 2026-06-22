@@ -829,6 +829,9 @@
 
   },
   "workout": {
+    "title": "Workout Plans",
+    "planCountPrefix": "Best workout plans available —",
+    "planCountSuffix": "workout plans available",
     "searchPlaceholder": "Search workout plans...",
     "active": "Active",
     "tryAgain": "Try Again",
@@ -891,7 +894,19 @@
       "core": "Core",
       "forearms": "Forearms",
       "fullBody": "Full Body",
-      "cardio": "Cardio"
+      "cardio": "Cardio",
+      "arms": "arms",
+      "dayFocus": {
+        "upperBody": "Upper Body",
+        "lowerBodyCore": "Lower Body & Core",
+        "lowerBody": "Lower Body",
+        "fullBody": "Full Body",
+        "push": "Push",
+        "pull": "Pull",
+        "legs": "Legs",
+        "core": "Core",
+        "cardio": "Cardio"
+      }
     }
   },
   "myBookings": "My Bookings",
@@ -919,5 +934,29 @@
   "bookingHeroSubtitleLight2": "SMALL STEPS. BIG RESULTS.",
   "bookingHeroSubtitleLight3": "STAY CONSISTENT. STAY STRONG.",
   "bookingHeroSubtitleLight4": "PROGRESS OVER PERFECTION.",
-  "bookingHeroSubtitleLight5": "TRAIN TODAY. THRIVE TOMORROW."
+  "bookingHeroSubtitleLight5": "TRAIN TODAY. THRIVE TOMORROW.",
+  "title": "workout plans",
+  "workingHours": {
+    "title": "Gym Working Hours",
+    "subtitle": "Check our weekly schedule, view active hours, and find the perfect time to train.",
+    "today": "Today",
+    "status": "Current Status",
+    "openNow": "Open Now",
+    "closedNow": "Closed Now",
+    "open": "Open",
+    "closed": "Closed",
+    "loading": "Loading gym schedule...",
+    "errorLoading": "Failed to load working hours. Please verify your connection.",
+    "retryBtn": "Retry",
+    "backBtn": "Back to Home",
+    "days": {
+      "Monday": "Monday",
+      "Tuesday": "Tuesday",
+      "Wednesday": "Wednesday",
+      "Thursday": "Thursday",
+      "Friday": "Friday",
+      "Saturday": "Saturday",
+      "Sunday": "Sunday"
+    }
+  }
 }

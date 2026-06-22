@@ -38,7 +38,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   conversationId?: string;
   memberProfileId = '';
 
-
   // Voice recording UX state
   recordingSeconds = 0;
   audioLevel = 0;
@@ -510,7 +509,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
           }
 
           this.objectUrls.push(audioUrl);
-          const voiceMessage = this.createMessage('user', transcript, { isVoice: true, audioUrl });
+          const voiceMessage = this.createMessage('user', transcript,  { isVoice: true, audioUrl });
           // Seed the duration we measured while recording so the player shows the real
           // length immediately, even before <audio> metadata resolves (or if it never does).
           if (this.lastRecordingDuration > 0) {

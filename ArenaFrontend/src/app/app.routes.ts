@@ -6,7 +6,6 @@ import { Home } from './features/home/home';
 import { About } from './features/about/about';
 import { CheckoutComponent } from './features/pricing/checkout/checkout.component';
 import { MyPaymentsComponent } from './features/pricing/my-payments/my-payments.component';
-import { PricingComponent } from './features/pricing/pricing.component';
 import { ConfirmEmailComponent } from './features/Authentication/confirm-email/confirm-email';
 import { CompleteProfileComponent } from './features/Authentication/complete-profile/complete-profile';
 import { ForgotPasswordComponent } from './features/Authentication/forgot-password/forgot-password';
@@ -78,10 +77,6 @@ export const routes: Routes = [
 
   // ─── Protected (members only) ───
   {
-    path: 'pricing',
-    component: PricingComponent
-  },
-  {
     path: 'dashboard',
     component: ProfileComponent,
     canActivate: [authGuard, subGuard]
@@ -111,6 +106,13 @@ export const routes: Routes = [
   {
     path: 'my-payments',
     component: MyPaymentsComponent     // ✅ ممكن تضيف authGuard لو محتاج
+  },
+  {
+    path: 'working-hours',
+    loadComponent: () =>
+      import('./features/working-hours/working-hours.component').then(
+        (m) => m.WorkingHoursComponent
+      ),
   },
 
   // ─── Redirects ───
