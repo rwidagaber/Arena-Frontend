@@ -1,7 +1,12 @@
 import { Component, computed, inject, input, OnInit, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NutritionService } from '../../../core/services/nutrition';
-import { NutritionPlanDto, MealDto, MealImageAnalysisDto } from '../../../core/models/nutrition';
+import {
+  NutritionPlanDto,
+  MealDto,
+  MealImageAnalysisDto,
+  DailyNutritionSummaryDto,
+} from '../../../core/models/nutrition';
 import { ThemeService } from '../../../core/services/themeservice';
 type View = 'plans' | 'plan-detail' | 'meal-detail';
 import { TranslationService } from '../../../core/services/translation.service';
@@ -35,19 +40,30 @@ export class Nutritionplan implements OnInit {
   mealAnalysisLoading = signal(false);
   mealAnalysisError = signal<string | null>(null);
 
-  // ── Daily calorie target tracking ─────────────────────────────────────────
-  // Each analyzed meal is deducted from the active plan's daily target so the
-  // member can see how many calories they have left for the day.
-  /** The member's currently active nutrition plan (the source of the target). */
+  // ── Daily calorie target tracking (backend-driven) ────────────────────────
+  // The backend logs each analyzed meal against the active plan and returns the
+  // recalculated day summary, where the calorie deduction (target − consumed)
+  // is computed server-side. We just render those values.
+  /** The backend's day-vs-target summary; null until loaded / no active plan. */
+  dailySummary = signal<DailyNutritionSummaryDto | null>(null);
+  /** Active plan, used as a fallback target source before the summary loads. */
   activePlan = computed(() => this.plans().find((p) => p.isActive) ?? null);
-  /** Daily calorie target from the active plan (0 when no plan is active). */
-  dailyCalorieTarget = computed(() => this.activePlan()?.dailyCalories ?? 0);
-  /** Running total of calories from meals analyzed this session. */
-  consumedCalories = signal(0);
-  /** Target minus consumed; negative once the member goes over the target. */
-  remainingCalories = computed(() => this.dailyCalorieTarget() - this.consumedCalories());
+  /** Daily calorie target (backend summary, falling back to the active plan). */
+  dailyCalorieTarget = computed(
+    () => this.dailySummary()?.dailyCalorieTarget ?? this.activePlan()?.dailyCalories ?? 0
+  );
+  /** Calories consumed today, per the backend. */
+  consumedCalories = computed(() => this.dailySummary()?.consumedCalories ?? 0);
+  /** Calories remaining against the target (target − consumed). */
+  remainingCalories = computed(() => {
+    const s = this.dailySummary();
+    return s ? s.remainingCalories : this.dailyCalorieTarget() - this.consumedCalories();
+  });
   /** True once consumed calories exceed the daily target. */
-  isOverTarget = computed(() => this.dailyCalorieTarget() > 0 && this.remainingCalories() < 0);
+  isOverTarget = computed(() => {
+    const s = this.dailySummary();
+    return s ? s.isOverTarget : this.dailyCalorieTarget() > 0 && this.remainingCalories() < 0;
+  });
 
   // ── Search & Filter ────────────────────────────────
   searchQuery    = signal('');
@@ -115,6 +131,15 @@ export class Nutritionplan implements OnInit {
   // ── Lifecycle ──────────────────────────────────────
   ngOnInit(): void {
     this.loadPlans();
+    this.loadDailySummary();
+  }
+
+  /** Fetches the backend's day-vs-target summary (target, consumed, remaining). */
+  loadDailySummary(): void {
+    this.nutritionService.getDailySummary().subscribe({
+      next: (summary) => this.dailySummary.set(summary),
+      error: () => this.dailySummary.set(null),
+    });
   }
 
  
@@ -216,11 +241,16 @@ private mealTypeKeyMap: Record<string, string> = {
     this.mealAnalysisLoading.set(true);
     this.mealAnalysisError.set(null);
 
-    this.nutritionService.analyzeMealImage(file).subscribe({
-      next: (analysis) => {
-        this.mealAnalysis.set(analysis);
-        // Deduct this meal's calories from the daily target.
-        this.consumedCalories.update((c) => c + (analysis.estimatedCalories || 0));
+    this.nutritionService.analyzeAndLogMeal(file).subscribe({
+      next: (result) => {
+        this.mealAnalysis.set(result.analysis);
+        // The backend logged the meal and deducted it from the daily target.
+        // Use the returned summary, or refetch it if the backend didn't echo one.
+        if (result.dailySummary) {
+          this.dailySummary.set(result.dailySummary);
+        } else {
+          this.loadDailySummary();
+        }
         this.mealAnalysisLoading.set(false);
       },
       error: (error) => {

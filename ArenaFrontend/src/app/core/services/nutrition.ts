@@ -2,7 +2,12 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { MealImageAnalysisDto, NutritionPlanDto } from '../models/nutrition';
+import {
+  DailyNutritionSummaryDto,
+  MealAnalysisResultDto,
+  MealImageAnalysisDto,
+  NutritionPlanDto,
+} from '../models/nutrition';
 import { map } from 'rxjs/operators';
 
 const BASE = `${environment.apiUrl}/nutritionplans`;
@@ -41,5 +46,33 @@ export class NutritionService {
     formData.append('image', image);
 
     return this.http.post<MealImageAnalysisDto>(`${BASE}/analyze-meal-image`, formData);
+  }
+
+  /**
+   * Analyzes a meal photo and logs it against the member's active plan. The
+   * backend deducts the meal's calories from the daily target and returns the
+   * recalculated day summary. Tolerates a backend that returns only the raw
+   * analysis (no logging) by normalizing both shapes.
+   */
+  analyzeAndLogMeal(image: File): Observable<MealAnalysisResultDto> {
+    const formData = new FormData();
+    formData.append('image', image);
+    formData.append('logMeal', 'true');
+
+    return this.http.post<any>(`${BASE}/analyze-meal-image`, formData).pipe(
+      map((res) =>
+        res && 'analysis' in res
+          ? (res as MealAnalysisResultDto)
+          : { analysis: res as MealImageAnalysisDto, loggedMeal: null, dailySummary: null }
+      )
+    );
+  }
+
+  /** The backend's day-vs-target summary (target, consumed, remaining). */
+  getDailySummary(date?: string): Observable<DailyNutritionSummaryDto> {
+    const url = date
+      ? `${BASE}/daily-summary?date=${encodeURIComponent(date)}`
+      : `${BASE}/daily-summary`;
+    return this.http.get<DailyNutritionSummaryDto>(url);
   }
 }
