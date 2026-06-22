@@ -107,7 +107,7 @@
     "getDirections": "Get directions",
     "questionsEyebrow": "Got questions?",
     "getInTouch": "Get in touch with us",
-    "brandDesc": "Where ambition meets action — train smarter, stay consistent, achieve lasting results.",
+    "brandDesc": "Arena Gym is where ambition meets action. From state-of-the-art equipment and expert coaches to tailored workout and nutrition plans, we give every member the tools, guidance, and community to train smarter, stay consistent, and reach real, lasting results.",
     "statYears": "Years Experience",
     "statMembers": "Active Members",
     "statTrainers": "Expert Trainers",
@@ -811,15 +811,24 @@
     "lunch": "Lunch",
     "dinner": "Dinner",
     "snack": "Snack",
-      "title":"Diet plans",
+    "mealImageKicker": "Meal scanner",
+    "mealImageTitle": "Analyze your meal photo",
+    "mealImageSubtitle": "Upload a clear meal image and Arena will estimate calories plus protein, carbs, and fat percentages.",
+    "uploadMealImage": "Upload meal image",
+    "changeMealImage": "Change image",
+    "analyzeMeal": "Analyze meal",
+    "analyzingMeal": "Analyzing...",
+    "clearMealImage": "Clear image",
+    "mealImageInvalid": "Please choose a valid image file.",
+    "mealImageError": "Could not analyze this meal image. Please try again.",
+    "analysisResult": "Analysis result",
+    "detectedMeal": "Detected meal",
+    "title": "Diet plans",
        "planCountPrefix": "Best diet plans available —",
     "planCountSuffix": "diet plans available"
 
   },
   "workout": {
-    "title": "Workout Plans",
-    "planCountPrefix": "Best workout plans available —",
-    "planCountSuffix": "workout plans available",
     "searchPlaceholder": "Search workout plans...",
     "active": "Active",
     "tryAgain": "Try Again",
@@ -882,20 +891,7 @@
       "core": "Core",
       "forearms": "Forearms",
       "fullBody": "Full Body",
-      "cardio": "Cardio",
-            "arms":"arms",
-            "dayFocus": {
-  "upperBody": "Upper Body",
-  "lowerBodyCore": "Lower Body & Core",
-  "lowerBody": "Lower Body",
-  "fullBody": "Full Body",
-  "push": "Push",
-  "pull": "Pull",
-  "legs": "Legs",
-  "core": "Core",
-  "cardio": "Cardio"
-}
-
+      "cardio": "Cardio"
     }
   },
   "myBookings": "My Bookings",
@@ -923,6 +919,5 @@
   "bookingHeroSubtitleLight2": "SMALL STEPS. BIG RESULTS.",
   "bookingHeroSubtitleLight3": "STAY CONSISTENT. STAY STRONG.",
   "bookingHeroSubtitleLight4": "PROGRESS OVER PERFECTION.",
-  "bookingHeroSubtitleLight5": "TRAIN TODAY. THRIVE TOMORROW.",
-  "title":"workout plans"
+  "bookingHeroSubtitleLight5": "TRAIN TODAY. THRIVE TOMORROW."
 }

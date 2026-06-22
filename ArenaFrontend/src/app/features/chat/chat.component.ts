@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewChecked, Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit, OnDestroy, AfterViewChecked, ElementRef, ViewChild, inject } from '@angular/core';import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { AuthService } from '../../core/services/auth';
+import { BookingEventsService } from '../../core/services/booking-events.service';
 import { ChatService } from '../../core/services/chat.service';
 import { ChatConversation, ChatMessage, ChatMessageBlock, ChatResponse } from '../../core/models/chat';
 // import { HeaderComponent } from '../../shared/header/header';
@@ -15,13 +15,13 @@ import { ChatConversation, ChatMessage, ChatMessageBlock, ChatResponse } from '.
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.css'],
 })
-export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
+export class ChatComponent implements OnInit, AfterViewChecked {
   @ViewChild('messagesViewport') private messagesViewport?: ElementRef<HTMLDivElement>;
 
   private readonly chatService = inject(ChatService);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
-  private readonly zone = inject(NgZone);
+  private readonly bookingEvents = inject(BookingEventsService);
 
   messages: ChatMessage[] = [];
   conversations: ChatConversation[] = [];
@@ -29,20 +29,36 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   loadingHistory = true;
   loadingConversations = true;
   sending = false;
-  recording = false;
-  transcribing = false;
   creatingChat = false;
   deletingConversationId = '';
   error = '';
   conversationId?: string;
   memberProfileId = '';
 
+recording: boolean = false;
+transcribing: boolean = false;
+
   // Voice recording UX state
   recordingSeconds = 0;
   audioLevel = 0;
-  speakingMessage?: ChatMessage;
+  // Failed/garbled voice note kept so the user can retry without re-recording.
+  voiceRetry = false;
+  private lastVoiceBlob?: Blob;
   readonly maxRecordingSeconds = 60;
-  readonly waveBars = [0.45, 0.75, 1, 0.75, 0.45];
+  // Denser, bell-shaped live waveform for the recording bar.
+  readonly waveBars = [0.3, 0.5, 0.7, 0.85, 0.95, 1, 0.95, 0.85, 0.7, 0.5, 0.3];
+
+  // Voice-note in-bubble player state
+  playingClip?: ChatMessage;
+  clipProgress = 0; // 0..1 for the currently playing clip
+  clipElapsed = 0; // seconds, currently playing clip
+  // Static decorative waveform for the voice-note player (filled by progress).
+  readonly playerBars = [
+    0.4, 0.7, 0.5, 0.9, 0.6, 1, 0.55, 0.8, 0.45, 0.65, 0.85, 0.5, 0.7, 0.95,
+    0.6, 0.4, 0.75, 0.55, 0.9, 0.65, 0.5, 0.8, 0.45, 0.7, 0.6, 0.85, 0.5, 0.4,
+  ];
+  private readonly clipDurations = new Map<ChatMessage, number>();
+  private activeAudio?: HTMLAudioElement;
 
   private mediaRecorder?: MediaRecorder;
   private audioChunks: Blob[] = [];
@@ -53,6 +69,13 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private levelRaf?: number;
   private cancelled = false;
   private readonly objectUrls: string[] = [];
+  // Container/codec the recorder actually used (varies by browser) so the uploaded
+  // blob + filename match what was recorded — otherwise transcription can reject it.
+  private recorderMime = '';
+  // We measure the clip length ourselves; WebM blobs from MediaRecorder usually report
+  // no duration metadata, so relying on <audio>.duration alone shows 0:00 / Infinity.
+  private recordingStartedAt = 0;
+  private lastRecordingDuration = 0;
 
   readonly quickPrompts = [
     'Build me a balanced workout plan',
@@ -212,6 +235,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       });
   }
 
+
   toggleRecording(): void {
     if (this.recording) {
       this.stopRecording();
@@ -240,7 +264,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.mediaStream = stream;
       this.audioChunks = [];
       this.cancelled = false;
-      this.mediaRecorder = new MediaRecorder(stream);
+      this.recorderMime = this.pickRecorderMime();
+      this.mediaRecorder = this.recorderMime
+        ? new MediaRecorder(stream, { mimeType: this.recorderMime })
+        : new MediaRecorder(stream);
 
       this.mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
@@ -249,23 +276,31 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       };
 
       this.mediaRecorder.onstop = () => {
+        this.lastRecordingDuration = this.recordingStartedAt
+          ? (Date.now() - this.recordingStartedAt) / 1000
+          : 0;
         this.teardownRecording();
         stream.getTracks().forEach((track) => track.stop());
-        const blob = new Blob(this.audioChunks, { type: 'audio/webm' });
+        const type = this.mediaRecorder?.mimeType || this.recorderMime || 'audio/webm';
+        const blob = new Blob(this.audioChunks, { type });
 
         if (this.cancelled) {
           this.cancelled = false;
+          this.transcribing = false;
           return;
         }
 
         if (blob.size > 0) {
           this.sendVoice(blob);
+        } else {
+          this.transcribing = false;
         }
       };
 
       this.mediaRecorder.start();
       this.recording = true;
       this.recordingSeconds = 0;
+      this.recordingStartedAt = Date.now();
       this.error = '';
       this.startTimer();
       this.startLevelMeter(stream);
@@ -274,8 +309,32 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
+  /** Pick a container/codec this browser can actually record (Chrome/Firefox: webm, Safari: mp4). */
+  private pickRecorderMime(): string {
+    const supported = (window as { MediaRecorder?: { isTypeSupported?(t: string): boolean } }).MediaRecorder
+      ?.isTypeSupported;
+    if (typeof supported !== 'function') {
+      return '';
+    }
+    const candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus'];
+    return candidates.find((type) => supported(type)) ?? '';
+  }
+
+  private extensionFor(mimeType: string): string {
+    if (mimeType.includes('mp4') || mimeType.includes('mpeg')) {
+      return 'mp4';
+    }
+    if (mimeType.includes('ogg')) {
+      return 'ogg';
+    }
+    return 'webm';
+  }
+
   private stopRecording(): void {
     if (this.mediaRecorder && this.recording) {
+      // Show the "Transcribing…" indicator the instant the user taps stop, rather than
+      // waiting for the recorder to flush (onstop) and the upload to begin.
+      this.transcribing = true;
       this.mediaRecorder.stop();
       this.recording = false;
     }
@@ -292,41 +351,71 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   formatDuration(totalSeconds: number): string {
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
+    const safe = Math.max(0, Math.floor(totalSeconds || 0));
+    const minutes = Math.floor(safe / 60);
+    const seconds = safe % 60;
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   }
 
-  /** Read an assistant reply aloud (browser text-to-speech). */
-  toggleSpeak(message: ChatMessage): void {
-    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
-      this.error = 'Text-to-speech is not supported in this browser.';
-      return;
+  /** Play / pause a voice note's clip in its chat bubble (one at a time). */
+  toggleClip(audio: HTMLAudioElement, message: ChatMessage): void {
+    if (this.activeAudio && this.activeAudio !== audio) {
+      this.activeAudio.pause();
     }
 
-    if (this.speakingMessage === message) {
-      this.stopSpeaking();
-      return;
+    if (audio.paused) {
+      this.activeAudio = audio;
+      this.playingClip = message;
+      this.clipElapsed = audio.currentTime;
+      void audio.play().catch(() => undefined);
+    } else {
+      audio.pause();
+      this.playingClip = undefined;
     }
-
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(this.cleanForSpeech(message.content));
-    const clear = () => this.zone.run(() => {
-      if (this.speakingMessage === message) {
-        this.speakingMessage = undefined;
-      }
-    });
-    utterance.onend = clear;
-    utterance.onerror = clear;
-    this.speakingMessage = message;
-    window.speechSynthesis.speak(utterance);
   }
 
-  stopSpeaking(): void {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
+  isClipPlaying(message: ChatMessage): boolean {
+    return this.playingClip === message;
+  }
+
+  clipDurationOf(message: ChatMessage): number {
+    return this.clipDurations.get(message) ?? 0;
+  }
+
+  /** Whether a player waveform bar should appear "played" given progress. */
+  clipBarFilled(message: ChatMessage, index: number): boolean {
+    return this.playingClip === message && (index + 0.5) / this.playerBars.length <= this.clipProgress;
+  }
+
+  onClipTime(message: ChatMessage, audio: HTMLAudioElement): void {
+    if (this.playingClip !== message) {
+      return;
     }
-    this.speakingMessage = undefined;
+    this.clipElapsed = audio.currentTime;
+    const duration = this.clipDurations.get(message) ?? 0;
+    this.clipProgress = duration > 0 ? Math.min(1, audio.currentTime / duration) : 0;
+  }
+
+  onClipMeta(message: ChatMessage, audio: HTMLAudioElement): void {
+    const duration = audio.duration;
+    if (duration && isFinite(duration) && duration < 1e6) {
+      this.clipDurations.set(message, duration);
+      if (audio.currentTime > 1e6) {
+        audio.currentTime = 0;
+      }
+    } else if (duration === Infinity && !this.clipDurations.has(message)) {
+      // WebM blobs report Infinity until seeked; force the browser to resolve it.
+      // Skipped when we already measured the length, so currentTime never gets stranded.
+      audio.currentTime = 1e101;
+    }
+  }
+
+  onClipEnded(message: ChatMessage): void {
+    if (this.playingClip === message) {
+      this.playingClip = undefined;
+      this.clipProgress = 0;
+      this.clipElapsed = 0;
+    }
   }
 
   private startTimer(): void {
@@ -385,29 +474,18 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.audioLevel = 0;
   }
 
-  private cleanForSpeech(text: string): string {
-    return text
-      // strip markdown emphasis / heading markers
-      .replace(/[#*_`>]/g, '')
-      // strip emoji & pictographs (incl. flags, skin tones, variation selectors, ZWJ, keycaps)
-      .replace(
-        /[\p{Extended_Pictographic}\u{1F1E6}-\u{1F1FF}\u{1F3FB}-\u{1F3FF}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}]/gu,
-        ''
-      )
-      // collapse the whitespace left behind
-      .replace(/\s+/g, ' ')
-      .trim();
-  }
-
   private sendVoice(blob: Blob): void {
+    // Keep the clip so a failed/garbled attempt can be retried without re-recording (#8).
+    this.lastVoiceBlob = blob;
     this.transcribing = true;
     this.error = '';
+    this.voiceRetry = false;
 
     const audioUrl = URL.createObjectURL(blob);
-    this.objectUrls.push(audioUrl);
+    const extension = this.extensionFor(blob.type);
 
     const formData = new FormData();
-    formData.append('audio', blob, 'voice-command.webm');
+    formData.append('audio', blob, `voice-command.${extension}`);
     formData.append('memberProfileId', this.memberProfileId);
 
     if (this.conversationId) {
@@ -421,20 +499,49 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         next: (response) => {
           const transcript = response.transcript?.trim();
 
-          if (transcript) {
-            this.messages = [
-              ...this.messages,
-              this.createMessage('user', transcript, { isVoice: true, audioUrl }),
-            ];
+          // Empty/garbled transcription (#9): don't post a blank bubble or the
+          // backend's "couldn't understand" reply — surface a clear retry instead.
+          if (!transcript) {
+            URL.revokeObjectURL(audioUrl);
+            this.error = "I couldn't understand that voice note. Please speak clearly and try again.";
+            this.voiceRetry = true;
+            return;
           }
 
+          this.objectUrls.push(audioUrl);
+          const voiceMessage = this.createMessage('user', transcript,  { isVoice: true, audioUrl });
+          // Seed the duration we measured while recording so the player shows the real
+          // length immediately, even before <audio> metadata resolves (or if it never does).
+          if (this.lastRecordingDuration > 0) {
+            this.clipDurations.set(voiceMessage, this.lastRecordingDuration);
+          }
+          this.messages = [...this.messages, voiceMessage];
+          this.lastVoiceBlob = undefined; // sent successfully — nothing to retry
           this.handleResponse(response);
         },
         error: (err: Error) => {
-          this.error = err.message || 'Could not process your voice note. Please try again.';
+          // Upload/network failure (#8): keep the clip, offer a retry.
+          URL.revokeObjectURL(audioUrl);
+          this.error = err.message || 'Could not send your voice note. Please try again.';
+          this.voiceRetry = true;
         },
       });
   }
+
+  /** Resend the last recorded clip after a failure or unclear transcription (#8/#9). */
+  retryVoice(): void {
+    if (this.lastVoiceBlob && !this.transcribing && !this.sending) {
+      this.sendVoice(this.lastVoiceBlob);
+    }
+  }
+
+  /** Discard the failed clip and clear the retry prompt. */
+  dismissVoiceRetry(): void {
+    this.voiceRetry = false;
+    this.error = '';
+    this.lastVoiceBlob = undefined;
+  }
+
 
   trackMessage(index: number, message: ChatMessage): string {
     return message.id ?? `${message.sender}-${message.createdAt}-${index}`;
@@ -513,6 +620,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private handleResponse(response: ChatResponse): void {
     this.conversationId = response.conversationId ?? this.conversationId;
 
+    if (response.bookingChanged) {
+      this.bookingEvents.notifyBookingsChanged();
+    }
+
     if (response.messages?.length) {
       this.messages = response.messages;
       return;
@@ -536,24 +647,27 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   private createMessage(
-    sender: ChatMessage['sender'],
-    content: string,
-    extra: Partial<ChatMessage> = {}
-  ): ChatMessage {
-    return {
-      sender,
-      content,
-      createdAt: new Date().toISOString(),
-      ...extra,
-    };
-  }
+  sender: ChatMessage['sender'],
+  content: string,
+  options?: { isVoice?: boolean; audioUrl?: string }
+): ChatMessage {
+  return {
+    sender,
+    content,
+    createdAt: new Date().toISOString(),
+    isVoice: options?.isVoice ?? false,
+    audioUrl: options?.audioUrl,
+  };
+}
+
 
   ngOnDestroy(): void {
-    this.stopSpeaking();
+    this.activeAudio?.pause();
     this.teardownRecording();
     this.mediaStream?.getTracks().forEach((track) => track.stop());
     this.objectUrls.forEach((url) => URL.revokeObjectURL(url));
   }
+
 
   private scrollToBottom(): void {
     const element = this.messagesViewport?.nativeElement;

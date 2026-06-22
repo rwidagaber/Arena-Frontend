@@ -107,7 +107,7 @@
     "getDirections": "احصل على الاتجاهات",
     "questionsEyebrow": "لديك أسئلة؟",
     "getInTouch": "تواصل معنا",
-    "brandDesc": "حيث يلتقي الطموح بالعمل — تدرّب بذكاء، واستمر، وحقّق نتائج دائمة.",
+    "brandDesc": "أرينا جيم هو المكان الذي يلتقي فيه الطموح بالعمل. من الأجهزة المتطورة والمدربين الخبراء إلى خطط التمارين والتغذية المصممة خصيصاً لك، نمنح كل عضو الأدوات والإرشاد والمجتمع للتدريب بذكاء والاستمرار وتحقيق نتائج حقيقية ودائمة.",
     "statYears": "سنوات الخبرة",
     "statMembers": "أعضاء نشطون",
     "statTrainers": "مدربون خبراء",
@@ -812,15 +812,24 @@
     "lunch": "غداء",
     "dinner": "عشاء",
     "snack": "سناك",
+    "mealImageKicker": "ماسح الوجبة",
+    "mealImageTitle": "حلل صورة وجبتك",
+    "mealImageSubtitle": "ارفع صورة واضحة للوجبة وسيقدر Arena السعرات ونسب البروتين والكربوهيدرات والدهون.",
+    "uploadMealImage": "رفع صورة الوجبة",
+    "changeMealImage": "تغيير الصورة",
+    "analyzeMeal": "تحليل الوجبة",
+    "analyzingMeal": "جارٍ التحليل...",
+    "clearMealImage": "مسح الصورة",
+    "mealImageInvalid": "يرجى اختيار ملف صورة صحيح.",
+    "mealImageError": "تعذر تحليل صورة الوجبة. حاول مرة أخرى.",
+    "analysisResult": "نتيجة التحليل",
+    "detectedMeal": "الوجبة المكتشفة",
     "title": "الخطط الغذائيه",
     "planCountPrefix": "أفضل الخطط والبرامج الاحترافية المتاحة لك —",
     "planCountSuffix": "خطة تمرين متاحة"
 
   },
   "workout": {
-    "title": "تمارينك اليومية",
-    "planCountPrefix": "أفضل الخطط والبرامج الاحترافية المتاحة لك —",
-    "planCountSuffix": "خطة تمرين متاحة",
     "searchPlaceholder": "ابحث عن خطة تمرين...",
     "active": "نشطة",
     "tryAgain": "إعادة المحاولة",
@@ -883,21 +892,8 @@
       "core": "الجذع",
       "forearms": "الساعد",
       "fullBody": "الجسم بالكامل",
-      "cardio": "كارديو",
-      "arms":"الاذرع",
-      "obliques": "العضلات الجانبية"
-    },
-    "dayFocus": {
-  "upperBody": "الجزء العلوي",
-  "lowerBodyCore": "الجزء السفلي والجذع",
-  "lowerBody": "الجزء السفلي",
-  "fullBody": "الجسم بالكامل",
-  "push": "دفع",
-  "pull": "سحب",
-  "legs": "الأرجل",
-  "core": "الجذع",
-  "cardio": "كارديو"
-}
+      "cardio": "كارديو"
+    }
   },
   "myBookings": "حجوزاتي",
   "upcoming": "الحجوزات القادمة",
@@ -924,7 +920,5 @@
   "bookingHeroSubtitleLight2": "خطوات صغيرة. نتائج كبيرة.",
   "bookingHeroSubtitleLight3": "حافظ على استمراريتك. ابقَ قوياً.",
   "bookingHeroSubtitleLight4": "التقدم أهم من المثالية.",
-  "bookingHeroSubtitleLight5": "تدرب اليوم. لتتألق غداً.",
-  "title" : "التمارين",
-  "planCountPrefix": "أفضل الخطط والبرامج الاحترافية المتاحة لك —"
+  "bookingHeroSubtitleLight5": "تدرب اليوم. لتتألق غداً."
 }

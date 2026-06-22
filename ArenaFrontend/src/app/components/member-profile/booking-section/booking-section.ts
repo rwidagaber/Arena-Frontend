@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, input, output } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, input, output, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { catchError, of, Subscription } from 'rxjs';
@@ -9,6 +9,7 @@ import { BookingCalendarComponent } from '../booking-calendar/booking-calendar';
 import { BookingCardComponent } from '../booking-card/booking-card';
 import { StatsOverview, StatItem } from '../stats-overview/stats-overview';
 import { AuthService } from '../../../core/services/auth';
+import { BookingEventsService } from '../../../core/services/booking-events.service';
 import { ThemeService } from '../../../core/services/themeservice';
 
 @Component({
@@ -27,6 +28,7 @@ import { ThemeService } from '../../../core/services/themeservice';
 export class BookingSection implements OnInit, OnDestroy {
   private qrService = inject(QrService);
   private authService = inject(AuthService);
+  private bookingEvents = inject(BookingEventsService);
   private themeService = inject(ThemeService);
 
   /** The member-profile id used to fetch bookings */
@@ -54,8 +56,19 @@ export class BookingSection implements OnInit, OnDestroy {
   private readonly isDark = signal<boolean>(this.themeService.isDark);
   private slideTimerId: any;
   private authSub: Subscription | null = null;
+  private bookingEventsSub: Subscription | null = null;
   private themeObserver: MutationObserver | null = null;
+  private lastLoadedMemberProfileId = '';
   userName = signal('');
+
+  constructor() {
+    effect(() => {
+      const id = this.memberProfileId();
+      if (id && id !== this.lastLoadedMemberProfileId) {
+        this.loadBookings();
+      }
+    });
+  }
 
   /** Single stable array – dark slides at positions 0-4, light slides at 5-9.
    *  Never changes reference, so @for never tears down the DOM. */
@@ -175,6 +188,9 @@ export class BookingSection implements OnInit, OnDestroy {
   // ── Lifecycle ──────────────────────────────────────────────────────
   ngOnInit(): void {
     this.loadBookings();
+    this.bookingEventsSub = this.bookingEvents.bookingsChanged$.subscribe(() => {
+      this.loadBookings();
+    });
     this.authSub = this.authService.currentUser$.subscribe(user => {
       this.userName.set(user?.firstName || '');
     });
@@ -199,6 +215,9 @@ export class BookingSection implements OnInit, OnDestroy {
     }
     if (this.authSub) {
       this.authSub.unsubscribe();
+    }
+    if (this.bookingEventsSub) {
+      this.bookingEventsSub.unsubscribe();
     }
     if (this.themeObserver) {
       this.themeObserver.disconnect();
@@ -233,6 +252,7 @@ export class BookingSection implements OnInit, OnDestroy {
   loadBookings(): void {
     const id = this.memberProfileId();
     if (!id) return;
+    this.lastLoadedMemberProfileId = id;
 
     this.loading.set(true);
     this.error.set(null);

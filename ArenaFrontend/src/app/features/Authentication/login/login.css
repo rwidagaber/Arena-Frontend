@@ -131,7 +131,7 @@ outline: none;
 
 .field input:focus {
 background-color: var(--input-focus-bg, rgba(0, 0, 0, 0.5)) !important;
-border-color: #C6EF2E !important;
+border-color: #418C27 !important;
 box-shadow: 0 0 0 4px rgba(212, 250, 36, 0.15) !important;
 }
 
@@ -181,7 +181,7 @@ outline: none;
 
 .toggle-pw:hover {
 background-color: var(--dropdown-hover, rgba(255, 255, 255, 0.08));
-color: #C6EF2E !important;
+color: #418C27 !important;
 }
 
 /* ==========================================================================
@@ -227,8 +227,8 @@ border-color: rgba(212, 250, 36, 0.5) !important;
 }
 
 .remember-me input:checked ~ .custom-checkbox {
-background-color: #C6EF2E !important;
-border-color: #C6EF2E !important;
+background-color: #418C27 !important;
+border-color: #418C27 !important;
 box-shadow: 0 0 8px rgba(65, 140, 39, 0.4) !important;
 }
 
@@ -266,7 +266,7 @@ justify-content: center !important;
 align-items: center !important;
 width: 100% !important;
 height: 46px !important;
-background-color: #C6EF2E !important;
+background-color: #418C27 !important;
 border: none !important;
 border-radius: 100px !important;
 cursor: pointer !important;
@@ -345,7 +345,7 @@ margin-top: 16px;
 .link-btn {
 background: none;
 border: none;
-color: #C6EF2E !important;
+color: #418C27 !important;
 font-size: 14px;
 font-weight: 700;
 cursor: pointer;
@@ -404,7 +404,7 @@ padding: 0;
 
 .back-btn:hover {
 background-color: rgba(255, 255, 255, 0.08);
-color: #C6EF2E;
+color: #418C27;
 }
 
 .spinner {
