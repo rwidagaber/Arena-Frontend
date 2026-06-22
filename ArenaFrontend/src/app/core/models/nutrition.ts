@@ -22,3 +22,20 @@ export interface NutritionPlanDto {
   isActive: boolean;
   meals: MealDto[];
 }
+
+export interface MacroPercentageDto {
+  grams: number;
+  percentage: number;
+}
+
+export interface MealImageAnalysisDto {
+  mealName: string;
+  summary: string;
+  estimatedCalories: number;
+  protein: MacroPercentageDto;
+  carbs: MacroPercentageDto;
+  fat: MacroPercentageDto;
+  confidence: number;
+  detectedFoods: string[];
+  notes: string[];
+}

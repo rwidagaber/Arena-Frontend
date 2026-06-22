@@ -16,158 +16,51 @@
     {{ error }}
   </div>
 
-  <!-- ═══════════════════════════════════════ -->
-  <!--         WITH AI PLANS SECTION          -->
-  <!-- ═══════════════════════════════════════ -->
-  <div *ngIf="!loading && !error && aiPlans.length" class="tier-section ai-tier" appScrollReveal [revealDelay]="100">
-    <div class="tier-header">
-      <div class="tier-icon ai-icon">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2a4 4 0 0 1 4 4c0 1.5-.8 2.8-2 3.4V11h3a3 3 0 0 1 3 3v1a2 2 0 0 1-2 2h-1v2a3 3 0 0 1-3 3H10a3 3 0 0 1-3-3v-2H6a2 2 0 0 1-2-2v-1a3 3 0 0 1 3-3h3V9.4A4 4 0 0 1 12 2z"/>
-          <circle cx="10" cy="17" r="1"/><circle cx="14" cy="17" r="1"/>
-        </svg>
+  <!-- Plans Grid -->
+  <div *ngIf="!loading && !error" class="pricing-grid">
+    <div class="pricing-card" *ngFor="let plan of plans; let i = index" appScrollReveal [revealDelay]="i * 150">
+      <div class="card-header">
+        <!-- We use an index or generic icon since we don't have icons in DB yet -->
+        <div class="icon-circle">
+          <i class="fa fa-solid" [ngClass]="{'fa-basketball': i===0, 'fa-dumbbell': i===1, 'fa-globe': i===2}"></i>
+        </div>
+        <h3 class="plan-name">{{ plan.name | translate }}</h3>
       </div>
-      <div>
-        <h3 class="tier-title">{{ 'PRICING.AI_SECTION_TITLE' | translate }}</h3>
-        <p class="tier-subtitle">{{ 'PRICING.AI_SECTION_SUBTITLE' | translate }}</p>
+      
+      <div class="price-container">
+        <span class="currency">{{ 'PRICING.CURRENCY' | translate }}</span>
+        <span class="amount">{{ plan.price | number:'1.2-2' }}</span>
+        <span class="period">{{ 'PRICING.PERIOD' | translate }}</span>
       </div>
-    </div>
-
-    <div class="pricing-grid">
-      <div class="pricing-card"
-           *ngFor="let plan of aiPlans; let i = index"
-           [class.popular]="plan.durationMonths === 3"
-           [class.best-value]="plan.durationMonths === 12"
-           appScrollReveal [revealDelay]="i * 120">
-
-        <!-- Badge: Most Popular -->
-        <div class="card-badge popular-badge" *ngIf="plan.durationMonths === 3">
-          {{ 'PRICING.BADGE_POPULAR' | translate }}
-        </div>
-        <!-- Badge: Best Value -->
-        <div class="card-badge value-badge" *ngIf="plan.durationMonths === 12">
-          {{ 'PRICING.BADGE_VALUE' | translate }}
-        </div>
-
-        <div class="card-header">
-          <h3 class="plan-name">{{ plan.name | translate }}</h3>
-          <span class="plan-duration">{{ plan.durationMonths }} {{ 'PRICING.MONTHS' | translate }}</span>
-        </div>
-
-        <div class="price-container">
-          <span class="amount">{{ plan.price | number:'1.0-0' }}</span>
-          <div class="price-meta">
-            <span class="currency">{{ 'PRICING.CURRENCY' | translate }}</span>
-            <span class="period">{{ 'PRICING.PERIOD' | translate }}</span>
-          </div>
-        </div>
-
-        <div class="session-limit" *ngIf="plan.sessionLimit">
-          {{ plan.sessionLimit }} {{ 'PRICING.SESSION_SUFFIX' | translate }}
-        </div>
-        <div class="session-limit unlimited" *ngIf="!plan.sessionLimit">
-          {{ 'PRICING.SESSION_UNLIMITED' | translate }} {{ 'PRICING.SESSION_SUFFIX' | translate }}
-        </div>
-
-        <p class="plan-description">{{ plan.description | translate }}</p>
-
-        <div class="features-section">
-          <h4 class="features-title">{{ 'PRICING.INCLUDED_TITLE' | translate }}</h4>
-          <ul class="features-list">
-            <li *ngFor="let feature of aiFeatures" class="feature-enabled">
-              <span class="check-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10" fill="#D3F551"/>
-                  <path d="M8 12L11 15L16 9" stroke="#0B0E14" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-              {{ feature.key | translate }}
-            </li>
-          </ul>
-        </div>
-
-        <button class="join-btn"
-                (click)="onJoinNow(plan.id || $any(plan).Id)"
-                [disabled]="loadingPlanId !== null">
-          {{ loadingPlanId === (plan.id || $any(plan).Id) ? ('PRICING.BTN_PROCESSING' | translate) : ('PRICING.BTN_JOIN' | translate) }}
-        </button>
+      
+      <div class="session-limit">
+        {{ 'PRICING.SESSION_PREFIX' | translate }} {{ plan.sessionLimit ?? ('PRICING.SESSION_UNLIMITED' | translate) }} {{ 'PRICING.SESSION_SUFFIX' | translate }}
       </div>
-    </div>
-  </div>
 
-  <!-- ═══════════════════════════════════════ -->
-  <!--       STANDARD PLANS SECTION           -->
-  <!-- ═══════════════════════════════════════ -->
-  <div *ngIf="!loading && !error && standardPlans.length" class="tier-section standard-tier" appScrollReveal [revealDelay]="200">
-    <div class="tier-header">
-      <div class="tier-icon standard-icon">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-          <path d="M9 12l2 2 4-4"/>
-        </svg>
+      <p class="plan-description">
+        {{ plan.description | translate }}
+      </p>
+
+      <div class="features-section">
+        <h4 class="features-title">{{ 'PRICING.INCLUDED_TITLE' | translate }}</h4>
+        <ul class="features-list">
+          <li *ngFor="let feature of includedFeatures">
+            <span class="check-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="#D3F551"/>
+                <path d="M8 12L11 15L16 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            {{ feature | translate }}
+          </li>
+        </ul>
       </div>
-      <div>
-        <h3 class="tier-title">{{ 'PRICING.STD_SECTION_TITLE' | translate }}</h3>
-        <p class="tier-subtitle">{{ 'PRICING.STD_SECTION_SUBTITLE' | translate }}</p>
-      </div>
-    </div>
 
-    <div class="pricing-grid">
-      <div class="pricing-card standard-card"
-           *ngFor="let plan of standardPlans; let i = index"
-           appScrollReveal [revealDelay]="i * 120">
-
-        <div class="card-header">
-          <h3 class="plan-name">{{ plan.name | translate }}</h3>
-          <span class="plan-duration">{{ plan.durationMonths }} {{ 'PRICING.MONTHS' | translate }}</span>
-        </div>
-
-        <div class="price-container">
-          <span class="amount">{{ plan.price | number:'1.0-0' }}</span>
-          <div class="price-meta">
-            <span class="currency">{{ 'PRICING.CURRENCY' | translate }}</span>
-            <span class="period">{{ 'PRICING.PERIOD' | translate }}</span>
-          </div>
-        </div>
-
-        <div class="session-limit" *ngIf="plan.sessionLimit">
-          {{ plan.sessionLimit }} {{ 'PRICING.SESSION_SUFFIX' | translate }}
-        </div>
-        <div class="session-limit unlimited" *ngIf="!plan.sessionLimit">
-          {{ 'PRICING.SESSION_UNLIMITED' | translate }} {{ 'PRICING.SESSION_SUFFIX' | translate }}
-        </div>
-
-        <p class="plan-description">{{ plan.description | translate }}</p>
-
-        <div class="features-section">
-          <h4 class="features-title">{{ 'PRICING.INCLUDED_TITLE' | translate }}</h4>
-          <ul class="features-list">
-            <li *ngFor="let feature of standardFeatures"
-                [class.feature-enabled]="feature.enabled"
-                [class.feature-disabled]="!feature.enabled">
-              <span class="check-icon" *ngIf="feature.enabled">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10" fill="#D3F551"/>
-                  <path d="M8 12L11 15L16 9" stroke="#0B0E14" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-              <span class="cross-icon" *ngIf="!feature.enabled">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10" fill="#EF4444"/>
-                  <path d="M9 9L15 15M15 9L9 15" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-              {{ feature.key | translate }}
-            </li>
-          </ul>
-        </div>
-
-        <button class="join-btn standard-btn"
-                (click)="onJoinNow(plan.id || $any(plan).Id)"
-                [disabled]="loadingPlanId !== null">
-          {{ loadingPlanId === (plan.id || $any(plan).Id) ? ('PRICING.BTN_PROCESSING' | translate) : ('PRICING.BTN_JOIN' | translate) }}
-        </button>
-      </div>
+      <button class="join-btn" 
+              (click)="onJoinNow(plan.id || $any(plan).Id)" 
+              [disabled]="loadingPlanId !== null">
+        {{ loadingPlanId === (plan.id || $any(plan).Id) ? ('PRICING.BTN_PROCESSING' | translate) : ('PRICING.BTN_JOIN' | translate) }}
+      </button>
     </div>
   </div>
 
@@ -179,22 +72,8 @@
     <div class="info-item">
       <i class="fa fa-money-bill"></i> {{ 'PRICING.FOOTER_2' | translate }}
     </div>
+    <div class="info-item">
+      <i class="fa fa-clock"></i> {{ 'PRICING.FOOTER_3' | translate }}
+    </div>
   </div>
 </section>
-
-<!-- Access Denied / Upgrade Alert Modal -->
-<div class="pricing-modal-overlay" *ngIf="showUpgradeModal" (click)="closeUpgradeModal()">
-  <div class="pricing-modal-card" (click)="$event.stopPropagation()">
-    <button class="modal-close-btn" (click)="closeUpgradeModal()">&times;</button>
-    <div class="modal-icon">
-      <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="12" r="10" fill="#EF4444" opacity="0.1"/>
-        <circle cx="12" cy="12" r="9" stroke="#EF4444" stroke-width="2"/>
-        <path d="M12 8V13M12 16H12.01" stroke="#EF4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </div>
-    <h3 class="modal-title">{{ 'PRICING.ACCESS_DENIED_TITLE' | translate }}</h3>
-    <p class="modal-desc">{{ 'PRICING.ACCESS_DENIED_DESC' | translate }}</p>
-    <button class="modal-btn" (click)="closeUpgradeModal()">{{ 'PRICING.BTN_JOIN' | translate }}</button>
-  </div>
-</div>

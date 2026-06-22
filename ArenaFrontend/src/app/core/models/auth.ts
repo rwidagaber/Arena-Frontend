@@ -89,7 +89,6 @@ export interface UserSubscriptionDto {
   totalSessions: number;
   paymentAmount: number;
   reminderSent: boolean;
-  hasAI: boolean;
 }
 
 export interface GetProfileDto {

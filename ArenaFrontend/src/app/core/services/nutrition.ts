@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { NutritionPlanDto } from '../models/nutrition';
+import { MealImageAnalysisDto, NutritionPlanDto } from '../models/nutrition';
 import { map } from 'rxjs/operators';
 
 const BASE = `${environment.apiUrl}/nutritionplans`;
@@ -34,5 +34,12 @@ export class NutritionService {
 
   deletePlan(id: string): Observable<void> {
     return this.http.delete<void>(`${BASE}/${id}`);
+  }
+
+  analyzeMealImage(image: File): Observable<MealImageAnalysisDto> {
+    const formData = new FormData();
+    formData.append('image', image);
+
+    return this.http.post<MealImageAnalysisDto>(`${BASE}/analyze-meal-image`, formData);
   }
 }

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { PricingService } from '../../core/services/pricing.service';
 import { SubscriptionPlan } from '../../core/models/subscription-plan';
 import { AuthService } from '../../core/services/auth';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ScrollRevealDirective } from '../../shared/directives/scroll-reveal.directive';
 
@@ -16,55 +16,29 @@ import { ScrollRevealDirective } from '../../shared/directives/scroll-reveal.dir
 })
 export class PricingComponent implements OnInit {
   plans: SubscriptionPlan[] = [];
-  aiPlans: SubscriptionPlan[] = [];
-  standardPlans: SubscriptionPlan[] = [];
   loading = true;
   error = '';
   loadingPlanId: string | null = null; // Track which plan is loading during payment initiation
-  showUpgradeModal = false;
 
-  aiFeatures = [
-    { key: 'PRICING.FEATURES.WORKOUT', enabled: true },
-    { key: 'PRICING.FEATURES.NUTRITION', enabled: true },
-    { key: 'PRICING.FEATURES.PROGRESS', enabled: true },
-    { key: 'PRICING.FEATURES.QR', enabled: true },
-    { key: 'PRICING.FEATURES.BOOKING', enabled: true }
-  ];
-
-  standardFeatures = [
-    { key: 'PRICING.FEATURES.QR', enabled: true },
-    { key: 'PRICING.FEATURES.BOOKING', enabled: true },
-    { key: 'PRICING.FEATURES.WORKOUT_LOCKED', enabled: false },
-    { key: 'PRICING.FEATURES.NUTRITION_LOCKED', enabled: false },
-    { key: 'PRICING.FEATURES.PROGRESS_LOCKED', enabled: false }
+  // Translation keys for included features
+  includedFeatures = [
+    'PRICING.FEATURE_1',
+    'PRICING.FEATURE_2',
+    'PRICING.FEATURE_3',
+    'PRICING.FEATURE_4'
   ];
 
   constructor(
     private pricingService: PricingService,
     private authService: AuthService,
     private router: Router,
-    private route: ActivatedRoute,
     private translate: TranslateService
   ) {}
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe(params => {
-      if (params['showUpgradeAlert'] === 'true') {
-        this.showUpgradeModal = true;
-        // Clean up parameters from the URL
-        this.router.navigate([], {
-          relativeTo: this.route,
-          queryParams: { showUpgradeAlert: null },
-          queryParamsHandling: 'merge'
-        });
-      }
-    });
     this.pricingService.getSubscriptionPlans().subscribe({
       next: (data) => {
         this.plans = data;
-        // Group and sort plans by duration
-        this.aiPlans = data.filter(p => p.hasAI).sort((a, b) => a.durationMonths - b.durationMonths);
-        this.standardPlans = data.filter(p => !p.hasAI).sort((a, b) => a.durationMonths - b.durationMonths);
         this.loading = false;
       },
       error: (err) => {
@@ -77,6 +51,7 @@ export class PricingComponent implements OnInit {
 
   onJoinNow(planId: string): void {
     if (!this.authService.isLoggedIn) {
+      // Option A: redirect to login
       this.router.navigate(['/login']);
       return;
     }
@@ -87,6 +62,7 @@ export class PricingComponent implements OnInit {
       next: (response) => {
         this.loadingPlanId = null;
         if (response && response.iframeUrl) {
+          // Navigate to checkout and pass the URL
           this.router.navigate(['/checkout'], {
             queryParams: { url: response.iframeUrl }
           });
@@ -99,9 +75,5 @@ export class PricingComponent implements OnInit {
         console.error('Payment Error:', err);
       }
     });
-  }
-
-  closeUpgradeModal(): void {
-    this.showUpgradeModal = false;
   }
 }

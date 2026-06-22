@@ -118,9 +118,6 @@ const ACHIEVEMENT_DEFS: AchievementCheck[] = [
   { id: 'weight_down', icon: 'fa-solid fa-arrow-trend-down', label: 'progressReport.achWeightDown', check: (l, _, s) => l >= 2 && s != null && (s.weightChange ?? 0) < 0 },
 ];
 
-/** Number of rotating timeline motivation lines (keys progressReport.motivation0..N-1) */
-const MOTIVATION_COUNT = 14;
-
 @Component({
   selector: 'app-progress-report',
   standalone: true,
@@ -201,7 +198,6 @@ export class ProgressReportComponent {
   protected bodyFatChange = computed(() => this.summary?.bodyFatChange ?? null);
   protected muscleMassChange = computed(() => this.summary?.muscleMassChange ?? null);
   protected totalLogs = computed(() => this.logs.length);
-  protected hasMultipleLogs = computed(() => this.logs.length >= 2);
 
   protected daysSinceFirstLog = computed(() => {
     const entries = this.logs;
@@ -211,44 +207,6 @@ export class ProgressReportComponent {
     const diff = Math.floor((now.getTime() - first.getTime()) / (1000 * 60 * 60 * 24));
     return Math.max(1, diff);
   });
-
-  /** Returns 0-100 where current value sits in the min-max range of all logs (inverted for weight/fat where lower is better) */
-  protected weightProgress = computed(() => {
-    const cur = this.summary?.currentWeight;
-    if (cur == null || this.logs.length < 2) return null;
-    const vals = this.logs.map(e => e.weight);
-    return this.invertProgress(cur, vals);
-  });
-
-  protected bodyFatProgress = computed(() => {
-    const cur = this.summary?.currentBodyFat;
-    if (cur == null || this.logs.length < 2) return null;
-    const vals = this.logs.map(e => e.bodyFat).filter((v): v is number => v != null);
-    if (vals.length < 2) return null;
-    return this.invertProgress(cur, vals);
-  });
-
-  protected muscleMassProgress = computed(() => {
-    const cur = this.summary?.currentMuscleMass;
-    if (cur == null || this.logs.length < 2) return null;
-    const vals = this.logs.map(e => e.muscleMass).filter((v): v is number => v != null);
-    if (vals.length < 2) return null;
-    return this.directProgress(cur, vals);
-  });
-
-  private invertProgress(cur: number, vals: number[]): number {
-    const min = Math.min(...vals);
-    const max = Math.max(...vals);
-    const range = max - min || 1;
-    return +((1 - (cur - min) / range) * 100).toFixed(0);
-  }
-
-  private directProgress(cur: number, vals: number[]): number {
-    const min = Math.min(...vals);
-    const max = Math.max(...vals);
-    const range = max - min || 1;
-    return +(((cur - min) / range) * 100).toFixed(0);
-  }
 
   protected trend = computed<TrendResult | null>(() => {
     const entries = this.logs;
@@ -269,54 +227,6 @@ export class ProgressReportComponent {
     if (trend.weight === 'down' && trend.bodyFat === 'down') return QUOTES['positive_weight_loss'];
     if (trend.muscleMass === 'up') return QUOTES['positive_muscle_gain'];
     return QUOTES['push_stable'];
-  });
-
-  protected latestEntry = computed<ProgressLogDto | null>(() => {
-    const entries = this.logs;
-    return entries.length > 0 ? entries[0] : null;
-  });
-
-  protected sparklinePoints = computed(() => {
-    const entries = this.logs;
-    if (entries.length < 2) return '';
-    const weights = entries.map(e => e.weight);
-    const min = Math.min(...weights);
-    const max = Math.max(...weights);
-    const range = max - min || 1;
-    const w = 200;
-    const h = 60;
-    const pad = 4;
-    return weights
-      .map((wgt, i) => {
-        const x = (i / (weights.length - 1)) * w;
-        const y = h - pad - ((wgt - min) / range) * (h - 2 * pad);
-        return `${x.toFixed(1)},${y.toFixed(1)}`;
-      })
-      .join(' ');
-  });
-
-  protected sparklineArea = computed(() => {
-    const pts = this.sparklinePoints();
-    if (!pts) return '';
-    const first = pts.split(' ')[0];
-    const last = pts.split(' ').pop();
-    return `${pts} ${last} 200,60 0,60 ${first}`;
-  });
-
-  protected sparklineCoords = computed(() => {
-    const entries = this.logs;
-    if (entries.length < 2) return [];
-    const weights = entries.map(e => e.weight);
-    const min = Math.min(...weights);
-    const max = Math.max(...weights);
-    const range = max - min || 1;
-    const w = 200;
-    const h = 60;
-    const pad = 4;
-    return weights.map((wgt, i) => ({
-      x: +(i / (weights.length - 1) * w).toFixed(1),
-      y: +(h - pad - ((wgt - min) / range) * (h - 2 * pad)).toFixed(1),
-    }));
   });
 
   /** Chronological (oldest → newest) values for one metric, nulls dropped. */
@@ -619,7 +529,6 @@ export class ProgressReportComponent {
   });
 
   protected unlockedAchievements = computed(() => this.achievements().filter(a => a.unlocked));
-  protected lockedAchievements = computed(() => this.achievements().filter(a => !a.unlocked));
 
   // ── Arena Momentum: synthesized score, level/XP, and live challenges ──
 
@@ -951,10 +860,5 @@ export class ProgressReportComponent {
     if (current.bodyFat != null && previous.bodyFat != null) checks.push(fatDown);
     if (current.muscleMass != null && previous.muscleMass != null) checks.push(muscleUp);
     return checks.filter(Boolean).length >= Math.ceil(checks.length / 2);
-  }
-
-  /** Returns the translate key for a rotating motivational line, keyed by entry index. */
-  protected tlMotivation(index: number): string {
-    return `progressReport.motivation${index % MOTIVATION_COUNT}`;
   }
 }
