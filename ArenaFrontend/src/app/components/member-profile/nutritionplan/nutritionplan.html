@@ -245,16 +245,6 @@
                     } @else {
                       <span class="custom-inactive-badge">{{ t.translate('nutrition.plan') }}</span>
                     }
-                    <button
-                      class="plan-toggle-btn"
-                      [class.is-active]="plan.isActive"
-                      [disabled]="togglingPlanId() === plan.id"
-                      (click)="togglePlanActive(plan, $event)"
-                    >
-                      {{ togglingPlanId() === plan.id
-                          ? t.translate('nutrition.updatingPlan')
-                          : (plan.isActive ? t.translate('nutrition.deactivate') : t.translate('nutrition.activate')) }}
-                    </button>
                   </div>
                   <h3 class="card-plan-title">{{ t.translate('nutrition.dietPlan') }} {{ plan.dailyCalories }}</h3>
                   <div class="card-stats-grid">
@@ -289,6 +279,16 @@
           @if (plan.isActive) {
             <span class="custom-active-badge">{{ t.translate('nutrition.activePlan') }}</span>
           }
+          <button
+            class="plan-toggle-btn"
+            [class.is-active]="plan.isActive"
+            [disabled]="togglingPlanId() === plan.id"
+            (click)="togglePlanActive(plan, $event)"
+          >
+            {{ togglingPlanId() === plan.id
+                ? t.translate('nutrition.updatingPlan')
+                : (plan.isActive ? t.translate('nutrition.deactivate') : t.translate('nutrition.activate')) }}
+          </button>
         </div>
 
         <div class="modern-macro-summary-card">

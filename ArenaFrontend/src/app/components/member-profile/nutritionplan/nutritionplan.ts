@@ -185,6 +185,11 @@ export class Nutritionplan implements OnInit {
         // and refresh the daily summary since the active target may have moved.
         this.loadPlans();
         this.loadDailySummary();
+        // Keep the open plan-detail view in sync with the new active state.
+        const selected = this.selectedPlan();
+        if (selected && selected.id === plan.id) {
+          this.selectedPlan.set({ ...selected, isActive: activate });
+        }
         this.togglingPlanId.set(null);
       },
       error: () => {
