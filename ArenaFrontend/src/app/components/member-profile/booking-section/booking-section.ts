@@ -585,11 +585,25 @@ export class BookingSection implements OnInit, OnDestroy {
         const rawMsg = err.message || 'An error occurred';
         const keyMapping: Record<string, string> = {
           'BookingGapViolation': 'bookingGapError',
+          'You must wait at least 5 hours between bookings on the same day.': 'bookingGapError',
+
           'ActiveSubscriptionRequired': 'noActiveSubscriptionError',
+          'You need an active subscription to book a session.': 'noActiveSubscriptionError',
+
           'NoRemainingSessions': 'noRemainingSessionsError',
+          'You have no remaining sessions. Please renew your subscription.': 'noRemainingSessionsError',
+
           'BookingTimeCannotBeInPast': 'BookingTimeCannotBeInPast',
+          'That time has already passed today. Please choose a future time.': 'BookingTimeCannotBeInPast',
+
           'DuplicateBooking': 'DuplicateBooking',
-          'GymIsClosed': 'GymIsClosed'
+          'You already have a booking at this date and time.': 'DuplicateBooking',
+
+          'GymIsClosed': 'GymIsClosed',
+          'The gym is closed or operating hours are invalid for this selection.': 'GymIsClosed',
+
+          'BookingDateCannotBeInPast': 'BookingDateCannotBeInPast',
+          'Booking date cannot be in the past': 'BookingDateCannotBeInPast'
         };
         const mappedKey = keyMapping[rawMsg];
         const translatedMsg = mappedKey ? this.translate.instant(mappedKey) : this.translate.instant(rawMsg);
