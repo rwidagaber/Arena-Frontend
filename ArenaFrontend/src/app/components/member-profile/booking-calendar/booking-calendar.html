@@ -1,7 +1,15 @@
 <div class="calendar-widget">
   <div class="cal-header-row">
     <span class="cal-title">{{ 'calendar' | translate }}</span>
-    <span class="cal-month">{{ monthName() }} {{ year() }}</span>
+    <div class="cal-month-nav">
+      <button type="button" class="cal-nav-btn" (click)="prevMonth()" aria-label="Previous Month">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <span class="cal-month">{{ monthName() }} {{ year() }}</span>
+      <button type="button" class="cal-nav-btn" (click)="nextMonth()" aria-label="Next Month">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
   </div>
 
   <div class="cal-weekdays">
