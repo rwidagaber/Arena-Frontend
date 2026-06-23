@@ -895,6 +895,7 @@
       "cardio": "كارديو"
     }
   },
+  "booking":{
   "myBookings": "حجوزاتي",
   "upcoming": "الحجوزات القادمة",
   "past": "الحجوزات السابقة",
@@ -921,4 +922,30 @@
   "bookingHeroSubtitleLight3": "حافظ على استمراريتك. ابقَ قوياً.",
   "bookingHeroSubtitleLight4": "التقدم أهم من المثالية.",
   "bookingHeroSubtitleLight5": "تدرب اليوم. لتتألق غداً."
+},
+
+  "notifications": {
+    "title":        "الإشعارات",
+    "unread":       "غير مقروء",
+    "markAllRead":  "تعليم الكل كمقروء",
+    "empty":        "لا توجد إشعارات",
+    "emptyUnread":  "لا توجد إشعارات غير مقروءة",
+    "loading":      "جاري تحميل الإشعارات...",
+    "viewAll":      "عرض الكل",
+    "loadMore":     "تحميل المزيد",
+    "justNow":      "الآن",
+    "minutesAgo":   "منذ {{count}} دقيقة",
+    "hoursAgo":     "منذ {{count}} ساعة",
+    "daysAgo":      "منذ {{count}} يوم",
+    "markRead":     "تعليم كمقروء",
+    "newBadge":     "جديد",
+    "dismiss":      "إغلاق",
+    "filterAll":    "الكل",
+    "filterUnread": "غير المقروءة",
+    "tabToday":     "اليوم",
+    "tabWeek":      "هذا الأسبوع",
+    "tabEarlier":   "سابقاً"
+  }
+
 }
+

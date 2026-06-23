@@ -6,7 +6,9 @@
         <p class="toast-title">{{ n.title }}</p>
         <p class="toast-msg">{{ n.message }}</p>
       </div>
-      <button type="button" class="toast-close" (click)="dismiss(n, $event)" aria-label="Dismiss">
+      <button type="button" class="toast-close"
+              (click)="dismiss(n, $event)"
+              [attr.aria-label]="'notifications.dismiss' | translate">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="18" y1="6" x2="6" y2="18"/>

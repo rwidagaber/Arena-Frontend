@@ -894,6 +894,7 @@
       "cardio": "Cardio"
     }
   },
+  "booking":{
   "myBookings": "My Bookings",
   "upcoming": "Upcoming Bookings",
   "past": "Past Bookings",
@@ -920,4 +921,29 @@
   "bookingHeroSubtitleLight3": "STAY CONSISTENT. STAY STRONG.",
   "bookingHeroSubtitleLight4": "PROGRESS OVER PERFECTION.",
   "bookingHeroSubtitleLight5": "TRAIN TODAY. THRIVE TOMORROW."
+},
+
+  "notifications": {
+    "title":        "Notifications",
+    "unread":       "unread",
+    "markAllRead":  "Mark all as read",
+    "empty":        "No notifications yet",
+    "emptyUnread":  "No unread notifications",
+    "loading":      "Loading notifications...",
+    "viewAll":      "View all",
+    "loadMore":     "Load more",
+    "justNow":      "Just now",
+    "minutesAgo":   "{{count}}m ago",
+    "hoursAgo":     "{{count}}h ago",
+    "daysAgo":      "{{count}}d ago",
+    "markRead":     "Mark as read",
+    "newBadge":     "New",
+    "dismiss":      "Dismiss",
+    "filterAll":    "All",
+    "filterUnread": "Unread",
+    "tabToday":     "Today",
+    "tabWeek":      "This Week",
+    "tabEarlier":   "Earlier"
+  }
+
 }

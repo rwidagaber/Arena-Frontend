@@ -18,14 +18,12 @@ export class NotificationService {
   private readonly http = inject(HttpClient);
   private readonly auth = inject(AuthService);
 
-  // ✅ apiUrl بينتهي بـ /api — بس محتاج نشيل /api من هنا
   private readonly apiBase = environment.apiUrl.replace(/\/api$/, '');
   private readonly base = `${environment.apiUrl}/notifications`;
 
   readonly notifications = signal<NotificationDto[]>([]);
   readonly unreadCount   = signal(0);
 
-  // ── Toasts (instant pop-up the moment an event arrives over SignalR) ──
   readonly toasts = signal<NotificationDto[]>([]);
   private readonly toastTimers = new Map<string, ReturnType<typeof setTimeout>>();
   private readonly TOAST_DURATION_MS = 6000;
@@ -56,12 +54,27 @@ export class NotificationService {
     });
   }
 
+  // ── Sound ─────────────────────────────────────────────────────────
+private readonly audio = new Audio('assets/sounds/freesound_community-draw-sword1-44724.mp3');
+
+private playSound(): void {
+  try {
+    this.audio.currentTime = 0;
+    this.audio.volume = 0.5;
+    this.audio.play().catch(() => {
+      // المتصفح بيمنع الصوت قبل تفاعل المستخدم — تجاهل
+    });
+  } catch {
+    this.audio.play().catch(err => console.error('Audio play failed:', err));
+  }
+}
+
   // ── Toasts ────────────────────────────────────────────────────────
-  /** Pushes a toast and auto-dismisses it after TOAST_DURATION_MS. */
   private showToast(n: NotificationDto): void {
     this.toasts.update(list => [...list, n]);
     const timer = setTimeout(() => this.dismissToast(n.id), this.TOAST_DURATION_MS);
     this.toastTimers.set(n.id, timer);
+    this.playSound(); // ✅
   }
 
   dismissToast(id: string): void {
@@ -75,18 +88,12 @@ export class NotificationService {
 
   // ── SignalR ───────────────────────────────────────────────────────
   connectHub() {
-    // ✅ استخدم accessToken getter بدل getToken()
     const token = this.auth.accessToken;
     if (!token || this.hub) return;
 
     this.hub = new signalR.HubConnectionBuilder()
       .withUrl(`${this.apiBase}/hubs/notifications`, {
-        // ✅ apiBase = http://localhost:5095 (بدون /api)
         accessTokenFactory: () => this.auth.accessToken ?? '',
-        // 👇 ده اللي يحل الـ "Failed to fetch" بتاع الـ negotiate:
-        // الباك إند معمول له CORS policy بـ AllowAnyOrigin(), وده متعارض
-        // مع طلبات فيها credentials. signalR بيبعت credentials بشكل افتراضي،
-        // فبنقفلها هنا لأن المصادقة أصلاً عبر التوكن (accessTokenFactory) مش كوكيز.
         withCredentials: false
       })
       .withAutomaticReconnect()
@@ -95,7 +102,6 @@ export class NotificationService {
     this.hub.on('ReceiveNotification', (n: NotificationDto) => {
       this.notifications.update(list => [n, ...list].slice(0, 10));
       this.unreadCount.update(c => c + 1);
-      // اللحظة اللي السيرفر يبعت فيها الإيفنت (مثلاً حجز سيشن) — يظهر toast على طول.
       this.showToast(n);
     });
 

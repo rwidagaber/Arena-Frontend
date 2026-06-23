@@ -1,20 +1,31 @@
-import { Component, inject, OnInit, OnDestroy, HostListener, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, HostListener, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NotificationService, NotificationDto } from '../../../core/services/notification.service';
 
 @Component({
   selector: 'app-notification-bell',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink, TranslateModule],
   templateUrl: './notification-bell.html',
   styleUrls: ['./notification-bell.css']
 })
 export class NotificationBellComponent implements OnInit, OnDestroy {
-  readonly svc = inject(NotificationService);
+  readonly svc  = inject(NotificationService);
+  readonly t    = inject(TranslateService);
   readonly open = signal(false);
 
-  // IDs of notifications currently expanded (showing full message).
   private readonly expandedIds = signal<Set<string>>(new Set());
+
+  readonly activeFilter = signal<'all' | 'unread'>('all');
+
+  readonly filteredNotifications = computed(() => {
+    const list = this.svc.notifications();
+    return this.activeFilter() === 'unread'
+      ? list.filter(n => !n.isRead)
+      : list;
+  });
 
   ngOnInit() {
     this.svc.loadNotifications();
@@ -25,13 +36,11 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
     this.svc.disconnectHub();
   }
 
-  // ✅ الحل — toggle على الـ button مباشرة
   toggle(e: Event) {
     e.stopPropagation();
     this.open.update(v => !v);
   }
 
-  // ✅ الحل — اقفل بس لو الـ click برا الـ bell-wrapper
   @HostListener('document:click', ['$event'])
   onDocClick(event: MouseEvent) {
     const target = event.target as HTMLElement;
@@ -40,22 +49,21 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
     }
   }
 
+  setFilter(filter: 'all' | 'unread'): void {
+    this.activeFilter.set(filter);
+  }
+
   isExpanded(id: string): boolean {
     return this.expandedIds().has(id);
   }
 
-  /** Click on the title row: toggles the full message open/closed,
-   *  and marks the notification as read (color change) the first time. */
   toggleNotif(n: NotificationDto): void {
     this.expandedIds.update(set => {
       const next = new Set(set);
       next.has(n.id) ? next.delete(n.id) : next.add(n.id);
       return next;
     });
-
-    if (!n.isRead) {
-      this.svc.markAsRead(n.id);
-    }
+    if (!n.isRead) this.svc.markAsRead(n.id);
   }
 
   dotClass(type: string) {
@@ -69,11 +77,12 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
 
   timeAgo(dateStr: string): string {
     const diff = Date.now() - new Date(dateStr).getTime();
-    const m = Math.floor(diff / 60000);
-    if (m < 1)  return 'Just now';
-    if (m < 60) return `${m}m ago`;
+    const m = Math.floor(diff / 60_000);
+
+    if (m < 1)  return this.t.instant('notifications.justNow');
+    if (m < 60) return this.t.instant('notifications.minutesAgo', { count: m });
     const h = Math.floor(m / 60);
-    if (h < 24) return `${h}h ago`;
-    return `${Math.floor(h / 24)}d ago`;
+    if (h < 24) return this.t.instant('notifications.hoursAgo', { count: h });
+    return       this.t.instant('notifications.daysAgo',    { count: Math.floor(h / 24) });
   }
 }
