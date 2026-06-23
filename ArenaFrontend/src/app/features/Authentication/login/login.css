@@ -32,7 +32,7 @@ background-color: var(--bg-primary, #0b0c0c);
 content: '';
 position: fixed;
 inset: 0;
-background-image: url('/assets/images/man.png') !important;
+background-image: url('../../../assets/images/man.png') !important;
 background-size: cover !important;
 background-position: right center !important;
 background-repeat: no-repeat !important;
@@ -42,7 +42,7 @@ background-color: transparent !important;
 }
 
 :host-context([data-theme="light"])::before {
-background-image: url('/assets/images/man-light.png') !important;
+background-image: url('../../../assets/images/man-light.png') !important;
 }
 
 /* ==========================================================================

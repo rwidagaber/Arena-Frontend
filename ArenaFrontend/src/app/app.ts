@@ -26,7 +26,6 @@ export class App implements OnInit {
   private activatedRoute = inject(ActivatedRoute);
 
   showLayout = true;
-  showFooter = true;
 
   ngOnInit(): void {
 
@@ -36,21 +35,17 @@ export class App implements OnInit {
     document.documentElement.dir = storedLang === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = storedLang;
 
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(console.error);
-    }
-
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => {
 
         let route = this.activatedRoute;
+
         while (route.firstChild) {
           route = route.firstChild;
         }
 
         this.showLayout = !route.snapshot.data['hideLayout'];
-        this.showFooter = !route.snapshot.data['hideFooter'];
       });
   }
 }
