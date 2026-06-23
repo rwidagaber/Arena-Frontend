@@ -108,7 +108,12 @@
   border-radius: 1px;
 }
 
-.notif-list { overflow-y: auto; flex: 1; }
+.notif-list { overflow-y: auto; flex: 1;scrollbar-width: none;
+  -ms-overflow-style: none; }
+
+  .notif-list::-webkit-scrollbar {
+  display: none;
+}
 
 .notif-empty {
   display: flex; flex-direction: column; align-items: center;
