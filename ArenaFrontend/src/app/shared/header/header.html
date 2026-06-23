@@ -77,7 +77,10 @@
           <line x1="18.36" y1="5.64"  x2="19.78" y2="4.22"/>
         </svg>
       </button>
-
+<ng-container *ngIf="currentUser$ | async">
+  <app-notification-bell></app-notification-bell>
+  <app-notification-toast></app-notification-toast>
+</ng-container>
       <button type="button" class="btn-lang-exact font-display text-decoration-none" (click)="toggleLang()">
         {{ currentLang === 'en' ? 'AR' : 'EN' }}
       </button>
