@@ -174,7 +174,7 @@
 .field input:focus,
 .select-wrap select:focus {
   background-color: var(--input-focus-bg, rgba(0, 0, 0, 0.5)) !important;
-  border-color: #418C27 !important;
+  border-color: #C6EF2E !important;
   box-shadow: 0 0 0 2px rgba(65, 140, 39, 0.15) !important;
 }
 
@@ -282,9 +282,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   left: 14px;
 }
 
-.toggle-pw:hover { color: #418C27; }
+.toggle-pw:hover { color: #C6EF2E; }
 .toggle-pw svg { stroke: var(--text-secondary); width: 18px; height: 18px; }
-.toggle-pw:hover svg { stroke: #418C27; }
+.toggle-pw:hover svg { stroke: #C6EF2E; }
 
 /* ==========================================================================
    Buttons, Dividers & Back Arrow
@@ -310,7 +310,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .back-btn:hover {
   background-color: rgba(255, 255, 255, 0.08);
-  color: #418C27;
+  color: #C6EF2E;
 }
 
 .back-btn svg { width: 20px; height: 20px; }
@@ -321,7 +321,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .btn-submit {
-  background-color: #418C27 !important;
+  background-color:#C6EF2E !important;
   color: #0b0c0c !important;
   border: none; 
   border-radius: 100px;
@@ -336,13 +336,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   align-items: center;
   gap: 8px; 
   height: 52px !important;
-  box-shadow: 0 4px 14px rgba(65, 140, 39, 0.3);
+  box-shadow: 0 4px 14px rgba(117, 245, 74, 0.3);
   margin-top: 18px !important;
 }
 
 .btn-submit:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 5px 15px rgba(65, 140, 39, 0.4);
+  box-shadow: 0 5px 15px rgba(118, 236, 79, 0.4);
 }
 
 .divider { margin: 16px 0; text-align: center; position: relative; }
@@ -368,7 +368,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .link-btn {
   background: none; border: none;
-  color: #418C27; font-size: 13.5px; font-weight: 700;
+  color: #C6EF2E; font-size: 13.5px; font-weight: 700;
   cursor: pointer; padding: 0 4px;
 }
 .link-btn:hover { text-decoration: underline; }

@@ -15,7 +15,7 @@
 :host-context([data-theme="dark"]) {
   background:
     radial-gradient(1100px 620px at 100% -12%, rgba(198,239,46,0.09) 0%, transparent 52%),
-    radial-gradient(820px 520px at -6% 106%, rgba(120,140,255,0.05) 0%, transparent 52%),
+    radial-gradient(820px 520px at -6% 106%, #10131B 0%, transparent 52%),
     #10131B;
 }
 
@@ -74,7 +74,7 @@
 }
 
 :host-context([data-theme="dark"]) .notif-page {
-  background: var(--lux-graphite-2, #1c1c1c);
+  background: var(--lux-graphite-2, #131725);
   border-color: var(--lux-line-dk, rgba(255,255,255,0.10));
   box-shadow: 0 1px 2px rgba(0,0,0,0.40), 0 22px 50px -28px rgba(0,0,0,0.85);
 }
