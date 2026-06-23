@@ -11,6 +11,7 @@ import { CompleteProfileComponent } from './features/Authentication/complete-pro
 import { ForgotPasswordComponent } from './features/Authentication/forgot-password/forgot-password';
 import { ResetPasswordComponent } from './features/Authentication/reset-password/reset-password';
 import { ChatComponent } from './features/chat/chat.component';
+import { Notification } from './features/notifications/notification/notification';
 
 // Guards
 import { authGuard } from './core/guards/auth/auth-guard';
@@ -97,7 +98,12 @@ export const routes: Routes = [
     component: ChatComponent,
     canActivate: [authGuard, subscriptionGuard]
   },
-
+{
+    path: 'notifications',
+    component: Notification,
+    canActivate: [authGuard],
+    data: { hideFooter: true }
+  },
   // ─── Semi-protected ───
   {
     path: 'checkout',
