@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy, AfterViewChecked, ElementRef, ViewChild, inject } from '@angular/core';import { FormsModule } from '@angular/forms';
+import { AfterViewChecked, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { finalize } from 'rxjs';
 import { AuthService } from '../../core/services/auth';
 import { BookingEventsService } from '../../core/services/booking-events.service';
@@ -11,11 +13,11 @@ import { ChatConversation, ChatMessage, ChatMessageBlock, ChatResponse } from '.
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, TranslateModule],
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.css'],
 })
-export class ChatComponent implements OnInit, AfterViewChecked {
+export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('messagesViewport') private messagesViewport?: ElementRef<HTMLDivElement>;
 
   private readonly chatService = inject(ChatService);
@@ -29,14 +31,13 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   loadingHistory = true;
   loadingConversations = true;
   sending = false;
+  recording = false;
+  transcribing = false;
   creatingChat = false;
   deletingConversationId = '';
   error = '';
   conversationId?: string;
   memberProfileId = '';
-
-recording: boolean = false;
-transcribing: boolean = false;
 
   // Voice recording UX state
   recordingSeconds = 0;
@@ -83,6 +84,8 @@ transcribing: boolean = false;
     'How can I recover faster?',
   ];
 
+  showSubscriptionModal = false;
+
   ngOnInit(): void {
     if (!this.auth.isLoggedIn) {
       this.router.navigate(['/login'], { queryParams: { returnUrl: '/chat' } });
@@ -95,12 +98,14 @@ transcribing: boolean = false;
       .pipe(finalize(() => (this.loadingHistory = false)))
       .subscribe({
         next: (profile) => {
-          if (!profile?.activeSubscription) {
-            this.router.navigate(['/home']);
+          this.memberProfileId = profile?.memberProfileId ?? profile?.id ?? '';
+
+          if (!profile?.activeSubscription || !profile.activeSubscription.hasAI) {
+            this.showSubscriptionModal = true;
+            this.loadingConversations = false;
             return;
           }
 
-          this.memberProfileId = profile.memberProfileId ?? profile.id;
           this.loadConversations();
         },
         error: () => {
@@ -108,6 +113,16 @@ transcribing: boolean = false;
           this.loadingConversations = false;
         },
       });
+  }
+
+  goToSubscription(): void {
+    this.showSubscriptionModal = false;
+    this.router.navigate(['/'], { fragment: 'membership' });
+  }
+
+  goToHome(): void {
+    this.showSubscriptionModal = false;
+    this.router.navigate(['/']);
   }
 
   ngAfterViewChecked(): void {
@@ -647,18 +662,17 @@ transcribing: boolean = false;
   }
 
   private createMessage(
-  sender: ChatMessage['sender'],
-  content: string,
-  options?: { isVoice?: boolean; audioUrl?: string }
-): ChatMessage {
-  return {
-    sender,
-    content,
-    createdAt: new Date().toISOString(),
-    isVoice: options?.isVoice ?? false,
-    audioUrl: options?.audioUrl,
-  };
-}
+    sender: ChatMessage['sender'],
+    content: string,
+    extra: Partial<ChatMessage> = {}
+  ): ChatMessage {
+    return {
+      sender,
+      content,
+      createdAt: new Date().toISOString(),
+      ...extra,
+    };
+  }
 
 
   ngOnDestroy(): void {

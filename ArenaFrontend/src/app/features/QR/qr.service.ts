@@ -2,14 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { BookingDto, QrDto, QrScanResultDto, ScanQrRequestDto } from './qr.model';
+import { QrDto, QrScanResultDto, ScanQrRequestDto } from './qr.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class QrService {
   private baseUrl = `${environment.apiUrl}/qr`;
-  private bookingUrl = `${environment.apiUrl}/Booking`;
 
   constructor(private http: HttpClient) {}
 
@@ -19,13 +18,5 @@ export class QrService {
 
   scan(dto: ScanQrRequestDto): Observable<QrScanResultDto> {
     return this.http.post<QrScanResultDto>(`${this.baseUrl}/scan`, dto);
-  }
-
-  getBookings(memberProfileId: string): Observable<BookingDto[]> {
-    return this.http.get<BookingDto[]>(`${this.bookingUrl}?memberProfileId=${memberProfileId}`);
-  }
-
-  cancelBooking(bookingId: string): Observable<BookingDto> {
-    return this.http.post<BookingDto>(`${this.bookingUrl}/cancel/${bookingId}`, {});
   }
 }

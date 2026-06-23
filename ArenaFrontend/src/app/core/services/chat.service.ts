@@ -58,6 +58,13 @@ export class ChatService {
     );
   }
 
+  // Voice command: upload a recorded clip; backend transcribes (Whisper) then runs the normal pipeline.
+  sendVoiceMessage(formData: FormData): Observable<ChatResponse> {
+    return this.http.post<ChatResponse>(`${this.baseUrl}/voice`, formData).pipe(
+      map((response) => this.normalizeResponse(response))
+    );
+  }
+
   private normalizeResponse(response: ChatResponse | string): ChatResponse {
     if (typeof response === 'string') {
       return { message: response };
@@ -77,8 +84,4 @@ export class ChatService {
       createdAt: message.sentAt ?? message.timestamp ?? new Date().toISOString(),
     };
   }
-
-  sendVoiceMessage(formData: FormData) {
-  return this.http.post<any>('/api/chat/voice', formData);
-}
 }
