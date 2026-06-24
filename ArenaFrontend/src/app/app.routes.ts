@@ -96,7 +96,8 @@ export const routes: Routes = [
   {
     path: 'chat',
     component: ChatComponent,
-    canActivate: [authGuard, subscriptionGuard]
+    canActivate: [authGuard, subscriptionGuard],
+    data: { hideFooter: true }
   },
 {
     path: 'notifications',
