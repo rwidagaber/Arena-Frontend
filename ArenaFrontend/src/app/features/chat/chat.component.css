@@ -1,6 +1,7 @@
 :host {
   display: block;
   height: 100vh;
+  height: 100dvh;
   background: #0c0f17;
   color: #fff;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
@@ -8,6 +9,7 @@
 
 .chat-page {
   height: 100vh;
+  height: 100dvh;
   box-sizing: border-box;
   padding: 100px 24px 24px;
   background:
@@ -938,14 +940,17 @@
 @media (max-width: 900px) {
   :host {
     height: 100vh;
+    height: 100dvh;
     overflow: hidden;
   }
 
   .chat-page {
     height: 100vh;
+    height: 100dvh;
     padding-top: 100px;
     padding-bottom: 16px;
     overflow: hidden;
+    overflow-x: hidden;
   }
 
   .chat-shell,
@@ -954,6 +959,9 @@
     gap: 0;
     height: 100%;
     position: relative;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
   /* Make the sidebar a slide-out drawer on mobile */
@@ -1000,6 +1008,12 @@
   .messages {
     min-height: 0;
     padding: 18px;
+  }
+
+  .conversation {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 }
 
