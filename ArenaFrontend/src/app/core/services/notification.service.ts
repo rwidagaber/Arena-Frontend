@@ -29,6 +29,7 @@ export class NotificationService {
   private readonly TOAST_DURATION_MS = 6000;
 
   private hub?: signalR.HubConnection;
+  private hubRefCount = 0;
 
   // ── REST ──────────────────────────────────────────────────────────
   loadNotifications() {
@@ -55,26 +56,24 @@ export class NotificationService {
   }
 
   // ── Sound ─────────────────────────────────────────────────────────
-private readonly audio = new Audio('assets/sounds/freesound_community-draw-sword1-44724.mp3');
+  private readonly audio = new Audio('assets/sounds/freesound_community-draw-sword1-44724.mp3');
 
-private playSound(): void {
-  try {
-    this.audio.currentTime = 0;
-    this.audio.volume = 0.5;
-    this.audio.play().catch(() => {
-      // المتصفح بيمنع الصوت قبل تفاعل المستخدم — تجاهل
-    });
-  } catch {
-    this.audio.play().catch(err => console.error('Audio play failed:', err));
+  private playSound(): void {
+    try {
+      this.audio.currentTime = 0;
+      this.audio.volume = 0.5;
+      this.audio.play().catch(() => {});
+    } catch {
+      this.audio.play().catch(err => console.error('Audio play failed:', err));
+    }
   }
-}
 
   // ── Toasts ────────────────────────────────────────────────────────
   private showToast(n: NotificationDto): void {
     this.toasts.update(list => [...list, n]);
     const timer = setTimeout(() => this.dismissToast(n.id), this.TOAST_DURATION_MS);
     this.toastTimers.set(n.id, timer);
-    this.playSound(); // ✅
+    this.playSound();
   }
 
   dismissToast(id: string): void {
@@ -88,6 +87,7 @@ private playSound(): void {
 
   // ── SignalR ───────────────────────────────────────────────────────
   connectHub() {
+    this.hubRefCount++;
     const token = this.auth.accessToken;
     if (!token || this.hub) return;
 
@@ -109,6 +109,9 @@ private playSound(): void {
   }
 
   disconnectHub() {
+    this.hubRefCount--;
+    if (this.hubRefCount > 0) return;
+
     this.toastTimers.forEach(t => clearTimeout(t));
     this.toastTimers.clear();
     this.hub?.stop();
