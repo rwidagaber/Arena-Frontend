@@ -172,7 +172,7 @@ app-footer {
   position: relative;
   overflow: hidden;
   border-radius: 20px;
-  min-height: 200px;
+  min-height: 300px;
   animation: fadeSlide 0.55s ease-out backwards;
   animation-delay: var(--hero-delay, 0s);
 }
@@ -266,8 +266,8 @@ app-footer {
   display: flex;
   align-items: center;
   gap: 18px;
-  padding: 20px 28px;
-  min-height: 180px;
+  padding: 40px 44px;
+  min-height: 260px;
 }
 
 .hero-info {
@@ -289,7 +289,7 @@ app-footer {
 }
 
 .hero-title {
-  font-size: var(--fs-2xl, 40px);
+  font-size: clamp(40px, 3.4vw, 54px);
   font-weight: 600;
   color: #ffffff;
   margin: 0;
@@ -2231,9 +2231,9 @@ app-footer {
   flex: 1;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 16px 16px;
-  border-radius: 16px;
+  gap: 14px;
+  padding: 20px 20px;
+  border-radius: 18px;
   background: var(--lux-surface, #ffffff);
   border: 1px solid var(--lux-line, rgba(20,20,20,0.09));
   box-shadow: 0 1px 3px rgba(20,20,20,0.05), 0 12px 26px -14px rgba(20,20,20,0.16);
@@ -2243,6 +2243,19 @@ app-footer {
   animation: ssSlide 0.5s ease-out backwards;
   cursor: pointer;
 }
+
+/* Whisper of lime that blooms from the icon corner on hover */
+.ss-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120px 80px at 14% 0%, rgba(198,239,46,0.12), transparent 70%);
+  opacity: 0;
+  transition: opacity 500ms ease;
+  pointer-events: none;
+}
+
+.ss-card:hover::before { opacity: 1; }
 
 .ss-card:nth-child(1) { animation-delay: 0.06s; }
 .ss-card:nth-child(2) { animation-delay: 0.11s; }
@@ -2257,7 +2270,7 @@ app-footer {
   position: absolute;
   left: 0; top: 0; bottom: 0;
   width: 3px;
-  background: var(--c-accent-soft, rgba(198,239,46,0.42));
+  background: linear-gradient(180deg, var(--c-accent, #C6EF2E), var(--c-accent-soft, rgba(198,239,46,0.42)));
   pointer-events: none;
 }
 
@@ -2268,18 +2281,23 @@ app-footer {
 }
 
 .ss-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--c-accent, #C6EF2E);
+  background: linear-gradient(140deg, var(--c-accent, #C6EF2E), var(--c-accent-strong, #aed81f));
   color: #15240a;
   flex-shrink: 0;
   position: relative;
   z-index: 1;
-  transition: transform 500ms cubic-bezier(0.22,1,0.36,1);
+  box-shadow: 0 8px 18px -8px rgba(198,239,46,0.55);
+  transition: transform 500ms cubic-bezier(0.22,1,0.36,1), box-shadow 500ms ease;
+}
+
+.ss-card:hover .ss-icon {
+  box-shadow: 0 12px 24px -8px rgba(198,239,46,0.7);
 }
 
 .ss-card:hover .ss-icon {
@@ -2294,18 +2312,22 @@ app-footer {
   z-index: 1;
 }
 
+.ss-body {
+  gap: 3px;
+}
+
 .ss-value {
   font-family: var(--font-display, Georgia, serif);
-  font-size: var(--fs-lg, 23px);
-  font-weight: 600;
+  font-size: 30px;
+  font-weight: 800;
   color: var(--lux-ink, #181818);
   line-height: 1;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 
 .ss-value small {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 700;
   color: var(--c-accent-deep, #4d7c0f);
   margin-inline-start: 4px;
   font-family: var(--font-ui);
@@ -2313,7 +2335,7 @@ app-footer {
 
 .ss-label {
   font-size: var(--fs-2xs, 10px);
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--lux-ink-soft, #5f5f5c);

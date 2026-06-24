@@ -160,63 +160,6 @@
           </div>
         }
 
-        @if (dailySummary(); as summary) {
-          <div class="daily-summary-card" [class.over-target]="summary.isOverTarget">
-            <div class="daily-summary-head">
-              <span class="meal-image-kicker">{{ t.translate('nutrition.todaysIntake') }}</span>
-              <p class="daily-summary-message">{{ summary.message }}</p>
-            </div>
-
-            @if (summary.hasActivePlan) {
-              <div class="daily-summary-calories">
-                <div class="daily-cal-block">
-                  <span>{{ t.translate('nutrition.consumed') }}</span>
-                  <strong>{{ summary.consumedCalories | number:'1.0-0' }}</strong>
-                  <small>{{ t.translate('nutrition.kcal') }}</small>
-                </div>
-                <div class="daily-cal-block remaining" [class.negative]="summary.remainingCalories < 0">
-                  <span>{{ summary.isOverTarget ? t.translate('nutrition.overBy') : t.translate('nutrition.remaining') }}</span>
-                  <strong>{{ (summary.remainingCalories < 0 ? -summary.remainingCalories : summary.remainingCalories) | number:'1.0-0' }}</strong>
-                  <small>{{ t.translate('nutrition.kcal') }}</small>
-                </div>
-                <div class="daily-cal-block">
-                  <span>{{ t.translate('nutrition.target') }}</span>
-                  <strong>{{ summary.dailyCalorieTarget | number:'1.0-0' }}</strong>
-                  <small>{{ t.translate('nutrition.kcal') }}</small>
-                </div>
-              </div>
-
-              <div class="daily-summary-bar">
-                <div
-                  class="daily-summary-bar-fill"
-                  [style.width.%]="summary.dailyCalorieTarget > 0 ? (summary.consumedCalories / summary.dailyCalorieTarget * 100 > 100 ? 100 : summary.consumedCalories / summary.dailyCalorieTarget * 100) : 0"
-                ></div>
-              </div>
-
-              <div class="daily-summary-macros">
-                <div class="daily-macro protein">
-                  <span>{{ t.translate('nutrition.protein') }}</span>
-                  <strong>{{ summary.remainingProtein | number:'1.0-0' }}g</strong>
-                  <small>{{ t.translate('nutrition.left') }}</small>
-                </div>
-                <div class="daily-macro carbs">
-                  <span>{{ t.translate('nutrition.carbs') }}</span>
-                  <strong>{{ summary.remainingCarbs | number:'1.0-0' }}g</strong>
-                  <small>{{ t.translate('nutrition.left') }}</small>
-                </div>
-                <div class="daily-macro fat">
-                  <span>{{ t.translate('nutrition.fat') }}</span>
-                  <strong>{{ summary.remainingFat | number:'1.0-0' }}g</strong>
-                  <small>{{ t.translate('nutrition.left') }}</small>
-                </div>
-              </div>
-
-              <p class="daily-summary-meals">
-                {{ summary.mealsLoggedToday }} {{ t.translate('nutrition.mealsLoggedToday') }}
-              </p>
-            }
-          </div>
-        }
       </div><!-- /meal-image-analyzer -->
 
       <div class="search-container">

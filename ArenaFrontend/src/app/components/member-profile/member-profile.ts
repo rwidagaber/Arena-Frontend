@@ -17,7 +17,6 @@ import { QrDisplayComponent } from '../../features/QR/qr-display.component/qr-di
 import { ProgressReportComponent } from '../progress-report/progress-report.component';
 import { RevealDirective } from '../progress-report/reveal.directive';
 import { Nutritionplan } from './nutritionplan/nutritionplan';
-import { DailyNutritionSummary } from './daily-nutrition-summary/daily-nutrition-summary';
 import { ThemeService } from '../../core/services/themeservice';
 import { TranslationService, type Lang } from '../../core/services/translation.service';
 import { WorkoutComponent } from "./workoutplan/workout";
@@ -64,7 +63,6 @@ function mapAuthToProfile(dto: GetProfileDto): MemberProfileModel {
     ProgressReportComponent,
     RevealDirective,
     Nutritionplan,
-    DailyNutritionSummary,
     WorkoutComponent,
 
     BookingSection,
@@ -118,6 +116,9 @@ export class MemberProfile implements OnInit {
 
   attendances = signal<AttendanceRecord[]>([]);
   progressSummary = signal<ProgressSummaryDto | null>(null);
+  // Secondary (attendance/progress-derived) data loads after the profile; the
+  // shell renders on `loading`, the streak/achievements wait on `statsLoading`.
+  statsLoading = signal(true);
 
   /** Active workout plan — source for the "Working Weights" board. */
   workoutPlan = signal<WorkoutPlanDto | null>(null);
@@ -1028,6 +1029,7 @@ export class MemberProfile implements OnInit {
 
   loadData(): void {
     this.loading.set(true);
+    this.statsLoading.set(true);
     this.error.set(null);
 
     this.memberService.getProfile().pipe(
@@ -1041,15 +1043,20 @@ export class MemberProfile implements OnInit {
     ).subscribe(data => {
       if (!data) {
         this.loading.set(false);
+        this.statsLoading.set(false);
         return;
       }
       this.profile.set(data);
+      // Profile is ready → render the dashboard shell immediately; the
+      // secondary data below streams in without blocking the whole page.
+      this.loading.set(false);
+
       this.loadSubscriptions(data.memberProfileId);
       this.loadBookings(data.memberProfileId || data.id || '');
       this.loadWorkoutPlan();
       const memberProfileId = data.memberProfileId || data.id || '';
       if (!memberProfileId) {
-        this.loading.set(false);
+        this.statsLoading.set(false);
         return;
       }
       forkJoin({
@@ -1062,7 +1069,7 @@ export class MemberProfile implements OnInit {
       }).subscribe(result => {
         this.attendances.set(result.attendances);
         this.progressSummary.set(result.progress);
-        this.loading.set(false);
+        this.statsLoading.set(false);
       });
     });
   }

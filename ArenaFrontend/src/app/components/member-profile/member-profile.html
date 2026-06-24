@@ -54,84 +54,8 @@
               </div>
             </section>
 
-            <!-- ════════════════════════════════════════
-                  TODAY'S NUTRITION  (calories left vs. plan target)
-                  ════════════════════════════════════════ -->
-            <app-daily-nutrition-summary />
-
-            <!-- ════════════════════════════════════════
-                  OVERVIEW BAND  (daily quote + key numbers at a glance)
-                  ════════════════════════════════════════ -->
-            <div class="overview-band" appReveal style="--ss-delay:0.10s">
-
-              <!-- Daily quote — moved up to set the tone for the dashboard -->
-              <div class="quote-card ob-quote">
-                <div class="q-icon" aria-hidden="true">
-                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
-                </div>
-                <div class="q-body">
-                  <p class="q-nudge">{{ motivationNudge().key | translate:motivationNudge().params }}</p>
-                  <p class="q-text">{{ dailyQuoteKey() | translate }}</p>
-                </div>
-              </div>
-
-              <!-- Key numbers at a glance -->
-              <div class="stats-strip">
-              <div class="ss-card">
-                <div class="ss-icon">
-                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                </div>
-                <div class="ss-body">
-                  <span class="ss-value">{{ totalWorkouts() }}</span>
-                  <span class="ss-label">{{ 'memberProfile.dash.totalWorkouts' | translate }}</span>
-                </div>
-              </div>
-              <div class="ss-card">
-                <div class="ss-icon">
-                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                </div>
-                <div class="ss-body">
-                  <span class="ss-value">{{ currentStreak() }}<small>{{ 'memberProfile.dash.dShort' | translate }}</small></span>
-                  <span class="ss-label">{{ 'memberProfile.dash.currentStreak' | translate }}</span>
-                </div>
-              </div>
-              <div class="ss-card">
-                <div class="ss-icon">
-                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                </div>
-                <div class="ss-body">
-                  <span class="ss-value">{{ sessionsThisMonth() }}<small>/{{ monthlyTarget() }}</small></span>
-                  <span class="ss-label">{{ 'memberProfile.dash.thisMonth' | translate }}</span>
-                </div>
-              </div>
-              </div>
-            </div>
-
-            <!-- ════════════════════════════════════════
-                 STREAK AT RISK  (loss-aversion nudge)
-                 ════════════════════════════════════════ -->
-            @if (streakAtRisk()) {
-              <div class="risk-banner" appReveal style="--rb-delay:0.11s" role="status">
-                <span class="risk-flame" aria-hidden="true">🔥</span>
-                <div class="risk-body">
-                  <span class="risk-title">{{ 'memberProfile.dash.riskTitle' | translate:{ n: currentStreak() } }}</span>
-                  <span class="risk-sub">{{ 'memberProfile.dash.riskSub' | translate }}</span>
-                </div>
-                <div class="risk-actions">
-                  <button type="button" class="risk-cta" (click)="onSectionChange('qr')">{{ 'memberProfile.dash.riskCheckIn' | translate }}</button>
-                  @if (freezeAvailable()) {
-                    <button type="button" class="risk-freeze" (click)="useFreeze()"
-                            [attr.aria-label]="'memberProfile.dash.freezeHint' | translate">
-                      {{ 'memberProfile.dash.useRestPass' | translate }}
-                    </button>
-                  }
-                </div>
-              </div>
-            }
-
-            <!-- ════════════════════════════════════════
-                 STREAK CELEBRATION BANNER
-                 ════════════════════════════════════════ -->
+            <!-- Ready-to-start / streak banner — surfaced directly under the hero -->
+            @if (!statsLoading()) {
             <div class="streak-banner" appReveal style="--sb-delay:0.12s">
               <div class="sb-flame">
                 <span class="sb-flame-icon" aria-hidden="true" [innerHTML]="getSvgIcon(streakMessage().icon)"></span>
@@ -157,10 +81,84 @@
                 </div>
               }
             </div>
+            }
+
+            <!-- ════════════════════════════════════════
+                  OVERVIEW BAND  (daily quote + key numbers at a glance)
+                  ════════════════════════════════════════ -->
+            @if (!statsLoading()) {
+            <div class="overview-band" appReveal style="--ss-delay:0.10s">
+
+              <!-- Daily quote — sets the tone for the dashboard -->
+              <div class="quote-card ob-quote">
+                <div class="q-icon" aria-hidden="true">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
+                </div>
+                <div class="q-body">
+                  <p class="q-nudge">{{ motivationNudge().key | translate:motivationNudge().params }}</p>
+                  <p class="q-text">{{ dailyQuoteKey() | translate }}</p>
+                </div>
+              </div>
+
+              <!-- Key numbers at a glance -->
+              <div class="stats-strip">
+                <div class="ss-card">
+                  <div class="ss-icon">
+                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                  </div>
+                  <div class="ss-body">
+                    <span class="ss-value">{{ totalWorkouts() }}</span>
+                    <span class="ss-label">{{ 'memberProfile.dash.totalWorkouts' | translate }}</span>
+                  </div>
+                </div>
+                <div class="ss-card">
+                  <div class="ss-icon">
+                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  </div>
+                  <div class="ss-body">
+                    <span class="ss-value">{{ currentStreak() }}<small>{{ 'memberProfile.dash.dShort' | translate }}</small></span>
+                    <span class="ss-label">{{ 'memberProfile.dash.currentStreak' | translate }}</span>
+                  </div>
+                </div>
+                <div class="ss-card">
+                  <div class="ss-icon">
+                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  </div>
+                  <div class="ss-body">
+                    <span class="ss-value">{{ sessionsThisMonth() }}<small>/{{ monthlyTarget() }}</small></span>
+                    <span class="ss-label">{{ 'memberProfile.dash.thisMonth' | translate }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            }
+
+            <!-- ════════════════════════════════════════
+                 STREAK AT RISK  (loss-aversion nudge)
+                 ════════════════════════════════════════ -->
+            @if (!statsLoading() && streakAtRisk()) {
+              <div class="risk-banner" appReveal style="--rb-delay:0.11s" role="status">
+                <span class="risk-flame" aria-hidden="true">🔥</span>
+                <div class="risk-body">
+                  <span class="risk-title">{{ 'memberProfile.dash.riskTitle' | translate:{ n: currentStreak() } }}</span>
+                  <span class="risk-sub">{{ 'memberProfile.dash.riskSub' | translate }}</span>
+                </div>
+                <div class="risk-actions">
+                  <button type="button" class="risk-cta" (click)="onSectionChange('qr')">{{ 'memberProfile.dash.riskCheckIn' | translate }}</button>
+                  @if (freezeAvailable()) {
+                    <button type="button" class="risk-freeze" (click)="useFreeze()"
+                            [attr.aria-label]="'memberProfile.dash.freezeHint' | translate">
+                      {{ 'memberProfile.dash.useRestPass' | translate }}
+                    </button>
+                  }
+                </div>
+              </div>
+            }
 
             <!-- ════════════════════════════════════════
                   ACHIEVEMENTS  (streak milestones + workout milestones)
                   ════════════════════════════════════════ -->
+            @if (!statsLoading()) {
             <section class="achievements-section" appReveal style="--ach-delay:0.18s">
               <div class="ach-sec-hdr">
                 <span class="svg-icon-wrap" aria-hidden="true" [innerHTML]="getSvgIcon('trophy')"></span>
@@ -193,6 +191,7 @@
                 </div>
               </div>
             </section>
+            }
 
             <!-- ════════════════════════════════════════
                   MOTIVATION ROW  (weekly goal · rebook · records)
@@ -645,7 +644,7 @@
                 <!-- Recent workouts — fifth masonry block so the two columns
                      balance to a near-even height. -->
                 <div class="bottom-zone" appReveal style="--bz-delay:0.32s">
-                  <app-recent-workouts [workouts]="recentWorkouts()" [loading]="loading()" />
+                  <app-recent-workouts [workouts]="recentWorkouts()" [loading]="statsLoading()" />
                 </div>
 
             </div>
