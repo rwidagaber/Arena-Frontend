@@ -102,7 +102,7 @@
 .gympro-header-exact::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; width: 450px; height: 100%;
+  top: 0; left: 0; width: 450px; max-width: 100%; height: 100%;
   background: radial-gradient(circle at 15% 50%, var(--header-glow) 0%, transparent 70%);
   pointer-events: none;
   z-index: 1;
@@ -613,4 +613,31 @@
   .nav-item-exact::after,
   .mobile-menu,
   .logo-circle-exact { transition: none; }
+}
+
+/* ==========================================================================
+   Small screens — keep the top bar from overflowing (no horizontal gap)
+   ========================================================================== */
+@media (max-width: 575.98px) {
+  /* Tighten the header's own horizontal padding (overrides Bootstrap .px-4) */
+  .gympro-header-exact {
+    padding-left: 0.85rem !important;
+    padding-right: 0.85rem !important;
+  }
+
+  /* Shrink the brand so it shares the row with the action cluster */
+  .brand-v3-exact { gap: 0.5rem !important; }
+  .brand-text-exact { font-size: 1.15rem; }
+  .logo-circle-exact { width: 38px; height: 38px; }
+  .logo-circle-exact svg { width: 22px; height: 22px; }
+
+  /* Compact the right-side controls */
+  .theme-toggle-btn { width: 36px; height: 36px; }
+  .btn-lang-exact { padding: 5px 10px; font-size: 0.72rem; }
+  .mobile-toggle { width: 38px; height: 38px; }
+
+  /* The action cluster must never push past the viewport edge */
+  .max-header-width { min-width: 0; }
+  .brand-v3-exact { min-width: 0; flex-shrink: 1; }
+  .brand-text-exact { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }
