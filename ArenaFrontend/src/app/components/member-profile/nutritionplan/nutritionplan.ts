@@ -1,7 +1,13 @@
-import { Component, computed, inject, input, OnInit, signal, effect } from '@angular/core';
+import { Component, computed, inject, input, OnInit, signal, effect, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NutritionService } from '../../../core/services/nutrition';
-import { NutritionPlanDto, MealDto, MealImageAnalysisDto, DailyNutritionSummaryDto } from '../../../core/models/nutrition';
+import {
+  NutritionPlanDto,
+  MealDto,
+  MealImageAnalysisDto,
+  DailyNutritionSummaryDto,
+  MealLogResponseDto,
+} from '../../../core/models/nutrition';
 import { ThemeService } from '../../../core/services/themeservice';
 type View = 'plans' | 'plan-detail' | 'meal-detail';
 import { TranslationService } from '../../../core/services/translation.service';
@@ -15,7 +21,7 @@ import { catchError, of } from 'rxjs';
   templateUrl: './nutritionplan.html',
   styleUrl: './nutritionplan.css',
 })
-export class Nutritionplan implements OnInit {
+export class Nutritionplan implements OnInit, OnDestroy {
   private nutritionService = inject(NutritionService);
   private themeservice     = inject(ThemeService);
   readonly t               = inject(TranslationService);
@@ -23,24 +29,48 @@ export class Nutritionplan implements OnInit {
   memberProfileId = input<string>('');
 
   // ── State ─────────────────────────────────────────────────────────────────────
-  allPlans     = signal<NutritionPlanDto[]>([]); // كل الداتا من الـ API مرة واحدة
-  selectedPlan = signal<NutritionPlanDto | null>(null);
-  selectedMeal = signal<MealDto | null>(null);
-  loading      = signal(true);
-  error        = signal<string | null>(null);
-  view         = signal<View>('plans');
-  selectedMealImage = signal<File | null>(null);
-  mealImagePreview = signal<string | null>(null);
-  mealAnalysis = signal<MealImageAnalysisDto | null>(null);
-  mealAnalysisLoading = signal(false);
-  mealAnalysisError = signal<string | null>(null);
-  dailySummary = signal<DailyNutritionSummaryDto | null>(null);
+  allPlans       = signal<NutritionPlanDto[]>([]);
+  selectedPlan   = signal<NutritionPlanDto | null>(null);
+  selectedMeal   = signal<MealDto | null>(null);
+  loading        = signal(true);
+  togglingPlanId = signal<string | null>(null);
+  error          = signal<string | null>(null);
+  view           = signal<View>('plans');
+
+  // ── AI Meal Analysis ──────────────────────────────────────────────────────────
+  selectedMealImage    = signal<File | null>(null);
+  mealImagePreview     = signal<string | null>(null);
+  mealAnalysis         = signal<MealImageAnalysisDto | null>(null);
+  mealAnalysisLoading  = signal(false);
+  mealAnalysisError    = signal<string | null>(null);
+  lastLoggedMeal       = signal<MealLogResponseDto | null>(null);
+  mealUndoLoading      = signal(false);
+
+  // ── Daily Calorie Tracking ────────────────────────────────────────────────────
+  dailySummary       = signal<DailyNutritionSummaryDto | null>(null);
+  activePlan         = computed(() => this.allPlans().find(p => p.isActive) ?? null);
+  dailyCalorieTarget = computed(
+    () => this.dailySummary()?.dailyCalorieTarget ?? this.activePlan()?.dailyCalories ?? 0
+  );
+  consumedCalories  = computed(() => this.dailySummary()?.consumedCalories ?? 0);
+  remainingCalories = computed(() => {
+    const s = this.dailySummary();
+    return s ? s.remainingCalories : this.dailyCalorieTarget() - this.consumedCalories();
+  });
+  isOverTarget = computed(() => {
+    const s = this.dailySummary();
+    return s ? s.isOverTarget : this.dailyCalorieTarget() > 0 && this.remainingCalories() < 0;
+  });
+  progressPercent = computed(() => {
+    const target = this.dailyCalorieTarget();
+    if (target <= 0) return 0;
+    return Math.min(100, Math.round((this.consumedCalories() / target) * 100));
+  });
 
   // ── Search & Filter ───────────────────────────────────────────────────────────
   searchQuery    = signal('');
   showActiveOnly = signal(false);
 
-  // ── Filtered (بدون API call) ──────────────────────────────────────────────────
   filteredPlans = computed(() => {
     const q = this.searchQuery().toLowerCase().trim();
     let result = this.allPlans();
@@ -64,7 +94,7 @@ export class Nutritionplan implements OnInit {
     return result;
   });
 
-  // ── Pagination (frontend-only) ────────────────────────────────────────────────
+  // ── Pagination ────────────────────────────────────────────────────────────────
   currentPage = signal(0);
   readonly pageSize = 8;
 
@@ -77,7 +107,6 @@ export class Nutritionplan implements OnInit {
     return this.filteredPlans().slice(start, start + this.pageSize);
   });
 
-  // reset الصفحة لما يتغير الـ search أو الـ filter — بدون API call
   private resetPageOnFilter = effect(() => {
     this.searchQuery();
     this.showActiveOnly();
@@ -87,7 +116,6 @@ export class Nutritionplan implements OnInit {
   goToPage(page: number): void {
     if (page >= 0 && page < this.totalPages()) {
       this.currentPage.set(page);
-      // scroll للأعلى عشان تجربة أحسن
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
@@ -123,8 +151,7 @@ export class Nutritionplan implements OnInit {
     'assets/images/dinner.jpg',
     'assets/images/lunch.jpg',
     'assets/images/fruit.jpg',
-    'assets/images/all.jpeg'
-
+    'assets/images/all.jpeg',
   ];
 
   getPlanImage(index: number): string {
@@ -140,12 +167,10 @@ export class Nutritionplan implements OnInit {
   startCounter(target: number): void {
     this.animatedCount.set(0);
     if (target === 0) return;
-
-    const steps    = 50;
-    const stepTime = 1500 / steps;
+    const steps     = 50;
+    const stepTime  = 1500 / steps;
     const increment = target / steps;
-    let current = 0;
-
+    let current     = 0;
     const timer = setInterval(() => {
       current += increment;
       if (current >= target) {
@@ -160,13 +185,12 @@ export class Nutritionplan implements OnInit {
   // ── Lifecycle ─────────────────────────────────────────────────────────────────
   ngOnInit(): void {
     this.loadData();
+    this.loadDailySummary();
   }
 
-  // جيب الداتا مرة واحدة بس — الـ pagination والـ filter شغالين على الـ frontend
   loadData(): void {
     this.loading.set(true);
     this.error.set(null);
-
     this.nutritionService.getMyPlans().pipe(
       catchError(() => {
         this.error.set(this.t.translate('nutrition.loadError'));
@@ -179,9 +203,38 @@ export class Nutritionplan implements OnInit {
     });
   }
 
-  // retry button في الـ template بيستخدم loadPlans
   loadPlans(): void {
     this.loadData();
+  }
+
+  loadDailySummary(): void {
+    this.nutritionService.getDailySummary().subscribe({
+      next:  (summary) => this.dailySummary.set(summary),
+      error: ()        => this.dailySummary.set(null),
+    });
+  }
+
+  // ── Toggle Active Plan ────────────────────────────────────────────────────────
+  togglePlanActive(plan: NutritionPlanDto, event: Event): void {
+    event.stopPropagation();
+    if (this.togglingPlanId()) return;
+    const activate = !plan.isActive;
+    this.togglingPlanId.set(plan.id);
+    this.nutritionService.setPlanActive(plan.id, activate).subscribe({
+      next: () => {
+        this.loadData();
+        this.loadDailySummary();
+        const selected = this.selectedPlan();
+        if (selected && selected.id === plan.id) {
+          this.selectedPlan.set({ ...selected, isActive: activate });
+        }
+        this.togglingPlanId.set(null);
+      },
+      error: () => {
+        this.error.set(this.t.translate('nutrition.planUpdateFailed'));
+        this.togglingPlanId.set(null);
+      },
+    });
   }
 
   // ── Navigation ────────────────────────────────────────────────────────────────
@@ -225,46 +278,38 @@ export class Nutritionplan implements OnInit {
     return key ? this.t.translate(key) : type;
   }
 
+  // ── AI Meal Analysis ──────────────────────────────────────────────────────────
   onMealImageSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    const file = input.files?.[0] ?? null;
-
+    const file  = input.files?.[0] ?? null;
     this.mealAnalysis.set(null);
     this.mealAnalysisError.set(null);
     this.selectedMealImage.set(file);
-
     const oldPreview = this.mealImagePreview();
-    if (oldPreview) {
-      URL.revokeObjectURL(oldPreview);
-    }
-
-    if (!file) {
-      this.mealImagePreview.set(null);
-      return;
-    }
-
+    if (oldPreview) URL.revokeObjectURL(oldPreview);
+    if (!file) { this.mealImagePreview.set(null); return; }
     if (!file.type.startsWith('image/')) {
       this.mealImagePreview.set(null);
       this.selectedMealImage.set(null);
       this.mealAnalysisError.set(this.t.translate('nutrition.mealImageInvalid'));
       return;
     }
-
     this.mealImagePreview.set(URL.createObjectURL(file));
   }
 
   analyzeSelectedMealImage(): void {
     const file = this.selectedMealImage();
     if (!file || this.mealAnalysisLoading()) return;
-
     this.mealAnalysisLoading.set(true);
     this.mealAnalysisError.set(null);
-
-    this.nutritionService.analyzeMealImage(file).subscribe({
+    this.nutritionService.analyzeAndLogMeal(file).subscribe({
       next: (result) => {
         this.mealAnalysis.set(result.analysis);
+        this.lastLoggedMeal.set(result.loggedMeal ?? null);
         if (result.dailySummary) {
           this.dailySummary.set(result.dailySummary);
+        } else {
+          this.loadDailySummary();
         }
         this.mealAnalysisLoading.set(false);
       },
@@ -276,23 +321,46 @@ export class Nutritionplan implements OnInit {
           : this.t.translate('nutrition.mealImageError');
         this.mealAnalysisError.set(message);
         this.mealAnalysisLoading.set(false);
-      }
+      },
+    });
+  }
+
+  undoLastMeal(): void {
+    const logged = this.lastLoggedMeal();
+    if (!logged || this.mealUndoLoading()) return;
+    this.mealUndoLoading.set(true);
+    this.nutritionService.deleteMealLog(logged.id).subscribe({
+      next: (summary) => {
+        this.dailySummary.set(summary);
+        this.lastLoggedMeal.set(null);
+        this.mealAnalysis.set(null);
+        this.mealUndoLoading.set(false);
+      },
+      error: (error) => {
+        const message = error?.message
+          ? error.message
+          : typeof error?.error === 'string'
+          ? error.error
+          : this.t.translate('nutrition.mealImageError');
+        this.mealAnalysisError.set(message);
+        this.mealUndoLoading.set(false);
+      },
     });
   }
 
   clearMealImageAnalysis(fileInput?: HTMLInputElement): void {
     const oldPreview = this.mealImagePreview();
-    if (oldPreview) {
-      URL.revokeObjectURL(oldPreview);
-    }
-
+    if (oldPreview) URL.revokeObjectURL(oldPreview);
     this.selectedMealImage.set(null);
     this.mealImagePreview.set(null);
     this.mealAnalysis.set(null);
     this.mealAnalysisError.set(null);
+    this.lastLoggedMeal.set(null);
+    if (fileInput) fileInput.value = '';
+  }
 
-    if (fileInput) {
-      fileInput.value = '';
-    }
+   ngOnDestroy(): void {
+    const preview = this.mealImagePreview();
+    if (preview) URL.revokeObjectURL(preview);
   }
 }

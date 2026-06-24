@@ -1,5 +1,5 @@
 import {
-  HttpInterceptorFn, HttpErrorResponse, HttpRequest
+  HttpInterceptorFn, HttpErrorResponse
 } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, throwError, switchMap, BehaviorSubject, filter, take } from 'rxjs';
@@ -8,6 +8,7 @@ import { AuthService } from '../../services/auth'; // غير المسار لو �
 let isRefreshing = false;
 const refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
+// ✅ رسائل واضحة لكل status code
 const STATUS_MESSAGES: Record<number, string> = {
   400: 'Invalid request. Please check your input.',
   401: 'Invalid email or password.',
@@ -23,14 +24,14 @@ const STATUS_MESSAGES: Record<number, string> = {
 
 const isTechnical = (msg: string): boolean => {
   const technicalPatterns = [
-    /at\s+\w+\s*\(/,
-    /Exception/,
-    /System\./,
-    /Microsoft\./,
-    /Object reference/,
-    /Http failure response/,
-    /\w+:\d+:\d+/,
-    /localhost/,
+    /at\s+\w+\s*\(/,           // stack trace
+    /Exception/,                // C# exceptions
+    /System\./,                 // .NET namespaces
+    /Microsoft\./,              // ASP.NET
+    /Object reference/,         // null ref
+    /Http failure response/,    // Angular HTTP wrapper
+    /\w+:\d+:\d+/,              // file:line:col
+    /localhost/,                // dev URLs
   ];
   return technicalPatterns.some(p => p.test(msg));
 };
@@ -90,24 +91,26 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       }
 
       // ── Normal Error Handling ─────────────────────────────────────────────
-      if (err instanceof Error) {
-        const msg = isTechnical(err.message)
-          ? 'Something went wrong. Please try again.'
-          : err.message;
-        return throwError(() => new Error(msg));
-      }
-
       if (!(err instanceof HttpErrorResponse)) {
+        if (err instanceof Error) {
+          const msg = isTechnical(err.message)
+            ? 'Something went wrong. Please try again.'
+            : err.message;
+          return throwError(() => new Error(msg));
+        }
         return throwError(() => new Error('Something went wrong. Please try again.'));
       }
 
       let message = STATUS_MESSAGES[err.status] ?? 'Something went wrong. Please try again.';
 
+      // حاول تاخد رسالة من الـ body بس لو مش technical
       if (err.error) {
         const errorBody = err.error;
         let bodyMsg = '';
 
-        if (typeof errorBody === 'string') {
+        if (Array.isArray(errorBody)) {
+          bodyMsg = errorBody.join(', ');
+        } else if (typeof errorBody === 'string') {
           bodyMsg = errorBody;
         } else if (errorBody.message) {
           bodyMsg = Array.isArray(errorBody.message)
@@ -121,12 +124,14 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           bodyMsg = errorBody.title;
         }
 
+        // استخدم رسالة السيرفر بس لو مش technical
         if (bodyMsg && !isTechnical(bodyMsg)) {
           message = bodyMsg;
         }
       }
 
-      console.error('HTTP ERROR:', err);
+      console.error('HTTP ERROR:', err); // للـ debugging بس
+
       return throwError(() => new Error(message));
     })
   );

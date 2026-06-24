@@ -40,6 +40,7 @@ export interface MealImageAnalysisDto {
   notes: string[];
 }
 
+/** A single meal logged today against the member's nutrition plan (backend-persisted). */
 export interface MealLogResponseDto {
   id: string;
   imageUrl: string;
@@ -52,6 +53,10 @@ export interface MealLogResponseDto {
   logDate: string;
 }
 
+/**
+ * The backend's running tally of the day vs. the active plan target. The
+ * deduction (target − consumed) is computed server-side and returned here.
+ */
 export interface DailyNutritionSummaryDto {
   date: string;
   hasActivePlan: boolean;
@@ -73,6 +78,7 @@ export interface DailyNutritionSummaryDto {
   message: string;
 }
 
+/** Full response of analyze-meal-image when the meal is logged against the plan. */
 export interface MealAnalysisResultDto {
   analysis: MealImageAnalysisDto;
   loggedMeal: MealLogResponseDto | null;

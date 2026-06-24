@@ -519,15 +519,18 @@ app-footer {
 .pg-body { --card-accent: #C6EF2E; }
 .pg-monthly { --card-accent: #C6EF2E; }
 .pg-cal { --card-accent: #C6EF2E; }
+.pg-actions { --card-accent: #C6EF2E; }
 
 /* Lux: uniform warm paper surface — calm and editorial, no colored tints */
 .pg-body.card.glass-card,
 .pg-monthly.card.glass-card,
-.pg-cal.card.glass-card { background: var(--lux-surface, #fbfaf6); }
+.pg-cal.card.glass-card,
+.pg-actions.card.glass-card { background: var(--lux-surface, #fbfaf6); }
 
 [data-theme="dark"] .pg-body.card.glass-card,
 [data-theme="dark"] .pg-monthly.card.glass-card,
-[data-theme="dark"] .pg-cal.card.glass-card { background: var(--lux-graphite-2, #211f1b); }
+[data-theme="dark"] .pg-cal.card.glass-card,
+[data-theme="dark"] .pg-actions.card.glass-card { background: var(--lux-graphite-2, #211f1b); }
 
 .card-hdr {
   display: flex;
@@ -868,6 +871,87 @@ app-footer {
 
 /* Old fitness-pulse internals (pulse-body, pulse-ring, pulse-stat) removed —
    replaced by the Check-in card (.ci-*). Only .pulse-cta below is still used. */
+
+.actions-row {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: 1;
+  padding: 13px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.07);
+  background: linear-gradient(150deg, #1b2030 0%, var(--ink-dark, #10131B) 100%);
+  box-shadow: 0 8px 18px -10px rgba(16,19,27,0.5);
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.22,1,0.36,1), box-shadow 0.3s ease, border-color 0.3s ease;
+  justify-content: center;
+  min-width: 0;
+}
+
+.action-btn:hover {
+  transform: translateY(-3px);
+  border-color: rgba(198,239,46,0.5);
+  box-shadow: 0 14px 26px -10px rgba(16,19,27,0.55), 0 0 0 1px rgba(198,239,46,0.22);
+}
+
+[data-theme="dark"] .action-btn {
+  background: linear-gradient(150deg, var(--lux-graphite-3, #232839) 0%, var(--lux-graphite-2, #20273a) 100%);
+  border-color: rgba(255,255,255,0.08);
+  box-shadow: 0 8px 18px -10px rgba(0,0,0,0.5);
+}
+
+[data-theme="dark"] .action-btn:hover {
+  border-color: rgba(198,239,46,0.5);
+  box-shadow: 0 14px 26px -10px rgba(0,0,0,0.6), 0 0 0 1px rgba(198,239,46,0.22);
+}
+
+.action-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--c-accent, #C6EF2E);
+  color: #15240a;
+  flex-shrink: 0;
+  transition: transform 0.25s ease;
+}
+
+.action-btn:hover .action-icon {
+  transform: scale(1.08);
+}
+
+.action-btn .action-icon svg {
+  width: 15px;
+  height: 15px;
+  display: block;
+}
+
+.action-lbl {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #f1f3f8;
+  transition: color 0.25s ease;
+}
+
+.action-btn:hover .action-lbl {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .action-lbl {
+  color: #f1f3f8;
+}
+
+/* ═══════════════════════════════════════════════
+   FITNESS PULSE  (ring + stats + CTA)
+   ═══════════════════════════════════════════════ */
 .pulse-cta {
   display: flex;
   align-items: center;
@@ -2364,18 +2448,6 @@ app-footer {
   background: rgba(255,255,255,0.03);
 }
 
-.skeleton-metric {
-  padding: 18px 20px !important;
-  gap: 10px;
-  background: rgba(0,0,0,0.02) !important;
-  border-color: rgba(0,0,0,0.04) !important;
-}
-
-[data-theme="dark"] .skeleton-metric {
-  background: #20273a !important;
-  border-color: rgba(255,255,255,0.06) !important;
-}
-
 /* ═══════════════════════════════════════════════
    EDIT OVERLAY & MODAL
    ═══════════════════════════════════════════════ */
@@ -2728,17 +2800,6 @@ app-footer {
   background: #b8e018;
 }
 
-.retry-btn .btn-icon-circle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgba(0,0,0,0.08);
-  flex-shrink: 0;
-}
-
 .retry-btn .svg-icon-wrap {
   width: 14px;
   height: 14px;
@@ -2912,96 +2973,10 @@ app-footer {
   line-height: 1.5;
 }
 
-/* ── Profile Section ── */
-.profile-section {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.profile-header {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  background: #fff;
-  border-radius: 24px;
-  padding: 28px 32px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.04);
-}
-
-.profile-avatar {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  background: #12141c;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.avatar-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
 .avatar-initials {
   font-size: 24px;
   font-weight: 700;
   color: #C6EF2E;
-}
-
-.profile-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.profile-info h2 {
-  font-size: 20px;
-  font-weight: 700;
-  color: #12141c;
-  margin: 0;
-}
-
-.profile-plan {
-  font-size: 13px;
-  font-weight: 600;
-  color: #C6EF2E;
-  margin: 0;
-}
-
-.profile-email {
-  font-size: 13px;
-  font-weight: 500;
-  color: #94a3b8;
-  margin: 0;
-}
-
-.edit-btn {
-  padding: 8px 20px;
-  border-radius: 100px;
-  background: #C6EF2E;
-  border: none;
-  font-size: 13px;
-  font-weight: 700;
-  color: #fff;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-}
-
-.edit-btn:hover {
-  opacity: 0.85;
-}
-
-.profile-stats-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
 }
 
 .stat-card {
@@ -3162,7 +3137,6 @@ app-footer {
   .q-text { font-size: 12px; }
   .bottom-zone { gap: 18px; }
   .streak-banner { padding: 16px 18px; gap: 14px; }
-  .sb-fire-wrap { width: 44px; height: 44px; }
   .sb-title { font-size: 16px; }
   .sb-sub { font-size: 12px; }
   .achievements-row { gap: 8px; }
@@ -3192,11 +3166,8 @@ app-footer {
   .q-text { font-size: 11px; }
   .q-icon { width: 28px; height: 28px; }
   .streak-banner { flex-direction: column; align-items: flex-start; padding: 14px 16px; gap: 12px; }
-  .sb-fire-wrap { align-self: center; width: 44px; height: 44px; }
   .sb-title { font-size: 15px; }
   .sb-sub { font-size: 11px; }
-  .sb-countdown { flex-direction: column; align-items: flex-start; gap: 8px; }
-  .sb-next-label { white-space: normal; font-size: 10px; }
   .achievements-row { flex-wrap: wrap; gap: 6px; }
   .ach-badge { flex: 1 0 30%; padding: 10px 4px; }
   .ach-icon { font-size: 16px; }

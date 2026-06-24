@@ -467,16 +467,6 @@
   color: rgba(255, 255, 255, 0.55);
 }
 
-.cc-quote {
-  margin: 0;
-  font-size: 13.5px;
-  font-style: italic;
-  line-height: 1.5;
-  color: rgba(255, 255, 255, 0.62);
-  border-inline-start: 2px solid color-mix(in srgb, var(--cc-accent) 55%, transparent);
-  padding-inline-start: 12px;
-}
-
 /* ── Active challenges ── */
 .ch {
   display: flex;
@@ -581,7 +571,6 @@
   .cc-gauge { width: 160px; height: 160px; }
   .cc-score { font-size: 48px; }
   .cc-meta-tier { font-size: 26px; }
-  .cc-quote { text-align: start; }
 }
 
 @media (max-width: 420px) {
@@ -590,40 +579,6 @@
   .cc-gauge { width: 140px; height: 140px; }
   .cc-score { font-size: 42px; }
   .cc-glow { width: 280px; height: 280px; }
-}
-
-.milestone-banner {
-  position: relative;
-  border-radius: 14px;
-  overflow: hidden;
-  min-height: 80px;
-  display: flex;
-  align-items: center;
-  background: var(--card-bg, #242424);
-  border: 1px solid var(--card-border, rgba(255,255,255,0.06));
-}
-
-.mile-content {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 18px 24px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-secondary, #94a3b8);
-  line-height: 1.5;
-}
-
-.mile-content svg {
-  flex-shrink: 0;
-  color: var(--c-accent);
-}
-
-.mile-content strong {
-  font-weight: 700;
-  color: var(--text-primary, #f1f5f9);
 }
 
 .ind-dot {
@@ -1033,15 +988,6 @@
   font-weight: 600;
   color: var(--text-tertiary, #64748b);
   text-transform: uppercase;
-}
-
-.tl-motivation {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--text-tertiary, #64748b);
-  font-style: italic;
-  line-height: 1.4;
-  margin-top: 2px;
 }
 
 /* ── Check-in strip ── */
@@ -1963,16 +1909,6 @@
   color: #ef4444;
 }
 
-.fld-opt {
-  font-weight: 500;
-  font-size: 10px;
-  text-transform: lowercase;
-  color: var(--text-tertiary, #64748b);
-  background: rgba(255,255,255,0.04);
-  padding: 1px 8px;
-  border-radius: 100px;
-}
-
 .fld-unit {
   margin-inline-start: auto;
   font-weight: 500;
@@ -2201,8 +2137,6 @@
 /* ── Responsive ── */
 @media (max-width: 1024px) {
   .progress-report { padding: 0 0 60px; }
-  .hero-main { gap: 16px; }
-  .hero-chart-card { width: 180px; }
 }
 
 @media (max-width: 768px) {
@@ -2210,14 +2144,6 @@
     padding: 0 0 60px;
     gap: 20px;
   }
-  .hero { min-height: 280px; border-radius: 16px; }
-  .hero-inner { padding: 24px 20px; gap: 18px; }
-  .hero-stats-row { gap: 12px; }
-  .hero-stat-value { font-size: 22px; }
-  .hero-stat-highlight { margin-inline-start: 0; width: 100%; }
-  .hero-main { flex-direction: column; }
-  .hero-quote-card { max-width: 100%; }
-  .hero-chart-card { width: 100%; }
   .metrics-grid { grid-template-columns: 1fr; }
   .m-card:hover { transform: none; }
   .goal-card { flex-direction: column; text-align: center; }
@@ -2225,8 +2151,6 @@
   .goal-clear { align-self: center; }
   .weekly-body { flex-direction: column; gap: 12px; }
   .achieve-strip { justify-content: center; }
-  .milestone-banner { min-height: 60px; }
-  .mile-content { padding: 14px 18px; font-size: 12px; gap: 10px; }
   .tl-date { font-size: 12px; }
   .tl-chips { gap: 6px; }
   .tl-chip { font-size: 12px; padding: 3px 10px; }
@@ -2244,13 +2168,6 @@
 
 @media (max-width: 480px) {
   .progress-report { padding: 0 0 48px; gap: 16px; }
-  .hero { min-height: auto; border-radius: 12px; }
-  .hero-inner { padding: 18px 16px; gap: 14px; }
-  .hero-stat-value { font-size: 20px; }
-  .hero-quote-card { padding: 14px 16px; }
-  .h-q-body { font-size: 13px; }
-  .hero-chart-card { padding: 12px 14px; }
-  .hc-canvas { height: 44px; }
   .metrics-title { font-size: 17px; }
   .metrics-sub { font-size: 11px; }
   .goal-card { padding: 16px 18px; gap: 14px; }
@@ -2274,11 +2191,7 @@
   .tl-item { gap: 12px; }
   .tl-body { gap: 4px; padding-bottom: 14px; }
   .tl-chip { font-size: 11px; padding: 2px 8px; }
-  .tl-motivation { font-size: 10px; }
   .ci-pill { font-size: 11px; padding: 4px 10px; }
-  .mile-content { font-size: 11px; padding: 12px 14px; }
-  .dash-content { padding: 12px; }
-  .hero-bg-glow { width: 300px; height: 300px; }
 }
 
 /* ── Reduced motion (accessibility) ── */
@@ -2362,52 +2275,7 @@
   .ch-bar { background: rgba(15, 23, 42, 0.06); }
   .ch-title { color: #475569; }
 
-  .hero {
-    background:
-      radial-gradient(130% 130% at 100% 0%, color-mix(in srgb, var(--hero-accent) 20%, transparent) 0%, transparent 55%),
-      radial-gradient(120% 120% at 0% 100%, color-mix(in srgb, var(--hero-accent) 10%, transparent) 0%, transparent 50%),
-      linear-gradient(135deg, #ffffff 0%, #eef2f7 100%);
-  }
-
-  .hero-overlay {
-    background:
-      linear-gradient(105deg, rgba(248, 250, 252, 0.94) 0%, rgba(248, 250, 252, 0.78) 50%, rgba(248, 250, 252, 0.50) 100%),
-      linear-gradient(0deg, color-mix(in srgb, var(--hero-accent) 12%, transparent) 0%, transparent 42%);
-  }
-
-  .hero-photo img { filter: saturate(0.9) brightness(1.02) contrast(1); opacity: 0.5; }
-
-  .hero-stat-fire .hero-stat-value { color: #0f172a; }
-
   .hero-grain { opacity: 0.015; }
-
-  .hero-bg-glow { opacity: 0.2; }
-
-  .hero-stat-value { color: #0f172a; }
-  .hero-stat-label { color: rgba(0,0,0,0.35); }
-
-  .hero-status-indicator {
-    color: #0f172a;
-    background: rgba(0,0,0,0.03);
-    border-color: rgba(0,0,0,0.06);
-  }
-
-  .h-q-body { color: rgba(0,0,0,0.80); }
-  .h-q-author { color: rgba(0,0,0,0.30); }
-
-  .hero-quote-card {
-    background: rgba(0,0,0,0.03);
-    border-color: rgba(0,0,0,0.04);
-  }
-
-  .hero-chart-card {
-    background: rgba(0,0,0,0.02);
-    border-color: rgba(0,0,0,0.04);
-  }
-
-  .hc-label { color: rgba(0,0,0,0.35); }
-  .hc-trend-up { color: #ef4444; }
-  .hc-trend-down { color: var(--c-accent); }
 
   .m-card:hover {
     box-shadow: 0 12px 40px rgba(0,0,0,0.08);
@@ -2452,13 +2320,6 @@
   .m-spinner { border-top-color: #ffffff; }
 
   .empty-svg { color: var(--c-accent); }
-
-  .milestone-banner {
-    background: #ffffff;
-    border-color: rgba(0,0,0,0.06);
-  }
-  .mile-content { color: #64748b; }
-  .mile-content strong { color: #0f172a; }
 
   .achieve-badge {
     background: rgba(0,0,0,0.03);

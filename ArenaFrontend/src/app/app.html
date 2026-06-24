@@ -5,5 +5,9 @@
 <router-outlet></router-outlet>
 
 @if(showLayout){
+  <app-floating-chat-button></app-floating-chat-button>
+}
+
+@if(showLayout && showFooter){
   <app-footer></app-footer>
 }

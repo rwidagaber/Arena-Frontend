@@ -7,17 +7,21 @@ import { AuthService } from '../../core/services/auth';
 import { MemberService } from '../../core/services/member.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { ThemeService } from '../../core/services/themeservice';
+import { NotificationBellComponent } from "../../features/notifications/notification-bell/notification-bell";
+import { NotificationToastComponent } from "../../features/notifications/notification-toast/notification-toast";
+import { WebPushService } from '../../core/services/web-push.service';
 
 export type DropdownSection = 'profile' | 'workout' | 'diet' | 'membership' | 'progress' | 'settings';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, TranslateModule],
+  imports: [CommonModule, RouterLink, RouterLinkActive, TranslateModule, NotificationBellComponent, NotificationToastComponent],
   templateUrl: './header.html',
   styleUrls: ['./header.css']
 })
 export class HeaderComponent implements OnInit, OnDestroy {
+  private readonly webPush = inject(WebPushService);
   protected readonly router = inject(Router);
   protected readonly t = inject(TranslationService);
   public    readonly auth = inject(AuthService);
@@ -80,6 +84,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       // Only set when present so a /me payload without the image doesn't clobber it.
       const img = u.profileImage ?? u.profileImageUrl ?? null;
       if (img) this.profileImage.set(img);
+       this.webPush.requestPermissionAndSubscribe();
     });
 
     // /me omits the profile image; pull it from /profile so the avatar reflects the DB.
@@ -138,6 +143,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   logout(event: Event): void {
     event.stopPropagation();
     this.dropdownOpen = false;
+       this.webPush.unsubscribe();
     this.auth.logout().subscribe({
       next: () => this.router.navigate(['/']),
       error: () => this.router.navigate(['/']),

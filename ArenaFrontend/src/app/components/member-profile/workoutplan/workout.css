@@ -239,7 +239,7 @@
   background: var(--n-card);
   border: 1px solid var(--n-card-border);
   border-radius: 28px;
-  min-height: 170px;
+  min-height: 200px;
   overflow: hidden;
   cursor: pointer;
   box-shadow: 0 4px 18px var(--n-card-shadow);
@@ -674,7 +674,7 @@
 }
 
 @media (max-width: 480px) {
-  .custom-plan-card { min-height: 150px; }
+  .custom-plan-card { min-height: 180px; }
   .stat-num-hero { font-size: 22px; }
   .card-plan-title { font-size: 16px; }
   .plan-hero-img { width: 150%; }

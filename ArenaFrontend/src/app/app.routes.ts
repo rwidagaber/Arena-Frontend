@@ -6,12 +6,12 @@ import { Home } from './features/home/home';
 import { About } from './features/about/about';
 import { CheckoutComponent } from './features/pricing/checkout/checkout.component';
 import { MyPaymentsComponent } from './features/pricing/my-payments/my-payments.component';
-import { PricingComponent } from './features/pricing/pricing.component';
 import { ConfirmEmailComponent } from './features/Authentication/confirm-email/confirm-email';
 import { CompleteProfileComponent } from './features/Authentication/complete-profile/complete-profile';
 import { ForgotPasswordComponent } from './features/Authentication/forgot-password/forgot-password';
 import { ResetPasswordComponent } from './features/Authentication/reset-password/reset-password';
 import { ChatComponent } from './features/chat/chat.component';
+import { Notification } from './features/notifications/notification/notification';
 
 // Guards
 import { authGuard } from './core/guards/auth/auth-guard';
@@ -78,10 +78,6 @@ export const routes: Routes = [
 
   // ─── Protected (members only) ───
   {
-    path: 'pricing',
-    component: PricingComponent
-  },
-  {
     path: 'dashboard',
     component: ProfileComponent,
     canActivate: [authGuard, subGuard]
@@ -102,7 +98,12 @@ export const routes: Routes = [
     component: ChatComponent,
     canActivate: [authGuard, subscriptionGuard]
   },
-
+{
+    path: 'notifications',
+    component: Notification,
+    canActivate: [authGuard],
+    data: { hideFooter: true }
+  },
   // ─── Semi-protected ───
   {
     path: 'checkout',
@@ -111,6 +112,13 @@ export const routes: Routes = [
   {
     path: 'my-payments',
     component: MyPaymentsComponent     // ✅ ممكن تضيف authGuard لو محتاج
+  },
+  {
+    path: 'working-hours',
+    loadComponent: () =>
+      import('./features/working-hours/working-hours.component').then(
+        (m) => m.WorkingHoursComponent
+      ),
   },
 
   // ─── Redirects ───

@@ -3,10 +3,10 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
+  DailyNutritionSummaryDto,
+  MealAnalysisResultDto,
   MealImageAnalysisDto,
   NutritionPlanDto,
-  MealAnalysisResultDto,
-  DailyNutritionSummaryDto,
 } from '../models/nutrition';
 import { map } from 'rxjs/operators';
 
@@ -41,30 +41,49 @@ export class NutritionService {
     return this.http.delete<void>(`${BASE}/${id}`);
   }
 
-  /**
-   * Analyzes a meal photo and logs it against the member's nutrition plan.
-   * The backend returns the full result (analysis + logged meal + daily summary)
-   * when logging succeeds, or just the raw analysis otherwise — this normalizes
-   * both shapes into a MealAnalysisResultDto.
-   */
-  analyzeMealImage(image: File, logMeal: boolean = true): Observable<MealAnalysisResultDto> {
+  analyzeMealImage(image: File): Observable<MealImageAnalysisDto> {
     const formData = new FormData();
     formData.append('image', image);
-    formData.append('logMeal', String(logMeal));
+
+    return this.http.post<MealImageAnalysisDto>(`${BASE}/analyze-meal-image`, formData);
+  }
+
+  /**
+   * Analyzes a meal photo and logs it against the member's active plan. The
+   * backend deducts the meal's calories from the daily target and returns the
+   * recalculated day summary. Tolerates a backend that returns only the raw
+   * analysis (no logging) by normalizing both shapes.
+   */
+  analyzeAndLogMeal(image: File): Observable<MealAnalysisResultDto> {
+    const formData = new FormData();
+    formData.append('image', image);
+    formData.append('logMeal', 'true');
 
     return this.http.post<any>(`${BASE}/analyze-meal-image`, formData).pipe(
       map((res) =>
         res && 'analysis' in res
           ? (res as MealAnalysisResultDto)
-          : ({ analysis: res as MealImageAnalysisDto, loggedMeal: null, dailySummary: null })
+          : { analysis: res as MealImageAnalysisDto, loggedMeal: null, dailySummary: null }
       )
     );
   }
 
+  /** The backend's day-vs-target summary (target, consumed, remaining). */
   getDailySummary(date?: string): Observable<DailyNutritionSummaryDto> {
     const url = date
       ? `${BASE}/daily-summary?date=${encodeURIComponent(date)}`
       : `${BASE}/daily-summary`;
     return this.http.get<DailyNutritionSummaryDto>(url);
+  }
+
+  /** Undo a logged meal; returns the recalculated daily summary for that day. */
+  deleteMealLog(mealLogId: string): Observable<DailyNutritionSummaryDto> {
+    return this.http.delete<DailyNutritionSummaryDto>(`${BASE}/meal-logs/${mealLogId}`);
+  }
+
+  /** Activate or deactivate a plan. Activating one deactivates the member's others. */
+  setPlanActive(planId: string, active: boolean): Observable<void> {
+    const action = active ? 'activate' : 'deactivate';
+    return this.http.put<void>(`${BASE}/${planId}/${action}`, {});
   }
 }

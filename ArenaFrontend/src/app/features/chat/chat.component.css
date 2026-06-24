@@ -443,6 +443,10 @@
 }
 
 .chat-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   margin: 0 20px 14px;
   padding: 12px 14px;
   border: 1px solid rgba(255, 95, 95, 0.35);
@@ -451,9 +455,62 @@
   color: #ffb5b5;
 }
 
-.composer {
+.chat-error-text {
+  min-width: 0;
+}
+
+.chat-error-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+.voice-retry-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 181, 181, 0.5);
+  border-radius: 999px;
+  background: transparent;
+  color: #ffd7d7;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.voice-retry-btn:hover:not(:disabled) {
+  background: rgba(255, 181, 181, 0.16);
+  color: #fff;
+}
+
+.voice-retry-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.voice-dismiss-btn {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 52px;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(255, 181, 181, 0.8);
+  cursor: pointer;
+}
+
+.voice-dismiss-btn:hover {
+  background: rgba(255, 95, 95, 0.18);
+  color: #fff;
+}
+
+.composer {
+  display: flex;
+  align-items: flex-end;
   gap: 12px;
   padding: 18px 20px 20px;
   border-top: 1px solid rgba(255, 255, 255, 0.09);
@@ -461,6 +518,8 @@
 }
 
 .composer textarea {
+  flex: 1;
+  min-width: 0;
   min-height: 52px;
   max-height: 130px;
   padding: 15px 16px;
@@ -470,6 +529,10 @@
   outline: none;
   background: rgba(255, 255, 255, 0.08);
   color: #fff;
+}
+
+.composer button {
+  flex: 0 0 auto;
 }
 
 .composer textarea:focus {
@@ -487,6 +550,260 @@
 .composer textarea:disabled {
   cursor: not-allowed;
   opacity: 0.55;
+}
+
+.composer .mic-btn.recording {
+  background: #ef4444;
+  color: #fff;
+  opacity: 1;
+  animation: micPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes micPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+  }
+}
+
+/* --- Voice: recording bar (timer + live waveform) --- */
+.recording-bar {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 52px;
+  padding: 0 18px;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  border-radius: 8px;
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.18), rgba(239, 68, 68, 0.06));
+  box-shadow: 0 0 22px rgba(239, 68, 68, 0.14);
+}
+
+.rec-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ef4444;
+  animation: typingPulse 1s ease-in-out infinite;
+}
+
+.rec-time {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: #fff;
+  min-width: 38px;
+}
+
+.rec-wave {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 28px;
+}
+
+.rec-wave span {
+  width: 4px;
+  height: 26px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #e6ff5a, #cffe21);
+  box-shadow: 0 0 8px rgba(207, 254, 33, 0.5);
+  transform: scaleY(0.15);
+  transform-origin: center;
+  transition: transform 90ms ease-out;
+}
+
+.rec-hint {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
+}
+
+.composer .cancel-btn {
+  width: 52px;
+  height: 52px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  display: grid;
+  place-items: center;
+}
+
+.composer .cancel-btn:hover {
+  background: rgba(239, 68, 68, 0.22);
+  color: #ffb5b5;
+}
+
+/* --- Voice: transcribing indicator ---
+   A normal block bubble (like the assistant bubbles): it shrink-wraps to its content,
+   is capped at 78%, and the label is plain inline text that wraps inside the padding —
+   so it can never sit outside the bubble. The equalizer is an inline element before it. */
+.bubble.typing.transcribing {
+  display: block;
+  max-width: min(680px, 78%);
+  line-height: 1.5;
+}
+
+/* Plain inline text — wraps naturally inside the bubble. The generic `.typing span` rule
+   (lime background + border-radius:50% + pulse) also targets this span, painting a lime
+   oval behind the text, so those are explicitly reset here. */
+.bubble.typing.transcribing .typing-label {
+  vertical-align: middle;
+  white-space: normal;
+  width: auto;
+  height: auto;
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+  animation: none;
+}
+
+/* Animated equalizer — reads as live "listening/processing" while transcribing.
+   Inline-flex so it flows inline before the label; scoped selectors override the generic
+   `.typing span` dot styling that would otherwise turn the bars back into round dots. */
+.bubble.typing.transcribing .transcribe-eq {
+  display: inline-flex;
+  vertical-align: middle;
+  align-items: center;
+  gap: 3px;
+  height: 14px;
+  margin-inline-end: 8px;
+}
+
+.bubble.typing.transcribing .transcribe-eq span {
+  width: 3px;
+  height: 100%;
+  min-width: 3px;
+  border-radius: 999px;
+  background: #cffe21;
+  transform: scaleY(0.35);
+  transform-origin: center;
+  animation: transcribeEq 1s ease-in-out infinite;
+}
+
+.bubble.typing.transcribing .transcribe-eq span:nth-child(2) { animation-delay: 0.15s; }
+.bubble.typing.transcribing .transcribe-eq span:nth-child(3) { animation-delay: 0.3s; }
+.bubble.typing.transcribing .transcribe-eq span:nth-child(4) { animation-delay: 0.45s; }
+.bubble.typing.transcribing .transcribe-eq span:nth-child(5) { animation-delay: 0.6s; }
+
+@keyframes transcribeEq {
+  0%, 100% { transform: scaleY(0.35); opacity: 0.65; }
+  50% { transform: scaleY(1); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bubble.typing.transcribing .transcribe-eq span { animation-duration: 2s; }
+}
+
+.typing-label {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* --- Voice: transcribed user message tag + clip playback --- */
+.voice-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 6px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: rgba(12, 15, 23, 0.12);
+  color: #0c0f17;
+}
+
+/* Custom voice-note player (sits inside the lime user bubble) */
+.voice-note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 268px;
+  margin-top: 10px;
+  padding: 7px 13px 7px 7px;
+  border-radius: 999px;
+  background: rgba(12, 15, 23, 0.1);
+}
+
+.vn-audio {
+  display: none;
+}
+
+.vn-play {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  background: #0c0f17;
+  color: #cffe21;
+  font-size: 16px;
+  transition: transform 0.12s ease;
+}
+
+.vn-play:hover {
+  transform: scale(1.07);
+}
+
+.voice-note.playing .vn-play {
+  animation: vnPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes vnPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(12, 15, 23, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(12, 15, 23, 0);
+  }
+}
+
+.vn-wave {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 28px;
+  min-width: 0;
+}
+
+.vn-wave span {
+  flex: 1;
+  min-width: 2px;
+  border-radius: 2px;
+  background: rgba(12, 15, 23, 0.26);
+  transition: background 0.1s linear;
+}
+
+.vn-wave span.filled {
+  background: #0c0f17;
+}
+
+.vn-time {
+  flex: 0 0 auto;
+  min-width: 32px;
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(12, 15, 23, 0.78);
+  text-align: right;
 }
 
 @media (max-width: 900px) {
@@ -535,3 +852,138 @@
     opacity: 1;
   }
 }
+
+/* ═══════════════════════════════════════════ */
+/*          ACCESS DENIED MODAL               */
+/* ═══════════════════════════════════════════ */
+
+.fab-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(11, 14, 20, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.fab-modal-card {
+  background: #11151f;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 44px 36px 36px;
+  max-width: 460px;
+  width: 90%;
+  text-align: center;
+  position: relative;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.4),
+    0 0 40px rgba(212, 250, 36, 0.06);
+  animation: scaleUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ── Modal Icon ── */
+.fab-modal-icon {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  animation: iconFloat 3s ease-in-out infinite;
+}
+
+/* ── Modal Content ── */
+.fab-modal-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 14px;
+}
+
+.fab-modal-desc {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14.5px;
+  color: #a0a0a0;
+  line-height: 1.7;
+  margin: 0 0 30px;
+}
+
+/* ── Modal Buttons ── */
+.fab-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fab-modal-btn {
+  border: none;
+  border-radius: 14px;
+  padding: 14px 24px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  width: 100%;
+}
+
+.fab-modal-btn-primary {
+  background: linear-gradient(135deg, #D4FA24 0%, #b8e636 100%);
+  color: #0b0c0c;
+}
+
+.fab-modal-btn-primary:hover {
+  background: linear-gradient(135deg, #c0df4a 0%, #a5d32a 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(212, 250, 36, 0.35);
+}
+
+.fab-modal-btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  color: #a0a0a0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.fab-modal-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.88); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@media (max-width: 768px) {
+  .fab-modal-card {
+    padding: 36px 24px 28px;
+    border-radius: 20px;
+    width: 92%;
+  }
+
+  .fab-modal-title {
+    font-size: 20px;
+  }
+
+  .fab-modal-desc {
+    font-size: 13.5px;
+  }
+}
+

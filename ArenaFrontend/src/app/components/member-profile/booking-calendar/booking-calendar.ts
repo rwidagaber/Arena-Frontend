@@ -24,15 +24,15 @@ export class BookingCalendarComponent {
 
   bookings = input<BookingDto[]>([]);
 
-  currentDate = new Date();
+  currentDate = signal(new Date());
 
   monthName = computed(() => {
     const lang = this.translationService.currentLang();
-    return this.currentDate.toLocaleString(lang === 'ar' ? 'ar-EG-u-nu-latn' : 'en-US', { month: 'long' });
+    return this.currentDate().toLocaleString(lang === 'ar' ? 'ar-EG-u-nu-latn' : 'en-US', { month: 'long' });
   });
 
   year = computed(() => {
-    return this.currentDate.getFullYear();
+    return this.currentDate().getFullYear();
   });
 
   daysOfWeek = computed(() => {
@@ -43,8 +43,8 @@ export class BookingCalendarComponent {
   });
 
   calendarDays = computed(() => {
-    const year = this.currentDate.getFullYear();
-    const month = this.currentDate.getMonth();
+    const year = this.currentDate().getFullYear();
+    const month = this.currentDate().getMonth();
     const firstDayIndex = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const today = new Date();
@@ -106,4 +106,14 @@ export class BookingCalendarComponent {
 
     return days;
   });
+
+  prevMonth(): void {
+    const current = this.currentDate();
+    this.currentDate.set(new Date(current.getFullYear(), current.getMonth() - 1, 1));
+  }
+
+  nextMonth(): void {
+    const current = this.currentDate();
+    this.currentDate.set(new Date(current.getFullYear(), current.getMonth() + 1, 1));
+  }
 }

@@ -3,6 +3,7 @@ import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, inject }
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import QRCode from 'qrcode';
 import { AuthService } from '../../../core/services/auth';
+import { BookingService } from '../../../core/services/booking.service';
 import { environment } from '../../../../environments/environment';
 import { BookingDto, QrDto, QrScanResultDto } from '../qr.model';
 import { QrService } from '../qr.service';
@@ -19,6 +20,7 @@ export class QrDisplayComponent implements OnInit, OnChanges, OnDestroy {
 
   private route = inject(ActivatedRoute);
   private qrService = inject(QrService);
+  private bookingService = inject(BookingService);
   private auth = inject(AuthService);
 
   bookingId = '';
@@ -79,12 +81,12 @@ export class QrDisplayComponent implements OnInit, OnChanges, OnDestroy {
     this.isLoadingBookings = true;
     this.error = '';
 
-    this.qrService.getBookings(requestMemberProfileId).subscribe({
+    this.bookingService.getBookings(requestMemberProfileId).subscribe({
       next: bookings => {
         if (this.memberProfileId !== requestMemberProfileId) return;
 
         this.bookings = bookings
-          .filter(booking => this.isUpcomingConfirmed(booking))
+          .filter(booking => this.isTodayConfirmedAndActive(booking))
           .sort((a, b) => this.sessionStartsAt(a).getTime() - this.sessionStartsAt(b).getTime());
 
         this.isLoadingBookings = false;
@@ -192,6 +194,10 @@ export class QrDisplayComponent implements OnInit, OnChanges, OnDestroy {
       if (diff <= 0) {
         this.isExpired = true;
         this.timeLeft = 'Expired';
+        this.qrData = null;
+        this.qrImageUrl = '';
+        this.selectedBooking = null;
+        this.loadBookings();
         this.clearTimer();
         return;
       }
@@ -210,10 +216,44 @@ export class QrDisplayComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private isUpcomingConfirmed(booking: BookingDto): boolean {
+  private isTodayConfirmedAndActive(booking: BookingDto): boolean {
     const status = String(booking.status).toLowerCase();
     const isConfirmed = status === '1' || status === 'confirmed';
-    return isConfirmed && this.sessionStartsAt(booking).getTime() >= new Date().setHours(0, 0, 0, 0);
+    if (!isConfirmed) return false;
+
+    const sessionStart = this.sessionStartsAt(booking);
+    const now = new Date();
+
+    // Check if session start is not too far in the past (e.g. at least within the last 2 hours)
+    const tooOld = sessionStart.getTime() <= now.getTime() - (2 * 60 * 60 * 1000);
+    if (tooOld) return false;
+
+    // Calculate shift date for the booking
+    const bDateStr = booking.bookingDate.split('T')[0];
+    const [bYr, bMo, bDy] = bDateStr.split('-').map(Number);
+    const [bH] = booking.startTime.split(':').map(Number);
+    
+    const bShiftDate = new Date(bYr, bMo - 1, bDy);
+    if (bH <= 3) {
+      // 00:00 to 03:00 belong to previous day's shift
+      bShiftDate.setDate(bShiftDate.getDate() - 1);
+    }
+    const bShiftDateStr = bShiftDate.getFullYear() + '-' + 
+      String(bShiftDate.getMonth() + 1).padStart(2, '0') + '-' + 
+      String(bShiftDate.getDate()).padStart(2, '0');
+
+    // Calculate shift date for "now" (current local time)
+    const nowH = now.getHours();
+    const nowShiftDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    if (nowH <= 3) {
+      // If it is between midnight and 3 AM local time, we are still in yesterday's shift
+      nowShiftDate.setDate(nowShiftDate.getDate() - 1);
+    }
+    const nowShiftDateStr = nowShiftDate.getFullYear() + '-' + 
+      String(nowShiftDate.getMonth() + 1).padStart(2, '0') + '-' + 
+      String(nowShiftDate.getDate()).padStart(2, '0');
+
+    return bShiftDateStr === nowShiftDateStr;
   }
 
   private sessionStartsAt(booking: BookingDto): Date {
@@ -221,6 +261,18 @@ export class QrDisplayComponent implements OnInit, OnChanges, OnDestroy {
     const [hours = 0, minutes = 0, seconds = 0] = booking.startTime.split(':').map(Number);
     date.setHours(hours, minutes, seconds, 0);
     return date;
+  }
+
+  private sessionEndsAt(booking: BookingDto): Date {
+    const end = new Date(booking.bookingDate);
+    const fallbackEnd = this.sessionStartsAt(booking);
+    fallbackEnd.setHours(fallbackEnd.getHours() + 2);
+
+    if (!booking.endTime) return fallbackEnd;
+
+    const [hours = 0, minutes = 0, seconds = 0] = booking.endTime.split(':').map(Number);
+    end.setHours(hours + 2, minutes, seconds, 0);
+    return end;
   }
 
   private formatTime(value: string): string {

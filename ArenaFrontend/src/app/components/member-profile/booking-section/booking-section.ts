@@ -1,14 +1,17 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, input, output } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, input, output, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
 import { catchError, of, Subscription } from 'rxjs';
 
-import { QrService } from '../../../features/QR/qr.service';
-import { BookingDto } from '../../../features/QR/qr.model';
+import { BookingDto, BookingSource } from '../../../core/models/booking';
+import { BookingService } from '../../../core/services/booking.service';
+import { WorkingHoursService, WorkingHoursDto } from '../../../features/working-hours/working-hours.service';
 import { BookingCalendarComponent } from '../booking-calendar/booking-calendar';
 import { BookingCardComponent } from '../booking-card/booking-card';
 import { StatsOverview, StatItem } from '../stats-overview/stats-overview';
 import { AuthService } from '../../../core/services/auth';
+import { BookingEventsService } from '../../../core/services/booking-events.service';
 import { ThemeService } from '../../../core/services/themeservice';
 
 @Component({
@@ -17,16 +20,19 @@ import { ThemeService } from '../../../core/services/themeservice';
   imports: [
     CommonModule,
     TranslateModule,
+    FormsModule,
     BookingCalendarComponent,
     BookingCardComponent,
-    StatsOverview,
   ],
   templateUrl: './booking-section.html',
   styleUrl: './booking-section.css',
 })
 export class BookingSection implements OnInit, OnDestroy {
-  private qrService = inject(QrService);
+  private bookingService = inject(BookingService);
+  private workingHoursService = inject(WorkingHoursService);
+  private translate = inject(TranslateService);
   private authService = inject(AuthService);
+  private bookingEvents = inject(BookingEventsService);
   private themeService = inject(ThemeService);
 
   /** The member-profile id used to fetch bookings */
@@ -54,8 +60,19 @@ export class BookingSection implements OnInit, OnDestroy {
   private readonly isDark = signal<boolean>(this.themeService.isDark);
   private slideTimerId: any;
   private authSub: Subscription | null = null;
+  private bookingEventsSub: Subscription | null = null;
   private themeObserver: MutationObserver | null = null;
+  private lastLoadedMemberProfileId = '';
   userName = signal('');
+
+  constructor() {
+    effect(() => {
+      const id = this.memberProfileId();
+      if (id && id !== this.lastLoadedMemberProfileId) {
+        this.loadBookings();
+      }
+    });
+  }
 
   /** Single stable array – dark slides at positions 0-4, light slides at 5-9.
    *  Never changes reference, so @for never tears down the DOM. */
@@ -114,8 +131,10 @@ export class BookingSection implements OnInit, OnDestroy {
   pastBookings = computed(() => {
     const now = Date.now();
     const filtered = this.bookings().filter(b => {
+      const isCancelled = b.status === 2 || b.status === '2' || b.status === 'Cancelled';
+      if (isCancelled) return true; // Cancelled bookings always appear in history
       const isConfirmed = b.status === 1 || b.status === '1' || b.status === 'Confirmed';
-      if (!isConfirmed) return true;
+      if (!isConfirmed) return false; // Hide Pending/Unknown from history
       try {
         const bDateTime = new Date(`${b.bookingDate.split('T')[0]}T${b.startTime}`);
         return bDateTime.getTime() <= now;
@@ -175,6 +194,10 @@ export class BookingSection implements OnInit, OnDestroy {
   // ── Lifecycle ──────────────────────────────────────────────────────
   ngOnInit(): void {
     this.loadBookings();
+    this.loadWorkingHours();
+    this.bookingEventsSub = this.bookingEvents.bookingsChanged$.subscribe(() => {
+      this.loadBookings();
+    });
     this.authSub = this.authService.currentUser$.subscribe(user => {
       this.userName.set(user?.firstName || '');
     });
@@ -199,6 +222,9 @@ export class BookingSection implements OnInit, OnDestroy {
     }
     if (this.authSub) {
       this.authSub.unsubscribe();
+    }
+    if (this.bookingEventsSub) {
+      this.bookingEventsSub.unsubscribe();
     }
     if (this.themeObserver) {
       this.themeObserver.disconnect();
@@ -233,11 +259,12 @@ export class BookingSection implements OnInit, OnDestroy {
   loadBookings(): void {
     const id = this.memberProfileId();
     if (!id) return;
+    this.lastLoadedMemberProfileId = id;
 
     this.loading.set(true);
     this.error.set(null);
 
-    this.qrService
+    this.bookingService
       .getBookings(id)
       .pipe(
         catchError(() => {
@@ -252,14 +279,336 @@ export class BookingSection implements OnInit, OnDestroy {
   }
 
   onCancelBooking(bookingId: string): void {
-    this.qrService
+    this.bookingService
       .cancelBooking(bookingId)
       .pipe(catchError(() => of(null)))
-      .subscribe(res => {
-        if (res) {
-          this.loadBookings();
-          this.bookingCancelled.emit(bookingId);
-        }
+      .subscribe(() => {
+        // Always reload regardless of success/failure so UI never stays stale
+        this.loadBookings();
+        this.bookingCancelled.emit(bookingId);
       });
+  }
+
+  // ── Manual Booking Form Panel State & Methods ──────────────────────────
+  showBookingForm = signal(false);
+  selectedDate = signal('');
+  selectedSlot = signal('');
+  availableSlots = signal<string[]>([]);
+  isLoadingSlots = signal(false);
+  bookingError = signal('');
+  bookingSuccess = signal(false);
+  bookingSubmitLoading = signal(false);
+  workingHours = signal<WorkingHoursDto[]>([]);
+
+  loadWorkingHours(): void {
+    this.workingHoursService.getWorkingHours().subscribe({
+      next: data => {
+        this.workingHours.set(data ?? []);
+      },
+      error: err => {
+        console.error('Failed to load working hours', err);
+      }
+    });
+  }
+
+  toggleBookingForm(): void {
+    this.showBookingForm.set(!this.showBookingForm());
+    if (!this.showBookingForm()) {
+      this.resetForm();
+    }
+  }
+
+  resetForm(): void {
+    this.selectedDate.set('');
+    this.selectedSlot.set('');
+    this.availableSlots.set([]);
+    this.bookingError.set('');
+    this.bookingSuccess.set(false);
+  }
+
+  onDateChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const dateVal = target.value;
+    this.selectedDate.set(dateVal);
+    this.selectedSlot.set('');
+    this.bookingError.set('');
+    this.bookingSuccess.set(false);
+
+    if (!dateVal) {
+      this.availableSlots.set([]);
+      return;
+    }
+
+    this.isLoadingSlots.set(true);
+    try {
+      const [year, month, day] = dateVal.split('-').map(Number);
+      const parsedDate = new Date(year, month - 1, day);
+      const dayIndex = parsedDate.getDay();
+      const workingDayEnumIndex = (dayIndex + 6) % 7;
+
+      const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+      const selectedDayName = days[workingDayEnumIndex];
+
+      const workingHour = this.workingHours().find(wh => {
+        const dayVal = wh.dayOfWeek;
+        if (typeof dayVal === 'number') return dayVal === workingDayEnumIndex;
+        // Handle numeric strings like '0', '1', etc. (some serializers return strings)
+        const numericVal = parseInt(String(dayVal), 10);
+        if (!isNaN(numericVal)) return numericVal === workingDayEnumIndex;
+        // Handle day-name strings like 'Monday', 'Tuesday', etc.
+        return String(dayVal).toLowerCase() === selectedDayName.toLowerCase();
+      });
+
+      if (!workingHour || workingHour.isClosed) {
+        this.availableSlots.set([]);
+        this.bookingError.set(this.translate.instant('GymIsClosed'));
+      } else {
+        const slots = this.generateSlots(workingHour.openTime, workingHour.closeTime);
+        this.availableSlots.set(slots);
+      }
+    } catch (e) {
+      console.error(e);
+      this.bookingError.set('Invalid date selection');
+    } finally {
+      this.isLoadingSlots.set(false);
+    }
+  }
+
+  selectSlot(slot: string): void {
+    if (this.isSlotDisabled(slot)) return;
+    this.selectedSlot.set(slot);
+    this.bookingError.set('');
+    this.bookingSuccess.set(false);
+  }
+
+  generateSlots(openTime: string, closeTime: string): string[] {
+    const slots: string[] = [];
+    const [openH] = openTime.split(':').map(Number);
+    const [closeH] = closeTime.split(':').map(Number);
+
+    if (closeH < openH) {
+      // Shift crosses midnight
+      for (let h = openH; h < 24; h++) {
+        slots.push(`${String(h).padStart(2, '0')}:00:00`);
+      }
+      for (let h = 0; h <= closeH; h++) {
+        slots.push(`${String(h).padStart(2, '0')}:00:00`);
+      }
+    } else {
+      // Normal shift
+      for (let h = openH; h < closeH; h++) {
+        slots.push(`${String(h).padStart(2, '0')}:00:00`);
+      }
+    }
+    return slots;
+  }
+
+  isSlotDisabled(slot: string): boolean {
+    if (!this.selectedDate()) return true;
+
+    const egyptNow = this.getEgyptTime();
+    const todayStr = egyptNow.toISOString().split('T')[0];
+    const [slotH] = slot.split(':').map(Number);
+
+    if (this.selectedDate() === todayStr) {
+      const currentH = egyptNow.getHours();
+
+      // Find today's working hours to detect midnight-crossing shifts
+      const [yr, mo, dy] = this.selectedDate().split('-').map(Number);
+      const dayIdx = new Date(yr, mo - 1, dy).getDay();
+      const wdIdx = (dayIdx + 6) % 7;
+      const todayWH = this.workingHours().find(wh => {
+        const d = typeof wh.dayOfWeek === 'number'
+          ? wh.dayOfWeek
+          : parseInt(String(wh.dayOfWeek), 10);
+        return !isNaN(d) ? d === wdIdx : String(wh.dayOfWeek).toLowerCase() ===
+          ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'][wdIdx];
+      });
+
+      if (todayWH) {
+        const openH  = parseInt(String(todayWH.openTime).split(':')[0], 10);
+        const closeH = parseInt(String(todayWH.closeTime).split(':')[0], 10);
+        const isMidnightCrossing = closeH < openH;          // e.g. open=8, close=3
+        const isMidnightSlot     = isMidnightCrossing && slotH <= closeH; // 0,1,2,3 AM
+
+        if (isMidnightSlot) {
+          // We are already past midnight (currentH < openH, e.g. 01:00)
+          // → disable only if we have passed this slot
+          if (currentH < openH && slotH <= currentH) {
+            return true;
+          }
+        } else {
+          // Normal slot past-time check
+          if (slotH <= currentH) return true;
+        }
+      } else {
+        // Normal past-time check
+        if (slotH <= currentH) return true;
+      }
+    }
+
+    // --- Shift-aware Booking conflict checks ---
+    const [yr, mo, dy] = this.selectedDate().split('-').map(Number);
+    const slotDate = new Date(yr, mo - 1, dy);
+    
+    const dayIdx = slotDate.getDay();
+    const wdIdx = (dayIdx + 6) % 7;
+    const selectedWH = this.workingHours().find(wh => {
+      const d = typeof wh.dayOfWeek === 'number' ? wh.dayOfWeek : parseInt(String(wh.dayOfWeek), 10);
+      return !isNaN(d) ? d === wdIdx : String(wh.dayOfWeek).toLowerCase() ===
+        ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'][wdIdx];
+    });
+
+    if (selectedWH) {
+      const openH  = parseInt(String(selectedWH.openTime).split(':')[0], 10);
+      const closeH = parseInt(String(selectedWH.closeTime).split(':')[0], 10);
+      const isMidnightCrossing = closeH < openH;
+      const isMidnightSlot     = isMidnightCrossing && slotH <= closeH;
+      if (isMidnightSlot) {
+        slotDate.setDate(slotDate.getDate() + 1);
+      }
+    }
+
+    slotDate.setHours(slotH, 0, 0, 0);
+    const targetTimeMs = slotDate.getTime();
+
+    const hasConflict = this.bookings().some(b => {
+      const isConfirmed = b.status === 1 || b.status === '1' || b.status === 'Confirmed';
+      if (!isConfirmed) return false;
+
+      const [bYr, bMo, bDy] = b.bookingDate.split('T')[0].split('-').map(Number);
+      const [bH] = b.startTime.split(':').map(Number);
+      const bDate = new Date(bYr, bMo - 1, bDy);
+      bDate.setHours(bH, 0, 0, 0);
+
+      const diffHours = Math.abs(bDate.getTime() - targetTimeMs) / 3600000;
+      return diffHours < 5;
+    });
+
+    return hasConflict;
+  }
+
+  formatSlotTime(slot: string): string {
+    const lang = this.translate.currentLang || 'en';
+    const [hStr] = slot.split(':');
+    let hours = parseInt(hStr, 10);
+    
+    let ampm = hours >= 12 ? 'PM' : 'AM';
+    if (lang === 'ar') {
+      ampm = hours >= 12 ? 'م' : 'ص';
+    }
+    
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    return `${hours}:00 ${ampm}`;
+  }
+
+  getEgyptTime(): Date {
+    const now = new Date();
+    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+    return new Date(utc + (3600000 * 3));
+  }
+
+  get minDate(): string {
+    const egyptNow = this.getEgyptTime();
+    return egyptNow.toISOString().split('T')[0];
+  }
+
+  confirmBookingSubmit(): void {
+    const id = this.memberProfileId();
+    if (!id || !this.selectedDate() || !this.selectedSlot()) return;
+
+    this.bookingSubmitLoading.set(true);
+    this.bookingError.set('');
+    this.bookingSuccess.set(false);
+
+    const [h] = this.selectedSlot().split(':').map(Number);
+    const endH = (h + 1) % 24;
+    const endTimeStr = `${String(endH).padStart(2, '0')}:00:00`;
+
+    // ── Midnight-crossing correction ──────────────────────────────────────
+    // Slots 12 AM / 1 AM / 2 AM / 3 AM belong to the NEXT calendar day
+    // when the shift crosses midnight (e.g. 08:00 → 03:00).
+    // We detect this by comparing the slot hour with the shift's open hour.
+    let bookingDate = this.selectedDate();
+    const [yr, mo, dy] = bookingDate.split('-').map(Number);
+    const dayIdx = new Date(yr, mo - 1, dy).getDay();
+    const wdIdx  = (dayIdx + 6) % 7;
+    const selectedWH = this.workingHours().find(wh => {
+      const d = typeof wh.dayOfWeek === 'number'
+        ? wh.dayOfWeek
+        : parseInt(String(wh.dayOfWeek), 10);
+      return !isNaN(d) ? d === wdIdx
+        : String(wh.dayOfWeek).toLowerCase() ===
+          ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'][wdIdx];
+    });
+    if (selectedWH) {
+      const openH  = parseInt(String(selectedWH.openTime).split(':')[0], 10);
+      const closeH = parseInt(String(selectedWH.closeTime).split(':')[0], 10);
+      const isMidnightCrossing = closeH < openH;      // e.g. open=8, close=3
+      const isMidnightSlot     = isMidnightCrossing && h <= closeH; // 0,1,2,3 AM
+      if (isMidnightSlot) {
+        // Advance date by 1 day — these hours happen after midnight in a timezone-safe manner
+        const next = new Date(yr, mo - 1, dy + 1);
+        const y = next.getFullYear();
+        const m = String(next.getMonth() + 1).padStart(2, '0');
+        const d = String(next.getDate()).padStart(2, '0');
+        bookingDate = `${y}-${m}-${d}`;
+      }
+    }
+    // ─────────────────────────────────────────────────────────────────────
+
+    const dto = {
+      memberProfileId: id,
+      bookingDate,          // corrected date (next day for midnight-crossing slots)
+      startTime: this.selectedSlot(),
+      endTime: endTimeStr,
+      source: BookingSource.Manual
+    };
+
+    this.bookingService.createBooking(dto).subscribe({
+      next: () => {
+        this.bookingSubmitLoading.set(false);
+        this.bookingSuccess.set(true);
+        this.selectedSlot.set('');
+        
+        this.loadBookings();
+        this.bookingEvents.notifyBookingsChanged();
+        
+        setTimeout(() => {
+          this.showBookingForm.set(false);
+          this.resetForm();
+        }, 2000);
+      },
+      error: err => {
+        this.bookingSubmitLoading.set(false);
+        const rawMsg = err.message || 'An error occurred';
+        const keyMapping: Record<string, string> = {
+          'BookingGapViolation': 'bookingGapError',
+          'You must wait at least 5 hours between bookings on the same day.': 'bookingGapError',
+
+          'ActiveSubscriptionRequired': 'noActiveSubscriptionError',
+          'You need an active subscription to book a session.': 'noActiveSubscriptionError',
+
+          'NoRemainingSessions': 'noRemainingSessionsError',
+          'You have no remaining sessions. Please renew your subscription.': 'noRemainingSessionsError',
+
+          'BookingTimeCannotBeInPast': 'BookingTimeCannotBeInPast',
+          'That time has already passed today. Please choose a future time.': 'BookingTimeCannotBeInPast',
+
+          'DuplicateBooking': 'DuplicateBooking',
+          'You already have a booking at this date and time.': 'DuplicateBooking',
+
+          'GymIsClosed': 'GymIsClosed',
+          'The gym is closed or operating hours are invalid for this selection.': 'GymIsClosed',
+
+          'BookingDateCannotBeInPast': 'BookingDateCannotBeInPast',
+          'Booking date cannot be in the past': 'BookingDateCannotBeInPast'
+        };
+        const mappedKey = keyMapping[rawMsg];
+        const translatedMsg = mappedKey ? this.translate.instant(mappedKey) : this.translate.instant(rawMsg);
+        this.bookingError.set(translatedMsg);
+      }
+    });
   }
 }

@@ -63,6 +63,10 @@ export class CheckoutComponent implements OnInit {
     this.router.navigate(['/home']);
   }
 
+  goToChat(): void {
+    this.router.navigate(['/chat']);
+  }
+
   goToPaymentHistory(): void {
     this.router.navigate(['/my-payments']);
   }

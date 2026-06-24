@@ -8,7 +8,7 @@ import { MemberService } from '../../core/services/member.service';
 import { ProgressReportService, AttendanceRecord, ProgressSummaryDto, CreateProgressLogDto } from '../../core/services/progress-report.service';
 import { switchMap } from 'rxjs/operators';
 import type { GetProfileDto, UserSubscriptionDto } from '../../core/models/auth';
-import type { MemberProfile as MemberProfileModel, MembershipDetails, UpdateProfileDto, WorkoutSession } from '../../core/models/member';
+import type { MemberProfile as MemberProfileModel, UpdateProfileDto, WorkoutSession } from '../../core/models/member';
 import { DashboardSidebar, DashboardSection } from './dashboard-sidebar/dashboard-sidebar';
 import { RecentWorkouts } from './recent-workouts/recent-workouts';
 import { MembershipSection } from './membership-section/membership-section';
@@ -24,8 +24,8 @@ import { WorkoutComponent } from "./workoutplan/workout";
 import { WorkoutService } from '../../core/services/workout';
 import type { WorkoutPlanDto } from '../../core/models/workout';
 import { BookingSection } from './booking-section/booking-section';
-import { QrService } from '../../features/QR/qr.service';
-import type { BookingDto } from '../../features/QR/qr.model';
+import { BookingService } from '../../core/services/booking.service';
+import type { BookingDto } from '../../core/models/booking';
 
 
 function mapAuthToProfile(dto: GetProfileDto): MemberProfileModel {
@@ -47,17 +47,6 @@ function mapAuthToProfile(dto: GetProfileDto): MemberProfileModel {
     profileImage: dto.profileImage ?? null,
     birthday: dto.birthday ?? null,
     activeSubscription: dto.activeSubscription ?? null,
-  };
-}
-
-function mapSubscriptionToMembership(sub: UserSubscriptionDto): MembershipDetails {
-  return {
-    type: sub.planNameEn,
-    startDate: sub.startDate,
-    endDate: sub.endDate,
-    isActive: sub.status === 'Active',
-    price: 0,
-    features: [],
   };
 }
 
@@ -87,7 +76,7 @@ export class MemberProfile implements OnInit {
   private auth = inject(AuthService);
   private memberService = inject(MemberService);
   private progressService = inject(ProgressReportService);
-  private qrService = inject(QrService);
+  private bookingService = inject(BookingService);
   private workoutSvc = inject(WorkoutService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -97,8 +86,6 @@ export class MemberProfile implements OnInit {
   private sanitizer = inject(DomSanitizer);
 
   protected Math = Math;
-
-  isDarkMode = computed(() => this.themeService.isDark);
 
   private readonly svgIcons: Record<string, string> = {
     fire: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>',
@@ -121,8 +108,6 @@ export class MemberProfile implements OnInit {
   error = signal<string | null>(null);
 
   activeSection = signal<DashboardSection>('profile');
-
-  isMobileSidebarOpen = signal(false);
 
   timeOfDay = computed(() => {
     const h = new Date().getHours();
@@ -174,20 +159,10 @@ export class MemberProfile implements OnInit {
     return `memberProfile.quotes.q${dayOfYear % this.quoteCount}`;
   });
 
-  mappedMembership = computed<MembershipDetails | null>(() => {
-    const sub = this.profile()?.activeSubscription;
-    return sub ? mapSubscriptionToMembership(sub) : null;
-  });
-
   planLevel = computed(() => {
     const sub = this.profile()?.activeSubscription;
     if (!sub) return '';
     return sub.planNameEn || '';
-  });
-
-  planName = computed(() => {
-    const level = this.planLevel();
-    return level || 'Member';
   });
 
   planMonthlyCap = computed(() => {
@@ -433,17 +408,6 @@ export class MemberProfile implements OnInit {
       checkDate.setDate(checkDate.getDate() - 1);
     }
     return streak;
-  });
-
-  age = computed(() => {
-    const b = this.profile()?.birthday;
-    if (!b) return null;
-    const birth = new Date(b);
-    const today = new Date();
-    let age = today.getFullYear() - birth.getFullYear();
-    const m = today.getMonth() - birth.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-    return age;
   });
 
   calendarDays = computed(() => {
@@ -1028,20 +992,11 @@ export class MemberProfile implements OnInit {
 
   onSectionChange(section: DashboardSection): void {
     this.activeSection.set(section);
-    this.isMobileSidebarOpen.set(false);
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { section },
       queryParamsHandling: 'merge',
     });
-  }
-
-  toggleMobileSidebar(): void {
-    this.isMobileSidebarOpen.set(!this.isMobileSidebarOpen());
-  }
-
-  closeMobileSidebar(): void {
-    this.isMobileSidebarOpen.set(false);
   }
 
   ngOnInit(): void {
@@ -1128,7 +1083,7 @@ export class MemberProfile implements OnInit {
   loadBookings(memberProfileId: string): void {
     if (!memberProfileId) return;
     this.loadingBookings.set(true);
-    this.qrService.getBookings(memberProfileId).pipe(
+    this.bookingService.getBookings(memberProfileId).pipe(
       catchError(() => of([] as BookingDto[]))
     ).subscribe(b => {
       this.bookings.set(b ?? []);

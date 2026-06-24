@@ -36,6 +36,11 @@
           </a>
         </li>
         <li>
+          <a routerLink="/" fragment="membership" class="nav-item-exact">
+            {{ 'header.pricing' | translate }}
+          </a>
+        </li>
+        <li>
           <a routerLink="/contact" routerLinkActive="text-lime-active" class="nav-item-exact">
             {{ 'header.contact' | translate }}
           </a>
@@ -72,7 +77,10 @@
           <line x1="18.36" y1="5.64"  x2="19.78" y2="4.22"/>
         </svg>
       </button>
-
+<ng-container *ngIf="currentUser$ | async">
+    <app-notification-bell></app-notification-bell>
+  </ng-container>
+  <app-notification-toast></app-notification-toast>
       <button type="button" class="btn-lang-exact font-display text-decoration-none" (click)="toggleLang()">
         {{ currentLang === 'en' ? 'AR' : 'EN' }}
       </button>
@@ -194,6 +202,9 @@
     </a>
     <a routerLink="/about" routerLinkActive="text-lime-active" class="mobile-link" (click)="closeMobileMenu()">
       {{ 'header.about' | translate }}
+    </a>
+    <a routerLink="/" fragment="membership" class="mobile-link" (click)="closeMobileMenu()">
+      {{ 'header.pricing' | translate }}
     </a>
     <a routerLink="/contact" routerLinkActive="text-lime-active" class="mobile-link" (click)="closeMobileMenu()">
       {{ 'header.contact' | translate }}
