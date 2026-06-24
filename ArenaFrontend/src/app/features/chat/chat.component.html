@@ -1,8 +1,8 @@
 <!-- <app-header [activeTab]="'chat'"></app-header> -->
 
 <main class="chat-page">
-  <section class="chat-shell" aria-label="Arena chat assistant">
-    <aside class="chat-sidebar" aria-label="Chat history">
+  <section class="chat-shell" [class.sidebar-hidden]="!sidebarOpen" aria-label="Arena chat assistant">
+    <aside class="chat-sidebar" [class.drawer-open]="sidebarOpen" aria-label="Chat history">
       <div class="sidebar-header">
         <div>
           <span class="panel-kicker">
@@ -11,15 +11,26 @@
           </span>
           <h1>Arena Chat</h1>
         </div>
-        <button
-          type="button"
-          class="new-chat-btn"
-          (click)="newChat()"
-          [disabled]="creatingChat || !memberProfileId"
-          aria-label="Start new chat"
-        >
-          <i class="bi bi-plus-lg"></i>
-        </button>
+        <div class="sidebar-header-actions">
+          <button
+            type="button"
+            class="sidebar-close-btn"
+            (click)="forceCloseSidebar()"
+            aria-label="Close sidebar"
+            title="Close sidebar"
+          >
+            <i class="bi bi-x-lg"></i>
+          </button>
+          <button
+            type="button"
+            class="new-chat-btn"
+            (click)="newChat()"
+            [disabled]="creatingChat || !memberProfileId"
+            aria-label="Start new chat"
+          >
+            <i class="bi bi-plus-lg"></i>
+          </button>
+        </div>
       </div>
 
       <div class="prompt-list" aria-label="Quick prompts">
@@ -73,11 +84,22 @@
       </div>
     </aside>
 
+    <div class="sidebar-backdrop" *ngIf="sidebarOpen" (click)="toggleSidebar()"></div>
+
     <section class="conversation" aria-label="Conversation">
       <div class="conversation-header">
-        <div>
+        <div class="header-status-group">
+          <button
+            type="button"
+            class="sidebar-toggle-btn"
+            (click)="toggleSidebar()"
+            aria-label="Toggle chat history"
+            title="Toggle chat history"
+          >
+            <i class="bi bi-clock-history"></i>
+          </button>
           <span class="status-dot"></span>
-          Active subscription verified
+          <span class="status-text">Active subscription verified</span>
         </div>
         <a routerLink="/" aria-label="Back to home">
           <i class="bi bi-house"></i>
