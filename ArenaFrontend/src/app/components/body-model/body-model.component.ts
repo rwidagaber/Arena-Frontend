@@ -450,7 +450,8 @@ export class BodyModelComponent {
 
     const shape = this.activeShape();
     const p = SHAPE_PRESETS[shape] ?? SHAPE_PRESETS.rectangle;
-    const sig = `${shape}|${inf.mass.toFixed(3)}|${inf.bodyFat.toFixed(3)}`;
+    const female = this.lastGender === 'female';
+    const sig = `${female}|${shape}|${inf.mass.toFixed(3)}|${inf.bodyFat.toFixed(3)}`;
     if (sig === this.fatSig) return;
     this.fatSig = sig;
 
@@ -501,7 +502,14 @@ export class BodyModelComponent {
             p.glutesBack * g(0.47, 0.06) * back) *
           gate;
 
-        const disp = w * mag * t.height * 0.045;
+        // Structural gender shaping (always on, independent of BMI): male reads
+        // with a flat chest, broader shoulders and narrower hips; female with a
+        // little bust and hip.
+        const gb = female
+          ? (0.5 * g(0.66, 0.05) * front + 0.25 * g(0.47, 0.05) * side) * gate
+          : (-0.45 * g(0.66, 0.05) * front + 0.5 * g(0.72, 0.06) * side - 0.3 * g(0.47, 0.05) * side) * gate;
+
+        const disp = (w * mag * 0.045 + gb * 0.03) * t.height;
         out[i] = bx + nx * disp;
         out[i + 1] = by + ny * disp;
         out[i + 2] = bz + nz * disp;
@@ -598,17 +606,42 @@ export class BodyModelComponent {
         old.deleteAttribute('normal');
         const geom = mergeVertices(old);
         geom.computeVertexNormals();
-        mesh.geometry = geom;
-        old.dispose();
 
         geom.computeBoundingBox();
         const bb = geom.boundingBox!;
+        const minY = bb.min.y;
+        const height = Math.max(1e-3, bb.max.y - bb.min.y);
+
+        // Bake athletic wear via vertex colours so the model isn't nude — a band
+        // over the pelvis (shorts) and chest (top). It conforms to the mesh and
+        // deforms with it, so it never clips.
+        const pos = geom.attributes['position'].array as Float32Array;
+        const colors = new Float32Array(pos.length);
+        const skin = [0.74, 0.76, 0.8];
+        const cloth = [0.15, 0.18, 0.25];
+        for (let i = 0; i < pos.length; i += 3) {
+          const h = (pos[i + 1] - minY) / height;
+          const dressed = (h > 0.42 && h < 0.55) || (h > 0.6 && h < 0.72);
+          const c = dressed ? cloth : skin;
+          colors[i] = c[0];
+          colors[i + 1] = c[1];
+          colors[i + 2] = c[2];
+        }
+        geom.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        mesh.geometry = geom;
+        old.dispose();
+        mesh.material = new THREE.MeshStandardMaterial({
+          vertexColors: true,
+          roughness: 0.6,
+          metalness: 0.0,
+        });
+
         this.deformTargets.push({
           geom,
-          rest: (geom.attributes['position'].array as Float32Array).slice(),
+          rest: pos.slice(),
           restN: (geom.attributes['normal'].array as Float32Array).slice(),
-          minY: bb.min.y,
-          height: Math.max(1e-3, bb.max.y - bb.min.y),
+          minY,
+          height,
           cx: (bb.min.x + bb.max.x) / 2,
           cz: (bb.min.z + bb.max.z) / 2,
         });
