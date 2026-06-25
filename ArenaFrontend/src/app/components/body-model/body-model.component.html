@@ -1,0 +1,102 @@
+<div class="bm-card">
+  <div class="bm-head">
+    <h2 class="bm-title">
+      <i class="fa-solid fa-person bm-title-icon"></i>{{ 'bodyModel.title' | translate }}
+    </h2>
+    @if (usingPlaceholder()) {
+      <span class="bm-badge" [title]="'bodyModel.placeholderHint' | translate">
+        <i class="fa-solid fa-cube"></i> {{ 'bodyModel.preview' | translate }}
+      </span>
+    }
+  </div>
+
+  <p class="bm-sub">{{ 'bodyModel.subtitle' | translate }}</p>
+
+  <div class="bm-shapes">
+    <span class="bm-shapes-label">{{ 'bodyModel.bodyType' | translate }}</span>
+    <div class="bm-chips">
+      @for (s of availableShapes(); track s) {
+        <button
+          type="button"
+          class="bm-chip"
+          [class.active]="activeShape() === s"
+          (click)="setShape(s)"
+        >
+          {{ 'bodyModel.shape.' + s | translate }}
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (webglOk()) {
+    <div class="bm-body">
+      <!-- Left menu: a body view per logged measurement + a goal projection. -->
+      <aside class="bm-menu">
+        <div class="bm-menu-title">{{ 'bodyModel.timeline' | translate }}</div>
+
+        @if (hasViews()) {
+          <ul class="bm-menu-list">
+            @for (log of sortedLogs(); track log.id; let i = $index) {
+              <li>
+                <button
+                  type="button"
+                  class="bm-menu-item"
+                  [class.active]="selectedLogIndex() === i"
+                  (click)="selectLog(i)"
+                >
+                  <span class="bm-item-main">
+                    <span class="bm-item-date">{{ log.loggedAt | date: 'mediumDate' }}</span>
+                    <span class="bm-item-weight">{{ log.weight }} {{ 'progressReport.unitKg' | translate }}</span>
+                  </span>
+                  @if (bmiOf(log.weight); as bmi) {
+                    <span class="bm-item-bmi">{{ 'bodyModel.bmiShort' | translate }} {{ bmi | number: '1.0-1' }}</span>
+                  }
+                </button>
+              </li>
+            }
+
+            @if (hasGoal()) {
+              <li>
+                <button
+                  type="button"
+                  class="bm-menu-item bm-menu-goal"
+                  [class.active]="isGoalSelected()"
+                  (click)="selectGoal()"
+                >
+                  <span class="bm-item-main">
+                    <span class="bm-item-date">
+                      <i class="fa-solid fa-trophy"></i> {{ 'bodyModel.goal' | translate }}
+                    </span>
+                    <span class="bm-item-weight">{{ targetWeightKg() }} {{ 'progressReport.unitKg' | translate }}</span>
+                  </span>
+                  @if (goalBmi(); as bmi) {
+                    <span class="bm-item-bmi">{{ 'bodyModel.bmiShort' | translate }} {{ bmi | number: '1.0-1' }}</span>
+                  }
+                </button>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="bm-empty">{{ 'bodyModel.needLogs' | translate }}</p>
+        }
+      </aside>
+
+      <!-- 3D stage -->
+      <div class="bm-stage">
+        <div #host class="bm-canvas"></div>
+        <span class="bm-hint"><i class="fa-solid fa-arrows-up-down-left-right"></i> {{ 'bodyModel.dragHint' | translate }}</span>
+
+        @if (isGoalSelected()) {
+          <span class="bm-tag bm-tag-goal"><i class="fa-solid fa-trophy"></i> {{ 'bodyModel.goalView' | translate }}</span>
+        } @else if (selectedLog(); as log) {
+          <span class="bm-tag">{{ log.loggedAt | date: 'mediumDate' }}</span>
+        }
+      </div>
+    </div>
+  } @else {
+    <div class="bm-fallback">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <p>{{ 'bodyModel.noWebgl' | translate }}</p>
+    </div>
+  }
+</div>

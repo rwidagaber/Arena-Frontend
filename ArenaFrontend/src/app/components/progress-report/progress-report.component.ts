@@ -6,6 +6,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ProgressReportService, type ProgressLogDto, type ProgressSummaryDto, type CreateProgressLogDto, type AttendanceRecord } from '../../core/services/progress-report.service';
 import { MemberService } from '../../core/services/member.service';
 import { RevealDirective } from './reveal.directive';
+import { BodyModelComponent } from '../body-model/body-model.component';
 
 type LoadState<T> =
   | { $state: 'loading' }
@@ -122,7 +123,7 @@ const ACHIEVEMENT_DEFS: AchievementCheck[] = [
   selector: 'app-progress-report',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, TranslateModule, RevealDirective],
+  imports: [CommonModule, TranslateModule, RevealDirective, BodyModelComponent],
   templateUrl: './progress-report.component.html',
   styleUrl: './progress-report.component.scss',
 })
@@ -198,6 +199,20 @@ export class ProgressReportComponent {
   protected bodyFatChange = computed(() => this.summary?.bodyFatChange ?? null);
   protected muscleMassChange = computed(() => this.summary?.muscleMassChange ?? null);
   protected totalLogs = computed(() => this.logs.length);
+
+  // ── 3D body model inputs ──
+  /** Profile snapshot for gender/height that drive the 3D body. */
+  protected bodyProfile = toSignal(this.profile$, { initialValue: null });
+  protected bodyGender = computed(() => this.bodyProfile()?.gender ?? null);
+  protected bodyHeight = computed<number | null>(() => {
+    const h = this.bodyProfile()?.height;
+    return h != null ? Number(h) : null;
+  });
+  protected bodyLogs = computed(() => this.summary?.logs ?? []);
+  protected bodyTargetWeight = computed<number | null>(() => {
+    const t = this.bodyProfile()?.targetWeight;
+    return t != null ? Number(t) : null;
+  });
 
   protected daysSinceFirstLog = computed(() => {
     const entries = this.logs;

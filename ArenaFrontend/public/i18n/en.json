@@ -629,6 +629,30 @@
     "motivation12": "Stay hungry. Stay humble.",
     "motivation13": "The scale doesn't define your worth"
   },
+  "bodyModel": {
+    "title": "Your 3D Body",
+    "subtitle": "A 3D view of your physique, shaped from your measurements. Pick a date — or your goal — to see how your body looks.",
+    "preview": "Stylized",
+    "placeholderHint": "A stylized 3D figure shaped from your measurements.",
+    "dragHint": "Drag to rotate",
+    "timeline": "Measurements",
+    "needLogs": "Log a progress entry to see your 3D body.",
+    "bmiShort": "BMI",
+    "goal": "Goal",
+    "goalView": "Goal projection",
+    "bodyType": "Body type",
+    "shape": {
+      "hourglass": "Hourglass",
+      "pear": "Pear",
+      "apple": "Apple",
+      "rectangle": "Rectangle",
+      "invertedTriangle": "Inverted triangle",
+      "diamond": "Diamond",
+      "trapezoid": "Trapezoid",
+      "triangle": "Triangle"
+    },
+    "noWebgl": "Your browser or device doesn't support 3D (WebGL), so the body model can't be shown."
+  },
   "memberProfile": {
     "dashboardLabel": "MEMBER DASHBOARD",
     "greeting": {
