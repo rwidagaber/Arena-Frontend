@@ -1,4 +1,3 @@
-
 /* ==========================================================================
 1. Imports & Host Styles
 ========================================================================== */
@@ -14,16 +13,16 @@ background-color: var(--bg-primary, #0b0c0c) !important;
 font-family: 'Inter', system-ui, -apple-system, sans-serif;
 display: flex;
 justify-content: flex-start;
-align-items: stretch; /* تعديل: يضمن تمدد العناصر التابعة بالطول الكامل */
+align-items: stretch;
 width: 100% !important;
 max-width: 100% !important;
 min-height: 100vh;
-height: 100vh; /* تعديل: تثبيت ارتفاع الارتفاع على كامل الشاشة */
+height: 100vh;
 box-sizing: border-box;
 margin: 0 !important;
 padding: 0 !important;
 overflow-x: hidden !important;
-overflow-y: hidden !important; /* منع سكرول الصفحة الرئيسية */
+overflow-y: hidden !important;
 position: relative;
 background-color: var(--bg-primary, #0b0c0c);
 }
@@ -49,23 +48,24 @@ background-image: url('/assets/images/man-light.png') !important;
 2. Card Layout & Typography
 ========================================================================== */
 .auth-card {
-background: var(--card-bg) !important;
+/* Glass Effect */
+background: rgba(213, 235, 69, 0.05) !important;
+backdrop-filter: blur(20px) !important;
+-webkit-backdrop-filter: blur(20px) !important;
+
 border-left: none !important;
 border-top: none !important;
 border-bottom: none !important;
 border-radius: 0 !important;
 
-/* مسافات داخلية متوازنة لتوفر مساحة */
 padding: 40px 60px;
 width: 100%;
 max-width: 480px;
 
-/* تعديل رئيسي: الكارت يمتد بكامل ارتفاع الشاشة كاللوحة الجانبية */
 height: 100vh !important;
 min-height: 100vh !important;
 max-height: 100vh !important;
 
-/* قفل السكرول نهائياً وتوسيط الحقول بالمنتصف عمودياً */
 overflow-y: hidden !important;
 display: flex;
 flex-direction: column;
@@ -73,8 +73,6 @@ justify-content: center;
 
 position: relative;
 z-index: 2;
-backdrop-filter: blur(20px) !important;
--webkit-backdrop-filter: blur(20px) !important;
 border-right: 1px solid var(--card-border, rgba(255, 255, 255, 0.2)) !important;
 box-shadow:
 inset 1px 0 0 rgba(255, 255, 255, 0.1),
@@ -104,7 +102,7 @@ text-align: left;
 .field {
 display: flex;
 flex-direction: column;
-margin-bottom: 12px; /* تقليص ذكي للمسافات البيئية لضمان عدم حدوث سكرول */
+margin-bottom: 12px;
 }
 
 .field label {
@@ -202,24 +200,36 @@ align-items: center;
 gap: 8px;
 cursor: pointer;
 user-select: none;
+position: relative;
 }
 
-.remember-me input {
+.remember-me input[type="checkbox"] {
 position: absolute;
 opacity: 0;
+width: 16px;
+height: 16px;
+top: 0;
+left: 0;
+margin: 0;
 cursor: pointer;
-height: 0;
-width: 0;
+z-index: 1;
+-webkit-appearance: none;
+-moz-appearance: none;
+appearance: none;
 }
 
 .custom-checkbox {
 width: 16px;
 height: 16px;
+min-width: 16px;
 background-color: var(--input-bg) !important;
 border: 1px solid var(--border-color) !important;
 border-radius: 4px;
 position: relative;
 transition: all 0.2s ease;
+display: flex;
+align-items: center;
+justify-content: center;
 }
 
 .remember-me:hover input ~ .custom-checkbox {
@@ -232,20 +242,8 @@ border-color: #C6EF2E !important;
 box-shadow: 0 0 8px rgba(65, 140, 39, 0.4) !important;
 }
 
-.custom-checkbox::after {
-content: "";
-position: absolute;
-display: none;
-left: 5px;
-top: 2px;
-width: 4px;
-height: 8px;
-border: solid #0b0c0c !important;
-border-width: 0 2px 2px 0;
-transform: rotate(45deg);
-}
-
-.remember-me input:checked ~ .custom-checkbox::after { display: block; }
+.custom-checkbox svg { display: none; pointer-events: none; }
+.remember-me input:checked ~ .custom-checkbox svg { display: block; }
 
 .remember-me .label-text {
 color: var(--text-secondary) !important;
@@ -317,7 +315,7 @@ border-top: 1px solid var(--border-color) !important;
 }
 
 .divider span {
-background: var(--bg-primary) !important;
+background: transparent !important;
 padding: 0 12px;
 position: relative;
 z-index: 1;
@@ -425,11 +423,14 @@ display: inline-block !important;
 @media (max-width: 900px) {
 .auth-card {
 max-width: 100%;
-height: auto !important; /* الهواتف فقط مسموح لها بالتمدد الحر */
+height: auto !important;
 min-height: 100vh !important;
 max-height: none !important;
 padding: 40px 24px;
-background: var(--card-bg-mobile, rgba(11, 12, 12, 0.90)) !important;
+/* Glass على الموبايل برضو */
+background: rgba(213, 235, 69, 0.05) !important;
+backdrop-filter: blur(20px) !important;
+-webkit-backdrop-filter: blur(20px) !important;
 }
 }
 
@@ -485,4 +486,49 @@ transform: scaleX(-1);
 :host:has([dir="rtl"])::before {
 background-position: left center;
 transform: scaleX(-1);
+}
+
+/* ==========================================================================
+   Top Controls — Theme & Language
+========================================================================== */
+.top-controls {
+display: flex;
+gap: 8px;
+align-self: flex-end;
+margin-bottom: 16px;
+}
+
+.ctrl-btn {
+display: flex;
+align-items: center;
+justify-content: center;
+width: 38px;
+height: 38px;
+border-radius: 50%;
+border: 1px solid var(--border-color, rgba(255, 255, 255, 0.15));
+background: var(--input-bg, rgba(255, 255, 255, 0.06));
+color: var(--text-secondary);
+cursor: pointer;
+transition: all 0.2s ease;
+outline: none;
+flex-shrink: 0;
+}
+
+.ctrl-btn:hover {
+border-color: #C6EF2E;
+color: #C6EF2E;
+background: rgba(198, 239, 46, 0.08);
+}
+
+.ctrl-btn svg { stroke: currentColor; }
+
+.lang-btn {
+font-size: 13px;
+font-weight: 700;
+font-family: inherit;
+letter-spacing: 0.5px;
+}
+
+.auth-card[dir="rtl"] .top-controls {
+align-self: flex-start;
 }

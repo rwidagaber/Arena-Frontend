@@ -11,17 +11,16 @@
   width: 100% !important;
   max-width: 100% !important;
   min-height: 100vh;
-  height: auto !important; /* السماح للارتفاع بالامتداد */
+  height: auto !important;
   box-sizing: border-box;
   margin: 0 !important;
   padding: 0 !important;
   overflow-x: hidden !important;
-  overflow-y: auto !important; /* تفعيل السكرول الخارجي للموقع بشكل انسيابي */
+  overflow-y: auto !important;
   position: relative;
   background-color: transparent !important;
 }
 
-/* ✅ Dark background — صورة على اليمين */
 :host::before {
   content: '';
   position: fixed;
@@ -35,58 +34,54 @@
   transition: background-image 0.3s ease, background-position 0.3s ease;
 }
 
-/* ✅ Light — صورة مختلفة */
 :host-context([data-theme="light"])::before {
   background-image: url('/assets/images/man-light.png');
 }
 
-/* ✅ RTL — الصورة على اليسار */
 :host-context([dir="rtl"])::before,
 :host-context(:has(.auth-card[dir="rtl"]))::before {
   background-position: left center;
 }
 
-/* ✅ RTL + Light */
 :host-context([data-theme="light"]):host-context([dir="rtl"])::before {
   background-image: url('/assets/images/man-light.png');
   background-position: left center;
 }
 
-/* ✅ اتجاه الـ Flex في الـ RTL */
 :host:has(.auth-card.rtl) {
   flex-direction: row-reverse;
 }
 
-/* ✅ الصورة في RTL تتعكس */
 :host:has(.auth-card.rtl)::before {
   background-position: left center;
   transform: scaleX(-1);
 }
 
 /* ==========================================================================
-   Card Layout (إعادة الانسيابية والارتفاع المرن للكارت)
+   Card Layout
    ========================================================================== */
 .auth-card {
-  padding: 35px 45px !important; /* مساحة مريحة جداً أعلى وأسفل الكارت */
+  padding: 35px 45px !important;
   width: 100%;
   max-width: 480px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  justify-content: center; 
-  
+  justify-content: center;
+
   height: auto !important;
   min-height: 100vh !important;
   max-height: none !important;
-  overflow-y: visible !important; /* إلغاء كتم العناصر وعرضها بالكامل */
-  
+  overflow-y: visible !important;
+
   position: relative;
   z-index: 2;
-  background: var(--card-bg) !important;
+
+  /* Glass Effect */
+  background: rgba(213, 235, 69, 0.05) !important;
   backdrop-filter: blur(20px) !important;
   -webkit-backdrop-filter: blur(20px) !important;
 
-  /* LTR — border على اليمين */
   border-right: 1px solid var(--card-border, rgba(255, 255, 255, 0.2)) !important;
   border-left: none !important;
   border-top: none !important;
@@ -95,7 +90,6 @@
   box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15) !important;
 }
 
-/* ✅ RTL — الكارت على اليمين والـ border على اليسار */
 .auth-card.rtl {
   margin-left: auto;
   margin-right: 0;
@@ -106,7 +100,7 @@
 
 .auth-title {
   color: var(--text-primary) !important;
-  font-size: 28px; /* عنوان فخم وجريء */
+  font-size: 28px;
   font-weight: 700;
   margin: 0 0 6px 0;
   letter-spacing: -0.5px;
@@ -115,7 +109,7 @@
 .auth-sub {
   color: var(--text-secondary) !important;
   font-size: 14px;
-  margin: 0 0 24px 0; /* مسافة ممتازة تفصل العناوين عن الحقول */
+  margin: 0 0 24px 0;
 }
 
 /* ==========================================================================
@@ -124,47 +118,47 @@
 .field {
   display: flex;
   flex-direction: column;
-  margin-bottom: 22px !important; /* زيادة المسافة العمودية لمنع التكدس */
+  margin-bottom: 22px !important;
   width: 100%;
   box-sizing: border-box;
 }
 
 .field label {
   color: var(--text-primary) !important;
-  font-size: 14px !important; /* تكبير خط الـ Label */
-  font-weight: 600 !important; /* زيادة سُمك الخط للوضوح */
-  margin-bottom: 8px !important; /* مسافة مريحة تحت الـ Label */
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  margin-bottom: 8px !important;
   opacity: 0.95;
   letter-spacing: 0.3px;
 }
 
-.field-row { 
-  display: flex; 
-  gap: 16px !important; /* فراغ أفقي محترم بين الحقول المتجاورة */
-  width: 100%; 
+.field-row {
+  display: flex;
+  gap: 16px !important;
+  width: 100%;
 }
 .field-row .field { flex: 1; min-width: 0; }
 
-.field-row-3 { 
-  display: flex; 
-  gap: 12px !important; 
-  width: 100%; 
+.field-row-3 {
+  display: flex;
+  gap: 12px !important;
+  width: 100%;
 }
 .field-row-3 .field { flex: 1; min-width: 0; }
 
 /* ==========================================================================
-   Inputs & Selects Customization (الحقول الفخمة الضخمة)
+   Inputs & Selects
    ========================================================================== */
 .field input,
 .select-wrap select {
   background: var(--input-bg) !important;
   border: 1px solid var(--border-color) !important;
-  border-radius: 10px !important; /* حواف أنعم */
+  border-radius: 10px !important;
   color: var(--text-primary) !important;
-  padding: 13px 16px !important; /* الـ Padding الداخلي الذي يعطي ضخامة للحقل */
-  font-size: 15px !important; /* خط كتابة أكبر وأوضح */
+  padding: 13px 16px !important;
+  font-size: 15px !important;
   line-height: 1.5 !important;
-  height: 52px !important; /* ارتفاع ضخم وثابت لراحة العين والكتابة */
+  height: 52px !important;
   transition: all 0.25s ease;
   box-sizing: border-box;
   width: 100%;
@@ -199,7 +193,7 @@ input[type="date"] {
 
 input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(55%) sepia(80%) saturate(450%) hue-rotate(60deg) brightness(95%) contrast(90%);
-  cursor: pointer; 
+  cursor: pointer;
   opacity: 0.8;
 }
 
@@ -220,10 +214,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .select-wrap::after {
   content: "";
   position: absolute;
-  right: 16px; 
+  right: 16px;
   top: 50%;
   transform: translateY(-50%);
-  width: 12px; 
+  width: 12px;
   height: 12px;
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23418C27" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
   background-size: contain;
@@ -231,7 +225,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   pointer-events: none;
 }
 
-/* ✅ RTL — السهم على اليسار في الـ Select */
 .auth-card[dir="rtl"] .select-wrap::after {
   right: auto;
   left: 16px;
@@ -252,31 +245,29 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .input-wrap { position: relative; display: flex; align-items: center; width: 100%; }
 .input-wrap input { padding-right: 42px !important; }
 
-/* ✅ RTL — مسافة الباسورد يمين ويسار */
 .auth-card[dir="rtl"] .input-wrap input {
   padding-right: 16px !important;
   padding-left: 42px !important;
 }
 
 .toggle-pw {
-  position: absolute; 
+  position: absolute;
   right: 14px;
   top: 50%;
-  transform: translateY(-50%); /* محاذاة عمودية متناسقة تماماً مع الـ 52px */
-  background: none; 
+  transform: translateY(-50%);
+  background: none;
   border: none;
   color: var(--text-secondary);
-  cursor: pointer; 
+  cursor: pointer;
   display: flex;
-  align-items: center; 
+  align-items: center;
   justify-content: center;
-  padding: 6px; 
-  border-radius: 50%; 
+  padding: 6px;
+  border-radius: 50%;
   outline: none;
   z-index: 3;
 }
 
-/* ✅ RTL آيقونة العين */
 .auth-card[dir="rtl"] .toggle-pw {
   right: auto;
   left: 14px;
@@ -315,26 +306,25 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .back-btn svg { width: 20px; height: 20px; }
 
-/* قلب اتجاه السهم في الـ RTL */
 .auth-card[dir="rtl"] .back-btn svg {
   transform: scaleX(-1);
 }
 
 .btn-submit {
-  background-color:#C6EF2E !important;
+  background-color: #C6EF2E !important;
   color: #0b0c0c !important;
-  border: none; 
+  border: none;
   border-radius: 100px;
-  padding: 14px !important; /* زر إرسال مريح وضخم يجاري الحقول */
+  padding: 14px !important;
   font-size: 16px !important;
   font-weight: 700;
-  cursor: pointer; 
+  cursor: pointer;
   width: 100%;
   transition: all 0.3s ease;
-  display: flex; 
-  justify-content: center; 
+  display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 8px; 
+  gap: 8px;
   height: 52px !important;
   box-shadow: 0 4px 14px rgba(117, 245, 74, 0.3);
   margin-top: 18px !important;
@@ -354,11 +344,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .divider span {
-  background: var(--bg-primary, #0b0c0c);
-  padding: 0 12px; 
-  position: relative; 
+  background: transparent !important;
+  padding: 0 12px;
+  position: relative;
   z-index: 1;
-  color: var(--text-secondary); 
+  color: var(--text-secondary);
   font-size: 13px;
 }
 
@@ -384,13 +374,28 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 @media (max-width: 900px) {
   .auth-visual-side { display: none; }
+
+  /* ✅ الصورة تظهر صح على الموبايل */
+  :host::before {
+    background-position: center center !important;
+    background-size: cover !important;
+  }
+
+  /* ✅ RTL على الموبايل — الصورة في المنتصف برضو */
+  :host:has(.auth-card.rtl)::before {
+    background-position: center center !important;
+    transform: none !important;
+  }
+
   .auth-card {
-    max-width: 100%; 
+    max-width: 100%;
     padding: 35px 24px !important;
-    background: var(--card-bg-mobile, rgba(11, 12, 12, 0.90)) !important;
+    background: rgba(213, 235, 69, 0.05) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
     border: none !important;
     margin: 0 !important;
-    height: auto !important; 
+    height: auto !important;
     min-height: 100vh !important;
     max-height: none !important;
     overflow-y: auto !important;
@@ -444,3 +449,45 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ==========================================================================
+   Top Controls — Theme & Language
+   ========================================================================== */
+.top-controls {
+  display: flex;
+  gap: 8px;
+  align-self: flex-end;
+  margin-bottom: 16px;
+}
+
+.ctrl-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color, rgba(255,255,255,0.15));
+  background: var(--input-bg, rgba(255,255,255,0.06));
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+  flex-shrink: 0;
+}
+
+.ctrl-btn:hover {
+  border-color: #C6EF2E;
+  color: #C6EF2E;
+  background: rgba(198, 239, 46, 0.08);
+}
+
+.ctrl-btn svg { stroke: currentColor; }
+
+.lang-btn {
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  letter-spacing: 0.5px;
+  width: 38px;
+}
