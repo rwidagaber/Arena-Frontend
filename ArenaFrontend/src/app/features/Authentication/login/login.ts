@@ -25,11 +25,6 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly themeService = inject(ThemeService);
   private translate = inject(TranslateService);
 
-  // ✅ تعديل: زر سهم الرجوع في الـ Login يُرجع المستخدم إلى الصفحة الرئيسية للموقع مباشرة لمنع الحلقات المفرغة
-  goBack(): void {
-    this.router.navigate(['/']);
-  }
-
   showPw      = false;
   loading     = false;
   serverError = '';
@@ -37,7 +32,8 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   private langSub?: Subscription;
 
   get currentLang() { return this.t.currentLang(); }
-  get isRtl() { return this.currentLang === 'ar'; }
+  get isRtl()       { return this.currentLang === 'ar'; }
+  get isDark()      { return this.themeService.isDark; }
 
   form = this.fb.group({
     email:      ['', [Validators.required, Validators.email]],
@@ -124,12 +120,17 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  // ✅ تعديل: الانتقال إلى الـ Register مع استبدال المسار الحالي لمنع الـ Infinity loop
-  goToSignup(): void { 
-    this.router.navigate(['/register'], { replaceUrl: true }); 
-  }
-  
+  goBack(): void    { this.router.navigate(['/']); }
+  goToSignup(): void { this.router.navigate(['/register'], { replaceUrl: true }); }
   goToforgot(): void { this.router.navigate(['/forgot-password']); }
+
+  toggleTheme(): void {
+    this.themeService.setTheme(this.themeService.isDark ? 'light' : 'dark');
+  }
+
+  toggleLang(): void {
+    this.t.switchLang(this.currentLang === 'ar' ? 'en' : 'ar');
+  }
 
   isInvalid(field: string): boolean {
     const c = this.form.get(field)!;
