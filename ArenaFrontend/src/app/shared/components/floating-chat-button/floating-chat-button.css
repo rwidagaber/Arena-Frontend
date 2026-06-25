@@ -5,7 +5,7 @@
 /* ── FAB Button ── */
 .fab-chat {
   position: fixed;
-  bottom: 28px;
+  bottom: 90px;
   right: 28px;
   z-index: 9999;
   width: 60px;
@@ -277,7 +277,7 @@
   .fab-chat {
     width: 52px;
     height: 52px;
-    bottom: 20px;
+    bottom: 80px;
     right: 20px;
   }
 
@@ -309,7 +309,7 @@
   .fab-chat {
     width: 48px;
     height: 48px;
-    bottom: 16px;
+    bottom: 76px;
     right: 16px;
   }
 }

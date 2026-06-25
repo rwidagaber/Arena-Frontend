@@ -38,6 +38,9 @@ export class BookingSection implements OnInit, OnDestroy {
   /** The member-profile id used to fetch bookings */
   memberProfileId = input.required<string>();
 
+  /** The remaining session count from parent member profile */
+  remainingSessions = input<number | null>(null);
+
   /** Emitted when the user cancels a booking so the parent can react if needed */
   bookingCancelled = output<string>();
 
@@ -133,8 +136,12 @@ export class BookingSection implements OnInit, OnDestroy {
     const filtered = this.bookings().filter(b => {
       const isCancelled = b.status === 2 || b.status === '2' || b.status === 'Cancelled';
       if (isCancelled) return true; // Cancelled bookings always appear in history
-      const isConfirmed = b.status === 1 || b.status === '1' || b.status === 'Confirmed';
-      if (!isConfirmed) return false; // Hide Pending/Unknown from history
+      const isExpired = b.status === 4 || b.status === '4' || b.status === 'Expired';
+      if (isExpired) return true; // Expired bookings always appear in history
+      const isConfirmedOrCompleted = 
+        b.status === 1 || b.status === '1' || b.status === 'Confirmed' ||
+        b.status === 3 || b.status === '3' || b.status === 'Completed';
+      if (!isConfirmedOrCompleted) return false; // Hide Pending/Unknown from history
       try {
         const bDateTime = new Date(`${b.bookingDate.split('T')[0]}T${b.startTime}`);
         return bDateTime.getTime() <= now;
@@ -173,23 +180,31 @@ export class BookingSection implements OnInit, OnDestroy {
     Array.from({ length: this.pastPageCount() }, (_, i) => i + 1)
   );
 
-  bookingStats = computed<StatItem[]>(() => [
-    {
-      label: 'totalBookings',
-      value: this.bookings().length.toString(),
-      icon: 'fas fa-calendar-check',
-    },
-    {
-      label: 'upcoming',
-      value: this.upcomingBookings().length.toString(),
-      icon: 'fas fa-clock',
-    },
-    {
-      label: 'past',
-      value: this.pastBookings().length.toString(),
-      icon: 'fas fa-history',
-    },
-  ]);
+  bookingStats = computed<StatItem[]>(() => {
+    const rem = this.remainingSessions();
+    return [
+      {
+        label: 'remainingSessions',
+        value: rem !== null ? rem.toString() : '0',
+        icon: 'fas fa-dumbbell',
+      },
+      {
+        label: 'totalBookings',
+        value: this.bookings().length.toString(),
+        icon: 'fas fa-calendar-check',
+      },
+      {
+        label: 'upcoming',
+        value: this.upcomingBookings().length.toString(),
+        icon: 'fas fa-clock',
+      },
+      {
+        label: 'past',
+        value: this.pastBookings().length.toString(),
+        icon: 'fas fa-history',
+      },
+    ];
+  });
 
   // ── Lifecycle ──────────────────────────────────────────────────────
   ngOnInit(): void {
@@ -473,8 +488,10 @@ export class BookingSection implements OnInit, OnDestroy {
     const targetTimeMs = slotDate.getTime();
 
     const hasConflict = this.bookings().some(b => {
-      const isConfirmed = b.status === 1 || b.status === '1' || b.status === 'Confirmed';
-      if (!isConfirmed) return false;
+      const isConfirmedOrCompleted = 
+        b.status === 1 || b.status === '1' || b.status === 'Confirmed' ||
+        b.status === 3 || b.status === '3' || b.status === 'Completed';
+      if (!isConfirmedOrCompleted) return false;
 
       const [bYr, bMo, bDy] = b.bookingDate.split('T')[0].split('-').map(Number);
       const [bH] = b.startTime.split(':').map(Number);

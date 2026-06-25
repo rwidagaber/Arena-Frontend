@@ -775,7 +775,8 @@
   
       @case ('mybookings') {
       <app-booking-section
-        [memberProfileId]="profile()?.memberProfileId || profile()?.id || ''" />
+        [memberProfileId]="profile()?.memberProfileId || profile()?.id || ''"
+        [remainingSessions]="sessionsRemaining()" />
       }
       }
       }

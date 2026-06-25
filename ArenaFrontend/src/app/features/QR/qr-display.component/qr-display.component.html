@@ -86,16 +86,19 @@
           </div>
         } @else {
           <div class="session-list">
-            @for (booking of bookings; track booking.id) {
+            @for (booking of bookings; track booking.id; let idx = $index) {
               <button
                 class="session-item"
                 type="button"
                 [class.active]="selectedBooking?.id === booking.id"
+                [disabled]="idx > 0"
                 (click)="selectBooking(booking)"
               >
                 <span class="session-date">{{ formatSessionDate(booking) }}</span>
                 <span class="session-time">{{ formatSessionTime(booking) }}</span>
-                <span class="session-tag">Confirmed</span>
+                <span class="session-tag" [class.locked]="idx > 0">
+                  {{ (idx > 0 ? 'Locked' : 'Confirmed') | translate }}
+                </span>
               </button>
             }
           </div>

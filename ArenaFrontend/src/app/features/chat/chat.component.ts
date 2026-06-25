@@ -38,6 +38,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   error = '';
   conversationId?: string;
   memberProfileId = '';
+  sidebarOpen = false;
 
   // Voice recording UX state
   recordingSeconds = 0;
@@ -92,6 +93,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       return;
     }
 
+    this.sidebarOpen = typeof window !== 'undefined' && window.innerWidth > 900;
     this.messages = [this.createAssistantWelcome()];
     this.auth
       .getMe()
@@ -133,6 +135,21 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.draft = prompt;
   }
 
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebar(): void {
+    if (typeof window !== 'undefined' && window.innerWidth <= 900) {
+      this.sidebarOpen = false;
+    }
+  }
+
+  /** Force-close sidebar on any screen size (used by close button) */
+  forceCloseSidebar(): void {
+    this.sidebarOpen = false;
+  }
+
   newChat(): void {
     if (!this.memberProfileId || this.creatingChat) {
       return;
@@ -150,6 +167,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
           this.conversationId = conversation.id;
           this.messages = [this.createAssistantWelcome()];
           this.draft = '';
+          this.closeSidebar();
         },
         error: (err: Error) => {
           this.error = err.message || 'Could not create a new chat right now.';
@@ -165,6 +183,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.conversationId = conversation.id;
     this.error = '';
     this.loadingHistory = true;
+    this.closeSidebar();
 
     this.chatService
       .getHistory(conversation.id)

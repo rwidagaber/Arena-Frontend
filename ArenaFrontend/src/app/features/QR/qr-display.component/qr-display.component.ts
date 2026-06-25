@@ -8,10 +8,12 @@ import { environment } from '../../../../environments/environment';
 import { BookingDto, QrDto, QrScanResultDto } from '../qr.model';
 import { QrService } from '../qr.service';
 
+import { TranslateModule } from '@ngx-translate/core';
+
 @Component({
   selector: 'app-qr-display',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TranslateModule],
   templateUrl: './qr-display.component.html',
   styleUrls: ['./qr-display.component.css'],
 })
