@@ -270,6 +270,12 @@ export class BodyModelComponent {
   }[] = [];
   /** Signature of the last applied fat deform, to skip redundant rebuilds. */
   private fatSig = '';
+  /**
+   * Per-garment callbacks that re-fit the clothing meshes onto the deformed
+   * skin. Invoked only from applyFatDistribution's gated section, i.e. only when
+   * the body shape actually changes — never per idle frame.
+   */
+  private clothingUpdaters: Array<() => void> = [];
 
   // Smoothly-interpolated influence state read by the render loop.
   private current: BodyInfluences = { mass: 0.35, bodyFat: 0.35, muscle: 0.4, height: 1 };
@@ -328,7 +334,7 @@ export class BodyModelComponent {
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.05;
+    renderer.toneMappingExposure = 0.92; // avoid blowing the body out to flat white
     el.appendChild(renderer.domElement);
     this.renderer = renderer;
 
@@ -344,8 +350,8 @@ export class BodyModelComponent {
     this.camera = camera;
 
     // Warm key + cool fill (three-point) for natural skin modelling.
-    scene.add(new THREE.HemisphereLight(0xfff4ea, 0x33384a, 0.45));
-    const key = new THREE.DirectionalLight(0xfff1e0, 2.1);
+    scene.add(new THREE.HemisphereLight(0xfff4ea, 0x33384a, 0.4));
+    const key = new THREE.DirectionalLight(0xfff1e0, 1.6);
     key.position.set(2.5, 5, 3);
     key.castShadow = true;
     key.shadow.mapSize.set(1024, 1024);
@@ -451,15 +457,35 @@ export class BodyModelComponent {
     const shape = this.activeShape();
     const p = SHAPE_PRESETS[shape] ?? SHAPE_PRESETS.rectangle;
     const female = this.lastGender === 'female';
-    const sig = `${female}|${shape}|${inf.mass.toFixed(3)}|${inf.bodyFat.toFixed(3)}`;
+    // Cache key includes BOTH body fat and muscle, so the body re-shapes when
+    // either changes — even at constant weight (recomposition).
+    const sig = `${female}|${shape}|${inf.bodyFat.toFixed(3)}|${inf.muscle.toFixed(3)}`;
     if (sig === this.fatSig) return;
     this.fatSig = sig;
 
-    // Amount is BMI-driven (height is already folded into BMI): near-base when
-    // lean, growing strongly as BMI rises. inf.mass = normalize(BMI, 18.5..35),
-    // so ~0.2 ≈ a healthy BMI. Body fat % nudges it up a little when known.
-    const level = (inf.mass - 0.2) / 0.8;
-    const mag = Math.max(0.05, 0.1 + level * 1.2) + inf.bodyFat * 0.15;
+    // Sex-specific fat placement. Men store it centrally — a forward belly gut
+    // and a thicker waist / love handles, with only a little on the chest — and
+    // stay comparatively lean through the hips, seat and thighs. Women follow the
+    // body-type chart (hips / thighs / seat / bust). This keeps a heavy male
+    // reading as a man (android "apple") rather than a wide-hipped pear.
+    const fw: ShapePreset = female
+      ? p
+      : {
+          shoulders: p.shoulders * 0.85,
+          bust: Math.max(p.bust, 0.4),         // chest fat that fills out (moobs) as fat rises
+          waist: p.waist + 0.3,                // love handles / thicker midsection
+          belly: Math.max(p.belly, 0.6),       // the gut — where men carry weight
+          hips: p.hips * 0.3,
+          thighs: p.thighs * 0.5,
+          glutesBack: p.glutesBack * 0.35,
+        };
+
+    // Fat amount is driven ONLY by body-fat % (inf.bodyFat), never by weight/BMI.
+    // THIS is what makes two members at the SAME weight look different: a high-fat
+    // member rounds out and softens here, while a lean/high-muscle member stays
+    // defined and gets their volume from the muscle terms below instead. Fat and
+    // muscle are independent inputs, so recomposition at constant weight shows.
+    const mag = Math.max(0.05, 0.12 + inf.bodyFat * 1.5);
     const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
     const smooth = (e0: number, e1: number, x: number) => {
       const t = clamp01((x - e0) / (e1 - e0));
@@ -478,10 +504,20 @@ export class BodyModelComponent {
         const rx = bx - t.cx, rz = bz - t.cz;
         const r = Math.hypot(rx, rz);
 
-        // Mask off arms (far from the vertical axis) and head/feet extremes.
-        const limbMask = 1 - smooth(0.16, 0.24, r / t.height);
+        // Split torso from arms by radius within the arm height band. The torso
+        // gate drives torso fat/muscle/shaping (hips, seat and thighs are off-axis
+        // but at other heights, so they're kept). The arm gate — its complement,
+        // out on the limbs — drives the arms' OWN muscle + fat so they thicken
+        // with muscle mass and round out with fat like the rest of the body.
+        // Mask the whole arm (forearm, hand and thumb) OUT of all deformation:
+        // this static T-pose mesh can't be inflated procedurally without lumping
+        // those small, many-normalled clusters. The arms keep their clean,
+        // anatomically-correct rest shape; the deltoid/shoulder — just inboard of
+        // the arm — still takes muscle through the torso terms below.
+        const armBand = smooth(0.4, 0.48, h) * (1 - smooth(0.72, 0.8, h));
+        const armRegion = armBand * smooth(0.19, 0.25, r / t.height); // 1 out on the arms
         const vert = clamp01((h - 0.05) / 0.08) * (1 - smooth(0.78, 0.92, h));
-        const gate = limbMask * vert;
+        const gate = (1 - armRegion) * vert; // torso/legs only; arms left at rest
 
         const g = (c: number, w: number) => Math.exp(-((h - c) * (h - c)) / (2 * w * w));
         const front = Math.max(0, nz); // belly/bust point forward
@@ -492,31 +528,104 @@ export class BodyModelComponent {
         // small constant adds all-over fullness so heavier bodies round out
         // everywhere, not only in the body-type zones.
         const w =
-          (0.12 +
-            p.shoulders * g(0.72, 0.06) * side +
-            p.bust * g(0.66, 0.05) * front +
-            p.belly * g(0.52, 0.06) * front +
-            p.waist * g(0.56, 0.05) + // uniform; negative cinches the waist
-            p.hips * g(0.47, 0.05) * side +
-            p.thighs * g(0.37, 0.075) * side +
-            p.glutesBack * g(0.47, 0.06) * back) *
+          (0.06 + inf.bodyFat * 0.18 + // all-over subcutaneous softness (rounds out high-fat bodies)
+            fw.shoulders * g(0.72, 0.06) * side +
+            fw.bust * g(0.66, 0.075) * front + // broad chest fat, not a pointed bust
+            fw.belly * g(0.5, 0.09) * front + // soft, low, rounded belly (gut / lower pooch)
+            fw.waist * g(0.55, 0.06) * (0.6 + 0.6 * side) + // flanks/love handles (−ve cinches)
+            fw.hips * g(0.46, 0.06) * side +
+            fw.thighs * g(0.34, 0.08) * side + // outer thigh / saddlebag
+            fw.glutesBack * g(0.47, 0.06) * back) *
           gate;
 
         // Structural gender shaping (always on, independent of BMI): male reads
-        // with a flat chest, broader shoulders and narrower hips; female with a
-        // little bust and hip.
+        // with broader shoulders and narrower hips, the chest shaped by the pec
+        // muscle below (only a touch of flattening so it's not a female bust);
+        // female with a little bust and hip.
         const gb = female
           ? (0.5 * g(0.66, 0.05) * front + 0.25 * g(0.47, 0.05) * side) * gate
-          : (-0.45 * g(0.66, 0.05) * front + 0.5 * g(0.72, 0.06) * side - 0.3 * g(0.47, 0.05) * side) * gate;
+          : (-0.05 * g(0.66, 0.05) * front + 0.5 * g(0.72, 0.06) * side - 0.3 * g(0.47, 0.05) * side) * gate;
 
-        const disp = (w * mag * 0.045 + gb * 0.03) * t.height;
+        // Muscularity (the athletic build): broad deltoids, a full chest/pecs, a
+        // wider upper back that tapers to the waist (the V-taper) and thicker
+        // quads. Driven by inf.muscle with a baseline so a fit member still reads
+        // toned; much stronger on the male so he looks muscular, lighter on the
+        // female for athletic tone.
+        const muStrength = female ? 0.4 : 1;
+        // Girth muscles swell all-around the limb: deltoids, quadriceps, calves.
+        const muGirth =
+          0.55 * g(0.73, 0.06) + // deltoid caps
+          0.4 * g(0.38, 0.07) +  // quads / thigh
+          0.3 * g(0.2, 0.06);    // calves
+        // Directional muscles: pecs (forward), lats / back-width (sideways → the
+        // V-taper), trapezius (upper back) and glutes / hamstrings (back).
+        const muDir =
+          0.85 * g(0.67, 0.055) * front + // pectorals — project the chest forward
+          0.45 * g(0.57, 0.07) * side +
+          0.3 * g(0.78, 0.045) * back +
+          0.3 * g(0.46, 0.06) * back;
+        // Amount comes from the member's MEASURED skeletal muscle mass
+        // (inf.muscle = muscle kg normalised 25→50); the small baseline is just
+        // resting musculature. Strong on the male, lighter on the female.
+        const mu = (muGirth + muDir) * gate * (0.15 + inf.muscle) * muStrength;
+
+        // A natural waist: the torso nips in between the ribcage and hips. It's
+        // skeletal, so always present when lean, but fills back in as body fat
+        // rises (a high-fat midsection has no visible waist).
+        const waistDef =
+          -0.2 * g(0.53, 0.055) * (0.7 * side + 0.3 * front) * gate * clamp01(1 - inf.bodyFat * 1.2);
+
+        // Separate soft fat from firm structure/muscle. Fat is pushed out along
+        // the normal AND sags downward under gravity (belly overhang, sagging
+        // chest/seat), more the higher the body fat; muscle and bone don't sag.
+        const fatDisp = w * mag * 0.045 * t.height;
+        const firmDisp = (gb * 0.03 + waistDef * 0.03 + mu * 0.02) * t.height;
+        const disp = fatDisp + firmDisp;
+        const sag = fatDisp * (0.12 + inf.bodyFat * 0.3);
         out[i] = bx + nx * disp;
-        out[i + 1] = by + ny * disp;
+        out[i + 1] = by + ny * disp - sag;
         out[i + 2] = bz + nz * disp;
       }
       attr.needsUpdate = true;
+
+      // Light Taubin relax of the deformed surface so the procedural fat/muscle
+      // reads as smooth, organic soft tissue — and the gate transitions (arm,
+      // waist, depots) blend in — instead of faceted Gaussian bulges. The λ then
+      // −μ pair is volume-preserving (no shrinking) on this closed mesh, and it's
+      // gated by fatSig so it runs only on a real shape change, never per frame.
+      const index = t.geom.index;
+      if (index) {
+        const ia = index.array as ArrayLike<number>;
+        const vc = out.length / 3;
+        const acc = new Float32Array(out.length);
+        const deg = new Float32Array(vc);
+        const relax = (lambda: number) => {
+          acc.fill(0);
+          deg.fill(0);
+          for (let f = 0; f < ia.length; f += 3) {
+            const A = ia[f], B = ia[f + 1], C = ia[f + 2];
+            const a3 = A * 3, b3 = B * 3, c3 = C * 3;
+            acc[a3] += out[b3] + out[c3]; acc[a3 + 1] += out[b3 + 1] + out[c3 + 1]; acc[a3 + 2] += out[b3 + 2] + out[c3 + 2]; deg[A] += 2;
+            acc[b3] += out[a3] + out[c3]; acc[b3 + 1] += out[a3 + 1] + out[c3 + 1]; acc[b3 + 2] += out[a3 + 2] + out[c3 + 2]; deg[B] += 2;
+            acc[c3] += out[a3] + out[b3]; acc[c3 + 1] += out[a3 + 1] + out[b3 + 1]; acc[c3 + 2] += out[a3 + 2] + out[b3 + 2]; deg[C] += 2;
+          }
+          for (let v = 0; v < vc; v++) {
+            const d = deg[v];
+            if (!d) continue;
+            const i3 = v * 3, inv = 1 / d;
+            out[i3] += lambda * (acc[i3] * inv - out[i3]);
+            out[i3 + 1] += lambda * (acc[i3 + 1] * inv - out[i3 + 1]);
+            out[i3 + 2] += lambda * (acc[i3 + 2] * inv - out[i3 + 2]);
+          }
+        };
+        relax(0.5); relax(-0.53); // single volume-preserving pass: de-facet without over-smoothing
+      }
       t.geom.computeVertexNormals();
     }
+
+    // Re-fit the garments onto the freshly-deformed, re-normalled skin. This is
+    // inside the fatSig-gated body, so it runs only on an actual shape change.
+    for (const update of this.clothingUpdaters) update();
   }
 
   /**
@@ -528,6 +637,360 @@ export class BodyModelComponent {
     const base = this.modelRoot.userData['baseScale'] ?? 1;
     const widen = 1 + inf.mass * 0.16 + inf.bodyFat * 0.08;
     this.modelRoot.scale.set(base * widen, base * inf.height, base * widen);
+  }
+
+  /**
+   * Builds real athletic-wear geometry (shorts/leggings + a top) as separate
+   * fabric meshes that hug the body. Each garment is stitched from the body's
+   * own triangles within a height band — torso core only, so the arms are
+   * dropped — and floated a few millimetres off the skin along the surface
+   * normal so it reads as a fabric layer with thickness rather than paint.
+   *
+   * Performance: the geometry is built ONCE here. The per-frame draw is just a
+   * few thousand extra single-sided, non-shadow triangles. The CPU re-fit
+   * ({@link clothingUpdaters}) runs only when the body shape actually changes
+   * (it is invoked from applyFatDistribution's fatSig-gated section), so an idle
+   * model costs nothing beyond the draw.
+   */
+  private buildClothing(
+    bodyMesh: THREE.Mesh,
+    geom: THREE.BufferGeometry,
+    minY: number,
+    height: number,
+    cx: number,
+    cz: number,
+    female: boolean,
+  ): void {
+    const index = geom.index;
+    const posAttr = geom.attributes['position'] as THREE.BufferAttribute;
+    const normAttr = geom.attributes['normal'] as THREE.BufferAttribute;
+    if (!index) return;
+    const pos = posAttr.array as Float32Array;
+    const nrm = normAttr.array as Float32Array;
+    const idx = index.array as ArrayLike<number>;
+
+    // Drop the arms so the garments stay on the torso instead of growing into
+    // sleeves. In this A-pose the arms hang BESIDE the torso, separated from it
+    // by a clear lateral gap, but the gap closes as you go up: the hips are wide
+    // (~0.16·H) with the arms far out, while at the chest the torso is narrow
+    // (~0.12·H) and the arms sit right next to it (~0.15·H+). A single radius
+    // can't separate both, so we use a height-dependent lateral half-width:
+    // generous through the hips/legs, tight through the chest/shoulders. Any
+    // triangle whose centroid is more lateral than this is arm, and is dropped.
+    // Three zones, blended with smoothstep (values measured from the OBJ's
+    // x-histogram so the cap sits in the real torso↔arm gap):
+    //   • hips / legs (low h): wide — no arms here, keep the whole lower body.
+    //   • chest / armhole (mid h): tight — sits in the clear lateral gap between
+    //     torso and arms, so the arms are dropped (no sleeves down to the elbow).
+    //   • shoulder yoke (high h): wide again — covers the entire shoulder/deltoid
+    //     as a clean cap so there is no bare notch on top of the shoulder.
+    const smooth01 = (x: number) => { const t = Math.min(1, Math.max(0, x)); return t * t * (3 - 2 * t); };
+    const armHalfX = (h: number): number => {
+      const lo = height * 0.205;      // hips / legs
+      const armhole = height * 0.135; // chest — drops the arm
+      const yoke = height * 0.215;    // shoulder cap
+      if (h <= 0.45) return lo;
+      if (h <= 0.6) return lo + (armhole - lo) * smooth01((h - 0.45) / 0.15);
+      if (h <= 0.76) return armhole + (yoke - armhole) * smooth01((h - 0.6) / 0.16);
+      return yoke;
+    };
+
+    type Region = {
+      color: number;
+      rough: number;
+      hMin: number;
+      hMax: number;
+      // Optional neckline shaping: cut the top edge lower where the surface
+      // faces front (scoop neck) and a touch higher where it faces back
+      // (racerback). Gives a top a real neckline + shoulder straps.
+      scoopFront?: number;
+      raiseBack?: number;
+      // Optional standoff override (fraction of body height). Compression pieces
+      // hug the skin (small); loose pieces like gym shorts float further out so
+      // they bridge the legs/seat and hang like fabric instead of clinging.
+      standoff?: number;
+    };
+    // Matte technical sportswear in the gym's brand colours. Women wear a
+    // form-fitting matching set (full-length leggings + crew-neck training top,
+    // overlapping at the waist so no skin shows). Men train bare-chested in looser
+    // green gym shorts. Per-layer depth bias (polygonOffset) and a layered/
+    // overridable standoff keep the pieces from z-fighting or clinging.
+    const LADY = 0x4e2b25;    // women's matching set (top + leggings) — alt: 0xae7277
+    const SHORTS = 0x2f9e44;  // men's green gym shorts
+    const regions: Region[] = female
+      ? [
+          { color: LADY, rough: 0.82, hMin: 0.04, hMax: 0.62 }, // compression leggings (full length)
+          { color: LADY, rough: 0.82, hMin: 0.55, hMax: 0.86, scoopFront: 0.04 }, // training top
+        ]
+      : [
+          // Men train bare-chested: fitted green gym shorts to above the knee. A
+          // modest standoff keeps them hugging the quads/seat so they SHOW the
+          // body's progress, while the heavy smoothing rounds the crotch/seat
+          // cleanly (no clinging cleft).
+          { color: SHORTS, rough: 0.82, hMin: 0.3, hMax: 0.62, standoff: 0.008 }, // green gym shorts
+        ];
+
+
+    // A garment vertex is a barycentric blend of its source body triangle
+    // (indices a/b/c, weights wa/wb/wc). That lets us CLIP triangles to the band
+    // — yielding clean, straight hems instead of torn edges — while the refit
+    // stays an exact, cheap blend of live skin positions/normals.
+    type P = { wa: number; wb: number; wc: number; h: number };
+    const lerpP = (p: P, q: P, plane: number): P => {
+      const f = (plane - p.h) / (q.h - p.h);
+      return {
+        wa: p.wa + (q.wa - p.wa) * f,
+        wb: p.wb + (q.wb - p.wb) * f,
+        wc: p.wc + (q.wc - p.wc) * f,
+        h: plane,
+      };
+    };
+    // Clip a convex polygon against a single horizontal plane (keep above when
+    // `keepAbove`, else below) by Sutherland–Hodgman.
+    const clip = (poly: P[], plane: number, keepAbove: boolean): P[] => {
+      const out: P[] = [];
+      const inside = (p: P) => (keepAbove ? p.h >= plane : p.h <= plane);
+      for (let i = 0; i < poly.length; i++) {
+        const cur = poly[i];
+        const prev = poly[(i + poly.length - 1) % poly.length];
+        const ci = inside(cur), pi = inside(prev);
+        if (ci) {
+          if (!pi) out.push(lerpP(prev, cur, plane));
+          out.push(cur);
+        } else if (pi) {
+          out.push(lerpP(prev, cur, plane));
+        }
+      }
+      return out;
+    };
+
+    for (const [ri, reg] of regions.entries()) {
+      const aI: number[] = [], bI: number[] = [], cI: number[] = [];
+      const wAArr: number[] = [], wBArr: number[] = [], wCArr: number[] = [];
+      const gIndex: number[] = [];
+
+      for (let f = 0; f < idx.length; f += 3) {
+        const a = idx[f], b = idx[f + 1], c = idx[f + 2];
+
+        const ha = (pos[a * 3 + 1] - minY) / height;
+        const hb = (pos[b * 3 + 1] - minY) / height;
+        const hc = (pos[c * 3 + 1] - minY) / height;
+
+        // Drop arm/hand triangles by a height-dependent lateral cap (see
+        // armHalfX), plus anything implausibly far forward/back.
+        const mx = (pos[a * 3] + pos[b * 3] + pos[c * 3]) / 3 - cx;
+        const mz = (pos[a * 3 + 2] + pos[b * 3 + 2] + pos[c * 3 + 2]) / 3 - cz;
+        if (Math.abs(mx) > armHalfX((ha + hb + hc) / 3) || Math.abs(mz) > height * 0.28) continue;
+        // Per-triangle neckline cap from the averaged face normal.
+        let hi = reg.hMax;
+        if (reg.scoopFront || reg.raiseBack) {
+          const fz = (nrm[a * 3 + 2] + nrm[b * 3 + 2] + nrm[c * 3 + 2]) / 3;
+          hi -= (reg.scoopFront ?? 0) * Math.max(0, fz);
+          hi += (reg.raiseBack ?? 0) * Math.max(0, -fz);
+        }
+        // Trivial reject if wholly outside the band.
+        if (Math.max(ha, hb, hc) < reg.hMin || Math.min(ha, hb, hc) > hi) continue;
+
+        // Clip the triangle to hMin <= h <= hi, then fan-triangulate.
+        let poly: P[] = [
+          { wa: 1, wb: 0, wc: 0, h: ha },
+          { wa: 0, wb: 1, wc: 0, h: hb },
+          { wa: 0, wb: 0, wc: 1, h: hc },
+        ];
+        poly = clip(poly, reg.hMin, true);
+        if (poly.length) poly = clip(poly, hi, false);
+        if (poly.length < 3) continue;
+
+        const base = aI.length;
+        for (const p of poly) {
+          aI.push(a); bI.push(b); cI.push(c);
+          wAArr.push(p.wa); wBArr.push(p.wb); wCArr.push(p.wc);
+        }
+        for (let k = 1; k < poly.length - 1; k++) gIndex.push(base, base + k, base + k + 1);
+      }
+      if (gIndex.length < 3) continue;
+
+      const n = aI.length;
+      const va = Uint32Array.from(aI), vb = Uint32Array.from(bI), vc = Uint32Array.from(cI);
+      const wa = Float32Array.from(wAArr), wb = Float32Array.from(wBArr), wc = Float32Array.from(wCArr);
+
+      // Rest position + normal of every garment vertex (the body is at rest now).
+      const restP = new Float32Array(n * 3);
+      const restN = new Float32Array(n * 3);
+      for (let i = 0; i < n; i++) {
+        const ia = va[i] * 3, ib = vb[i] * 3, ic = vc[i] * 3;
+        const A = wa[i], B = wb[i], C = wc[i], d = i * 3;
+        restP[d] = A * pos[ia] + B * pos[ib] + C * pos[ic];
+        restP[d + 1] = A * pos[ia + 1] + B * pos[ib + 1] + C * pos[ic + 1];
+        restP[d + 2] = A * pos[ia + 2] + B * pos[ib + 2] + C * pos[ic + 2];
+        let nx = A * nrm[ia] + B * nrm[ib] + C * nrm[ic];
+        let ny = A * nrm[ia + 1] + B * nrm[ib + 1] + C * nrm[ic + 1];
+        let nz = A * nrm[ia + 2] + B * nrm[ib + 2] + C * nrm[ic + 2];
+        const l = Math.hypot(nx, ny, nz) || 1;
+        restN[d] = nx / l; restN[d + 1] = ny / l; restN[d + 2] = nz / l;
+      }
+
+      // Merge coincident vertices (shared body edges spawn duplicates) so the
+      // smoothing flows across the whole garment, then Taubin-smooth so the
+      // fabric spans across fine anatomy like a real cup instead of tracing it.
+      const q = height * 0.003;
+      const repMap = new Map<string, number>();
+      const rep = new Int32Array(n);
+      for (let i = 0; i < n; i++) {
+        const d = i * 3;
+        const key = `${Math.round(restP[d] / q)}_${Math.round(restP[d + 1] / q)}_${Math.round(restP[d + 2] / q)}`;
+        const r = repMap.get(key);
+        if (r === undefined) { repMap.set(key, i); rep[i] = i; } else rep[i] = r;
+      }
+      const adj = new Map<number, Set<number>>();
+      const link = (u: number, v: number) => {
+        const ru = rep[u], rv = rep[v];
+        if (ru === rv) return;
+        let su = adj.get(ru); if (!su) { su = new Set(); adj.set(ru, su); } su.add(rv);
+        let sv = adj.get(rv); if (!sv) { sv = new Set(); adj.set(rv, sv); } sv.add(ru);
+      };
+      for (let t = 0; t < gIndex.length; t += 3) {
+        const x = gIndex[t], y = gIndex[t + 1], z = gIndex[t + 2];
+        link(x, y); link(y, z); link(z, x);
+      }
+
+      // Boundary (hem / neckline) vertices: an edge that borders only ONE
+      // garment triangle is an open edge, so both its endpoints sit on the cut
+      // line. Taubin smoothing distorts open boundaries (it drags them tangent-
+      // ially and shrinks them inward), which is what made the hems wave, the
+      // neckline tear and skin poke through where each garment starts/ends. We
+      // collect those vertices and PIN them, so the cut edges stay crisp and
+      // seated on the body while the interior still relaxes into a fabric shell.
+      const edgeUse = new Map<number, number>();
+      const ekey = (u: number, v: number) => (u < v ? u * n + v : v * n + u);
+      for (let t = 0; t < gIndex.length; t += 3) {
+        const x = rep[gIndex[t]], y = rep[gIndex[t + 1]], z = rep[gIndex[t + 2]];
+        if (x === y || y === z || z === x) continue; // degenerate after welding
+        for (const [u, v] of [[x, y], [y, z], [z, x]] as const) {
+          const k = ekey(u, v);
+          edgeUse.set(k, (edgeUse.get(k) ?? 0) + 1);
+        }
+      }
+      const pinned = new Set<number>();
+      for (let t = 0; t < gIndex.length; t += 3) {
+        const x = rep[gIndex[t]], y = rep[gIndex[t + 1]], z = rep[gIndex[t + 2]];
+        if (x === y || y === z || z === x) continue;
+        for (const [u, v] of [[x, y], [y, z], [z, x]] as const) {
+          if (edgeUse.get(ekey(u, v)) === 1) { pinned.add(u); pinned.add(v); }
+        }
+      }
+
+      const sp = restP.slice(), sn = restN.slice();
+      // `skipPinned` keeps boundary vertices fixed for the position passes (so
+      // hems don't creep); normals are smoothed everywhere so shading stays soft
+      // right up to the edge.
+      const relax = (buf: Float32Array, lambda: number, skipPinned: boolean) => {
+        const tmp = buf.slice();
+        adj.forEach((nb, r) => {
+          if (skipPinned && pinned.has(r)) return;
+          let sx = 0, sy = 0, sz = 0;
+          nb.forEach((m) => { sx += tmp[m * 3]; sy += tmp[m * 3 + 1]; sz += tmp[m * 3 + 2]; });
+          const inv = 1 / nb.size, d = r * 3;
+          buf[d] += lambda * (sx * inv - tmp[d]);
+          buf[d + 1] += lambda * (sy * inv - tmp[d + 1]);
+          buf[d + 2] += lambda * (sz * inv - tmp[d + 2]);
+        });
+      };
+      // Many Taubin passes so the fabric spans flat ACROSS the concave creases —
+      // the under-bust fold, the navel and the crotch cleft — instead of sinking
+      // into them and casting the tell-tale shadows. Taubin's λ / −μ pair (|μ|>λ)
+      // resists shrinkage, so the silhouette stays put while the fine anatomical
+      // detail melts away into a smooth fabric shell.
+      for (let it = 0; it < 44; it++) { relax(sp, 0.5, true); relax(sp, -0.53, true); relax(sn, 0.5, false); }
+
+      // Bake per-vertex displacement (smoothed − rest) and the smoothed normal.
+      // The fabric is held a fixed distance OUTSIDE the skin (a standoff), so the
+      // smoothed shell floats just off the body — flattening the bust/crotch
+      // detail that made it explicit, while never sinking in to clip.
+      // Both garments hug the body tightly (a second-skin athletic fit) so the
+      // clothing never inflates the silhouette. The depth ordering that stops the
+      // layers speckling each other in the waist overlap is handled entirely by
+      // per-layer polygonOffset below — NOT by floating them physically apart,
+      // which made the top read as if it were ballooning off the body.
+      // Second-skin athletic fit: compression layers hug the body, the top (ri 1)
+      // a hair prouder so it bridges the inter-breast cleft / under-bust / navel.
+      // A region may override this (e.g. loose gym shorts that hang off the legs).
+      const standoff = height * (reg.standoff ?? (0.004 + ri * 0.002));
+      const disp = new Float32Array(n * 3);
+      const bakedN = new Float32Array(n * 3);
+      for (let i = 0; i < n; i++) {
+        const r = rep[i] * 3, d = i * 3;
+        let nx = sn[r], ny = sn[r + 1], nz = sn[r + 2];
+        const nl = Math.hypot(nx, ny, nz) || 1; nx /= nl; ny /= nl; nz /= nl;
+        bakedN[d] = nx; bakedN[d + 1] = ny; bakedN[d + 2] = nz;
+        let dx = sp[r] - restP[d], dy = sp[r + 1] - restP[d + 1], dz = sp[r + 2] - restP[d + 2];
+        // Signed distance of the smoothed point from the skin along its normal;
+        // push out so it sits at least `standoff` proud of the body everywhere.
+        const s = dx * restN[d] + dy * restN[d + 1] + dz * restN[d + 2];
+        if (s < standoff) {
+          const add = standoff - s;
+          dx += add * restN[d]; dy += add * restN[d + 1]; dz += add * restN[d + 2];
+        }
+        disp[d] = dx; disp[d + 1] = dy; disp[d + 2] = dz;
+      }
+
+      const cPos = new Float32Array(n * 3);
+      const cNorm = bakedN; // smoothed, constant under the mild body deform
+      const cGeom = new THREE.BufferGeometry();
+      const cPosAttr = new THREE.BufferAttribute(cPos, 3);
+      const cNormAttr = new THREE.BufferAttribute(cNorm, 3);
+      cGeom.setAttribute('position', cPosAttr);
+      cGeom.setAttribute('normal', cNormAttr);
+      cGeom.setIndex(gIndex);
+
+      const mesh = new THREE.Mesh(
+        cGeom,
+        new THREE.MeshStandardMaterial({
+          color: reg.color,
+          roughness: reg.rough,
+          metalness: 0.0,
+          // Matte technical fabric: cut the studio-IBL reflection right down so the
+          // garment doesn't pick up the bright environment and read as "glowing".
+          envMapIntensity: 0.25,
+          side: THREE.DoubleSide, // garment shells read solid from any angle / hem
+          // Bias depth toward the camera so the skin can never z-fight through
+          // the fabric and speckle its colour. Each outer layer gets a deeper
+          // bias than the one beneath, making the order deterministic
+          // (skin < leggings < top) so the layers never speckle each other.
+          polygonOffset: true,
+          polygonOffsetFactor: -(1 + ri * 2),
+          polygonOffsetUnits: -(1 + ri * 2),
+        }),
+      );
+      mesh.castShadow = false; // the body already grounds a shadow; garments hug it
+      mesh.frustumCulled = false; // always on-screen with the body anyway
+      // Draw after the skin (>=1) to win co-planar z-fighting; later regions draw
+      // over earlier ones so the top sits cleanly over the leggings at the waist.
+      mesh.renderOrder = 1 + ri;
+      bodyMesh.add(mesh); // shares the body's transform so it scales/poses with it
+
+      // A whisper off the smoothed skin so the fabric clearly reads as a layer;
+      // polygonOffset still does the heavy lifting against z-fighting.
+      const eps = height * 0.001;
+      const update = () => {
+        const bp = posAttr.array as Float32Array;
+        for (let i = 0; i < n; i++) {
+          const ia = va[i] * 3, ib = vb[i] * 3, ic = vc[i] * 3;
+          const A = wa[i], B = wb[i], C = wc[i], d = i * 3;
+          const px = A * bp[ia] + B * bp[ib] + C * bp[ic];
+          const py = A * bp[ia + 1] + B * bp[ib + 1] + C * bp[ic + 1];
+          const pz = A * bp[ia + 2] + B * bp[ib + 2] + C * bp[ic + 2];
+          // body position + baked smoothing displacement + tiny outward standoff
+          cPos[d] = px + disp[d] + bakedN[d] * eps;
+          cPos[d + 1] = py + disp[d + 1] + bakedN[d + 1] * eps;
+          cPos[d + 2] = pz + disp[d + 2] + bakedN[d + 2] * eps;
+        }
+        cPosAttr.needsUpdate = true;
+      };
+      cNormAttr.needsUpdate = true; // smoothed normals are baked once
+      update(); // fit to the rest pose right away
+      this.clothingUpdaters.push(update);
+    }
   }
 
   // ── GLB model ────────────────────────────────────────────────────
@@ -584,6 +1047,11 @@ export class BodyModelComponent {
 
     this.morphMeshes = [];
     this.hasBodyMorphs = false;
+    // Body meshes that need clothing. We build garments AFTER the traverse, not
+    // during it: adding children mid-traverse makes THREE re-visit them, which
+    // would repaint the garments with the grey body material and re-register
+    // them as deform targets.
+    const toDress: { mesh: THREE.Mesh; geom: THREE.BufferGeometry; minY: number; height: number; cx: number; cz: number }[] = [];
     root.traverse((o) => {
       const mesh = o as THREE.Mesh;
       if (!mesh.isMesh) return;
@@ -611,29 +1079,19 @@ export class BodyModelComponent {
         const bb = geom.boundingBox!;
         const minY = bb.min.y;
         const height = Math.max(1e-3, bb.max.y - bb.min.y);
+        const cx = (bb.min.x + bb.max.x) / 2;
+        const cz = (bb.min.z + bb.max.z) / 2;
 
-        // Bake athletic wear via vertex colours so the model isn't nude — a band
-        // over the pelvis (shorts) and chest (top). It conforms to the mesh and
-        // deforms with it, so it never clips.
         const pos = geom.attributes['position'].array as Float32Array;
-        const colors = new Float32Array(pos.length);
-        const skin = [0.74, 0.76, 0.8];
-        const cloth = [0.15, 0.18, 0.25];
-        for (let i = 0; i < pos.length; i += 3) {
-          const h = (pos[i + 1] - minY) / height;
-          const dressed = (h > 0.42 && h < 0.55) || (h > 0.6 && h < 0.72);
-          const c = dressed ? cloth : skin;
-          colors[i] = c[0];
-          colors[i + 1] = c[1];
-          colors[i + 2] = c[2];
-        }
-        geom.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        // Neutral matte-grey studio clay, so the focus stays on the body's shape
+        // and progress rather than skin tone. (Clothing is separate geometry.)
         mesh.geometry = geom;
         old.dispose();
         mesh.material = new THREE.MeshStandardMaterial({
-          vertexColors: true,
-          roughness: 0.6,
+          color: 0x9aa0ab, // mid clay-grey: reads the body's form instead of blowing out
+          roughness: 0.72, // matte sculptural finish, no flattening gloss
           metalness: 0.0,
+          envMapIntensity: 0.6,
         });
 
         this.deformTargets.push({
@@ -642,9 +1100,10 @@ export class BodyModelComponent {
           restN: (geom.attributes['normal'].array as Float32Array).slice(),
           minY,
           height,
-          cx: (bb.min.x + bb.max.x) / 2,
-          cz: (bb.min.z + bb.max.z) / 2,
+          cx,
+          cz,
         });
+        toDress.push({ mesh, geom, minY, height, cx, cz });
       }
       if (mesh.morphTargetDictionary) {
         this.morphMeshes.push(mesh);
@@ -653,6 +1112,13 @@ export class BodyModelComponent {
         }
       }
     });
+
+    // Clothing temporarily disabled — show the bare model only (both genders).
+    // Re-enable by uncommenting this loop (buildClothing() is still defined).
+    // for (const d of toDress) {
+    //   this.buildClothing(d.mesh, d.geom, d.minY, d.height, d.cx, d.cz, this.lastGender === 'female');
+    // }
+    void toDress;
 
     this.usingGenericModel = generic;
     this.frameAndAdd(root);
@@ -888,6 +1354,7 @@ export class BodyModelComponent {
   private clearModel(): void {
     this.morphMeshes = [];
     this.deformTargets = [];
+    this.clothingUpdaters = [];
     this.fatSig = '';
     this.mixer?.stopAllAction();
     this.mixer = undefined;

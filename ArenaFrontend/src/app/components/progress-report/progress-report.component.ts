@@ -828,15 +828,36 @@ export class ProgressReportComponent {
     }
     // Target weight is persisted to the DB; the ring's start weight is derived
     // from the earliest progress log, so the goal survives reloads with no local storage.
-    this.profileTargetWeight.set(target);
-    this.member.updateProfile({ targetWeight: target }).subscribe({ next: () => {}, error: () => {} });
-    this.lockScroll(false);
-    this.showGoalForm.set(false);
+    const prev = this.profileTargetWeight();
+    this.profileTargetWeight.set(target); // optimistic
+    this.member.updateProfile({ targetWeight: target }).subscribe({
+      next: () => {
+        this.lockScroll(false);
+        this.showGoalForm.set(false);
+      },
+      error: (err) => {
+        // Revert and SURFACE the real reason instead of failing silently. The
+        // common cause is the backend rejecting profile updates (400) when the
+        // member has no active subscription — see ProfileService.UpdateProfileAsync.
+        this.profileTargetWeight.set(prev);
+        const e = err?.error;
+        const msg = Array.isArray(e) ? e.join(', ') : typeof e === 'string' ? e : e?.message ?? err?.message;
+        console.error('Goal save failed:', err?.status, e);
+        this.formError.set(msg || this.translate.instant('progressReport.errValidValues'));
+      },
+    });
   }
 
   clearGoal(): void {
-    this.profileTargetWeight.set(null);
-    this.member.updateProfile({ targetWeight: 0 }).subscribe({ next: () => {}, error: () => {} });
+    const prev = this.profileTargetWeight();
+    this.profileTargetWeight.set(null); // optimistic
+    this.member.updateProfile({ targetWeight: 0 }).subscribe({
+      next: () => {},
+      error: (err) => {
+        this.profileTargetWeight.set(prev);
+        console.error('Goal clear failed:', err?.status, err?.error);
+      },
+    });
   }
 
   private calcTrend(entries: ProgressLogDto[]): TrendResult {
