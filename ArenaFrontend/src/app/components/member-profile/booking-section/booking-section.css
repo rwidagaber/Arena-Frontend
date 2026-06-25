@@ -425,7 +425,8 @@
 
 /* Right side stats wrapper */
 .stats-wrapper {
-  width: 440px;
+  width: 580px;
+  max-width: 100%;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -435,7 +436,7 @@
 /* Stats Cards Grid Layout */
 .hero-stats-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 14px;
   width: 100%;
 }
