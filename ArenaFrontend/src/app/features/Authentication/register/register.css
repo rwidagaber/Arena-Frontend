@@ -375,13 +375,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 @media (max-width: 900px) {
   .auth-visual-side { display: none; }
 
-  /* ✅ الصورة تظهر صح على الموبايل */
+  /* ✅ الصورة تظهر صح على الموبايل والتابلت */
   :host::before {
     background-position: center center !important;
     background-size: cover !important;
   }
 
-  /* ✅ RTL على الموبايل — الصورة في المنتصف برضو */
+  /* ✅ RTL على الموبايل والتابلت — الصورة في المنتصف برضو */
   :host:has(.auth-card.rtl)::before {
     background-position: center center !important;
     transform: none !important;
@@ -389,12 +389,16 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
   .auth-card {
     max-width: 100%;
-    padding: 35px 24px !important;
+    padding: 50px 24px !important; /* تم زيادة الحشو العلوي لإعطاء مساحة تنفس للفورم */
     background: rgba(213, 235, 69, 0.05) !important;
     backdrop-filter: blur(20px) !important;
     -webkit-backdrop-filter: blur(20px) !important;
     border: none !important;
     margin: 0 !important;
+    
+    /* 🛠️ التعديل هنا: جعل العناصر تبدأ من الأعلى بدلاً من التوسط العمودي */
+    justify-content: flex-start !important; 
+    
     height: auto !important;
     min-height: 100vh !important;
     max-height: none !important;

@@ -426,11 +426,14 @@ max-width: 100%;
 height: auto !important;
 min-height: 100vh !important;
 max-height: none !important;
-padding: 40px 24px;
+padding: 55px 24px !important; /* زيادة الحشو ليعطي متسع للمكونات من الأعلى والأسفل */
 /* Glass على الموبايل برضو */
 background: rgba(213, 235, 69, 0.05) !important;
 backdrop-filter: blur(20px) !important;
 -webkit-backdrop-filter: blur(20px) !important;
+
+/* 🛠️ التعديل الجوهري: تبدأ الفورم من فوق بدلاً من التجمع بالوسط */
+justify-content: flex-start !important;
 }
 }
 
@@ -489,7 +492,7 @@ transform: scaleX(-1);
 }
 
 /* ==========================================================================
-   Top Controls — Theme & Language
+    Top Controls — Theme & Language
 ========================================================================== */
 .top-controls {
 display: flex;
