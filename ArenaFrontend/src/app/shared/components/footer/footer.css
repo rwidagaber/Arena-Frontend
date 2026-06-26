@@ -203,6 +203,23 @@
 }
 .footer-logo svg { display: block; }
 
+/* Brand logo image (replaces the old SVG mark + wordmark) */
+.footer-logo-img {
+  height: 128px;
+  width: auto;
+  display: block;
+  flex-shrink: 0;
+}
+
+/* Theme-swapped logo: neon mark on the dark footer, navy mark on the light footer.
+   The light mark gets the approved lift shadow + crisp green edge lining. */
+.footer-logo-img.logo-theme-light { display: none; }
+:host-context([data-theme="light"]) .footer-logo-img.logo-theme-dark { display: none; }
+:host-context([data-theme="light"]) .footer-logo-img.logo-theme-light {
+  display: block;
+  filter: drop-shadow(0 4px 10px rgba(12, 15, 23, 0.25));
+}
+
 .footer-brand-text {
   font-size: 1.5rem;
   font-weight: 800;

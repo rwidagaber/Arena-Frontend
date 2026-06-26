@@ -19,6 +19,7 @@
   --toggle-border:    rgba(255, 255, 255, 0.12);
   --toggle-color:     #ffffff; /* لون الهلال */
   --accent-text:      #C6EF2E; /* readable accent for hover/active text (dark) */
+  --header-pattern:   rgba(255, 255, 255, 0.015); /* subtle triangle texture (dark) */
 }
 
 :host-context([data-theme="light"]) {
@@ -36,6 +37,7 @@
   --toggle-border:    rgba(0, 0, 0, 0.12);
   --toggle-color:     #f8e807; /* لون الشمس */
   --accent-text:      #3f6307; /* darker green stays readable on light bg */
+  --header-pattern:   rgba(12, 15, 23, 0.045); /* same triangle texture, dark ink on the light header */
 }
 
 /* ==========================================================================
@@ -57,10 +59,10 @@
 .gympro-header-exact {
   background-color: var(--header-bg);
   background-image:
-    linear-gradient(135deg, rgba(255,255,255,0.015) 25%, transparent 25%),
-    linear-gradient(225deg, rgba(255,255,255,0.015) 25%, transparent 25%),
-    linear-gradient(45deg,  rgba(255,255,255,0.015) 25%, transparent 25%),
-    linear-gradient(315deg, rgba(255,255,255,0.015) 25%, transparent 25%);
+    linear-gradient(135deg, var(--header-pattern) 25%, transparent 25%),
+    linear-gradient(225deg, var(--header-pattern) 25%, transparent 25%),
+    linear-gradient(45deg,  var(--header-pattern) 25%, transparent 25%),
+    linear-gradient(315deg, var(--header-pattern) 25%, transparent 25%);
   background-position: 20px 0, 20px 0, 0 0, 0 0;
   background-size: 40px 40px;
   background-repeat: repeat;
@@ -135,6 +137,36 @@
   color: var(--nav-text);
   letter-spacing: -0.02em;
   transition: color 0.3s ease;
+}
+
+/* Brand logo image (replaces the old SVG mark + wordmark) */
+/* Circular "coin" badge behind the logo — dark fill + lime ring, so the neon
+   logo reads strongly on both the dark and light header. The negative margin
+   lets the coin be large without growing the header bar. */
+/* Logo sits directly in the header, coloured to match the theme so it blends in
+   rather than sitting on a badge: neon mark on the dark header, navy mark on the
+   light header. Negative margin keeps the bar height unchanged. */
+.brand-logo-img {
+  height: 96px;
+  width: auto;
+  display: block;
+  flex-shrink: 0;
+  margin-block: -12px;
+  transition: transform 0.3s ease;
+}
+.brand-v3-exact { cursor: pointer; }
+.brand-v3-exact:hover .brand-logo-img { transform: scale(1.03); }
+
+.brand-logo-img.logo-theme-light { display: none; }
+:host-context([data-theme="light"]) .brand-logo-img.logo-theme-dark { display: none; }
+/* Light header: make the navy mark stand out — a touch larger than the dark
+   mark, lifted with a stronger shape-following shadow, and haloed by a soft
+   brand-green glow. Margin compensates so the header bar height is unchanged. */
+:host-context([data-theme="light"]) .brand-logo-img.logo-theme-light {
+  display: block;
+  height: 104px;
+  margin-block: -16px;
+  filter: drop-shadow(0 4px 10px rgba(12, 15, 23, 0.25));
 }
 
 .dot-lime { color: #C6EF2E; }
