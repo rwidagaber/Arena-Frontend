@@ -45,8 +45,15 @@ export class DashboardSidebar {
     { key: 'settings',   icon: 'settings',   label: 'sidebar.settings' },
   ];
 
-  select(section: DashboardSection): void {
+  select(section: DashboardSection, event?: MouseEvent): void {
     this.sectionChange.emit(section);
+    // On the desktop hover-drawer, a mouse click leaves focus on the button,
+    // which keeps :focus-within (and the drawer) open until you click away.
+    // Release focus for pointer activation so it closes on mouse-leave; keep
+    // focus for keyboard activation (event.detail === 0) for accessibility.
+    if (event && event.detail !== 0) {
+      (event.currentTarget as HTMLElement | null)?.blur();
+    }
   }
 
   logout(): void {

@@ -10,7 +10,6 @@ import { switchMap } from 'rxjs/operators';
 import type { GetProfileDto, UserSubscriptionDto } from '../../core/models/auth';
 import type { MemberProfile as MemberProfileModel, UpdateProfileDto, WorkoutSession } from '../../core/models/member';
 import { DashboardSidebar, DashboardSection } from './dashboard-sidebar/dashboard-sidebar';
-import { RecentWorkouts } from './recent-workouts/recent-workouts';
 import { MembershipSection } from './membership-section/membership-section';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { QrDisplayComponent } from '../../features/QR/qr-display.component/qr-display.component';
@@ -56,7 +55,6 @@ function mapAuthToProfile(dto: GetProfileDto): MemberProfileModel {
   imports: [
     CommonModule,
     DashboardSidebar,
-    RecentWorkouts,
     MembershipSection,
     TranslateModule,
     QrDisplayComponent,
@@ -149,6 +147,27 @@ export class MemberProfile implements OnInit {
   });
 
   hasMainLifts = computed(() => this.mainLifts().length > 0);
+
+  /** Today's suggested session from the active plan. The plan's days aren't
+      bound to calendar weekdays, so we rotate through them by day-of-week to
+      give a stable "today" suggestion. Returns null when there's no plan. */
+  todaysWorkout = computed(() => {
+    const plan = this.workoutPlan();
+    if (!plan?.days?.length) return null;
+    const day = plan.days[new Date().getDay() % plan.days.length];
+    const exercises = day.exercises ?? [];
+    const muscles = [...new Set(
+      exercises.map(e => (e.muscleGroup ?? e.exercise?.muscleGroup ?? '').trim()).filter(Boolean)
+    )].slice(0, 3);
+    const preview = exercises
+      .map(e => (e.exercise?.name ?? e.name ?? '').trim())
+      .filter(Boolean)
+      .slice(0, 3);
+    return { dayName: day.dayName, count: exercises.length, muscles, preview };
+  });
+
+  /** True when the member has already checked in today. */
+  trainedToday = computed(() => this.daysSinceLastWorkout() === 0);
 
   private readonly quoteCount = 18;
 
@@ -719,6 +738,23 @@ export class MemberProfile implements OnInit {
       first.focus();
     }
   }
+
+  /** Progress toward the target weight as a 0–100% bar. Uses the first logged
+      weight as the starting point; falls back to current weight when there are
+      no logs yet (0% until the member makes progress). */
+  goalProgress = computed<{ percent: number; current: number; target: number } | null>(() => {
+    const current = this.profile()?.weight;
+    const target = this.profile()?.targetWeight;
+    if (current == null || target == null) return null;
+    const data = this.weightLogData();
+    const start = data.length ? data[0].weight : current;
+    const total = Math.abs(start - target);
+    const remaining = Math.abs(current - target);
+    const percent = total <= 0
+      ? (remaining < 0.5 ? 100 : 0)
+      : Math.max(0, Math.min(100, Math.round((1 - remaining / total) * 100)));
+    return { percent, current, target };
+  });
 
   goalDelta = computed(() => {
     const w = this.profile()?.weight;

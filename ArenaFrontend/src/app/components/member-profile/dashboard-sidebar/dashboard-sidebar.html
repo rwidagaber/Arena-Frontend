@@ -1,3 +1,9 @@
+<!-- Keyboard/screen-reader entry point for the desktop hover-drawer. It lives
+     OUTSIDE the visibility:hidden panel so it stays in the tab order; focusing
+     it triggers :host(:focus-within), which slides the nav in with the same
+     transition. Visually hidden until focused, so the mouse design is unchanged. -->
+<button type="button" class="kbd-nav-trigger">{{ 'sidebar.openNav' | translate }}</button>
+
 @if (isMobileOpen()) {
   <div class="sidebar-backdrop" (click)="closeMobile.emit()"></div>
 }
@@ -26,7 +32,7 @@
       <button
         class="sidebar-item"
         [class.active]="activeSection() === item.key"
-        (click)="select(item.key)"
+        (click)="select(item.key, $event)"
       >
         <span class="sidebar-icon">
           @switch (item.icon) {
@@ -182,7 +188,7 @@
   </nav>
 
   <div class="sidebar-plan-cta">
-    <button class="btn-renew" (click)="select('membership')">
+    <button class="btn-renew" (click)="select('membership', $event)">
       {{ 'sidebar.getPlanDetails' | translate }}
     </button>
   </div>
