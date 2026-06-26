@@ -111,6 +111,16 @@
   color: #ffffff;
 }
 
+.sidebar-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  color: #1a1a1a;
+}
+
+[data-theme="dark"] .sidebar-item:focus-visible {
+  color: #ffffff;
+}
+
 .sidebar-item.active {
   background: var(--accent-soft);
   color: #1a1a1a;
@@ -365,7 +375,8 @@
     z-index: 1000;
   }
 
-  :host(:hover) { width: 240px; }
+  :host(:hover),
+  :host(:focus-within) { width: 240px; }
 
   .dash-sidebar {
     position: fixed;
@@ -381,7 +392,12 @@
     transition: transform 0.34s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.34s ease, visibility 0s linear 0.34s;
   }
 
-  :host(:hover) .dash-sidebar {
+  /* Reveal on hover (mouse) or focus-within (keyboard, via the sr-only
+     .kbd-nav-trigger that lives outside this hidden panel). Same transition
+     values as before — this only ADDS the keyboard trigger, it does not change
+     the transition or the design. */
+  :host(:hover) .dash-sidebar,
+  :host(:focus-within) .dash-sidebar {
     transform: translateX(0);
     visibility: visible;
     box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
@@ -496,5 +512,52 @@
   :host-context([data-theme="dark"]) .dash-sidebar {
     border-top-color: rgba(255,255,255,0.08);
     box-shadow: 0 -4px 16px rgba(0,0,0,0.4);
+  }
+}
+
+/* ══════════════════════════════════════════════
+   KEYBOARD NAV TRIGGER
+   Only meaningful on the desktop hover-drawer (where the panel is hidden).
+   Visually clipped until it receives keyboard focus, at which point it shows
+   as a small chip AND triggers :host(:focus-within) to slide the nav in.
+   Hidden entirely on mobile, where the nav is always reachable.
+   ══════════════════════════════════════════════ */
+.kbd-nav-trigger { display: none; }
+
+@media (hover: hover) and (min-width: 769px) {
+  .kbd-nav-trigger {
+    display: block;
+    position: fixed;
+    top: calc(var(--header-h, 80px) + 8px);
+    inset-inline-start: 8px;
+    z-index: 1001;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+    background: var(--accent);
+    color: #10131B;
+    font-family: 'inter', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  /* Reveal the chip for sighted keyboard users when it is focused. */
+  .kbd-nav-trigger:focus-visible {
+    width: auto;
+    height: auto;
+    clip: auto;
+    clip-path: none;
+    padding: 9px 14px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    outline: 2px solid #10131B;
+    outline-offset: 2px;
   }
 }

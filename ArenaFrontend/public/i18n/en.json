@@ -318,7 +318,8 @@
     "settings": "Settings",
     "logout": "Logout",
     "chatbot": "ChatBot",
-    "getPlanDetails": "Get Plan Details"
+    "getPlanDetails": "Get Plan Details",
+    "openNav": "Open navigation menu"
   },
   "section": {
     "workoutPlaceholder": "Your personalized workout plan will appear here.",
