@@ -152,7 +152,13 @@
   display: block;
   flex-shrink: 0;
   margin-block: -12px;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, height 0.35s cubic-bezier(0.16, 1, 0.3, 1), margin-block 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Premium sticky shrink — the logo eases smaller as the bar condenses. */
+.gympro-header-exact.is-sticky .brand-logo-img { height: 76px; margin-block: -8px; }
+:host-context([data-theme="light"]) .gympro-header-exact.is-sticky .brand-logo-img.logo-theme-light {
+  height: 82px; margin-block: -10px;
 }
 .brand-v3-exact { cursor: pointer; }
 .brand-v3-exact:hover .brand-logo-img { transform: scale(1.03); }
@@ -174,18 +180,29 @@
 /* ==========================================================================
    Nav
    ========================================================================== */
-.nav-links-exact { gap: 2.5rem; }
+.nav-links-exact { gap: 0.4rem; }
 
 .nav-item-exact {
   color: var(--nav-text);
   font-weight: 700; font-size: 0.95rem;
   text-decoration: none;
-  transition: color 0.2s ease;
+  padding: 0.5rem 0.95rem;
+  border-radius: 50px;
+  transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
   background: transparent; border: none;
 }
 
-.nav-item-exact:hover { color: var(--accent-text); }
-.text-lime-active { color: var(--accent-text) !important; }
+/* Soft lime pill on hover / active. */
+.nav-item-exact:hover {
+  color: var(--accent-text);
+  background: color-mix(in srgb, #C6EF2E 9%, transparent);
+}
+.text-lime-active,
+.nav-item-exact.text-lime-active {
+  color: var(--accent-text) !important;
+  background: color-mix(in srgb, #C6EF2E 13%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #C6EF2E 28%, transparent);
+}
 
 /* ==========================================================================
    Theme Toggle — زر بسيط بـ SVG
@@ -527,26 +544,7 @@
   box-shadow: 0 0 30px rgba(198, 239, 46, 0.4);
 }
 
-/* Animated underline for desktop nav links */
 .nav-item-exact { position: relative; }
-.nav-item-exact::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: -7px;
-  width: 100%;
-  height: 2px;
-  border-radius: 2px;
-  background: linear-gradient(90deg, #aed81f, #C6EF2E);
-  transform: scaleX(0);
-  transform-origin: right;
-  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.nav-item-exact:hover::after,
-.nav-item-exact.text-lime-active::after {
-  transform: scaleX(1);
-  transform-origin: left;
-}
 
 /* Reading / scroll progress bar */
 .scroll-progress {
@@ -672,4 +670,106 @@
   .max-header-width { min-width: 0; }
   .brand-v3-exact { min-width: 0; flex-shrink: 1; }
   .brand-text-exact { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+
+/* ==========================================================================
+   ELEVATION v2 — accent hairline, sticky glow, living brand mark
+   (bookends the footer's top accent line for page-wide cohesion)
+   ========================================================================== */
+
+/* Lime gradient hairline along the header's bottom edge. */
+.gympro-header-exact::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, #C6EF2E 35%, #aed81f 65%, transparent);
+  opacity: 0.45;
+  z-index: 2;
+  pointer-events: none;
+  transition: opacity 0.35s ease, box-shadow 0.35s ease;
+}
+/* Brighter, with a soft glow, once the header sticks. */
+.gympro-header-exact.is-sticky::after {
+  opacity: 0.9;
+  box-shadow: 0 0 14px rgba(198, 239, 46, 0.5);
+}
+/* A touch deeper shadow on the sticky glass for a crisper condense. */
+.gympro-header-exact.is-sticky {
+  box-shadow: 0 6px 34px rgba(0, 0, 0, 0.22);
+}
+:host-context([data-theme="light"]) .gympro-header-exact.is-sticky {
+  box-shadow: 0 6px 30px rgba(12, 15, 23, 0.08);
+}
+
+/* Living brand mark — a soft lime halo that breathes behind the logo. */
+.brand-v3-exact { position: relative; }
+.brand-v3-exact::before {
+  content: '';
+  position: absolute;
+  inset: -6px -10px;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 50%, rgba(198, 239, 46, 0.22), transparent 65%);
+  opacity: 0.2;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .brand-v3-exact::before { animation: brand-pulse 4.5s ease-in-out infinite; }
+}
+@keyframes brand-pulse {
+  0%, 100% { opacity: 0.16; transform: scale(0.95); }
+  50%      { opacity: 0.5;  transform: scale(1.05); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gympro-header-exact::after { transition: none; }
+}
+
+/* ==========================================================================
+   ELEVATION v2 — light-theme refinements
+   Keep the brand greens (#C6EF2E / #aed81f) on white; just lean on the darker
+   brand shade and a little more opacity so they don't wash out.
+   ========================================================================== */
+:host-context([data-theme="light"]) {
+  --header-accent:      #aed81f; /* darker brand lime */
+  --header-accent-soft: #C6EF2E; /* primary brand lime */
+}
+
+/* Hairline: saturated green, more present on white. */
+:host-context([data-theme="light"]) .gympro-header-exact::after {
+  background: linear-gradient(90deg, transparent,
+    var(--header-accent-soft) 32%, var(--header-accent) 50%, var(--header-accent-soft) 68%, transparent);
+  opacity: 0.6;
+}
+:host-context([data-theme="light"]) .gympro-header-exact.is-sticky::after {
+  opacity: 0.9;
+  box-shadow: 0 0 12px rgba(174, 216, 31, 0.45);
+}
+
+/* A faint shadow so the white bar lifts off the white page even before sticking. */
+:host-context([data-theme="light"]) .gympro-header-exact {
+  box-shadow: 0 1px 0 rgba(12, 15, 23, 0.04), 0 8px 22px rgba(12, 15, 23, 0.05);
+}
+
+/* Cleaner, cooler halo behind the logo (avoids the yellow smudge on white). */
+:host-context([data-theme="light"]) .brand-v3-exact::before {
+  background: radial-gradient(circle at 32% 50%, rgba(174, 216, 31, 0.18), transparent 62%);
+}
+@media (prefers-reduced-motion: no-preference) {
+  :host-context([data-theme="light"]) .brand-v3-exact::before { animation-name: brand-pulse-light; }
+}
+@keyframes brand-pulse-light {
+  0%, 100% { opacity: 0.1; transform: scale(0.96); }
+  50%      { opacity: 0.32; transform: scale(1.04); }
+}
+
+/* Stronger, deeper-green nav pills on white. */
+:host-context([data-theme="light"]) .nav-item-exact:hover {
+  background: color-mix(in srgb, var(--header-accent-soft) 18%, transparent);
+}
+:host-context([data-theme="light"]) .text-lime-active,
+:host-context([data-theme="light"]) .nav-item-exact.text-lime-active {
+  background: color-mix(in srgb, var(--header-accent-soft) 22%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--header-accent) 45%, transparent);
 }

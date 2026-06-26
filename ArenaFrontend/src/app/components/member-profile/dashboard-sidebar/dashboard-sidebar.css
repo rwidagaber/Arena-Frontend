@@ -90,6 +90,10 @@
   gap: 6px;
   padding: 18px 12px;
   flex: 1;
+  /* Let the nav scroll instead of clipping the bottom items when the viewport
+     is short. min-height:0 is required so this flex child can shrink. */
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .sidebar-item {
