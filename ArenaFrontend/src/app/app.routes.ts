@@ -17,6 +17,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/home/home').then(m => m.Home),
     pathMatch: 'full'
   },
+  {
+    path: 'plans',
+    loadComponent: () => import('./features/pricing/pricing.component').then(m => m.PricingComponent)
+  },
 
   // ─── Authentication (guests only) ───
   {

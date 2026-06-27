@@ -25,7 +25,11 @@
     "account": "الحساب",
     "accountSettings": "إعدادات الحساب",
     "subscriptionBilling": "الاشتراك والفوترة",
-    "help": "المساعدة والدعم"
+    "help": "المساعدة والدعم",
+    "theme": "المظهر",
+    "language": "اللغة",
+    "lightMode": "فاتح",
+    "darkMode": "داكن"
   },
   "mealAnalysis": {
     "kicker": "تغذية بالذكاء الاصطناعي",
