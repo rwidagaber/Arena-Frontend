@@ -7,17 +7,22 @@ import { AuthService } from '../../core/services/auth';
 import { MemberService } from '../../core/services/member.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { ThemeService } from '../../core/services/themeservice';
+import { NotificationBellComponent } from "../../features/notifications/notification-bell/notification-bell";
+import { NotificationToastComponent } from "../../features/notifications/notification-toast/notification-toast";
+import { WebPushService } from '../../core/services/web-push.service';
+import { AvatarCropperComponent } from '../../components/member-profile/dashboard-sidebar/avatar-cropper';
 
 export type DropdownSection = 'profile' | 'workout' | 'diet' | 'membership' | 'progress' | 'settings';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, TranslateModule],
+  imports: [CommonModule, RouterLink, RouterLinkActive, TranslateModule, NotificationBellComponent, NotificationToastComponent, AvatarCropperComponent],
   templateUrl: './header.html',
   styleUrls: ['./header.css']
 })
 export class HeaderComponent implements OnInit, OnDestroy {
+  private readonly webPush = inject(WebPushService);
   protected readonly router = inject(Router);
   protected readonly t = inject(TranslationService);
   public    readonly auth = inject(AuthService);
@@ -53,24 +58,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
   protected readonly displayName = signal('');
   protected readonly profileImage = signal<string | null>(null);
 
+  /** Full name for the account dropdown, with a graceful fallback. */
+  protected memberName(u: { firstName?: string | null; lastName?: string | null } | null): string {
+    return [u?.firstName, u?.lastName].filter(Boolean).join(' ').trim() || 'Member';
+  }
+
   protected dropdownOpen = false;
    @Input() activeTab: string = 'home';
 
   protected readonly currentUser$ = this.auth.currentUser$;
   protected readonly isSubscribed = signal(false);
 
-  protected readonly dropdownItems = [
-    { key: 'profile' as const,    label: 'sidebar.dashboard' },
-    { key: 'workout' as const,    label: 'sidebar.myWorkouts' },
-    { key: 'diet' as const,       label: 'sidebar.myDietPlan' },
-    { key: 'membership' as const, label: 'sidebar.membershipBilling' },
-    { key: 'progress' as const,   label: 'sidebar.progressReport' },
-    { key: 'settings' as const,   label: 'sidebar.settings' },
-  ];
-
-  protected isItemDisabled(_item: typeof this.dropdownItems[number]): boolean {
-    return !this.isSubscribed();
-  }
 
   ngOnInit(): void {
     this.userSub = this.auth.currentUser$.subscribe(u => {
@@ -80,6 +78,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       // Only set when present so a /me payload without the image doesn't clobber it.
       const img = u.profileImage ?? u.profileImageUrl ?? null;
       if (img) this.profileImage.set(img);
+       this.webPush.requestPermissionAndSubscribe();
     });
 
     // /me omits the profile image; pull it from /profile so the avatar reflects the DB.
@@ -129,15 +128,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.router.navigate(['/dashboard'], { queryParams: { section } });
   }
 
-  goToSubscription(event: Event): void {
+  goToHelp(event: Event): void {
     event.stopPropagation();
     this.dropdownOpen = false;
-    this.router.navigate(['/checkout']);
+    this.router.navigate(['/contact']);
   }
 
   logout(event: Event): void {
     event.stopPropagation();
     this.dropdownOpen = false;
+       this.webPush.unsubscribe();
     this.auth.logout().subscribe({
       next: () => this.router.navigate(['/']),
       error: () => this.router.navigate(['/']),
@@ -150,22 +150,30 @@ export class HeaderComponent implements OnInit, OnDestroy {
 }
 
   /* ── Profile image upload (from the header avatar) ──────────────── */
+  /** Source image being cropped; non-null opens the shared cropper modal. */
+  protected readonly cropSrc = signal<string | null>(null);
+
   onAvatarSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     input.value = '';
     if (!file || !file.type.startsWith('image/')) return;
-    if (file.size > 2 * 1024 * 1024) return; // 2 MB cap
+    if (file.size > 8 * 1024 * 1024) return; // 8 MB before cropping
     const reader = new FileReader();
-    reader.onload = () => {
-      const dataUrl = reader.result as string;
-      // Optimistic: update both the trigger avatar and the dropdown (cached user)
-      // immediately, regardless of whether the server save succeeds.
-      this.profileImage.set(dataUrl);
-      this.auth.patchCurrentUser({ profileImage: dataUrl });
-      this.persistAvatar(dataUrl);
-    };
+    reader.onload = () => this.cropSrc.set(reader.result as string);
     reader.readAsDataURL(file);
+  }
+
+  /** Cropper produced a square image → optimistic update + persist. */
+  protected onAvatarCropped(dataUrl: string): void {
+    this.cropSrc.set(null);
+    this.profileImage.set(dataUrl);
+    this.auth.patchCurrentUser({ profileImage: dataUrl });
+    this.persistAvatar(dataUrl);
+  }
+
+  protected onAvatarCropCancel(): void {
+    this.cropSrc.set(null);
   }
 
   /** Re-send the existing profile with the new image so no other field is lost. */

@@ -1,5 +1,12 @@
-import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
-import { catchError, throwError } from 'rxjs';
+import {
+  HttpInterceptorFn, HttpErrorResponse
+} from '@angular/common/http';
+import { inject } from '@angular/core';
+import { catchError, throwError, switchMap, BehaviorSubject, filter, take } from 'rxjs';
+import { AuthService } from '../../services/auth'; // غير المسار لو مختلف
+
+let isRefreshing = false;
+const refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
 // ✅ رسائل واضحة لكل status code
 const STATUS_MESSAGES: Record<number, string> = {
@@ -19,20 +26,71 @@ const isTechnical = (msg: string): boolean => {
   const technicalPatterns = [
     /at\s+\w+\s*\(/,           // stack trace
     /Exception/,                // C# exceptions
-    /System\./,                 // .NET namespaces  
+    /System\./,                 // .NET namespaces
     /Microsoft\./,              // ASP.NET
     /Object reference/,         // null ref
     /Http failure response/,    // Angular HTTP wrapper
-    /\w+:\d+:\d+/,             // file:line:col
+    /\w+:\d+:\d+/,              // file:line:col
     /localhost/,                // dev URLs
   ];
   return technicalPatterns.some(p => p.test(msg));
 };
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
+  const authService = inject(AuthService);
+
   return next(req).pipe(
     catchError((err) => {
 
+      // ── Refresh Token Logic ───────────────────────────────────────────────
+      if (err instanceof HttpErrorResponse && err.status === 401) {
+
+        // لو الـ request نفسه هو refresh أو login → متعملش refresh تاني
+        if (req.url.includes('/auth/refresh') || req.url.includes('/auth/login')) {
+          isRefreshing = false;
+          authService.clearSession();
+          return throwError(() => new Error('Session expired. Please login again.'));
+        }
+
+        if (!isRefreshing) {
+          isRefreshing = true;
+          refreshTokenSubject.next(null);
+
+          return authService.refresh().pipe(
+            switchMap((tokens) => {
+              isRefreshing = false;
+              refreshTokenSubject.next(tokens.accessToken);
+
+              // أعد الـ request الأصلي بالتوكن الجديد
+              const retryReq = req.clone({
+                setHeaders: { Authorization: `Bearer ${tokens.accessToken}` }
+              });
+              return next(retryReq);
+            }),
+            catchError((refreshErr) => {
+              isRefreshing = false;
+              refreshTokenSubject.next(null);
+              authService.clearSession();
+              return throwError(() => new Error('Session expired. Please login again.'));
+            })
+          );
+
+        } else {
+          // لو في refresh جاري، استنى التوكن الجديد وبعدين أعد الـ request
+          return refreshTokenSubject.pipe(
+            filter(token => token !== null),
+            take(1),
+            switchMap(token => {
+              const retryReq = req.clone({
+                setHeaders: { Authorization: `Bearer ${token!}` }
+              });
+              return next(retryReq);
+            })
+          );
+        }
+      }
+
+      // ── Normal Error Handling ─────────────────────────────────────────────
       if (!(err instanceof HttpErrorResponse)) {
         if (err instanceof Error) {
           const msg = isTechnical(err.message)
@@ -50,7 +108,9 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         const errorBody = err.error;
         let bodyMsg = '';
 
-        if (typeof errorBody === 'string') {
+        if (Array.isArray(errorBody)) {
+          bodyMsg = errorBody.join(', ');
+        } else if (typeof errorBody === 'string') {
           bodyMsg = errorBody;
         } else if (errorBody.message) {
           bodyMsg = Array.isArray(errorBody.message)

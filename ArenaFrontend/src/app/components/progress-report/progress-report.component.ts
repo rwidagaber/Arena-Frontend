@@ -6,6 +6,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ProgressReportService, type ProgressLogDto, type ProgressSummaryDto, type CreateProgressLogDto, type AttendanceRecord } from '../../core/services/progress-report.service';
 import { MemberService } from '../../core/services/member.service';
 import { RevealDirective } from './reveal.directive';
+import { BodyModelComponent } from '../body-model/body-model.component';
 
 type LoadState<T> =
   | { $state: 'loading' }
@@ -122,7 +123,7 @@ const ACHIEVEMENT_DEFS: AchievementCheck[] = [
   selector: 'app-progress-report',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, TranslateModule, RevealDirective],
+  imports: [CommonModule, TranslateModule, RevealDirective, BodyModelComponent],
   templateUrl: './progress-report.component.html',
   styleUrl: './progress-report.component.scss',
 })
@@ -198,6 +199,20 @@ export class ProgressReportComponent {
   protected bodyFatChange = computed(() => this.summary?.bodyFatChange ?? null);
   protected muscleMassChange = computed(() => this.summary?.muscleMassChange ?? null);
   protected totalLogs = computed(() => this.logs.length);
+
+  // ── 3D body model inputs ──
+  /** Profile snapshot for gender/height that drive the 3D body. */
+  protected bodyProfile = toSignal(this.profile$, { initialValue: null });
+  protected bodyGender = computed(() => this.bodyProfile()?.gender ?? null);
+  protected bodyHeight = computed<number | null>(() => {
+    const h = this.bodyProfile()?.height;
+    return h != null ? Number(h) : null;
+  });
+  protected bodyLogs = computed(() => this.summary?.logs ?? []);
+  protected bodyTargetWeight = computed<number | null>(() => {
+    const t = this.bodyProfile()?.targetWeight;
+    return t != null ? Number(t) : null;
+  });
 
   protected daysSinceFirstLog = computed(() => {
     const entries = this.logs;
@@ -813,15 +828,36 @@ export class ProgressReportComponent {
     }
     // Target weight is persisted to the DB; the ring's start weight is derived
     // from the earliest progress log, so the goal survives reloads with no local storage.
-    this.profileTargetWeight.set(target);
-    this.member.updateProfile({ targetWeight: target }).subscribe({ next: () => {}, error: () => {} });
-    this.lockScroll(false);
-    this.showGoalForm.set(false);
+    const prev = this.profileTargetWeight();
+    this.profileTargetWeight.set(target); // optimistic
+    this.member.updateProfile({ targetWeight: target }).subscribe({
+      next: () => {
+        this.lockScroll(false);
+        this.showGoalForm.set(false);
+      },
+      error: (err) => {
+        // Revert and SURFACE the real reason instead of failing silently. The
+        // common cause is the backend rejecting profile updates (400) when the
+        // member has no active subscription — see ProfileService.UpdateProfileAsync.
+        this.profileTargetWeight.set(prev);
+        const e = err?.error;
+        const msg = Array.isArray(e) ? e.join(', ') : typeof e === 'string' ? e : e?.message ?? err?.message;
+        console.error('Goal save failed:', err?.status, e);
+        this.formError.set(msg || this.translate.instant('progressReport.errValidValues'));
+      },
+    });
   }
 
   clearGoal(): void {
-    this.profileTargetWeight.set(null);
-    this.member.updateProfile({ targetWeight: 0 }).subscribe({ next: () => {}, error: () => {} });
+    const prev = this.profileTargetWeight();
+    this.profileTargetWeight.set(null); // optimistic
+    this.member.updateProfile({ targetWeight: 0 }).subscribe({
+      next: () => {},
+      error: (err) => {
+        this.profileTargetWeight.set(prev);
+        console.error('Goal clear failed:', err?.status, err?.error);
+      },
+    });
   }
 
   private calcTrend(entries: ProgressLogDto[]): TrendResult {

@@ -1,0 +1,340 @@
+.bm-card {
+  background: var(--card-bg, #12151c);
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.08));
+  border-radius: 18px;
+  padding: 1.25rem 1.25rem 1.5rem;
+  margin-block: 1.5rem;
+  color: var(--text, #e8ecf4);
+}
+
+.bm-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.bm-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.bm-title-icon {
+  color: var(--accent, #5b8cff);
+}
+
+.bm-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(91, 140, 255, 0.14);
+  color: var(--accent, #5b8cff);
+  cursor: help;
+}
+
+.bm-sub {
+  margin: 0.35rem 0 1rem;
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+/* ── Body-type selector ── */
+.bm-shapes {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.bm-shapes-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.55;
+}
+
+.bm-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.bm-chip {
+  padding: 0.32rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.09);
+  }
+
+  &.active {
+    background: rgba(91, 140, 255, 0.18);
+    border-color: rgba(91, 140, 255, 0.6);
+    color: #cdd9ff;
+  }
+}
+
+/* ── Two-column: left menu + 3D stage ── */
+.bm-body {
+  display: flex;
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.bm-menu {
+  flex: 0 0 190px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.bm-menu-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.55;
+  margin-bottom: 0.55rem;
+}
+
+.bm-menu-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 440px;
+  overflow-y: auto;
+  padding-inline-end: 0.25rem;
+}
+
+.bm-menu-item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-align: start;
+  padding: 0.55rem 0.65rem;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.035);
+  color: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.07);
+  }
+
+  &.active {
+    background: rgba(91, 140, 255, 0.16);
+    border-color: rgba(91, 140, 255, 0.55);
+  }
+}
+
+.bm-item-main {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.bm-item-date {
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.bm-item-weight {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--accent, #5b8cff);
+  white-space: nowrap;
+}
+
+.bm-item-bmi {
+  font-size: 0.68rem;
+  opacity: 0.55;
+}
+
+.bm-menu-goal {
+  border-style: dashed;
+  border-color: rgba(240, 180, 60, 0.4);
+
+  .bm-item-weight {
+    color: #f0b43c;
+  }
+
+  &.active {
+    background: rgba(240, 180, 60, 0.16);
+    border-color: rgba(240, 180, 60, 0.7);
+    border-style: solid;
+  }
+}
+
+/* ── 3D stage ── */
+.bm-stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 80% at 50% 0%, rgba(91, 140, 255, 0.16), transparent 60%),
+    linear-gradient(180deg, #161b25 0%, #0d1017 100%);
+}
+
+.bm-canvas {
+  width: 100%;
+  height: 440px;
+  touch-action: none;
+
+  canvas {
+    display: block;
+    outline: none;
+  }
+}
+
+.bm-hint {
+  position: absolute;
+  bottom: 0.6rem;
+  inset-inline-end: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.bm-tag {
+  position: absolute;
+  top: 0.6rem;
+  inset-inline-start: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
+}
+
+.bm-tag-goal {
+  color: #f0b43c;
+  background: rgba(240, 180, 60, 0.18);
+}
+
+.bm-empty,
+.bm-fallback {
+  font-size: 0.85rem;
+  opacity: 0.65;
+}
+
+.bm-empty {
+  padding: 0.5rem 0.25rem;
+}
+
+.bm-fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 2.5rem 1rem;
+  text-align: center;
+
+  i {
+    font-size: 1.6rem;
+    color: #e0a23c;
+  }
+}
+
+/* ── Light theme ──────────────────────────────────────────────────────
+   The page supplies --card-bg / --card-border for light, but this model also
+   relies on an undefined `--text` var (→ falls back to light text, invisible
+   on the now-white card) and hardcoded white overlays on the chips/menu. Adapt
+   those to dark-on-light so everything stays legible. The 3D stage is left as
+   a deliberate dark "viewport" since the model's lighting is tuned for it. */
+:host-context([data-theme="light"]) {
+  .bm-card { color: var(--text-primary, #272727); }
+
+  .bm-chip {
+    border-color: rgba(39, 39, 39, 0.14);
+    background: rgba(39, 39, 39, 0.04);
+
+    &:hover { background: rgba(39, 39, 39, 0.08); }
+
+    &.active {
+      background: rgba(91, 140, 255, 0.14);
+      border-color: rgba(91, 140, 255, 0.55);
+      color: #2c4a99;
+    }
+  }
+
+  .bm-menu-item {
+    background: rgba(39, 39, 39, 0.04);
+
+    &:hover { background: rgba(39, 39, 39, 0.08); }
+
+    &.active {
+      background: rgba(91, 140, 255, 0.12);
+      border-color: rgba(91, 140, 255, 0.5);
+    }
+  }
+
+  .bm-menu-goal {
+    border-color: rgba(202, 138, 4, 0.45);
+
+    .bm-item-weight { color: #b8860b; }
+
+    &.active {
+      background: rgba(240, 180, 60, 0.18);
+      border-color: rgba(202, 138, 4, 0.7);
+    }
+  }
+}
+
+/* ── Mobile: stack menu above the stage ── */
+@media (max-width: 640px) {
+  .bm-body {
+    flex-direction: column;
+  }
+
+  .bm-menu {
+    flex-basis: auto;
+  }
+
+  .bm-menu-list {
+    flex-direction: row;
+    max-height: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 0.35rem;
+  }
+
+  .bm-menu-item {
+    flex: 0 0 auto;
+    min-width: 130px;
+  }
+}

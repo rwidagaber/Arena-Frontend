@@ -30,7 +30,7 @@
   content: '';
   position: fixed;
   inset: 0;
-  background-image: url('../../../assets/images/man.png');
+  background-image: url('/assets/images/man.png');
   background-size: cover;
   background-position: right center;
   background-repeat: no-repeat;
@@ -39,7 +39,7 @@
 }
 
 :host-context([data-theme="light"])::before {
-  background-image: url('../../../assets/images/man-light.png');
+  background-image: url('/assets/images/man-light.png');
 }
 
 /* ==========================================================================
@@ -157,7 +157,7 @@
 }
 
 .otp-box:focus {
-  border-color: #418C27 !important;
+  border-color: #C6EF2E !important;
   background-color: var(--input-focus-bg, rgba(0, 0, 0, 0.5)) !important;
   box-shadow: 0 0 0 4px rgba(212, 250, 36, 0.15) !important;
 }
@@ -181,7 +181,7 @@
   align-items: center !important;
   width: 100% !important;
   height: 50px !important;
-  background-color: #418C27 !important;
+  background-color: #C6EF2E !important;
   color: #0b0c0c !important;
   border: none !important;
   border-radius: 100px !important;
@@ -251,7 +251,7 @@
 .link-btn {
   background: none;
   border: none;
-  color: #418C27 !important;
+  color: #C6EF2E !important;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;

@@ -1,16 +1,4 @@
 import { Routes } from '@angular/router';
-import { RegisterComponent } from './features/Authentication/register/register';
-import { LoginComponent } from './features/Authentication/login/login';
-import { ProfileComponent } from './components/member-profile/member-profile';
-import { Home } from './features/home/home';
-import { About } from './features/about/about';
-import { CheckoutComponent } from './features/pricing/checkout/checkout.component';
-import { MyPaymentsComponent } from './features/pricing/my-payments/my-payments.component';
-import { ConfirmEmailComponent } from './features/Authentication/confirm-email/confirm-email';
-import { CompleteProfileComponent } from './features/Authentication/complete-profile/complete-profile';
-import { ForgotPasswordComponent } from './features/Authentication/forgot-password/forgot-password';
-import { ResetPasswordComponent } from './features/Authentication/reset-password/reset-password';
-import { ChatComponent } from './features/chat/chat.component';
 
 // Guards
 import { authGuard } from './core/guards/auth/auth-guard';
@@ -21,91 +9,91 @@ import { confirmEmailGuard } from './core/guards/auth/confirm-email-guard';
 import { completeProfileGuard } from './core/guards/auth/complete-profile-guard';
 import { resetPasswordGuard } from './core/guards/auth/reset-password-guard';
 import { subscriptionGuard } from './core/guards/subscription/subscription-guard';
-import { QrDisplayComponent } from './features/QR/qr-display.component/qr-display.component';
 
 export const routes: Routes = [
   // ─── Public ───
   {
     path: '',
-    component: Home,
+    loadComponent: () => import('./features/home/home').then(m => m.Home),
     pathMatch: 'full'
   },
 
   // ─── Authentication (guests only) ───
   {
     path: 'login',
-    component: LoginComponent,
-    canActivate: [guestGuard] ,
-      data: { hideLayout: true }
-     
+    loadComponent: () => import('./features/Authentication/login/login').then(m => m.LoginComponent),
+    canActivate: [guestGuard],
+    data: { hideLayout: true }
   },
   {
     path: 'register',
-    component: RegisterComponent,
-    canActivate: [guestGuard] ,
-      data: { hideLayout: true }
-        
+    loadComponent: () => import('./features/Authentication/register/register').then(m => m.RegisterComponent),
+    canActivate: [guestGuard],
+    data: { hideLayout: true }
   },
   {
     path: 'forgot-password',
-      component: ForgotPasswordComponent,
-      canActivate: [guestGuard] ,
-        data: { hideLayout: true }
-
+    loadComponent: () => import('./features/Authentication/forgot-password/forgot-password').then(m => m.ForgotPasswordComponent),
+    canActivate: [guestGuard],
+    data: { hideLayout: true }
   },
   {
     path: 'reset-password',
-    component: ResetPasswordComponent,
-    canActivate: [resetPasswordGuard] ,
-      data: { hideLayout: true }
-
+    loadComponent: () => import('./features/Authentication/reset-password/reset-password').then(m => m.ResetPasswordComponent),
+    canActivate: [resetPasswordGuard],
+    data: { hideLayout: true }
   },
   {
     path: 'confirm-email',
-    component: ConfirmEmailComponent,
-    canActivate: [confirmEmailGuard]  ,
-      data: { hideLayout: true }
-
+    loadComponent: () => import('./features/Authentication/confirm-email/confirm-email').then(m => m.ConfirmEmailComponent),
+    canActivate: [confirmEmailGuard],
+    data: { hideLayout: true }
   },
   {
     path: 'complete-profile',
-    component: CompleteProfileComponent,
-    canActivate: [completeProfileGuard] ,
-      data: { hideLayout: true }
-
+    loadComponent: () => import('./features/Authentication/complete-profile/complete-profile').then(m => m.CompleteProfileComponent),
+    canActivate: [completeProfileGuard],
+    data: { hideLayout: true }
   },
 
   // ─── Protected (members only) ───
   {
     path: 'dashboard',
-    component: ProfileComponent,
+    loadComponent: () => import('./components/member-profile/member-profile').then(m => m.ProfileComponent),
     canActivate: [authGuard, subGuard]
   },
   {
     path: 'profile',
-    component: ProfileComponent,
+    loadComponent: () => import('./components/member-profile/member-profile').then(m => m.ProfileComponent),
     canActivate: [authGuard, subGuard]
   },
   {
     path: 'about',
-    component: About,
+    loadComponent: () => import('./features/about/about').then(m => m.About),
     canActivate: [authGuard, roleGuard],
     data: { roles: ['Member'] }
   },
   {
     path: 'chat',
-    component: ChatComponent,
-    canActivate: [authGuard, subscriptionGuard]
+    loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent),
+    canActivate: [authGuard, subscriptionGuard],
+    data: { hideFooter: true }
+  },
+  {
+    path: 'notifications',
+    loadComponent: () => import('./features/notifications/notification/notification').then(m => m.Notification),
+    canActivate: [authGuard],
+    data: { hideFooter: true }
   },
 
   // ─── Semi-protected ───
   {
     path: 'checkout',
-    component: CheckoutComponent       // بدون guard - عشان يشتري
+    loadComponent: () => import('./features/pricing/checkout/checkout.component').then(m => m.CheckoutComponent)
   },
   {
     path: 'my-payments',
-    component: MyPaymentsComponent     // ✅ ممكن تضيف authGuard لو محتاج
+    loadComponent: () => import('./features/pricing/my-payments/my-payments.component').then(m => m.MyPaymentsComponent)
   },
   {
     path: 'working-hours',
@@ -113,6 +101,18 @@ export const routes: Routes = [
       import('./features/working-hours/working-hours.component').then(
         (m) => m.WorkingHoursComponent
       ),
+  },
+
+  // ─── QR ───
+  {
+    path: 'qr/scan',
+    loadComponent: () => import('./features/QR/qr-display.component/qr-display.component').then(m => m.QrDisplayComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'qr/:bookingId',
+    loadComponent: () => import('./features/QR/qr-display.component/qr-display.component').then(m => m.QrDisplayComponent),
+    canActivate: [authGuard, subGuard]
   },
 
   // ─── Redirects ───
@@ -123,16 +123,5 @@ export const routes: Routes = [
   {
     path: '**',
     redirectTo: ''                     // ✅ أي route غلط → home
-  },
-
-  {
-    path: 'qr/scan',
-    component: QrDisplayComponent,
-    canActivate: [authGuard]
-  },
-  {
-    path: 'qr/:bookingId',
-    component: QrDisplayComponent,
-    canActivate: [authGuard, subGuard]
   }
 ];

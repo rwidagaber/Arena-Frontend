@@ -27,6 +27,11 @@
     "glob": "**/*",
     "input": "src/app/assets",
     "output": "assets"
+  },
+  {
+    "glob": "sw.js",
+    "input": "src",
+    "output": "/"
   }
 ],
            "styles": [
@@ -49,7 +54,7 @@
                 {
                   "type": "anyComponentStyle",
                   "maximumWarning": "30kB",
-                  "maximumError": "64kB"
+                  "maximumError": "80kB"
                 }
               ],
               "outputHashing": "all"
@@ -100,6 +105,11 @@
     "glob": "**/*",
     "input": "src/app/assets",
     "output": "assets"
+  },
+   {
+    "glob": "sw.js",
+    "input": "src",
+    "output": "/"
   }
 ],
             "styles": [

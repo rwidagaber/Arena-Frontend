@@ -19,6 +19,7 @@
   --toggle-border:    rgba(255, 255, 255, 0.12);
   --toggle-color:     #ffffff; /* لون الهلال */
   --accent-text:      #C6EF2E; /* readable accent for hover/active text (dark) */
+  --header-pattern:   rgba(255, 255, 255, 0.015); /* subtle triangle texture (dark) */
 }
 
 :host-context([data-theme="light"]) {
@@ -36,6 +37,7 @@
   --toggle-border:    rgba(0, 0, 0, 0.12);
   --toggle-color:     #f8e807; /* لون الشمس */
   --accent-text:      #3f6307; /* darker green stays readable on light bg */
+  --header-pattern:   transparent; /* no triangle texture on the light header — keep it clean */
 }
 
 /* ==========================================================================
@@ -57,10 +59,10 @@
 .gympro-header-exact {
   background-color: var(--header-bg);
   background-image:
-    linear-gradient(135deg, rgba(255,255,255,0.015) 25%, transparent 25%),
-    linear-gradient(225deg, rgba(255,255,255,0.015) 25%, transparent 25%),
-    linear-gradient(45deg,  rgba(255,255,255,0.015) 25%, transparent 25%),
-    linear-gradient(315deg, rgba(255,255,255,0.015) 25%, transparent 25%);
+    linear-gradient(135deg, var(--header-pattern) 25%, transparent 25%),
+    linear-gradient(225deg, var(--header-pattern) 25%, transparent 25%),
+    linear-gradient(45deg,  var(--header-pattern) 25%, transparent 25%),
+    linear-gradient(315deg, var(--header-pattern) 25%, transparent 25%);
   background-position: 20px 0, 20px 0, 0 0, 0 0;
   background-size: 40px 40px;
   background-repeat: repeat;
@@ -102,7 +104,7 @@
 .gympro-header-exact::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; width: 450px; height: 100%;
+  top: 0; left: 0; width: 450px; max-width: 100%; height: 100%;
   background: radial-gradient(circle at 15% 50%, var(--header-glow) 0%, transparent 70%);
   pointer-events: none;
   z-index: 1;
@@ -111,7 +113,11 @@
 .max-header-width {
   max-width: 1320px;
   position: relative;
-  z-index: 2;
+  /* Above the scroll-progress indicator (z-index: 3) so the user dropdown,
+     which lives inside this content layer, can sit over it. The indicator is
+     at the header's bottom edge and never overlaps the bar content, so this is
+     visually safe — and the scroll indicator itself is left untouched. */
+  z-index: 4;
 }
 
 /* ==========================================================================
@@ -137,23 +143,71 @@
   transition: color 0.3s ease;
 }
 
+/* Brand logo image (replaces the old SVG mark + wordmark) */
+/* Circular "coin" badge behind the logo — dark fill + lime ring, so the neon
+   logo reads strongly on both the dark and light header. The negative margin
+   lets the coin be large without growing the header bar. */
+/* Logo sits directly in the header, coloured to match the theme so it blends in
+   rather than sitting on a badge: neon mark on the dark header, navy mark on the
+   light header. Negative margin keeps the bar height unchanged. */
+.brand-logo-img {
+  height: 96px;
+  width: auto;
+  display: block;
+  flex-shrink: 0;
+  margin-block: -12px;
+  transition: transform 0.3s ease, height 0.35s cubic-bezier(0.16, 1, 0.3, 1), margin-block 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Premium sticky shrink — the logo eases smaller as the bar condenses. */
+.gympro-header-exact.is-sticky .brand-logo-img { height: 76px; margin-block: -8px; }
+:host-context([data-theme="light"]) .gympro-header-exact.is-sticky .brand-logo-img.logo-theme-light {
+  height: 82px; margin-block: -10px;
+}
+.brand-v3-exact { cursor: pointer; }
+.brand-v3-exact:hover .brand-logo-img { transform: scale(1.03); }
+
+.brand-logo-img.logo-theme-light { display: none; }
+:host-context([data-theme="light"]) .brand-logo-img.logo-theme-dark { display: none; }
+/* Light header: make the navy mark stand out — a touch larger than the dark
+   mark, lifted with a stronger shape-following shadow, and haloed by a soft
+   brand-green glow. Margin compensates so the header bar height is unchanged. */
+:host-context([data-theme="light"]) .brand-logo-img.logo-theme-light {
+  display: block;
+  height: 104px;
+  margin-block: -16px;
+  filter: drop-shadow(0 4px 10px rgba(12, 15, 23, 0.25));
+}
+
 .dot-lime { color: #C6EF2E; }
 
 /* ==========================================================================
    Nav
    ========================================================================== */
-.nav-links-exact { gap: 2.5rem; }
+.nav-links-exact { gap: 0.4rem; }
 
 .nav-item-exact {
   color: var(--nav-text);
   font-weight: 700; font-size: 0.95rem;
   text-decoration: none;
-  transition: color 0.2s ease;
+  padding: 0.5rem 0.95rem;
+  border-radius: 50px;
+  transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
   background: transparent; border: none;
 }
 
-.nav-item-exact:hover { color: var(--accent-text); }
-.text-lime-active { color: var(--accent-text) !important; }
+/* Soft lime pill on hover / active. */
+.nav-item-exact:hover {
+  color: var(--accent-text);
+  background: color-mix(in srgb, #C6EF2E 9%, transparent);
+}
+.text-lime-active,
+.nav-item-exact.text-lime-active {
+  color: var(--accent-text) !important;
+  background: color-mix(in srgb, #C6EF2E 13%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #C6EF2E 30%, transparent),
+              0 0 16px rgba(198, 239, 46, 0.22);
+}
 
 /* ==========================================================================
    Theme Toggle — زر بسيط بـ SVG
@@ -416,14 +470,14 @@
 /* 🌓 تنسيق الألوان للوضع الداكن (الافتراضي) */
 .user-dropdown-menu {
   background-color: rgba(20, 21, 23, 0.96) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5) !important;
+  border: 1px solid rgba(198, 239, 46, 0.14) !important;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(198, 239, 46, 0.05) !important;
 }
 .user-dropdown-menu .dropdown-header-name { color: #ffffff !important; }
 .user-dropdown-menu .dropdown-item { color: #b3b3b3 !important; }
-.user-dropdown-menu .dropdown-item:hover:not(:disabled) { 
-  background-color: rgba(255, 255, 255, 0.06) !important; 
-  color: #ffffff !important; 
+.user-dropdown-menu .dropdown-item:not(.dropdown-logout):hover:not(:disabled) {
+  background-color: rgba(198, 239, 46, 0.1) !important;
+  color: #C6EF2E !important;
 }
 .user-dropdown-menu .dropdown-divider { background-color: rgba(255, 255, 255, 0.08) !important; }
 
@@ -435,9 +489,9 @@
 }
 :host-context([data-theme="light"]) .user-dropdown-menu .dropdown-header-name { color: #141517 !important; }
 :host-context([data-theme="light"]) .user-dropdown-menu .dropdown-item { color: #4a4a4a !important; }
-:host-context([data-theme="light"]) .user-dropdown-menu .dropdown-item:hover:not(:disabled) { 
-  background-color: rgba(0, 0, 0, 0.05) !important; 
-  color: #000000 !important; 
+:host-context([data-theme="light"]) .user-dropdown-menu .dropdown-item:not(.dropdown-logout):hover:not(:disabled) {
+  background-color: rgba(198, 239, 46, 0.14) !important;
+  color: #3f6307 !important;
 }
 :host-context([data-theme="light"]) .user-dropdown-menu .dropdown-divider { background-color: rgba(0, 0, 0, 0.06) !important; }
 
@@ -469,7 +523,7 @@
 .dropdown-header-info { display: flex !important; align-items: center !important; gap: 12px !important; padding: 6px 8px 10px 8px !important; }
 .user-dropdown-menu[dir="rtl"] .dropdown-header-info { flex-direction: row !important; }
   .dropdown-header-text { display: flex !important; flex-direction: column !important; }
-.dropdown-header-plan { color: #4DA352 !important; font-size: 12px !important; font-weight: 500 !important; }
+.dropdown-header-plan { color: var(--accent-text) !important; font-size: 12px !important; font-weight: 600 !important; }
 .dropdown-subscription-pill { background: rgba(77, 163, 82, 0.15) !important; color: #4DA352 !important; text-align: center !important; padding: 8px !important; border-radius: 8px !important; font-size: 13px !important; font-weight: 600 !important; cursor: pointer; margin: 4px 0 8px 0 !important; }
 .dropdown-divider { height: 1px; margin: 6px 0 !important; width: 100%; }
 .dropdown-item { width: 100% !important; background: transparent !important; border: none !important; padding: 9px 12px !important; font-size: 13.5px !important; font-weight: 500 !important; border-radius: 8px !important; cursor: pointer; display: block !important; box-sizing: border-box !important; }
@@ -495,26 +549,7 @@
   box-shadow: 0 0 30px rgba(198, 239, 46, 0.4);
 }
 
-/* Animated underline for desktop nav links */
 .nav-item-exact { position: relative; }
-.nav-item-exact::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: -7px;
-  width: 100%;
-  height: 2px;
-  border-radius: 2px;
-  background: linear-gradient(90deg, #aed81f, #C6EF2E);
-  transform: scaleX(0);
-  transform-origin: right;
-  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.nav-item-exact:hover::after,
-.nav-item-exact.text-lime-active::after {
-  transform: scaleX(1);
-  transform-origin: left;
-}
 
 /* Reading / scroll progress bar */
 .scroll-progress {
@@ -613,4 +648,134 @@
   .nav-item-exact::after,
   .mobile-menu,
   .logo-circle-exact { transition: none; }
+}
+
+/* ==========================================================================
+   Small screens — keep the top bar from overflowing (no horizontal gap)
+   ========================================================================== */
+@media (max-width: 575.98px) {
+  /* Tighten the header's own horizontal padding (overrides Bootstrap .px-4) */
+  .gympro-header-exact {
+    padding-left: 0.85rem !important;
+    padding-right: 0.85rem !important;
+  }
+
+  /* Shrink the brand so it shares the row with the action cluster */
+  .brand-v3-exact { gap: 0.5rem !important; }
+  .brand-text-exact { font-size: 1.15rem; }
+  .logo-circle-exact { width: 38px; height: 38px; }
+  .logo-circle-exact svg { width: 22px; height: 22px; }
+
+  /* Compact the right-side controls */
+  .theme-toggle-btn { width: 36px; height: 36px; }
+  .btn-lang-exact { padding: 5px 10px; font-size: 0.72rem; }
+  .mobile-toggle { width: 38px; height: 38px; }
+
+  /* The action cluster must never push past the viewport edge */
+  .max-header-width { min-width: 0; }
+  .brand-v3-exact { min-width: 0; flex-shrink: 1; }
+  .brand-text-exact { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+
+/* ==========================================================================
+   ELEVATION v2 — accent hairline, sticky glow, living brand mark
+   (bookends the footer's top accent line for page-wide cohesion)
+   ========================================================================== */
+
+/* Neon energy line along the header's bottom edge — breathes with a soft glow. */
+.gympro-header-exact::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #C6EF2E 28%, #d8ff5e 50%, #C6EF2E 72%, transparent);
+  opacity: 0.55;
+  z-index: 2;
+  pointer-events: none;
+  filter: drop-shadow(0 0 5px rgba(198, 239, 46, 0.45));
+  transition: opacity 0.35s ease, filter 0.35s ease;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .gympro-header-exact::after { animation: hairline-breathe 4.5s ease-in-out infinite; }
+}
+@keyframes hairline-breathe {
+  0%, 100% { opacity: 0.42; filter: drop-shadow(0 0 4px rgba(198, 239, 46, 0.35)); }
+  50%      { opacity: 0.75; filter: drop-shadow(0 0 10px rgba(198, 239, 46, 0.65)); }
+}
+/* Brighter, stronger glow once the header sticks. */
+.gympro-header-exact.is-sticky::after {
+  opacity: 0.95;
+  filter: drop-shadow(0 0 14px rgba(198, 239, 46, 0.7));
+}
+/* A touch deeper shadow on the sticky glass for a crisper condense. */
+.gympro-header-exact.is-sticky {
+  box-shadow: 0 6px 34px rgba(0, 0, 0, 0.22);
+}
+:host-context([data-theme="light"]) .gympro-header-exact.is-sticky {
+  box-shadow: 0 6px 30px rgba(12, 15, 23, 0.08);
+}
+
+/* Living brand mark — a soft lime halo that breathes behind the logo. */
+.brand-v3-exact { position: relative; }
+.brand-v3-exact::before {
+  content: '';
+  position: absolute;
+  inset: -6px -10px;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 50%, rgba(198, 239, 46, 0.22), transparent 65%);
+  opacity: 0.2;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .brand-v3-exact::before { animation: brand-pulse 4.5s ease-in-out infinite; }
+}
+@keyframes brand-pulse {
+  0%, 100% { opacity: 0.16; transform: scale(0.95); }
+  50%      { opacity: 0.5;  transform: scale(1.05); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gympro-header-exact::after { transition: none; }
+}
+
+/* ==========================================================================
+   ELEVATION v2 — light theme: clean & restrained (premium minimal)
+   The neon soul is reserved for DARK mode. On white the brand mark is navy, so
+   the light header stays navy/neutral — a thin static line, a soft lift, and
+   neutral pills. The only neon on light is the Sign-up CTA (unchanged).
+   ========================================================================== */
+
+/* Hairline → a thin, static navy line. No neon, no breathing, no glow. */
+:host-context([data-theme="light"]) .gympro-header-exact::after {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(12, 15, 23, 0.16) 50%, transparent);
+  opacity: 1;
+  filter: none;
+  animation: none;
+}
+:host-context([data-theme="light"]) .gympro-header-exact.is-sticky::after {
+  background: linear-gradient(90deg, transparent, rgba(12, 15, 23, 0.26) 50%, transparent);
+  filter: none;
+}
+
+/* Soft lift so the white bar separates from the white page. */
+:host-context([data-theme="light"]) .gympro-header-exact {
+  box-shadow: 0 1px 0 rgba(12, 15, 23, 0.04), 0 8px 22px rgba(12, 15, 23, 0.05);
+}
+
+/* No glow halo behind the navy logo on white. */
+:host-context([data-theme="light"]) .brand-v3-exact::before { display: none; }
+
+/* Neutral navy pills, navy text, no glow. */
+:host-context([data-theme="light"]) .nav-item-exact:hover {
+  background: rgba(12, 15, 23, 0.05);
+  color: var(--nav-text);
+  box-shadow: none;
+}
+:host-context([data-theme="light"]) .text-lime-active,
+:host-context([data-theme="light"]) .nav-item-exact.text-lime-active {
+  background: rgba(12, 15, 23, 0.07);
+  color: var(--nav-text) !important;
+  box-shadow: inset 0 0 0 1px rgba(12, 15, 23, 0.12);
 }

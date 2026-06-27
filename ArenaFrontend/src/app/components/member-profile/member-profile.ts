@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, effect, ViewEncapsulation, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -10,15 +10,20 @@ import { switchMap } from 'rxjs/operators';
 import type { GetProfileDto, UserSubscriptionDto } from '../../core/models/auth';
 import type { MemberProfile as MemberProfileModel, UpdateProfileDto, WorkoutSession } from '../../core/models/member';
 import { DashboardSidebar, DashboardSection } from './dashboard-sidebar/dashboard-sidebar';
-import { RecentWorkouts } from './recent-workouts/recent-workouts';
 import { MembershipSection } from './membership-section/membership-section';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { QrDisplayComponent } from '../../features/QR/qr-display.component/qr-display.component';
 import { ProgressReportComponent } from '../progress-report/progress-report.component';
 import { RevealDirective } from '../progress-report/reveal.directive';
 import { Nutritionplan } from './nutritionplan/nutritionplan';
+import { ThemeService } from '../../core/services/themeservice';
+import { TranslationService, type Lang } from '../../core/services/translation.service';
 import { WorkoutComponent } from "./workoutplan/workout";
+import { WorkoutService } from '../../core/services/workout';
+import type { WorkoutPlanDto } from '../../core/models/workout';
 import { BookingSection } from './booking-section/booking-section';
+import { BookingService } from '../../core/services/booking.service';
+import type { BookingDto } from '../../core/models/booking';
 
 
 function mapAuthToProfile(dto: GetProfileDto): MemberProfileModel {
@@ -50,7 +55,6 @@ function mapAuthToProfile(dto: GetProfileDto): MemberProfileModel {
   imports: [
     CommonModule,
     DashboardSidebar,
-    RecentWorkouts,
     MembershipSection,
     TranslateModule,
     QrDisplayComponent,
@@ -68,8 +72,12 @@ export class MemberProfile implements OnInit {
   private auth = inject(AuthService);
   private memberService = inject(MemberService);
   private progressService = inject(ProgressReportService);
+  private bookingService = inject(BookingService);
+  private workoutSvc = inject(WorkoutService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private themeService = inject(ThemeService);
+  private i18n = inject(TranslationService);
   private translate = inject(TranslateService);
   private sanitizer = inject(DomSanitizer);
 
@@ -106,6 +114,60 @@ export class MemberProfile implements OnInit {
 
   attendances = signal<AttendanceRecord[]>([]);
   progressSummary = signal<ProgressSummaryDto | null>(null);
+  // Secondary (attendance/progress-derived) data loads after the profile; the
+  // shell renders on `loading`, the streak/achievements wait on `statsLoading`.
+  statsLoading = signal(true);
+
+  /** Active workout plan — source for the "Working Weights" board. */
+  workoutPlan = signal<WorkoutPlanDto | null>(null);
+  loadingWorkoutPlan = signal(false);
+
+  /** Heaviest working weights from the active plan: dedupe by exercise, keep the
+      heaviest set, sort desc, take the top 4. These are program working targets
+      (trainer-prescribed weights), NOT logged personal records. */
+  mainLifts = computed(() => {
+    const plan = this.workoutPlan();
+    type Lift = { name: string; weight: number; sets: number; reps: number; muscleGroup: string | null };
+    if (!plan?.days?.length) return [] as Lift[];
+    const best = new Map<string, Lift>();
+    for (const day of plan.days) {
+      for (const ex of day.exercises ?? []) {
+        const weight = ex.weight ?? 0;
+        if (weight <= 0) continue;
+        const name = (ex.exercise?.name ?? ex.name ?? '').trim();
+        if (!name) continue;
+        const key = name.toLowerCase();
+        const prev = best.get(key);
+        if (!prev || weight > prev.weight) {
+          best.set(key, { name, weight, sets: ex.sets, reps: ex.reps, muscleGroup: ex.muscleGroup ?? ex.exercise?.muscleGroup ?? null });
+        }
+      }
+    }
+    return [...best.values()].sort((a, b) => b.weight - a.weight).slice(0, 4);
+  });
+
+  hasMainLifts = computed(() => this.mainLifts().length > 0);
+
+  /** Today's suggested session from the active plan. The plan's days aren't
+      bound to calendar weekdays, so we rotate through them by day-of-week to
+      give a stable "today" suggestion. Returns null when there's no plan. */
+  todaysWorkout = computed(() => {
+    const plan = this.workoutPlan();
+    if (!plan?.days?.length) return null;
+    const day = plan.days[new Date().getDay() % plan.days.length];
+    const exercises = day.exercises ?? [];
+    const muscles = [...new Set(
+      exercises.map(e => (e.muscleGroup ?? e.exercise?.muscleGroup ?? '').trim()).filter(Boolean)
+    )].slice(0, 3);
+    const preview = exercises
+      .map(e => (e.exercise?.name ?? e.name ?? '').trim())
+      .filter(Boolean)
+      .slice(0, 3);
+    return { dayName: day.dayName, count: exercises.length, muscles, preview };
+  });
+
+  /** True when the member has already checked in today. */
+  trainedToday = computed(() => this.daysSinceLastWorkout() === 0);
 
   private readonly quoteCount = 18;
 
@@ -156,10 +218,10 @@ export class MemberProfile implements OnInit {
   });
 
   workoutMilestones = computed(() => [
-    { count: 10, label: '10 Workouts', icon: '🎯', unlocked: this.totalWorkouts() >= 10 },
-    { count: 25, label: '25 Workouts', icon: '⚡', unlocked: this.totalWorkouts() >= 25 },
-    { count: 50, label: '50 Workouts', icon: '💎', unlocked: this.totalWorkouts() >= 50 },
-    { count: 100, label: '100 Workouts', icon: '👑', unlocked: this.totalWorkouts() >= 100 },
+    { count: 10, labelKey: 'memberProfile.dash.wmWorkouts', icon: '🎯', unlocked: this.totalWorkouts() >= 10 },
+    { count: 25, labelKey: 'memberProfile.dash.wmWorkouts', icon: '⚡', unlocked: this.totalWorkouts() >= 25 },
+    { count: 50, labelKey: 'memberProfile.dash.wmWorkouts', icon: '💎', unlocked: this.totalWorkouts() >= 50 },
+    { count: 100, labelKey: 'memberProfile.dash.wmWorkouts', icon: '👑', unlocked: this.totalWorkouts() >= 100 },
   ]);
 
   streakMessage = computed(() => {
@@ -179,6 +241,147 @@ export class MemberProfile implements OnInit {
     const sub = this.profile()?.activeSubscription;
     if (!sub || sub.remainingSessions == null) return null;
     return sub.remainingSessions;
+  });
+
+  /** Member bookings (used to surface the next upcoming session on the dashboard). */
+  bookings = signal<BookingDto[]>([]);
+  loadingBookings = signal(false);
+
+  private isConfirmed(b: BookingDto): boolean {
+    return b.status === 1 || b.status === '1' || b.status === 'Confirmed';
+  }
+
+  /** Soonest upcoming confirmed booking, with a friendly day-kind for labelling. */
+  nextSession = computed(() => {
+    const now = Date.now();
+    const upcoming = this.bookings()
+      .filter(b => this.isConfirmed(b))
+      .map(b => {
+        let when = NaN;
+        try { when = new Date(`${b.bookingDate.split('T')[0]}T${b.startTime}`).getTime(); } catch { /* skip unparseable */ }
+        return { when };
+      })
+      .filter(x => !Number.isNaN(x.when) && x.when > now)
+      .sort((a, b) => a.when - b.when);
+    const first = upcoming[0];
+    if (!first) return null;
+    const date = new Date(first.when);
+    const diffDays = Math.round((this.startOfDay(date) - this.startOfDay(new Date())) / 86400000);
+    const dayKind: 'today' | 'tomorrow' | 'other' = diffDays === 0 ? 'today' : diffDays === 1 ? 'tomorrow' : 'other';
+    return { date, dayKind };
+  });
+
+  /* ════════════════════════════════════════════════════════════════
+     MOTIVATION — features that nudge the member back to the gym.
+     All derived from existing attendance / progress / booking signals.
+     ════════════════════════════════════════════════════════════════ */
+
+  // ── Rest-day freeze (1 forgiveness token per calendar month, localStorage) ──
+  private freezeKeyFor(d = new Date()): string {
+    return `arena_freeze_${d.getFullYear()}-${d.getMonth()}`;
+  }
+  frozenDates = signal<number[]>(this.loadFrozenDates());
+  private loadFrozenDates(): number[] {
+    try {
+      const raw = localStorage.getItem(this.freezeKeyFor());
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch { return []; }
+  }
+  /** One token per month; spent once any freeze exists this month. */
+  freezeAvailable = computed(() => this.frozenDates().length === 0);
+  frozenToday = computed(() => this.frozenDates().includes(this.startOfDay(new Date())));
+  useFreeze(): void {
+    if (!this.freezeAvailable()) return;
+    const next = [...this.frozenDates(), this.startOfDay(new Date())];
+    this.frozenDates.set(next);
+    try { localStorage.setItem(this.freezeKeyFor(), JSON.stringify(next)); } catch { /* ignore */ }
+  }
+
+  /** Check-in days plus any frozen (rest-day-pass) days — used for streak math only. */
+  private streakDays = computed<Date[]>(() => {
+    const set = new Set(this.attendanceDays().map(d => d.getTime()));
+    for (const t of this.frozenDates()) set.add(t);
+    return [...set].map(t => new Date(t));
+  });
+
+  // ── #1 Streak at risk: have a live streak but haven't shown up today ──
+  streakAtRisk = computed(() => {
+    const s = this.currentStreak();
+    const d = this.daysSinceLastWorkout();
+    return s > 0 && !this.frozenToday() && d != null && d >= 1;
+  });
+
+  // ── #3 Weekly commitment goal (persisted target, 1–7 sessions/week) ──
+  private readonly weeklyTargetKey = 'arena_weekly_target';
+  weeklyTarget = signal<number>(this.loadWeeklyTarget());
+  private loadWeeklyTarget(): number {
+    try { const v = Number(localStorage.getItem(this.weeklyTargetKey)); return v >= 1 && v <= 7 ? v : 3; }
+    catch { return 3; }
+  }
+  setWeeklyTarget(n: number): void {
+    const v = Math.min(7, Math.max(1, Math.round(n)));
+    this.weeklyTarget.set(v);
+    try { localStorage.setItem(this.weeklyTargetKey, String(v)); } catch { /* ignore */ }
+  }
+  weeklyGoalPercent = computed(() => {
+    const t = this.weeklyTarget();
+    return t > 0 ? Math.min(100, Math.round((this.weeklySessionCount() / t) * 100)) : 0;
+  });
+  weeklyGoalMet = computed(() => this.weeklySessionCount() >= this.weeklyTarget());
+
+  // ── #5 Personal records (from attendance + progress logs) ──
+  personalRecords = computed(() => {
+    const days = this.attendanceDays();
+    const monthCounts = new Map<string, number>();
+    for (const d of days) {
+      const k = `${d.getFullYear()}-${d.getMonth()}`;
+      monthCounts.set(k, (monthCounts.get(k) ?? 0) + 1);
+    }
+    const bestMonth = monthCounts.size ? Math.max(...monthCounts.values()) : 0;
+    const weights = this.weightLogData().map(d => d.weight);
+    return {
+      bestStreak: this.bestStreak(),
+      bestMonth,
+      lowestWeight: weights.length ? Math.min(...weights) : null,
+    };
+  });
+
+  // ── #6 Goal ETA: project when target weight is reached at current pace ──
+  goalEta = computed<{ reached: boolean; date: Date | null }>(() => {
+    const data = this.weightLogData(); // ascending by date
+    const target = this.profile()?.targetWeight;
+    if (target == null || data.length < 2) return { reached: false, date: null };
+    const first = data[0];
+    const last = data[data.length - 1];
+    const spanDays = (last.date.getTime() - first.date.getTime()) / 86400000;
+    if (spanDays <= 0) return { reached: false, date: null };
+    const remaining = target - last.weight;
+    if (Math.abs(remaining) < 0.1) return { reached: true, date: null };
+    const ratePerDay = (last.weight - first.weight) / spanDays;
+    // Only project if the trend is actually moving toward the target
+    if (ratePerDay === 0 || Math.sign(ratePerDay) !== Math.sign(remaining)) return { reached: false, date: null };
+    const daysToGo = remaining / ratePerDay;
+    if (daysToGo <= 0 || daysToGo > 3650) return { reached: false, date: null };
+    return { reached: false, date: new Date(last.date.getTime() + daysToGo * 86400000) };
+  });
+
+  /** Personalized one-line nudge shown above the daily quote. */
+  motivationNudge = computed<{ key: string; params?: Record<string, unknown> }>(() => {
+    if (this.streakAtRisk()) return { key: 'memberProfile.dash.nudgeRisk' };
+    if (this.weeklyGoalMet()) return { key: 'memberProfile.dash.nudgeWeeklyMet' };
+    if (this.currentStreak() > 0) return { key: 'memberProfile.dash.nudgeStreak', params: { n: this.currentStreak() } };
+    const toGo = Math.max(0, this.weeklyTarget() - this.weeklySessionCount());
+    if (this.weeklySessionCount() > 0 && toGo > 0) return { key: 'memberProfile.dash.nudgeWeekly', params: { n: toGo } };
+    return { key: 'memberProfile.dash.nudgeStart' };
+  });
+
+  // ── #4 Smart rebooking: suggest the member's usual training day ──
+  rebookSuggestion = computed(() => {
+    if (this.nextSession()) return null;          // already has something booked
+    const mad = this.mostActiveDay();
+    if (!mad) return null;
+    return { dayKey: mad.nameKey };
   });
 
   sessionsThisMonth = computed(() => {
@@ -214,9 +417,9 @@ export class MemberProfile implements OnInit {
   });
 
   currentStreak = computed(() => {
-    const dates = this.getDatesFromAttendance(this.attendances()).sort((a, b) => b.getTime() - a.getTime());
+    const dates = this.streakDays().sort((a, b) => b.getTime() - a.getTime());
     if (!dates.length) return 0;
-    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const today = new Date(this.startOfDay(new Date()));
     let checkDate = new Date(today);
     if (dates[0].getTime() < today.getTime()) checkDate.setDate(checkDate.getDate() - 1);
     let streak = 0;
@@ -301,8 +504,7 @@ export class MemberProfile implements OnInit {
 
   weeklyActivity = computed(() => {
     const dates = this.getDatesFromAttendance(this.attendances());
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = new Date(this.startOfDay(new Date()));
     const dayOfWeek = today.getDay();
     const monday = new Date(today);
     monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
@@ -328,8 +530,7 @@ export class MemberProfile implements OnInit {
 
   weekComparison = computed(() => {
     const dates = this.getDatesFromAttendance(this.attendances());
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = new Date(this.startOfDay(new Date()));
     const dayOfWeek = today.getDay();
     const monday = new Date(today);
     monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
@@ -381,9 +582,7 @@ export class MemberProfile implements OnInit {
     const sub = this.profile()?.activeSubscription;
     if (!sub?.endDate) return null;
     const end = new Date(sub.endDate);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return Math.max(0, Math.ceil((end.getTime() - today.getTime()) / 86400000));
+    return Math.max(0, Math.ceil((end.getTime() - this.startOfDay(new Date())) / 86400000));
   });
 
   lastAttendance = computed(() => {
@@ -396,9 +595,7 @@ export class MemberProfile implements OnInit {
   daysSinceLastWorkout = computed(() => {
     const last = this.lastAttendance();
     if (!last) return null;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return Math.floor((today.getTime() - last.getTime()) / 86400000);
+    return Math.floor((this.startOfDay(new Date()) - last.getTime()) / 86400000);
   });
 
   bestStreak = computed(() => {
@@ -450,11 +647,29 @@ export class MemberProfile implements OnInit {
 
   hasProgressLogs = computed(() => this.weightLogData().length >= 2);
 
-  private getDatesFromAttendance(records: AttendanceRecord[]): Date[] {
-    return records
-      .filter(r => r.checkInTime)
-      .map(r => { const d = new Date(r.checkInTime!); d.setHours(0, 0, 0, 0); return d; })
-      .filter((d, i, arr) => arr.findIndex(x => x.getTime() === d.getTime()) === i);
+  /** Midnight (local) of the given date — single source of truth for day math. */
+  private startOfDay(d: Date): number {
+    const x = new Date(d);
+    x.setHours(0, 0, 0, 0);
+    return x.getTime();
+  }
+
+  /** Unique check-in days (local midnight), memoized once per attendance change.
+   *  ~10 derived computeds read from this instead of re-deriving from raw records. */
+  private attendanceDays = computed<Date[]>(() => {
+    const seen = new Set<number>();
+    const out: Date[] = [];
+    for (const r of this.attendances()) {
+      if (!r.checkInTime) continue;
+      const t = this.startOfDay(new Date(r.checkInTime));
+      if (!seen.has(t)) { seen.add(t); out.push(new Date(t)); }
+    }
+    return out;
+  });
+
+  private getDatesFromAttendance(_records?: AttendanceRecord[]): Date[] {
+    // Kept for call-site compatibility; reads the memoized, de-duped day list.
+    return this.attendanceDays();
   }
 
   isEditing = signal(false);
@@ -485,6 +700,62 @@ export class MemberProfile implements OnInit {
     return this.goalOptions.find(o => o.value === g)?.labelKey ?? null;
   });
 
+  /** Per-field validation for the edit form (translation keys). */
+  editFieldErrors = computed<Record<string, string>>(() => {
+    const e: Record<string, string> = {};
+    const positive = (v: number | null) => v != null && v <= 0;
+    if (!this.editFirstName().trim()) e['firstName'] = 'memberProfile.dash.valRequired';
+    if (!this.editLastName().trim()) e['lastName'] = 'memberProfile.dash.valRequired';
+    if (positive(this.editWeight())) e['weight'] = 'memberProfile.dash.valPositive';
+    if (positive(this.editHeight())) e['height'] = 'memberProfile.dash.valPositive';
+    if (positive(this.editTargetWeight())) e['targetWeight'] = 'memberProfile.dash.valPositive';
+    if (positive(this.editMuscle())) e['muscle'] = 'memberProfile.dash.valPositive';
+    const bf = this.editBodyFat();
+    if (bf != null && (bf < 0 || bf > 100)) e['bodyFat'] = 'memberProfile.dash.valPercent';
+    return e;
+  });
+
+  editValid = computed(() => Object.keys(this.editFieldErrors()).length === 0);
+
+  /** Keep dialog focus inside the modal (Tab / Shift+Tab cycle). */
+  onEditKeydown(event: KeyboardEvent): void {
+    if (event.key !== 'Tab') return;
+    const modal = event.currentTarget as HTMLElement;
+    const focusable = Array.from(
+      modal.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter(el => el.offsetParent !== null);
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const active = document.activeElement as HTMLElement;
+    if (event.shiftKey && active === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && active === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
+  /** Progress toward the target weight as a 0–100% bar. Uses the first logged
+      weight as the starting point; falls back to current weight when there are
+      no logs yet (0% until the member makes progress). */
+  goalProgress = computed<{ percent: number; current: number; target: number } | null>(() => {
+    const current = this.profile()?.weight;
+    const target = this.profile()?.targetWeight;
+    if (current == null || target == null) return null;
+    const data = this.weightLogData();
+    const start = data.length ? data[0].weight : current;
+    const total = Math.abs(start - target);
+    const remaining = Math.abs(current - target);
+    const percent = total <= 0
+      ? (remaining < 0.5 ? 100 : 0)
+      : Math.max(0, Math.min(100, Math.round((1 - remaining / total) * 100)));
+    return { percent, current, target };
+  });
+
   goalDelta = computed(() => {
     const w = this.profile()?.weight;
     const t = this.profile()?.targetWeight;
@@ -511,6 +782,10 @@ export class MemberProfile implements OnInit {
     this.editMuscle.set(this.currentMuscleMass());
     this.editError.set(null);
     this.isEditing.set(true);
+    // Move focus into the dialog once it renders (a11y: focus management).
+    setTimeout(() => {
+      document.querySelector<HTMLElement>('.edit-modal input, .edit-modal select')?.focus();
+    });
   }
 
   onEditImageSelected(event: Event): void {
@@ -545,7 +820,7 @@ export class MemberProfile implements OnInit {
 
   saveEdit(): void {
     const p = this.profile();
-    if (!p || this.savingEdit()) return;
+    if (!p || this.savingEdit() || !this.editValid()) return;
 
     const dto: UpdateProfileDto = {
       firstName: this.editFirstName().trim(),
@@ -623,6 +898,135 @@ export class MemberProfile implements OnInit {
     });
   }
 
+  // ════════ Celebration modal (streak / achievement) ════════
+  showCelebration = signal(false);
+  confettiPieces = Array.from({ length: 32 }, (_, i) => ({
+    left: (i * 7 + (i % 5) * 11) % 100,
+    delay: (i % 8) * 0.13,
+    duration: 2.3 + (i % 5) * 0.45,
+    color: ['#C6EF2E', '#38BDF8', '#A78BFA', '#FB7185', '#FBBF24'][i % 5],
+    size: 6 + (i % 4) * 3,
+    round: i % 3 === 0,
+  }));
+
+  openCelebration(): void { this.showCelebration.set(true); }
+  closeCelebration(): void { this.showCelebration.set(false); }
+
+  /** Confetti only for celebratory tiers (3+ day streak), so a 0/1-day
+   *  "welcome back" stays calm and the milestones feel earned. */
+  celebrationConfetti = computed(() => this.currentStreak() >= 3);
+
+  /** Pop the streak-tier welcome modal once per browser session. */
+  private maybeShowWelcome(): void {
+    let seen = false;
+    try { seen = sessionStorage.getItem('arena_dash_welcome') === '1'; } catch { seen = false; }
+    if (seen) return;
+    try { sessionStorage.setItem('arena_dash_welcome', '1'); } catch { /* ignore */ }
+    setTimeout(() => this.showCelebration.set(true), 600);
+  }
+
+  // After the dashboard data loads (so streak/workout counts are real), run the
+  // post-load popups once. A newly-earned achievement takes priority over the
+  // generic welcome, so the member never sees two overlays stacked.
+  private postLoadHandled = false;
+  private postLoadEffect = effect(() => {
+    if (this.loading()) return;
+    if (this.postLoadHandled) return;
+    this.postLoadHandled = true;
+    if (this.checkNewAchievements()) return;
+    this.maybeShowWelcome();
+  });
+
+  // ════════ Achievement unlocked modal ════════
+  // Fires once when a member NEWLY earns a streak/workout milestone. The set of
+  // already-earned milestones is persisted; on first ever run we seed it
+  // silently so we only celebrate genuinely new unlocks going forward.
+  private readonly achievedKey = 'arena_achieved_milestones';
+  achievementUnlock = signal<{ icon: string; isEmoji: boolean; labelKey: string; n: number } | null>(null);
+  closeAchievement(): void { this.achievementUnlock.set(null); }
+
+  /** Every currently-unlocked milestone, ordered least → most significant. */
+  private allUnlockedAchievements(): { key: string; icon: string; isEmoji: boolean; labelKey: string; n: number }[] {
+    const out: { key: string; icon: string; isEmoji: boolean; labelKey: string; n: number }[] = [];
+    for (const m of this.streakMilestones()) {
+      if (m.unlocked) out.push({ key: `streak-${m.days}`, icon: m.icon, isEmoji: false, labelKey: m.labelKey, n: m.days });
+    }
+    for (const m of this.workoutMilestones()) {
+      if (m.unlocked) out.push({ key: `workout-${m.count}`, icon: m.icon, isEmoji: true, labelKey: m.labelKey, n: m.count });
+    }
+    return out;
+  }
+
+  /** Returns true when a newly-earned milestone was found (and queued to celebrate). */
+  private checkNewAchievements(): boolean {
+    const unlocked = this.allUnlockedAchievements();
+    let seen: string[] | null = null;
+    try {
+      const raw = localStorage.getItem(this.achievedKey);
+      seen = raw === null ? null : (JSON.parse(raw) ?? []);
+    } catch { seen = []; }
+
+    // First ever run — seed silently, celebrate only future unlocks.
+    if (seen === null) {
+      try { localStorage.setItem(this.achievedKey, JSON.stringify(unlocked.map(u => u.key))); } catch { /* ignore */ }
+      return false;
+    }
+
+    const seenSet = new Set(seen);
+    const newly = unlocked.filter(u => !seenSet.has(u.key));
+    if (!newly.length) return false;
+
+    try { localStorage.setItem(this.achievedKey, JSON.stringify(unlocked.map(u => u.key))); } catch { /* ignore */ }
+    // Celebrate the most significant newly-earned milestone.
+    const best = newly[newly.length - 1];
+    setTimeout(() => this.achievementUnlock.set({ icon: best.icon, isEmoji: best.isEmoji, labelKey: best.labelKey, n: best.n }), 700);
+    return true;
+  }
+
+  /** Close the top-most open overlay on Escape. */
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.achievementUnlock()) { this.closeAchievement(); return; }
+    if (this.showCelebration()) { this.closeCelebration(); return; }
+    if (this.isEditing()) { this.closeEdit(); return; }
+  }
+
+  onImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = () => {
+      const p = this.profile();
+      if (p && reader.result) {
+        this.profile.set({ ...p, profileImage: reader.result as string });
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // ════════ Settings ════════
+  readonly themeOptions: ('system' | 'light' | 'dark')[] = ['system', 'light', 'dark'];
+  currentTheme = computed(() => this.themeService.current);
+  setTheme(theme: 'system' | 'light' | 'dark'): void { this.themeService.setTheme(theme); }
+
+  readonly langOptions: { value: Lang; labelKey: string }[] = [
+    { value: 'en', labelKey: 'memberProfile.dash.langEnglish' },
+    { value: 'ar', labelKey: 'memberProfile.dash.langArabic' },
+  ];
+  currentLang = computed(() => this.i18n.currentLang());
+  switchLang(lang: Lang): void { this.i18n.switchLang(lang); }
+
+  loggingOut = signal(false);
+  logout(): void {
+    if (this.loggingOut()) return;
+    this.loggingOut.set(true);
+    this.auth.logout().subscribe({
+      next: () => this.router.navigate(['/']),
+      error: () => this.router.navigate(['/']),
+    });
+  }
+
   onSectionChange(section: DashboardSection): void {
     this.activeSection.set(section);
     this.router.navigate([], {
@@ -661,6 +1065,7 @@ export class MemberProfile implements OnInit {
 
   loadData(): void {
     this.loading.set(true);
+    this.statsLoading.set(true);
     this.error.set(null);
 
     this.memberService.getProfile().pipe(
@@ -674,13 +1079,20 @@ export class MemberProfile implements OnInit {
     ).subscribe(data => {
       if (!data) {
         this.loading.set(false);
+        this.statsLoading.set(false);
         return;
       }
       this.profile.set(data);
+      // Profile is ready → render the dashboard shell immediately; the
+      // secondary data below streams in without blocking the whole page.
+      this.loading.set(false);
+
       this.loadSubscriptions(data.memberProfileId);
+      this.loadBookings(data.memberProfileId || data.id || '');
+      this.loadWorkoutPlan();
       const memberProfileId = data.memberProfileId || data.id || '';
       if (!memberProfileId) {
-        this.loading.set(false);
+        this.statsLoading.set(false);
         return;
       }
       forkJoin({
@@ -693,8 +1105,32 @@ export class MemberProfile implements OnInit {
       }).subscribe(result => {
         this.attendances.set(result.attendances);
         this.progressSummary.set(result.progress);
-        this.loading.set(false);
+        this.statsLoading.set(false);
       });
+    });
+  }
+
+  loadWorkoutPlan(): void {
+    this.loadingWorkoutPlan.set(true);
+    this.workoutSvc.getActiveWorkoutPlan().pipe(
+      // The /active endpoint may return a summary without nested days — fetch the
+      // full plan by id in that case so exercise weights are available.
+      switchMap(plan => (plan?.days?.length ? of(plan) : (plan?.id ? this.workoutSvc.getWorkoutPlanById(plan.id) : of(plan)))),
+      catchError(() => of(null as WorkoutPlanDto | null))
+    ).subscribe(plan => {
+      this.workoutPlan.set(plan ?? null);
+      this.loadingWorkoutPlan.set(false);
+    });
+  }
+
+  loadBookings(memberProfileId: string): void {
+    if (!memberProfileId) return;
+    this.loadingBookings.set(true);
+    this.bookingService.getBookings(memberProfileId).pipe(
+      catchError(() => of([] as BookingDto[]))
+    ).subscribe(b => {
+      this.bookings.set(b ?? []);
+      this.loadingBookings.set(false);
     });
   }
 

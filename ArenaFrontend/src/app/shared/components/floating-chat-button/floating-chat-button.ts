@@ -28,6 +28,9 @@ export class FloatingChatButtonComponent implements OnInit, OnDestroy {
     this.isLoggedIn = this.auth.isLoggedIn;
     this.resolveAccess();
 
+    // Set initial visibility state based on current URL to handle direct loads/refreshes
+    this.isHidden = this.router.url.startsWith('/chat');
+
     // Listen to route changes to hide on /chat and detect login state changes
     this.routerSub = this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))

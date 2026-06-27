@@ -7,6 +7,8 @@
         {{ 'upcoming' | translate }}
         } @else if (statusLabel() === 'Cancelled') {
         {{ 'error' | translate }}
+        } @else if (statusLabel() === 'Expired') {
+        {{ 'expired' | translate }}
         } @else {
         {{ 'past' | translate }}
         }
@@ -35,9 +37,19 @@
       </div>
     </div>
 
-    @if (isCancelable()) {
+    @if (countdownText()) {
+      <div class="booking-countdown" [class]="countdownClass()">
+        <svg class="timer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
+        </svg>
+        <span class="countdown-text">{{ countdownText() }}</span>
+      </div>
+    }
+
+    @if (statusLabel() === 'Confirmed') {
     <div class="card-footer">
-      <button class="btn-cancel-booking" (click)="onCancelClick()">
+      <button class="btn-cancel-booking" [disabled]="!isCancelable()" (click)="onCancelClick()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
           stroke-linejoin="round" width="14" height="14">
           <circle cx="12" cy="12" r="10" />

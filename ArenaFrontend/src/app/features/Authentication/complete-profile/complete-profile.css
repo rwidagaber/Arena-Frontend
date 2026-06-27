@@ -22,7 +22,7 @@
   content: '';
   position: fixed;
   inset: 0;
-  background-image: url('../../../assets/images/man.png');
+  background-image: url('/assets/images/man.png');
   background-size: cover;
   background-position: right center;
   background-repeat: no-repeat;
@@ -31,7 +31,7 @@
 }
 
 :host-context([data-theme="light"])::before {
-  background-image: url('../../../assets/images/man-light.png');
+  background-image: url('/assets/images/man-light.png');
 }
 
 /* ==========================================================================
@@ -188,7 +188,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
    5. Submit Button & Spinner
    ========================================================================== */
 .btn-submit {
-  background-color: #418C27 !important;
+  background-color: #C6EF2E!important;
   color: #0b0c0c !important;
   border: none; border-radius: 100px;
   padding: 14px; font-size: 16px; font-weight: 700;

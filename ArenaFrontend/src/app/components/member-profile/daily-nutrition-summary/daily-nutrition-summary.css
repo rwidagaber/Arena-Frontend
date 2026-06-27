@@ -1,0 +1,216 @@
+/* The card uses the dashboard's global `.card.glass-card` chrome (surface,
+   border, radius, shadow, hover, dark-mode) applied in the template.
+   These rules theme the inner content to match — tokens (--lux-*, --c-accent*)
+   cascade in from .dash-layout. */
+
+.intake-card {
+  gap: 22px;
+  font-family: var(--font-ui, 'Inter', system-ui, sans-serif);
+}
+
+/* ── Header ─────────────────────────────────────────────── */
+.intake-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.intake-kicker {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--c-accent-deep, #4d7c0f);
+}
+
+[data-theme="dark"] .intake-kicker { color: var(--c-accent, #C6EF2E); }
+
+.intake-meals {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--lux-ink-soft, #5f5f5c);
+  background: rgba(20, 20, 20, 0.05);
+  border: 1px solid var(--lux-line, rgba(20, 20, 20, 0.09));
+  white-space: nowrap;
+}
+
+[data-theme="dark"] .intake-meals {
+  color: var(--lux-cream-soft, rgba(238, 241, 246, 0.6));
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--lux-line-dk, rgba(255, 255, 255, 0.09));
+}
+
+.intake-meals svg { color: var(--c-accent-deep, #4d7c0f); }
+[data-theme="dark"] .intake-meals svg { color: var(--c-accent, #C6EF2E); }
+
+/* ── Calories (focal) ───────────────────────────────────── */
+.intake-cals {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.intake-cals-main {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.intake-cals-num {
+  font-size: 2.75rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.025em;
+  color: var(--c-accent-deep, #4d7c0f);
+}
+
+[data-theme="dark"] .intake-cals-num { color: var(--c-accent, #C6EF2E); }
+
+.over-target .intake-cals-num { color: #e0892b; }
+[data-theme="dark"] .over-target .intake-cals-num { color: #f0a93b; }
+
+.intake-cals-label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--lux-ink, #181818);
+  line-height: 1.1;
+}
+
+[data-theme="dark"] .intake-cals-label { color: var(--lux-cream, #eef1f6); }
+
+.intake-cals-label small {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--lux-ink-soft, #9ca3af);
+}
+
+[data-theme="dark"] .intake-cals-label small { color: var(--lux-cream-soft, rgba(238, 241, 246, 0.6)); }
+
+.intake-track {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(20, 20, 20, 0.08);
+  overflow: hidden;
+}
+
+[data-theme="dark"] .intake-track { background: rgba(255, 255, 255, 0.08); }
+
+.intake-track-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--c-accent-strong, #aed81f), var(--c-accent, #C6EF2E));
+  box-shadow: 0 0 12px rgba(198, 239, 46, 0.45);
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.over-target .intake-track-fill {
+  background: linear-gradient(90deg, var(--c-warn, #facc15), #f97316);
+  box-shadow: 0 0 12px rgba(249, 115, 22, 0.4);
+}
+
+.intake-cals-foot {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: var(--lux-ink-soft, #6b7280);
+}
+
+.intake-cals-foot strong { color: var(--lux-ink, #181818); font-weight: 700; }
+
+[data-theme="dark"] .intake-cals-foot { color: var(--lux-cream-soft, rgba(238, 241, 246, 0.6)); }
+[data-theme="dark"] .intake-cals-foot strong { color: var(--lux-cream, #eef1f6); }
+
+/* ── Macros ─────────────────────────────────────────────── */
+.intake-macros {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--lux-line, rgba(20, 20, 20, 0.09));
+}
+
+[data-theme="dark"] .intake-macros { border-top-color: var(--lux-line-dk, rgba(255, 255, 255, 0.09)); }
+
+.macro {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.macro-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.macro-name {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  color: var(--lux-ink-soft, #6b7280);
+}
+
+[data-theme="dark"] .macro-name { color: var(--lux-cream-soft, rgba(238, 241, 246, 0.6)); }
+
+.macro-val {
+  font-size: 0.72rem;
+  color: var(--lux-ink-soft, #9ca3af);
+  white-space: nowrap;
+}
+
+.macro-val strong {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--lux-ink, #181818);
+}
+
+[data-theme="dark"] .macro-val { color: var(--lux-cream-soft, rgba(238, 241, 246, 0.55)); }
+[data-theme="dark"] .macro-val strong { color: var(--lux-cream, #eef1f6); }
+
+.macro-track {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(20, 20, 20, 0.08);
+  overflow: hidden;
+}
+
+[data-theme="dark"] .macro-track { background: rgba(255, 255, 255, 0.08); }
+
+.macro-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.macro--protein .macro-fill { background: var(--c-accent, #C6EF2E); }
+.macro--carbs   .macro-fill { background: var(--c-warn, #facc15); }
+.macro--fat     .macro-fill { background: #f87171; }
+
+/* ── No active plan ─────────────────────────────────────── */
+.intake-message {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.55;
+  color: var(--lux-ink-soft, #5f5f5c);
+}
+
+[data-theme="dark"] .intake-message { color: var(--lux-cream-soft, rgba(238, 241, 246, 0.6)); }
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 560px) {
+  .intake-macros { grid-template-columns: 1fr; gap: 14px; }
+  .intake-cals-num { font-size: 2.3rem; }
+}

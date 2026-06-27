@@ -1,11 +1,40 @@
 <footer class="site-footer" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
+  <!-- Immersive backdrop: faded action photo + cinematic lime wash + grain -->
+  <div class="footer-backdrop" aria-hidden="true"></div>
   <div class="footer-glow" aria-hidden="true"></div>
   <div class="footer-grid-overlay" aria-hidden="true"></div>
+  <div class="footer-grain" aria-hidden="true"></div>
 
   <div class="container footer-inner">
 
+    <!-- ===== Bold typographic hero ===== -->
+    <div class="footer-hero footer-reveal">
+      <div class="footer-hero-text">
+        <span class="hero-eyebrow">{{ 'footer.heroEyebrow' | translate }}</span>
+        <h2 class="hero-title">
+          <span class="hero-line">{{ 'footer.heroLine1' | translate }}</span>
+          <span class="hero-line hero-accent">{{ 'footer.heroLine2' | translate }}</span>
+        </h2>
+        <p class="hero-sub">{{ 'footer.heroSub' | translate }}</p>
+      </div>
+      <a class="hero-cta" routerLink="/contact">
+        <span>{{ 'footer.join' | translate }}</span>
+        <i class="bi bi-arrow-right"></i>
+      </a>
+    </div>
+
+    <!-- ===== Athletic heartbeat pulse line ===== -->
+    <div class="footer-pulse" aria-hidden="true">
+      <svg viewBox="0 0 1200 80" preserveAspectRatio="none">
+        <path class="pulse-base"
+          d="M0,40 H260 l14,-26 l12,52 l16,-58 l12,32 H520 l14,-26 l12,52 l16,-58 l12,32 H780 l14,-26 l12,52 l16,-58 l12,32 H1040 l14,-26 l12,52 l16,-58 l12,32 H1200" />
+        <path class="pulse-trace" pathLength="1000"
+          d="M0,40 H260 l14,-26 l12,52 l16,-58 l12,32 H520 l14,-26 l12,52 l16,-58 l12,32 H780 l14,-26 l12,52 l16,-58 l12,32 H1040 l14,-26 l12,52 l16,-58 l12,32 H1200" />
+      </svg>
+    </div>
+
     <!-- ===== Get-in-touch contact band ===== -->
-    <div class="footer-contact-band">
+    <div class="footer-contact-band footer-reveal">
       <div class="fcb-text">
         <span class="fcb-eyebrow">{{ 'footer.questionsEyebrow' | translate }}</span>
         <h3 class="fcb-title">{{ 'footer.getInTouch' | translate }}</h3>
@@ -24,11 +53,32 @@
       </a>
     </div>
 
+    <!-- ===== Newsletter ===== -->
+    <div class="footer-newsletter footer-reveal">
+      <div class="newsletter-text">
+        <h3 class="newsletter-title">{{ 'footer.newsletterTitle' | translate }}</h3>
+        <p class="newsletter-sub">{{ 'footer.newsletterSub' | translate }}</p>
+      </div>
+      <form class="newsletter-form" (submit)="onNewsletterSubmit($event)">
+        <label class="visually-hidden" for="newsletter-email">{{ 'footer.emailPlaceholder' | translate }}</label>
+        <input id="newsletter-email" type="email" class="newsletter-input" [placeholder]="'footer.emailPlaceholder' | translate" required>
+        <button type="submit" class="newsletter-btn">
+          {{ 'footer.subscribe' | translate }}
+          <i class="bi bi-send-fill"></i>
+        </button>
+      </form>
+      @if (newsletterDone()) {
+        <p class="newsletter-success" role="status">
+          <i class="bi bi-check-circle-fill"></i>{{ 'footer.subscribedMsg' | translate }}
+        </p>
+      }
+    </div>
+
     <div class="footer-divider"></div>
 
     <!-- ===== Credibility stats ===== -->
-    <div class="footer-stats">
-      @for (s of stats; track s.key) {
+    <div class="footer-stats footer-reveal" [class.is-counted]="statsCounted()">
+      @for (s of displayStats(); track s.key) {
         <div class="footer-stat">
           <span class="footer-stat-val">{{ s.value }}</span>
           <span class="footer-stat-lbl">{{ 'footer.' + s.key | translate }}</span>
@@ -38,29 +88,13 @@
 
     <div class="footer-divider"></div>
 
-    <!-- ===== Main columns ===== -->
-    <div class="footer-main">
+    <!-- ===== Main columns (brand-led) ===== -->
+    <div class="footer-main footer-reveal">
 
-      <!-- Brand + description -->
-      <div class="footer-col footer-brand-col">
-        <div class="footer-brand">
-          <span class="footer-logo">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0c0f17" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <g>
-                <line x1="5" y1="5" x2="19" y2="19" />
-                <line x1="6.5" y1="9.5" x2="9.5" y2="6.5" />
-                <line x1="14.5" y1="17.5" x2="17.5" y2="14.5" />
-              </g>
-              <g>
-                <line x1="5" y1="19" x2="19" y2="5" />
-                <line x1="6.5" y1="14.5" x2="9.5" y2="17.5" />
-                <line x1="14.5" y1="6.5" x2="17.5" y2="9.5" />
-              </g>
-            </svg>
-          </span>
-          <span class="footer-brand-text">{{ 'app.title' | translate }}</span>
-        </div>
-
+      <!-- Brand -->
+      <div class="footer-col footer-col-brand">
+        <img src="assets/images/arena-logo-dark.png" alt="Arena Smart Gym" class="footer-logo-img logo-theme-dark" />
+        <img src="assets/images/arena-logo-light.png" alt="Arena Smart Gym" class="footer-logo-img logo-theme-light" />
         <p class="footer-tagline">{{ 'footer.brandDesc' | translate }}</p>
       </div>
 
@@ -102,12 +136,14 @@
           {{ (isOpenNow ? 'footer.openNow' : 'footer.closedNow') | translate }}
         </span>
         <ul class="footer-hours list-unstyled">
-          <li class="footer-hours-item">
-            <i class="bi bi-clock"></i><span>{{ 'footer.weekdays' | translate }}</span>
-          </li>
-          <li class="footer-hours-item">
-            <i class="bi bi-clock"></i><span>{{ 'footer.saturday' | translate }}</span>
-          </li>
+          @for (row of hoursRows(); track row.startKey) {
+            <li class="footer-hours-item" [class.is-closed-day]="!row.time" [class.is-today]="row.isToday">
+              <span class="footer-hours-day">
+                <i class="bi bi-clock"></i>{{ row.startKey | translate }}@if (row.endKey) {<span>&nbsp;– {{ row.endKey | translate }}</span>}@if (row.isToday) { <span class="footer-today-tag">{{ 'workingHours.today' | translate }}</span> }
+              </span>
+              <span class="footer-hours-time">{{ row.time || ('workingHours.closed' | translate) }}</span>
+            </li>
+          }
         </ul>
       </div>
     </div>
@@ -115,10 +151,10 @@
     <div class="footer-divider"></div>
 
     <!-- ===== Bottom bar ===== -->
-    <div class="footer-bottom">
+    <div class="footer-bottom footer-reveal">
       <span class="footer-copy">{{ 'footer.copyright' | translate: { year: currentYear } }}</span>
 
-      <div class="footer-social">
+      <div class="footer-social" role="list" [attr.aria-label]="'footer.followUs' | translate">
         @for (s of socials; track s.name) {
           <a
             class="social-btn"
@@ -133,21 +169,25 @@
       </div>
 
       <div class="footer-legal">
-        <span class="footer-legal-link">{{ 'footer.privacy' | translate }}</span>
-        <span class="footer-legal-sep">•</span>
-        <span class="footer-legal-link">{{ 'footer.terms' | translate }}</span>
+        <button type="button" class="footer-legal-link">{{ 'footer.privacy' | translate }}</button>
+        <span class="footer-legal-sep" aria-hidden="true">•</span>
+        <button type="button" class="footer-legal-link">{{ 'footer.terms' | translate }}</button>
       </div>
     </div>
   </div>
 
-  <!-- ===== Back to top ===== -->
-  <button
-    type="button"
-    class="back-to-top"
-    [class.visible]="showTopButton"
-    (click)="scrollToTop()"
-    [attr.aria-label]="'footer.backToTop' | translate"
-  >
-    <i class="bi bi-arrow-up"></i>
-  </button>
+  <!-- ===== Brand mantra marquee (decorative) ===== -->
+  <div class="footer-mantra" aria-hidden="true">
+    <div class="mantra-track">
+      @for (w of mantra; track $index) {
+        <span class="mantra-word">{{ w }}</span>
+        <span class="mantra-dot">✦</span>
+      }
+      @for (w of mantra; track 'dup-' + $index) {
+        <span class="mantra-word">{{ w }}</span>
+        <span class="mantra-dot">✦</span>
+      }
+    </div>
+  </div>
+
 </footer>

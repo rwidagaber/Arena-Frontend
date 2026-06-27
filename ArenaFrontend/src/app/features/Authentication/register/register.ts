@@ -50,7 +50,8 @@ export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
   private langSub?: Subscription;
 
   get currentLang() { return this.t.currentLang(); }
-  get isRtl() { return this.currentLang === 'ar'; }
+  get isRtl()       { return this.currentLang === 'ar'; }
+get isDark() { return this.themeService.isDark; }
 
   form = this.fb.group(
     {
@@ -149,10 +150,18 @@ export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  // ✅ تعديل: الانتقال إلى الـ login مع حذف شاشة الـ register الحالية من الـ History
   goToLogin(): void { 
     this.router.navigate(['/login'], { replaceUrl: true }); 
   }
+
+  toggleTheme(): void {
+  const next = this.themeService.current === 'dark' ? 'light' : 'dark';
+  this.themeService.setTheme(next);
+}
+
+  toggleLang(): void {
+  this.t.switchLang(this.currentLang === 'ar' ? 'en' : 'ar');
+}
 
   isInvalid(field: string): boolean {
     const c = this.form.get(field)!;
