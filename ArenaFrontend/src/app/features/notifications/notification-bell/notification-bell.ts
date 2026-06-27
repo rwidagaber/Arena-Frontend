@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, HostListener, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, HostListener, signal, computed, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -12,19 +12,28 @@ import { NotificationService, NotificationDto } from '../../../core/services/not
   styleUrls: ['./notification-bell.css']
 })
 export class NotificationBellComponent implements OnInit, OnDestroy {
-  readonly svc  = inject(NotificationService);
-  readonly t    = inject(TranslateService);
-  readonly open = signal(false);
+  readonly svc    = inject(NotificationService);
+  readonly t      = inject(TranslateService);
+  readonly elRef  = inject(ElementRef);
+  readonly open   = signal(false);
+  readonly panelTop = signal('64px');
 
   private readonly expandedIds = signal<Set<string>>(new Set());
-
   readonly activeFilter = signal<'all' | 'unread'>('all');
 
+  private isToday(dateStr: string): boolean {
+    const d = new Date(dateStr);
+    const now = new Date();
+    return d.getFullYear() === now.getFullYear()
+        && d.getMonth()    === now.getMonth()
+        && d.getDate()     === now.getDate();
+  }
+
   readonly filteredNotifications = computed(() => {
-    const list = this.svc.notifications();
+    const todayList = this.svc.notifications().filter(n => this.isToday(n.createdAt));
     return this.activeFilter() === 'unread'
-      ? list.filter(n => !n.isRead)
-      : list;
+      ? todayList.filter(n => !n.isRead)
+      : todayList;
   });
 
   ngOnInit() {
@@ -39,6 +48,16 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
   toggle(e: Event) {
     e.stopPropagation();
     this.open.update(v => !v);
+
+    if (!this.open()) return;
+
+    const header = document.querySelector('header')
+                ?? document.querySelector('.header')
+                ?? document.querySelector('nav');
+    if (header) {
+      const h = header.getBoundingClientRect().bottom;
+      this.panelTop.set(h + 'px');
+    }
   }
 
   @HostListener('document:click', ['$event'])
@@ -83,6 +102,6 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
     if (m < 60) return this.t.instant('notifications.minutesAgo', { count: m });
     const h = Math.floor(m / 60);
     if (h < 24) return this.t.instant('notifications.hoursAgo', { count: h });
-    return       this.t.instant('notifications.daysAgo',    { count: Math.floor(h / 24) });
+    return       this.t.instant('notifications.daysAgo', { count: Math.floor(h / 24) });
   }
 }
