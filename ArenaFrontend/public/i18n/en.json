@@ -146,7 +146,12 @@
     "statYears": "Years Experience",
     "statMembers": "Active Members",
     "statTrainers": "Expert Trainers",
-    "statClasses": "Weekly Classes"
+    "statClasses": "Weekly Classes",
+    "heroEyebrow": "Arena Smart Gym",
+    "heroLine1": "Train like you",
+    "heroLine2": "mean it.",
+    "heroSub": "No shortcuts. No excuses. Just you, the work, and the results you came for.",
+    "join": "Start training"
   },
   "auth": {
     "login": {

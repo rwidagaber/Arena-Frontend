@@ -3,6 +3,7 @@ import { RouterOutlet, Router, NavigationEnd, ActivatedRoute } from '@angular/ro
 import { HeaderComponent } from './shared/header/header';
 import { FooterComponent } from './shared/components/footer/footer';
 import { FloatingChatButtonComponent } from './shared/components/floating-chat-button/floating-chat-button';
+import { CursorGlowComponent } from './shared/components/cursor-glow/cursor-glow';
 import { TranslateService } from '@ngx-translate/core';
 import { ThemeService } from '../app/core/services/themeservice';
 import { filter } from 'rxjs/operators';
@@ -14,6 +15,7 @@ import { filter } from 'rxjs/operators';
     HeaderComponent,
     FooterComponent,
     FloatingChatButtonComponent,
+    CursorGlowComponent,
   ],
   templateUrl: './app.html',
   styleUrl: './app.css'
