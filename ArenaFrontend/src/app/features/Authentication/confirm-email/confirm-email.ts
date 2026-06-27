@@ -136,4 +136,14 @@ export class ConfirmEmailComponent implements OnInit, AfterViewInit, OnDestroy {
       if (this.resendCooldown <= 0) clearInterval(this._cooldownInterval);
     }, 1000);
   }
+
+  get isDark() { return this.themeService.isDark; }
+
+toggleTheme(): void {
+  this.themeService.setTheme(this.themeService.isDark ? 'light' : 'dark');
+}
+
+toggleLang(): void {
+  this.t.switchLang(this.currentLang === 'ar' ? 'en' : 'ar');
+}
 }

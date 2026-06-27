@@ -377,7 +377,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
   /* ✅ الصورة تظهر صح على الموبايل والتابلت */
   :host::before {
-    background-position: center center !important;
+    background-position: 30% center !important;
     background-size: cover !important;
   }
 

@@ -33,7 +33,8 @@ export class CompleteProfileComponent implements OnInit, OnDestroy {
   private langSub?: Subscription;
 
   get currentLang() { return this.t.currentLang(); }
-  get isRtl() { return this.currentLang === 'ar'; }
+  get isRtl()       { return this.currentLang === 'ar'; }
+  get isDark()      { return this.themeService.isDark; }
 
   form = this.fb.group({
     phoneNumber: ['', [Validators.required, phoneValidator]],
@@ -70,6 +71,14 @@ export class CompleteProfileComponent implements OnInit, OnDestroy {
       { value: 0, label: this.translate.instant('auth.completeProfile.genderMale') },
       { value: 1, label: this.translate.instant('auth.completeProfile.genderFemale') },
     ];
+  }
+
+  toggleTheme(): void {
+    this.themeService.setTheme(this.themeService.isDark ? 'light' : 'dark');
+  }
+
+  toggleLang(): void {
+    this.t.switchLang(this.currentLang === 'ar' ? 'en' : 'ar');
   }
 
   onSubmit(): void {

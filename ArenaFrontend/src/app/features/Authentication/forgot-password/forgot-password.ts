@@ -31,7 +31,8 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
   private langSub?: Subscription;
 
   get currentLang() { return this.t.currentLang(); }
-  get isRtl() { return this.currentLang === 'ar'; }
+  get isRtl()       { return this.currentLang === 'ar'; }
+  get isDark()      { return this.themeService.isDark; }
 
   form = this.fb.group({
     email: ['', [Validators.required, Validators.email]]
@@ -43,6 +44,14 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.langSub?.unsubscribe();
+  }
+
+  toggleTheme(): void {
+    this.themeService.setTheme(this.themeService.isDark ? 'light' : 'dark');
+  }
+
+  toggleLang(): void {
+    this.t.switchLang(this.currentLang === 'ar' ? 'en' : 'ar');
   }
 
   onSubmit(): void {
