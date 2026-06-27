@@ -12,14 +12,27 @@ import { NotificationService, NotificationDto } from '../../../core/services/not
   styleUrls: ['./notification-bell.css']
 })
 export class NotificationBellComponent implements OnInit, OnDestroy {
-  readonly svc    = inject(NotificationService);
-  readonly t      = inject(TranslateService);
-  readonly elRef  = inject(ElementRef);
-  readonly open   = signal(false);
+  readonly svc      = inject(NotificationService);
+  readonly t        = inject(TranslateService);
+  readonly elRef    = inject(ElementRef);
+  readonly open     = signal(false);
   readonly panelTop = signal('64px');
 
   private readonly expandedIds = signal<Set<string>>(new Set());
   readonly activeFilter = signal<'all' | 'unread'>('all');
+
+  private header: Element | null = null;
+
+  private updatePanelTop(): void {
+    if (!this.header) {
+      this.header = document.querySelector('header')
+                 ?? document.querySelector('.header')
+                 ?? document.querySelector('nav');
+    }
+    if (this.header) {
+      this.panelTop.set(this.header.getBoundingClientRect().bottom + 'px');
+    }
+  }
 
   private isToday(dateStr: string): boolean {
     const d = new Date(dateStr);
@@ -48,16 +61,12 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
   toggle(e: Event) {
     e.stopPropagation();
     this.open.update(v => !v);
+    if (this.open()) this.updatePanelTop();
+  }
 
-    if (!this.open()) return;
-
-    const header = document.querySelector('header')
-                ?? document.querySelector('.header')
-                ?? document.querySelector('nav');
-    if (header) {
-      const h = header.getBoundingClientRect().bottom;
-      this.panelTop.set(h + 'px');
-    }
+  @HostListener('document:scroll', [])
+  onScroll(): void {
+    if (this.open()) this.updatePanelTop();
   }
 
   @HostListener('document:click', ['$event'])
