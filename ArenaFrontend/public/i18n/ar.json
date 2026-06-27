@@ -21,7 +21,11 @@
     "dashboard": "لوحة التحكم",
     "profile": "الملف الشخصي",
     "pricing": "خطط العضوية",
-    "uploadPhoto": "تحميل صورة"
+    "uploadPhoto": "تحميل صورة",
+    "account": "الحساب",
+    "accountSettings": "إعدادات الحساب",
+    "subscriptionBilling": "الاشتراك والفوترة",
+    "help": "المساعدة والدعم"
   },
   "mealAnalysis": {
     "kicker": "تغذية بالذكاء الاصطناعي",

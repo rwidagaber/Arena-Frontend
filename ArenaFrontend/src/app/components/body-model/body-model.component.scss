@@ -270,6 +270,51 @@
   }
 }
 
+/* ── Light theme ──────────────────────────────────────────────────────
+   The page supplies --card-bg / --card-border for light, but this model also
+   relies on an undefined `--text` var (→ falls back to light text, invisible
+   on the now-white card) and hardcoded white overlays on the chips/menu. Adapt
+   those to dark-on-light so everything stays legible. The 3D stage is left as
+   a deliberate dark "viewport" since the model's lighting is tuned for it. */
+:host-context([data-theme="light"]) {
+  .bm-card { color: var(--text-primary, #272727); }
+
+  .bm-chip {
+    border-color: rgba(39, 39, 39, 0.14);
+    background: rgba(39, 39, 39, 0.04);
+
+    &:hover { background: rgba(39, 39, 39, 0.08); }
+
+    &.active {
+      background: rgba(91, 140, 255, 0.14);
+      border-color: rgba(91, 140, 255, 0.55);
+      color: #2c4a99;
+    }
+  }
+
+  .bm-menu-item {
+    background: rgba(39, 39, 39, 0.04);
+
+    &:hover { background: rgba(39, 39, 39, 0.08); }
+
+    &.active {
+      background: rgba(91, 140, 255, 0.12);
+      border-color: rgba(91, 140, 255, 0.5);
+    }
+  }
+
+  .bm-menu-goal {
+    border-color: rgba(202, 138, 4, 0.45);
+
+    .bm-item-weight { color: #b8860b; }
+
+    &.active {
+      background: rgba(240, 180, 60, 0.18);
+      border-color: rgba(202, 138, 4, 0.7);
+    }
+  }
+}
+
 /* ── Mobile: stack menu above the stage ── */
 @media (max-width: 640px) {
   .bm-body {
