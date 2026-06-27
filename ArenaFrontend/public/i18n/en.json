@@ -209,7 +209,8 @@
       "send": "Send Reset Link",
       "backToLogin": "Back to Sign In",
       "successTitle": "Check your inbox!",
-      "successMessage": "We sent a reset link to"
+      "successMessage": "We sent a reset link to",
+      "rememdered":"remembered"
     },
     "resetPassword": {
       "title": "Reset Password",
@@ -979,9 +980,6 @@
     "planCountSuffix": "diet plans available"
   },
   "workout": {
-    "title": "Workout Plans",
-    "planCountPrefix": "Best workout plans available —",
-    "planCountSuffix": "workout plans available",
     "title": "Workout Plans",
     "planCountPrefix": "Best workout plans available —",
     "planCountSuffix": "workout plans available",

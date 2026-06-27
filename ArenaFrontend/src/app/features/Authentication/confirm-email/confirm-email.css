@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 /* ==========================================================================
    1. Imports & Host Styles
    ========================================================================== */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
 :host-context(html), :host-context(body) {
   margin: 0 !important;
   padding: 0 !important;
@@ -17,11 +17,12 @@
   width: 100% !important;
   max-width: 100% !important;
   min-height: 100vh;
-  height: auto;
+  height: auto !important;
   box-sizing: border-box;
   margin: 0 !important;
   padding: 0 !important;
   overflow-x: hidden !important;
+  overflow-y: auto !important;
   position: relative;
   background-color: transparent !important;
 }
@@ -36,38 +37,73 @@
   background-repeat: no-repeat;
   z-index: 0;
   pointer-events: none;
+  transition: background-image 0.3s ease, background-position 0.3s ease;
 }
 
 :host-context([data-theme="light"])::before {
   background-image: url('/assets/images/man-light.png');
 }
 
+:host-context([dir="rtl"])::before,
+:host-context(:has(.auth-card[dir="rtl"]))::before {
+  background-position: left center;
+}
+
+:host-context([data-theme="light"]):host-context([dir="rtl"])::before {
+  background-image: url('/assets/images/man-light.png');
+  background-position: left center;
+}
+
+:host:has(.auth-card[dir="rtl"]) {
+  flex-direction: row-reverse;
+}
+
+:host:has(.auth-card[dir="rtl"])::before {
+  background-position: left center;
+  transform: scaleX(-1);
+}
+
 /* ==========================================================================
    2. Card Layout & Typography
    ========================================================================== */
 .auth-card {
-  background: var(--card-bg) !important;
-  backdrop-filter: blur(16px) !important;
-  -webkit-backdrop-filter: blur(16px) !important;
-  border-right: 1px solid var(--card-border, rgba(255, 255, 255, 0.08)) !important;
-  border-left: none !important;
-  border-top: none !important;
-  border-bottom: none !important;
-  border-radius: 0 !important;
-  padding: 80px 60px 40px 60px;
+  padding: 80px 45px 40px 45px !important;
   width: 100%;
   max-width: 480px;
-  min-height: 100vh;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  overflow-y: auto;
+
+  height: auto !important;
+  min-height: 100vh !important;
+  max-height: none !important;
+  overflow-y: visible !important;
+
   position: relative;
   z-index: 2;
-  box-shadow: none !important;
   margin: 0;
   text-align: left;
+
+  /* Glass Effect */
+  background: rgba(213, 235, 69, 0.05) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+
+  border-right: 1px solid var(--card-border, rgba(255, 255, 255, 0.2)) !important;
+  border-left: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  border-radius: 0;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15) !important;
+}
+
+.auth-card[dir="rtl"] {
+  margin-left: auto;
+  margin-right: 0;
+  border-right: none !important;
+  border-left: 1px solid var(--card-border, rgba(255, 255, 255, 0.2)) !important;
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15) !important;
 }
 
 .auth-icon-wrap {
@@ -85,18 +121,16 @@
 
 .auth-title {
   color: var(--text-primary) !important;
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 700;
-  margin: 0 0 8px 0;
-  text-align: left;
+  margin: 0 0 6px 0;
   letter-spacing: -0.5px;
 }
 
 .auth-sub {
   color: var(--text-secondary) !important;
-  font-size: 15px;
-  margin: 0 0 32px 0;
-  text-align: left;
+  font-size: 14px;
+  margin: 0 0 24px 0;
   line-height: 1.6;
 }
 
@@ -117,19 +151,19 @@
 .field {
   display: flex;
   flex-direction: column;
-  margin-bottom: 24px;
+  margin-bottom: 22px !important;
   align-items: flex-start;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .field label {
   color: var(--text-primary) !important;
-  font-size: 13px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 16px;
-  opacity: 0.8;
-  text-align: left;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  margin-bottom: 8px !important;
+  opacity: 0.95;
+  letter-spacing: 0.3px;
 }
 
 .otp-boxes-container {
@@ -151,7 +185,7 @@
   font-size: 24px;
   font-weight: 700;
   text-align: center;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
   box-sizing: border-box;
   outline: none;
 }
@@ -159,7 +193,7 @@
 .otp-box:focus {
   border-color: #C6EF2E !important;
   background-color: var(--input-focus-bg, rgba(0, 0, 0, 0.5)) !important;
-  box-shadow: 0 0 0 4px rgba(212, 250, 36, 0.15) !important;
+  box-shadow: 0 0 0 2px rgba(65, 140, 39, 0.15) !important;
 }
 
 .otp-box:-webkit-autofill,
@@ -173,14 +207,14 @@
 }
 
 /* ==========================================================================
-   4. Submit Button
+   4. Submit Button & Spinner
    ========================================================================== */
 .btn-submit {
   display: flex !important;
   justify-content: center !important;
   align-items: center !important;
   width: 100% !important;
-  height: 50px !important;
+  height: 52px !important;
   background-color: #C6EF2E !important;
   color: #0b0c0c !important;
   border: none !important;
@@ -190,13 +224,13 @@
   font-weight: 700 !important;
   cursor: pointer !important;
   transition: all 0.3s ease !important;
-  box-shadow: 0 4px 14px rgba(65, 140, 39, 0.3) !important;
-  margin-top: 15px !important;
+  box-shadow: 0 4px 14px rgba(117, 245, 74, 0.3) !important;
+  margin-top: 18px !important;
 }
 
 .btn-submit:hover:not(:disabled) {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 6px 20px rgba(65, 140, 39, 0.5) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 5px 15px rgba(118, 236, 79, 0.4) !important;
 }
 
 .btn-submit:disabled {
@@ -208,30 +242,42 @@
   transform: none !important;
 }
 
+.spinner {
+  width: 18px !important;
+  height: 18px !important;
+  border: 2px solid rgba(11, 12, 12, 0.3) !important;
+  border-top-color: #0b0c0c !important;
+  border-radius: 50% !important;
+  animation: spin 0.7s linear infinite !important;
+  flex-shrink: 0;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
 /* ==========================================================================
    5. Errors & Resend
    ========================================================================== */
 .banner.error {
   background-color: rgba(239, 68, 68, 0.1) !important;
-  border: 1px solid rgba(239, 68, 68, 0.2) !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
   color: #ef4444 !important;
-  padding: 12px 16px;
-  border-radius: 10px;
-  font-size: 14px;
-  margin-bottom: 24px;
+  padding: 10px !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  margin-bottom: 12px !important;
+  text-align: center !important;
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 8px;
-  font-weight: 500;
+  justify-content: center;
 }
 
 .err {
   color: #ef4444 !important;
-  font-size: 12px;
-  margin-top: 8px;
-  font-weight: 500;
-  text-align: left;
+  font-size: 11.5px !important;
+  margin-top: 4px !important;
+  font-weight: 500 !important;
+  display: block !important;
 }
 
 .resend-section {
@@ -243,16 +289,15 @@
 
 .switch-text {
   color: var(--text-secondary) !important;
-  font-size: 14px;
+  font-size: 13.5px;
   margin: 0;
-  text-align: left;
 }
 
 .link-btn {
   background: none;
   border: none;
   color: #C6EF2E !important;
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 700;
   cursor: pointer;
   padding: 0 0 0 4px;
@@ -272,25 +317,42 @@
   opacity: 0.5;
 }
 
-.spinner {
-  width: 20px !important;
-  height: 20px !important;
-  border: 2px solid rgba(11, 12, 12, 0.2) !important;
-  border-top-color: #0b0c0c !important;
-  border-radius: 50% !important;
-  animation: spin 0.8s linear infinite !important;
+/* ==========================================================================
+   6. Visual Side & Responsive
+   ========================================================================== */
+.auth-visual-side {
+  flex: 1;
+  background: transparent !important;
+  position: relative;
+  z-index: 1;
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* ==========================================================================
-   6. Responsive
-   ========================================================================== */
 @media (max-width: 900px) {
+  .auth-visual-side { display: none; }
+
+  :host::before {
+    background-position: center center !important;
+    background-size: cover !important;
+  }
+
+  :host:has(.auth-card[dir="rtl"])::before {
+    background-position: center center !important;
+    transform: none !important;
+  }
+
   .auth-card {
     max-width: 100%;
-    padding: 60px 24px 40px 24px;
-    background: var(--card-bg-mobile, rgba(11, 12, 12, 0.90)) !important;
+    padding: 60px 24px 40px 24px !important;
+    background: rgba(213, 235, 69, 0.05) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: none !important;
+    margin: 0 !important;
+    justify-content: flex-start !important;
+    height: auto !important;
+    min-height: 100vh !important;
+    max-height: none !important;
+    overflow-y: auto !important;
   }
 }
 
@@ -304,7 +366,9 @@
   .otp-boxes-container { gap: 6px !important; }
 }
 
-/* RTL Support */
+/* ==========================================================================
+   7. RTL Support
+   ========================================================================== */
 .auth-card[dir="rtl"] .auth-title,
 .auth-card[dir="rtl"] .auth-sub,
 .auth-card[dir="rtl"] .field label,
@@ -313,20 +377,53 @@
   text-align: right;
 }
 
-.auth-card[dir="rtl"] {
-  border-right: none !important;
-  border-left: 1px solid var(--card-border, rgba(255, 255, 255, 0.08)) !important;
-}
-
 .auth-card[dir="rtl"] .otp-boxes-container {
-  direction: ltr; /* الـ OTP يفضل LTR دايماً */
+  direction: ltr;
 }
 
 .auth-card[dir="rtl"] .link-btn {
   padding: 0 4px 0 0;
 }
 
-:host:has([dir="rtl"])::before {
-  background-position: left center;
-  transform: scaleX(-1);
+
+.top-controls {
+  display: flex;
+  gap: 8px;
+  align-self: flex-end;
+  margin-bottom: 16px;
+}
+
+.ctrl-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color, rgba(255,255,255,0.15));
+  background: var(--input-bg, rgba(255,255,255,0.06));
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+  flex-shrink: 0;
+}
+
+.ctrl-btn:hover {
+  border-color: #C6EF2E;
+  color: #C6EF2E;
+  background: rgba(198, 239, 46, 0.08);
+}
+
+.ctrl-btn svg { stroke: currentColor; }
+
+.lang-btn {
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  letter-spacing: 0.5px;
+}
+
+.auth-card[dir="rtl"] .top-controls {
+  align-self: flex-start;
 }
