@@ -279,6 +279,14 @@
         </div>
       </div>
 
+      <!-- ── 3D body model (MakeHuman-authored mesh + progress timeline) ── -->
+      <app-body-model
+        [gender]="bodyGender()"
+        [heightCm]="bodyHeight()"
+        [logs]="bodyLogs()"
+        [targetWeightKg]="bodyTargetWeight()"
+      />
+
       <!-- ── Motivation banner (web image) ── -->
       <div class="moti" [class]="momentumTier()?.cls ?? ''">
         <img class="moti-img" src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1400&q=70" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'" />

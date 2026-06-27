@@ -1,54 +1,73 @@
 @if (summary(); as s) {
-  <div class="daily-summary-card" [class.over-target]="s.isOverTarget">
-    <div class="daily-summary-head">
-      <span class="daily-summary-kicker">{{ t.translate('nutrition.todaysIntake') }}</span>
-      <p class="daily-summary-message">{{ s.message }}</p>
+  <div class="card glass-card intake-card" [class.over-target]="s.isOverTarget">
+
+    <div class="intake-head">
+      <span class="intake-kicker">{{ t.translate('nutrition.todaysIntake') }}</span>
+      @if (s.hasActivePlan) {
+        <span class="intake-meals">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+            <path d="M3 2v7c0 1.1.9 2 2 2h0a2 2 0 0 0 2-2V2"/><path d="M5 2v20"/><path d="M21 15V2a5 5 0 0 0-3 9v8"/>
+          </svg>
+          {{ s.mealsLoggedToday }} {{ t.translate('nutrition.mealsLoggedToday') }}
+        </span>
+      }
     </div>
 
     @if (s.hasActivePlan) {
-      <div class="daily-summary-calories">
-        <div class="daily-cal-block">
-          <span>{{ t.translate('nutrition.consumed') }}</span>
-          <strong>{{ s.consumedCalories | number:'1.0-0' }}</strong>
-          <small>{{ t.translate('nutrition.kcal') }}</small>
+      <!-- Calories: remaining is the focal figure -->
+      <div class="intake-cals">
+        <div class="intake-cals-main">
+          <span class="intake-cals-num">{{ (s.isOverTarget ? -s.remainingCalories : s.remainingCalories) | number:'1.0-0' }}</span>
+          <span class="intake-cals-label">
+            {{ t.translate('nutrition.kcal') }}
+            <small>{{ s.isOverTarget ? t.translate('nutrition.overTarget') : t.translate('nutrition.remaining') }}</small>
+          </span>
         </div>
-        <div class="daily-cal-block remaining" [class.negative]="s.remainingCalories < 0">
-          <span>{{ s.isOverTarget ? t.translate('nutrition.overBy') : t.translate('nutrition.remaining') }}</span>
-          <strong>{{ (s.remainingCalories < 0 ? -s.remainingCalories : s.remainingCalories) | number:'1.0-0' }}</strong>
-          <small>{{ t.translate('nutrition.kcal') }}</small>
+
+        <div class="intake-track">
+          <div class="intake-track-fill" [style.width.%]="consumedPercent(s)"></div>
         </div>
-        <div class="daily-cal-block">
-          <span>{{ t.translate('nutrition.target') }}</span>
-          <strong>{{ s.dailyCalorieTarget | number:'1.0-0' }}</strong>
-          <small>{{ t.translate('nutrition.kcal') }}</small>
+
+        <div class="intake-cals-foot">
+          <span><strong>{{ s.consumedCalories | number:'1.0-0' }}</strong> {{ t.translate('nutrition.consumed') }}</span>
+          <span><strong>{{ s.dailyCalorieTarget | number:'1.0-0' }}</strong> {{ t.translate('nutrition.target') }}</span>
         </div>
       </div>
 
-      <div class="daily-summary-bar">
-        <div class="daily-summary-bar-fill" [style.width.%]="consumedPercent(s)"></div>
-      </div>
+      <!-- Macros: remaining + consumed/target progress -->
+      <div class="intake-macros">
+        <div class="macro macro--protein">
+          <div class="macro-top">
+            <span class="macro-name">{{ t.translate('nutrition.protein') }}</span>
+            <span class="macro-val"><strong>{{ s.remainingProtein | number:'1.0-0' }}g</strong> {{ t.translate('nutrition.left') }}</span>
+          </div>
+          <div class="macro-track">
+            <div class="macro-fill" [style.width.%]="macroPercent(s.consumedProtein, s.dailyProteinTarget)"></div>
+          </div>
+        </div>
 
-      <div class="daily-summary-macros">
-        <div class="daily-macro protein">
-          <span>{{ t.translate('nutrition.protein') }}</span>
-          <strong>{{ s.remainingProtein | number:'1.0-0' }}g</strong>
-          <small>{{ t.translate('nutrition.left') }}</small>
+        <div class="macro macro--carbs">
+          <div class="macro-top">
+            <span class="macro-name">{{ t.translate('nutrition.carbs') }}</span>
+            <span class="macro-val"><strong>{{ s.remainingCarbs | number:'1.0-0' }}g</strong> {{ t.translate('nutrition.left') }}</span>
+          </div>
+          <div class="macro-track">
+            <div class="macro-fill" [style.width.%]="macroPercent(s.consumedCarbs, s.dailyCarbsTarget)"></div>
+          </div>
         </div>
-        <div class="daily-macro carbs">
-          <span>{{ t.translate('nutrition.carbs') }}</span>
-          <strong>{{ s.remainingCarbs | number:'1.0-0' }}g</strong>
-          <small>{{ t.translate('nutrition.left') }}</small>
-        </div>
-        <div class="daily-macro fat">
-          <span>{{ t.translate('nutrition.fat') }}</span>
-          <strong>{{ s.remainingFat | number:'1.0-0' }}g</strong>
-          <small>{{ t.translate('nutrition.left') }}</small>
+
+        <div class="macro macro--fat">
+          <div class="macro-top">
+            <span class="macro-name">{{ t.translate('nutrition.fat') }}</span>
+            <span class="macro-val"><strong>{{ s.remainingFat | number:'1.0-0' }}g</strong> {{ t.translate('nutrition.left') }}</span>
+          </div>
+          <div class="macro-track">
+            <div class="macro-fill" [style.width.%]="macroPercent(s.consumedFat, s.dailyFatTarget)"></div>
+          </div>
         </div>
       </div>
-
-      <p class="daily-summary-meals">
-        {{ s.mealsLoggedToday }} {{ t.translate('nutrition.mealsLoggedToday') }}
-      </p>
+    } @else {
+      <p class="intake-message">{{ s.message }}</p>
     }
   </div>
 }

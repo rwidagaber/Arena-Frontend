@@ -49,6 +49,7 @@ export class Nutritionplan implements OnInit, OnDestroy {
   // ── Daily Calorie Tracking ────────────────────────────────────────────────────
   dailySummary       = signal<DailyNutritionSummaryDto | null>(null);
   activePlan         = computed(() => this.allPlans().find(p => p.isActive) ?? null);
+  activePlanCount    = computed(() => this.allPlans().filter(p => p.isActive).length);
   dailyCalorieTarget = computed(
     () => this.dailySummary()?.dailyCalorieTarget ?? this.activePlan()?.dailyCalories ?? 0
   );
@@ -230,8 +231,10 @@ export class Nutritionplan implements OnInit, OnDestroy {
         }
         this.togglingPlanId.set(null);
       },
-      error: () => {
-        this.error.set(this.t.translate('nutrition.planUpdateFailed'));
+      error: (err) => {
+        const e = err?.error;
+        const msg = Array.isArray(e) ? e[0] : (typeof e === 'string' ? e : this.t.translate('nutrition.planUpdateFailed'));
+        this.error.set(msg);
         this.togglingPlanId.set(null);
       },
     });

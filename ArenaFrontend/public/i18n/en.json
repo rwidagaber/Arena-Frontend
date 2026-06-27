@@ -21,7 +21,11 @@
     "dashboard": "Dashboard",
     "profile": "Profile",
     "pricing": "Membership Plans",
-    "uploadPhoto": "Upload photo"
+    "uploadPhoto": "Upload photo",
+    "account": "Account",
+    "accountSettings": "Account Settings",
+    "subscriptionBilling": "Subscription & Billing",
+    "help": "Help & Support"
   },
   "mealAnalysis": {
     "kicker": "AI Nutrition",
@@ -146,7 +150,12 @@
     "statYears": "Years Experience",
     "statMembers": "Active Members",
     "statTrainers": "Expert Trainers",
-    "statClasses": "Weekly Classes"
+    "statClasses": "Weekly Classes",
+    "heroEyebrow": "Arena Smart Gym",
+    "heroLine1": "Train like you",
+    "heroLine2": "mean it.",
+    "heroSub": "No shortcuts. No excuses. Just you, the work, and the results you came for.",
+    "join": "Start training"
   },
   "auth": {
     "login": {
@@ -318,7 +327,8 @@
     "settings": "Settings",
     "logout": "Logout",
     "chatbot": "ChatBot",
-    "getPlanDetails": "Get Plan Details"
+    "getPlanDetails": "Get Plan Details",
+    "openNav": "Open navigation menu"
   },
   "section": {
     "workoutPlaceholder": "Your personalized workout plan will appear here.",
@@ -628,6 +638,30 @@
     "motivation11": "You're building something permanent",
     "motivation12": "Stay hungry. Stay humble.",
     "motivation13": "The scale doesn't define your worth"
+  },
+  "bodyModel": {
+    "title": "Your 3D Body",
+    "subtitle": "A 3D view of your physique, shaped from your measurements. Pick a date — or your goal — to see how your body looks.",
+    "preview": "Stylized",
+    "placeholderHint": "A stylized 3D figure shaped from your measurements.",
+    "dragHint": "Drag to rotate",
+    "timeline": "Measurements",
+    "needLogs": "Log a progress entry to see your 3D body.",
+    "bmiShort": "BMI",
+    "goal": "Goal",
+    "goalView": "Goal projection",
+    "bodyType": "Body type",
+    "shape": {
+      "hourglass": "Hourglass",
+      "pear": "Pear",
+      "apple": "Apple",
+      "rectangle": "Rectangle",
+      "invertedTriangle": "Inverted triangle",
+      "diamond": "Diamond",
+      "trapezoid": "Trapezoid",
+      "triangle": "Triangle"
+    },
+    "noWebgl": "Your browser or device doesn't support 3D (WebGL), so the body model can't be shown."
   },
   "memberProfile": {
     "dashboardLabel": "MEMBER DASHBOARD",
@@ -974,6 +1008,7 @@
     "deactivate": "Deactivate",
     "updatingPlan": "Updating...",
     "planUpdateFailed": "Could not update the plan. Please try again.",
+    "mustKeepOneActive": "You must keep at least one active plan.",
     "title": "Diet plans",
     "planCountPrefix": "Best diet plans available —",
     "planCountSuffix": "diet plans available"
