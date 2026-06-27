@@ -14,7 +14,10 @@
   </button>
 
   @if (open()) {
-    <div class="notif-panel" (click)="$event.stopPropagation()">
+    <div class="notif-panel"
+         [style.--panel-top]="panelTop()"
+         (click)="$event.stopPropagation()">
+
       <div class="notif-header">
         <span class="notif-title">{{ 'notifications.title' | translate }}</span>
         @if (svc.unreadCount() > 0) {
