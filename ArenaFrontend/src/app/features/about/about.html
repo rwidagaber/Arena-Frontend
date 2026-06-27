@@ -1,57 +1,93 @@
-
-<section class="about-hero">
-  <div class="about-hero-overlay"></div>
-  <div class="about-hero-content">
-    <span class="badge">{{ 'ABOUT.BADGE' | translate }}</span>
-    <h1 class="title">{{ 'ABOUT.TITLE' | translate }}</h1>
+<section class="about-hero-section">
+  <div class="hero-overlay"></div>
+  <div class="hero-container">
+    <h1 class="giant-stroke-text">LEARN ABOUT US</h1>
   </div>
 </section>
 
-<section class="about-content">
-  <div class="container">
-    
-    <div class="mission-vision-wrapper">
-      <div class="mission-card">
-        <div class="icon-wrapper">
-          <i class="fa fa-bullseye"></i>
-        </div>
-        <h2>{{ 'ABOUT.MISSION_TITLE' | translate }}</h2>
-        <p>{{ 'ABOUT.MISSION_DESC' | translate }}</p>
+
+<section class="premium-statement-section">
+  <div class="statement-container">
+    <div class="statement-row">
+      
+      <div class="statement-left">
+        <span class="arena-badge">ABOUT ARENA</span>
+      </div>
+      
+      <div class="statement-right">
+        <h2 class="animated-statement">
+          <span class="anim-line">WE ARE DEDICATED TO</span>
+          <span class="anim-line">HELPING YOU LIVE A</span>
+          <span class="anim-line"><span class="highlight-neon">STRONGER, HEALTHIER,</span></span>
+          <span class="anim-line">& CONFIDENT LIFE.</span>
+        </h2>
       </div>
 
-      <div class="vision-card">
-        <div class="icon-wrapper">
-          <i class="fa fa-eye"></i>
-        </div>
-        <h2>{{ 'ABOUT.VISION_TITLE' | translate }}</h2>
-        <p>{{ 'ABOUT.VISION_DESC' | translate }}</p>
-      </div>
     </div>
+  </div>
+</section>
 
-    <div class="core-values-section">
-      <h2 class="section-title">{{ 'ABOUT.VALUES_TITLE' | translate }}</h2>
-      <div class="values-grid">
+
+<section class="mission-vision-section">
+  <div class="mv-container">
+    <div class="mv-grid">
+      
+      <div class="mv-tabs-card">
+        <div class="tabs-header">
+          <button class="tab-btn" [class.active]="activeTab === 'mission'" (click)="activeTab = 'mission'">OUR MISSION</button>
+          <button class="tab-btn" [class.active]="activeTab === 'vision'" (click)="activeTab = 'vision'">OUR VISION</button>
+        </div>
         
-        <div class="value-item">
-          <i class="fa fa-star value-icon"></i>
-          <h3>{{ 'ABOUT.VALUE_1_TITLE' | translate }}</h3>
-          <p>{{ 'ABOUT.VALUE_1_DESC' | translate }}</p>
-        </div>
+        <div class="tabs-content">
 
-        <div class="value-item">
-          <i class="fa fa-users value-icon"></i>
-          <h3>{{ 'ABOUT.VALUE_2_TITLE' | translate }}</h3>
-          <p>{{ 'ABOUT.VALUE_2_DESC' | translate }}</p>
-        </div>
+          @if (activeTab === 'mission') {
+            <div class="tab-pane-content">
+              <p class="mv-description">
+                Our mission is to engineer an elite, high-performance fitness ecosystem that completely redefines the training experience. We bridge the gap between raw human potential and scientific athletic conditioning. Through top-tier biomechanical equipment, custom data-driven programming, and an unyielding community culture, we empower every individual to break genetic boundaries, cultivate physical resilience, and dominate their personal fitness goals.
+              </p>
+              <ul class="mv-features-list">
+                <li><span class="bullet-icon">◆</span> <strong>Next-Gen Smart Equipment:</strong> Access to advanced AI-integrated machines tracking your muscle engagement in real-time.</li>
+                <li><span class="bullet-icon">◆</span> <strong>Hyper-Personalized Coaching:</strong> Customized training blueprints designed by elite certified athletes and nutritionists.</li>
+                <li><span class="bullet-icon">◆</span> <strong>Result-Driven Training Programs:</strong> Scientific methodologies optimized for fat loss, hypertrophy, and functional strength.</li>
+                <li><span class="bullet-icon">◆</span> <strong>Elite Hybrid Recovery Systems:</strong> Specialized modern recovery zones to reduce fatigue and prevent athletic injuries.</li>
+              </ul>
+            </div>
+          }
 
-        <div class="value-item">
-          <i class="fa fa-bolt value-icon"></i>
-          <h3>{{ 'ABOUT.VALUE_3_TITLE' | translate }}</h3>
-          <p>{{ 'ABOUT.VALUE_3_DESC' | translate }}</p>
-        </div>
+          @if (activeTab === 'vision') {
+            <div class="tab-pane-content">
+              <p class="mv-description">
+                Our vision is to become the ultimate regional benchmark for smart fitness, athletic excellence, and lifestyle longevity. We aim to inspire a revolutionary shift in how people perceive physical training—transforming it from a chore into a precise science of self-mastery. By continuously integrating cutting-edge sports tech and fostering mental grit, Arena Smart Gym aspires to build a global legacy of healthier, stronger, and completely unstoppable individuals.
+              </p>
+              <ul class="mv-features-list">
+                <li><span class="bullet-icon">◆</span> <strong>Global Community Expansion:</strong> Scaling the Arena standard to become the destination for high-end fitness enthusiasts.</li>
+                <li><span class="bullet-icon">◆</span> <strong>Pioneering Fitness Innovation:</strong> Leading the fitness industry by introducing the latest international athletic tech.</li>
+                <li><span class="bullet-icon">◆</span> <strong>Fostering Longevity & Mental Grit:</strong> Enhancing our members' cognitive focus, discipline, and long-term vital health.</li>
+                <li><span class="bullet-icon">◆</span> <strong>Holistic Wellness Ecosystems:</strong> Creating a unified space where premium nutrition, recovery, and training seamlessly unite.</li>
+              </ul>
+              <button class="mv-action-btn" [routerLink]="'/plans'" routerLinkActive="text-lime-active">EXPLORE MEMBERSHIPS</button>
+            </div>
+          }
 
+        </div>
       </div>
-    </div>
+      
+      <div class="mv-image-block">
+        <div class="image-wrapper">
+          <img src="assets/images/pull.png" alt="Arena Athlete" class="mv-main-img">
+        </div>
+        
+        <div class="neon-quote-card">
+          <p class="quote-text">
+            "THE ONLY PLACE WHERE SUCCESS COMES BEFORE WORK IS IN THE DICTIONARY. WE BUILD GRIT."
+          </p>
+          <div class="quote-author">
+            <div class="author-avatar-placeholder"></div>
+            <span class="author-name">ARENA TEAM</span>
+          </div>
+        </div>
+      </div>
 
+    </div>
   </div>
 </section>
