@@ -20,35 +20,42 @@
   <div class="workout-content">
 
     @if (view() === 'plans') {
-      <div class="search-container">
-        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    <div class="search-container">
+
+  <!-- wrapper يلف الـ input مع الـ icon والـ clear button -->
+  <div class="search-input-wrapper">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input
+      type="text"
+      [placeholder]="t.instant('workout.searchPlaceholder')"
+      class="search-input"
+      [value]="searchQuery()"
+      (input)="searchQuery.set($any($event.target).value)"
+    />
+    @if (searchQuery()) {
+      <button class="search-clear" (click)="searchQuery.set('')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
         </svg>
-        <input
-          type="text"
-          [placeholder]="t.instant('workout.searchPlaceholder')"
-          class="search-input"
-          [value]="searchQuery()"
-          (input)="searchQuery.set($any($event.target).value)"
-        />
-        <button
-          class="btn-active-filter"
-          [class.is-active]="showActiveOnly()"
-          (click)="showActiveOnly.set(!showActiveOnly())"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-            <circle cx="12" cy="12" r="10"/><polyline points="9 11 12 14 22 4"/>
-          </svg>
-          {{ t.instant('workout.active') }}
-        </button>
-        @if (searchQuery()) {
-          <button class="search-clear" (click)="searchQuery.set('')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
-          </button>
-        }
-      </div>
+      </button>
+    }
+  </div>
+
+  <!-- الفلتر sibling مباشر للـ wrapper، مش جواه -->
+  <button
+    class="btn-active-filter"
+    [class.is-active]="showActiveOnly()"
+    (click)="showActiveOnly.set(!showActiveOnly())"
+  >
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+      <circle cx="12" cy="12" r="10"/><polyline points="9 11 12 14 22 4"/>
+    </svg>
+    {{ t.instant('workout.active') }}
+  </button>
+
+</div>
     }
 
     @if (loading()) {
@@ -107,13 +114,13 @@
             @for (plan of paginatedPlans(); track plan.id; let i = $index) {
               <div
                 class="custom-plan-card"
-                [class.plan-card-active]="plan.isActive"
+                [class.plan-card-active]="plan.id === latestPlanId()"
                 (click)="openPlan(plan)"
                 [style.animation-delay]="i * 75 + 'ms'"
               >
                 <div class="card-info-side">
                   <div class="card-status-row">
-                    @if (plan.isActive) {
+                    @if (plan.id === latestPlanId()) {
                       <span class="custom-active-badge">{{ t.instant('workout.active') }}</span>
                     } @else {
                       <span class="custom-inactive-badge">{{ t.instant('workout.plan') }}</span>
@@ -165,7 +172,7 @@
             </svg>
             {{ t.instant('workout.backToPlans') }}
           </button>
-          @if (plan.isActive) {
+          @if (plan.id === latestPlanId()) {
             <span class="custom-active-badge">{{ t.instant('workout.activePlan') }}</span>
           }
         </div>
@@ -237,11 +244,12 @@
               >
                 <div class="meal-card-header-accent">
                   <div class="meal-avatar-icon-box">
-<img
-    [src]="muscleGroupIcon(ex.exercise?.muscleGroup ?? '')"
-    alt=""
-    class="ex-icon-img"
-  />                  </div>
+                    <img
+                      [src]="muscleGroupIcon(ex.exercise?.muscleGroup ?? '')"
+                      alt=""
+                      class="ex-icon-img"
+                    />
+                  </div>
                   @if (ex.exercise?.muscleGroup) {
                     <span class="meal-badge-tag-type" [class]="getMuscleGroupColor(ex.exercise!.muscleGroup)">
                       {{ translateMuscleGroup(ex.exercise!.muscleGroup) }}
@@ -310,7 +318,7 @@
       }
 
       @else if (view() === 'exercise-detail' && selectedExercise(); as ex) {
-<div class="detail-header">
+        <div class="detail-header">
           <button class="btn-back" (click)="goBack()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
               <polyline points="15 18 9 12 15 6"/>
