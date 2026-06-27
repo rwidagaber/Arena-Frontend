@@ -5,6 +5,7 @@ import { HeaderComponent } from './shared/header/header';
 import { FooterComponent } from './shared/components/footer/footer';
 import { FloatingChatButtonComponent } from './shared/components/floating-chat-button/floating-chat-button';
 import { DashboardSidebar, DashboardSection } from './components/member-profile/dashboard-sidebar/dashboard-sidebar';
+import { CursorGlowComponent } from './shared/components/cursor-glow/cursor-glow';
 import { TranslateService } from '@ngx-translate/core';
 import { ThemeService } from '../app/core/services/themeservice';
 import { AuthService } from './core/services/auth';
@@ -19,6 +20,7 @@ import { filter } from 'rxjs/operators';
     FooterComponent,
     FloatingChatButtonComponent,
     DashboardSidebar,
+    CursorGlowComponent,
   ],
   templateUrl: './app.html',
   styleUrl: './app.css'
