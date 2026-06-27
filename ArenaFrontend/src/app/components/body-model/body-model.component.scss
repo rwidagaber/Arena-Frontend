@@ -337,4 +337,20 @@
     flex: 0 0 auto;
     min-width: 130px;
   }
+
+  .bm-canvas {
+    height: 320px;
+  }
+}
+
+@media (max-width: 480px) {
+  .bm-canvas {
+    height: 260px;
+  }
+}
+
+@media (max-width: 380px) {
+  .bm-canvas {
+    height: 220px;
+  }
 }
