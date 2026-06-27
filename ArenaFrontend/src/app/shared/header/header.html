@@ -19,18 +19,13 @@
           </a>
         </li>
         <li>
-          <a routerLink="/" fragment="membership" class="nav-item-exact">
+          <a routerLink="/plans" routerLinkActive="text-lime-active" class="nav-item-exact">
             {{ 'header.pricing' | translate }}
           </a>
         </li>
         <li>
           <a routerLink="/contact" routerLinkActive="text-lime-active" class="nav-item-exact">
             {{ 'header.contact' | translate }}
-          </a>
-        </li>
-        <li>
-          <a routerLink="/chat" class="nav-item-exact" [class.text-lime-active]="activeTab === 'chat'">
-            Chat
           </a>
         </li>
       </ul>
@@ -40,7 +35,7 @@
 
       <button
         type="button"
-        class="theme-toggle-btn"
+        class="theme-toggle-btn d-none d-lg-flex"
         (click)="toggleTheme()"
         [attr.aria-label]="themeService.isDark ? 'Switch to light mode' : 'Switch to dark mode'"
       >
@@ -64,11 +59,14 @@
     <app-notification-bell></app-notification-bell>
   </ng-container>
   <app-notification-toast></app-notification-toast>
-      <button type="button" class="btn-lang-exact font-display text-decoration-none" (click)="toggleLang()">
+      <button type="button" class="btn-lang-exact font-display text-decoration-none d-none d-lg-inline-block" (click)="toggleLang()">
         {{ currentLang === 'en' ? 'AR' : 'EN' }}
       </button>
 
       <ng-container *ngIf="currentUser$ | async as user; else loginButtons">
+        <!-- Avatar stays visible on every screen size. On smaller screens its
+             dropdown popup is hidden (below) because the account actions are
+             merged into the hamburger menu instead. -->
         <div class="user-dropdown-container">
           <div class="user-trigger-wrapper" (click)="toggleDropdown(); $event.stopPropagation()">
             <div class="user-avatar-circle" [class.uploading]="uploadingAvatar()">
@@ -104,7 +102,7 @@
           </div>
 
           @if (dropdownOpen) {
-            <div class="user-dropdown-menu" 
+            <div class="user-dropdown-menu d-none d-lg-block"
                  [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'"
                  [ngClass]="currentLang === 'ar' ? 'dropdown-menu-rtl' : 'dropdown-menu-ltr'">
               
@@ -183,17 +181,64 @@
     <a routerLink="/about" routerLinkActive="text-lime-active" class="mobile-link" (click)="closeMobileMenu()">
       {{ 'header.about' | translate }}
     </a>
-    <a routerLink="/" fragment="membership" class="mobile-link" (click)="closeMobileMenu()">
+    <a routerLink="/plans" routerLinkActive="text-lime-active" class="mobile-link" (click)="closeMobileMenu()">
       {{ 'header.pricing' | translate }}
     </a>
     <a routerLink="/contact" routerLinkActive="text-lime-active" class="mobile-link" (click)="closeMobileMenu()">
       {{ 'header.contact' | translate }}
     </a>
-    <a routerLink="/chat" class="mobile-link" [class.text-lime-active]="activeTab === 'chat'" (click)="closeMobileMenu()">
-      Chat
-    </a>
+
+    <!-- Account actions, merged in from the avatar dropdown (small screens only) -->
+    <ng-container *ngIf="currentUser$ | async">
+      <div class="mobile-menu-gap"></div>
+      <button type="button" class="mobile-link mobile-account-item" (click)="navigateToSection('settings', $event); closeMobileMenu()">
+        {{ 'header.accountSettings' | translate }}
+      </button>
+      <button type="button" class="mobile-link mobile-account-item" (click)="navigateToSection('membership', $event); closeMobileMenu()">
+        {{ 'header.subscriptionBilling' | translate }}
+      </button>
+      <button type="button" class="mobile-link mobile-account-item" (click)="goToHelp($event); closeMobileMenu()">
+        {{ 'header.help' | translate }}
+      </button>
+    </ng-container>
+
+    <!-- Theme + language preferences (moved here from the top bar on small screens) -->
+    <div class="mobile-menu-gap"></div>
+    <button type="button" class="mobile-link mobile-pref-row" (click)="toggleTheme()"
+            [attr.aria-label]="themeService.isDark ? 'Switch to light mode' : 'Switch to dark mode'">
+      <span class="mobile-pref-label">
+        <svg *ngIf="themeService.isDark" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+        <svg *ngIf="!themeService.isDark" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+        {{ 'header.theme' | translate }}
+      </span>
+      <span class="mobile-pref-value">{{ (themeService.isDark ? 'header.darkMode' : 'header.lightMode') | translate }}</span>
+    </button>
+    <button type="button" class="mobile-link mobile-pref-row" (click)="toggleLang()">
+      <span class="mobile-pref-label">
+        <i class="bi bi-translate"></i>
+        {{ 'header.language' | translate }}
+      </span>
+      <span class="mobile-pref-value">{{ currentLang === 'en' ? 'English' : 'العربية' }}</span>
+    </button>
+
+    <!-- Logout (logged in), isolated at the bottom -->
+    <ng-container *ngIf="currentUser$ | async">
+      <div class="mobile-menu-gap"></div>
+      <button type="button" class="mobile-link mobile-account-logout" (click)="logout($event); closeMobileMenu()">
+        {{ 'header.logout' | translate }}
+      </button>
+    </ng-container>
 
     <ng-container *ngIf="!(currentUser$ | async)">
+      <div class="mobile-menu-gap"></div>
       <a routerLink="/login" class="mobile-link" (click)="closeMobileMenu()">
         {{ 'header.login' | translate }}
       </a>
