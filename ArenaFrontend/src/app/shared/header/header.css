@@ -113,7 +113,11 @@
 .max-header-width {
   max-width: 1320px;
   position: relative;
-  z-index: 2;
+  /* Above the scroll-progress indicator (z-index: 3) so the user dropdown,
+     which lives inside this content layer, can sit over it. The indicator is
+     at the header's bottom edge and never overlaps the bar content, so this is
+     visually safe — and the scroll indicator itself is left untouched. */
+  z-index: 4;
 }
 
 /* ==========================================================================
@@ -466,14 +470,14 @@
 /* 🌓 تنسيق الألوان للوضع الداكن (الافتراضي) */
 .user-dropdown-menu {
   background-color: rgba(20, 21, 23, 0.96) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5) !important;
+  border: 1px solid rgba(198, 239, 46, 0.14) !important;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(198, 239, 46, 0.05) !important;
 }
 .user-dropdown-menu .dropdown-header-name { color: #ffffff !important; }
 .user-dropdown-menu .dropdown-item { color: #b3b3b3 !important; }
-.user-dropdown-menu .dropdown-item:hover:not(:disabled) { 
-  background-color: rgba(255, 255, 255, 0.06) !important; 
-  color: #ffffff !important; 
+.user-dropdown-menu .dropdown-item:not(.dropdown-logout):hover:not(:disabled) {
+  background-color: rgba(198, 239, 46, 0.1) !important;
+  color: #C6EF2E !important;
 }
 .user-dropdown-menu .dropdown-divider { background-color: rgba(255, 255, 255, 0.08) !important; }
 
@@ -485,9 +489,9 @@
 }
 :host-context([data-theme="light"]) .user-dropdown-menu .dropdown-header-name { color: #141517 !important; }
 :host-context([data-theme="light"]) .user-dropdown-menu .dropdown-item { color: #4a4a4a !important; }
-:host-context([data-theme="light"]) .user-dropdown-menu .dropdown-item:hover:not(:disabled) { 
-  background-color: rgba(0, 0, 0, 0.05) !important; 
-  color: #000000 !important; 
+:host-context([data-theme="light"]) .user-dropdown-menu .dropdown-item:not(.dropdown-logout):hover:not(:disabled) {
+  background-color: rgba(198, 239, 46, 0.14) !important;
+  color: #3f6307 !important;
 }
 :host-context([data-theme="light"]) .user-dropdown-menu .dropdown-divider { background-color: rgba(0, 0, 0, 0.06) !important; }
 
@@ -519,7 +523,7 @@
 .dropdown-header-info { display: flex !important; align-items: center !important; gap: 12px !important; padding: 6px 8px 10px 8px !important; }
 .user-dropdown-menu[dir="rtl"] .dropdown-header-info { flex-direction: row !important; }
   .dropdown-header-text { display: flex !important; flex-direction: column !important; }
-.dropdown-header-plan { color: #4DA352 !important; font-size: 12px !important; font-weight: 500 !important; }
+.dropdown-header-plan { color: var(--accent-text) !important; font-size: 12px !important; font-weight: 600 !important; }
 .dropdown-subscription-pill { background: rgba(77, 163, 82, 0.15) !important; color: #4DA352 !important; text-align: center !important; padding: 8px !important; border-radius: 8px !important; font-size: 13px !important; font-weight: 600 !important; cursor: pointer; margin: 4px 0 8px 0 !important; }
 .dropdown-divider { height: 1px; margin: 6px 0 !important; width: 100%; }
 .dropdown-item { width: 100% !important; background: transparent !important; border: none !important; padding: 9px 12px !important; font-size: 13.5px !important; font-weight: 500 !important; border-radius: 8px !important; cursor: pointer; display: block !important; box-sizing: border-box !important; }

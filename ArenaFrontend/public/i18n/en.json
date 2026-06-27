@@ -21,7 +21,11 @@
     "dashboard": "Dashboard",
     "profile": "Profile",
     "pricing": "Membership Plans",
-    "uploadPhoto": "Upload photo"
+    "uploadPhoto": "Upload photo",
+    "account": "Account",
+    "accountSettings": "Account Settings",
+    "subscriptionBilling": "Subscription & Billing",
+    "help": "Help & Support"
   },
   "mealAnalysis": {
     "kicker": "AI Nutrition",
