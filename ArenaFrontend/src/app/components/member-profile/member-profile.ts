@@ -472,18 +472,54 @@ export class MemberProfile implements OnInit {
   sparklinePath = computed(() => {
     const data = this.sparklineData();
     const w = 120;
-    const h = 32;
+    const h = 36;
     const count = data.length;
     if (count === 0) return '';
     const stepX = w / (count - 1 || 1);
     const max = Math.max(...data, 1);
-    const points = data.map((v, i) => {
-      const x = i * stepX;
-      const y = h - (v / max) * (h - 4) - 2;
-      return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`;
-    });
-    return points.join(' ');
+    const pts = data.map((v, i) => ({
+      x: i * stepX,
+      y: h - (v / max) * (h - 6) - 3,
+    }));
+    return this.smoothPath(pts);
   });
+
+  sparklineDotData = computed(() => {
+    const data = this.sparklineData();
+    const w = 120;
+    const h = 36;
+    const count = data.length;
+    if (count === 0) return [];
+    const stepX = w / (count - 1 || 1);
+    const max = Math.max(...data, 1);
+    return data.reduce<{x: number; y: number}[]>((acc, v, i) => {
+      if (v > 0) {
+        const x = i * stepX;
+        const y = h - (v / max) * (h - 6) - 3;
+        acc.push({ x: +x.toFixed(1), y: +y.toFixed(1) });
+      }
+      return acc;
+    }, []);
+  });
+
+  private smoothPath(pts: {x: number; y: number}[]): string {
+    const n = pts.length;
+    if (n === 0) return '';
+    if (n === 1) return `M${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
+    let d = `M${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
+    for (let i = 0; i < n - 1; i++) {
+      const p0 = pts[Math.max(i - 1, 0)];
+      const p1 = pts[i];
+      const p2 = pts[i + 1];
+      const p3 = pts[Math.min(i + 2, n - 1)];
+      const cp1x = p1.x + (p2.x - p0.x) / 6;
+      const cp1y = p1.y + (p2.y - p0.y) / 6;
+      const cp2x = p2.x - (p3.x - p1.x) / 6;
+      const cp2y = p2.y - (p3.y - p1.y) / 6;
+      d += `C${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`;
+    }
+    return d;
+  }
 
   private readonly dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 
@@ -638,11 +674,11 @@ export class MemberProfile implements OnInit {
     const max = Math.max(...weights);
     const range = max - min || 1;
     const stepX = data.length > 1 ? w / (data.length - 1) : w;
-    return data.map((d, i) => {
-      const x = i * stepX;
-      const y = h - ((d.weight - min) / range) * (h - 4) - 2;
-      return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`;
-    }).join(' ');
+    const pts = data.map((d, i) => ({
+      x: i * stepX,
+      y: h - ((d.weight - min) / range) * (h - 4) - 2,
+    }));
+    return this.smoothPath(pts);
   });
 
   hasProgressLogs = computed(() => this.weightLogData().length >= 2);
