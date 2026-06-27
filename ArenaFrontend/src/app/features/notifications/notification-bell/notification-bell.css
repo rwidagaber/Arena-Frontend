@@ -225,7 +225,17 @@
 :host-context([data-theme="light"]) .notif-row:hover { background: rgba(0,0,0,0.03); }
 :host-context([data-theme="light"]) .bell-btn { color: #0c0f17; }
 
-/* ── Mobile ─────────────────────────────────────────────────────────── */
+/* ── Responsive bell size ───────────────────────────────────────────── */
+@media (max-width: 575.98px) {
+  .bell-btn { width: 34px; height: 34px; }
+  .bell-btn svg { width: 18px; height: 18px; }
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .bell-btn { width: 38px; height: 38px; }
+}
+
+/* ── Mobile panel (full-width sheet under header) ───────────────────── */
 @media (max-width: 480px) {
   .notif-panel {
     position: fixed;

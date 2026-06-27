@@ -25,7 +25,11 @@
     "account": "Account",
     "accountSettings": "Account Settings",
     "subscriptionBilling": "Subscription & Billing",
-    "help": "Help & Support"
+    "help": "Help & Support",
+    "theme": "Theme",
+    "language": "Language",
+    "lightMode": "Light",
+    "darkMode": "Dark"
   },
   "mealAnalysis": {
     "kicker": "AI Nutrition",
