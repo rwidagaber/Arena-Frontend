@@ -17,7 +17,13 @@ import { TranslateModule } from '@ngx-translate/core';
     </button>
   `,
   styles: [`
-    :host { display: contents; }
+    :host {
+      display: contents;
+      --fb-accent: #C6EF2E;
+    }
+    :host-context([data-theme="light"]) {
+      --fb-accent: #C6EF2E;
+    }
 
     .back-to-top {
       position: fixed;
