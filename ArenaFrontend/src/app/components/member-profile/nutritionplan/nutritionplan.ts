@@ -49,6 +49,7 @@ export class Nutritionplan implements OnInit, OnDestroy {
   // ── Daily Calorie Tracking ────────────────────────────────────────────────────
   dailySummary       = signal<DailyNutritionSummaryDto | null>(null);
   activePlan         = computed(() => this.allPlans().find(p => p.isActive) ?? null);
+  activePlanCount    = computed(() => this.allPlans().filter(p => p.isActive).length);
   dailyCalorieTarget = computed(
     () => this.dailySummary()?.dailyCalorieTarget ?? this.activePlan()?.dailyCalories ?? 0
   );
