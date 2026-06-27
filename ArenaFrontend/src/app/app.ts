@@ -1,19 +1,24 @@
 import { Component, inject, OnInit } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
 import { RouterOutlet, Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { HeaderComponent } from './shared/header/header';
 import { FooterComponent } from './shared/components/footer/footer';
 import { FloatingChatButtonComponent } from './shared/components/floating-chat-button/floating-chat-button';
+import { DashboardSidebar, DashboardSection } from './components/member-profile/dashboard-sidebar/dashboard-sidebar';
 import { TranslateService } from '@ngx-translate/core';
 import { ThemeService } from '../app/core/services/themeservice';
+import { AuthService } from './core/services/auth';
 import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
   imports: [
+    AsyncPipe,
     RouterOutlet,
     HeaderComponent,
     FooterComponent,
     FloatingChatButtonComponent,
+    DashboardSidebar,
   ],
   templateUrl: './app.html',
   styleUrl: './app.css'
@@ -24,9 +29,16 @@ export class App implements OnInit {
   private theme = inject(ThemeService);
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
+  private auth = inject(AuthService);
 
   showLayout = true;
   showFooter = true;
+  /** True on the dashboard route, where the member-profile renders its OWN
+   *  sidebar — so the global one is suppressed there to avoid duplicates. */
+  isDashboard = false;
+
+  /** Drives the global subscriber sidebar (shown on every page when subscribed). */
+  protected readonly currentUser$ = this.auth.currentUser$;
 
   ngOnInit(): void {
 
@@ -51,6 +63,12 @@ export class App implements OnInit {
 
         this.showLayout = !route.snapshot.data['hideLayout'];
         this.showFooter = !route.snapshot.data['hideFooter'];
+        this.isDashboard = this.router.url.split('?')[0].startsWith('/dashboard');
       });
+  }
+
+  /** Global sidebar item click → open that section on the dashboard. */
+  goToSection(section: DashboardSection): void {
+    this.router.navigate(['/dashboard'], { queryParams: { section } });
   }
 }

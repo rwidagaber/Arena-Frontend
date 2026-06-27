@@ -152,6 +152,32 @@
   font-family: 'inter', sans-serif;
 }
 
+/* ── Active indicator bar (was rendered in the template but unstyled →
+   invisible). A lime accent pinned to the leading edge of the active item;
+   it grows in when the section changes, and glows on the dark theme. */
+.sidebar-active-bar {
+  position: absolute;
+  inset-inline-start: 0;
+  top: 50%;
+  width: 3px;
+  height: 22px;
+  border-radius: 0 4px 4px 0;
+  background: var(--accent);
+  transform: translateY(-50%);
+  animation: sidebar-bar-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+[dir="rtl"] .sidebar-active-bar { border-radius: 4px 0 0 4px; }
+@keyframes sidebar-bar-in {
+  from { height: 6px; opacity: 0; }
+  to   { height: 22px; opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-active-bar { animation: none; }
+}
+:host-context([data-theme="dark"]) .sidebar-active-bar {
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+
 .sidebar-membership {
   padding: 16px 20px 12px;
   border-top: 1px solid #e5e5e5;
@@ -225,6 +251,8 @@
 }
 
 .btn-renew {
+  position: relative;
+  overflow: hidden;
   padding: 5px 5px 5px 16px;
   display: inline-flex;
   align-items: center;
@@ -236,12 +264,28 @@
   font-weight: 700;
   border: none;
   cursor: pointer;
-  transition: background 600ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background 600ms cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.25s ease, transform 0.2s ease;
   text-align: center;
 }
 
+/* Premium gloss sweep on hover (matches the header CTA). */
+.btn-renew::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -120%;
+  width: 55%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.6s ease;
+  pointer-events: none;
+}
+.btn-renew:hover::before { left: 130%; }
+
 .btn-renew::after {
   content: '→';
+  position: relative;
+  z-index: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -255,6 +299,8 @@
 
 .btn-renew:hover {
   background: #b8e018;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(198, 239, 46, 0.35);
 }
 
 .no-plan-text {
