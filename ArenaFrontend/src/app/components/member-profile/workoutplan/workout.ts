@@ -66,12 +66,20 @@ export class WorkoutComponent implements OnInit {
   searchQuery    = signal('');
   showActiveOnly = signal(false);
 
+  /** آخر plan في الـ array = أحدث plan اتضاف — لازم يكون قبل filteredPlans */
+  latestPlanId = computed(() => {
+    const plans = this.plans();
+    return plans.length ? plans[plans.length - 1].id : null;
+  });
+
   filteredPlans = computed<WorkoutPlanDto[]>(() => {
-    const q      = this.searchQuery().toLowerCase().trim();
-    const active = this.showActiveOnly();
+    const q        = this.searchQuery().toLowerCase().trim();
+    const active   = this.showActiveOnly();
+    const latestId = this.latestPlanId();
+
     return this.plans().filter(p => {
       const matchSearch = !q || p.name.toLowerCase().includes(q);
-      const matchActive = !active || p.isActive;
+      const matchActive = !active || p.id === latestId;
       return matchSearch && matchActive;
     });
   });
@@ -103,7 +111,6 @@ export class WorkoutComponent implements OnInit {
     this.currentPage.set(0);
   });
 
-  // 🌟 تعديل: تغيير البحث ليعتمد على days بدلاً من workoutDays
   selectedDay = computed<WorkoutDayDto | null>(() => {
     const plan = this.selectedPlan();
     const id   = this.selectedDayId();
@@ -144,7 +151,6 @@ export class WorkoutComponent implements OnInit {
     ).subscribe(fullPlan => {
       if (!fullPlan) return;
       this.selectedPlan.set(fullPlan);
-      // 🌟 تعديل هنا أيضاً لقراءة الأيام بالشكل الجديد days
       this.selectedDayId.set(fullPlan.days?.[0]?.id ?? null);
       this.view.set('plan-detail');
       this.loading.set(false);
@@ -167,7 +173,8 @@ export class WorkoutComponent implements OnInit {
   }
 
   selectDay(dayId: string): void { this.selectedDayId.set(dayId); }
-// ── Plan Images ───────────────────────────────────────────────────────────────
+
+  // ── Plan Images ───────────────────────────────────────────────────────────────
   private readonly planImages: string[] = [
     'assets/images/scale.jpg',
     'assets/images/mat.jpg',
@@ -176,19 +183,15 @@ export class WorkoutComponent implements OnInit {
     'assets/images/calis.jpeg',
     'assets/images/stick.jpeg',
     'assets/images/steal.jpeg',
-    'assets/images/hand.jpeg'
-
+    'assets/images/hand.jpeg',
   ];
 
- getPlanImage(index: number): string {
+  getPlanImage(index: number): string {
     return this.planImages[index % this.planImages.length];
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────────
-  
 
-
-  // 🌟 تعديل هنا لاستخدام التجميع بناءً على الـ days الجديدة القادمة من الباك
   getTotalExercises(plan: WorkoutPlanDto): number {
     return plan.days?.reduce((s, d) => s + (d.exercises?.length ?? 0), 0) ?? 0;
   }
@@ -209,32 +212,34 @@ export class WorkoutComponent implements OnInit {
     if (g.includes('glute'))    return '/assets/images/back.png';
     return '/assets/images/human-body.png';
   }
-translateMuscleGroup(group: string): string {
-  const g = (group ?? '').toLowerCase();
-  const key = (() => {
-    if (g.includes('chest'))    return 'workout.muscleGroups.chest';
-    if (g.includes('back'))     return 'workout.muscleGroups.back';
-    if (g.includes('shoulder')) return 'workout.muscleGroups.shoulders';
-    if (g.includes('bicep'))    return 'workout.muscleGroups.biceps';
-    if (g.includes('tricep'))   return 'workout.muscleGroups.triceps';
-    if (g.includes('leg'))      return 'workout.muscleGroups.legs';
-    if (g.includes('quad'))     return 'workout.muscleGroups.quadriceps';
-    if (g.includes('hamstring'))return 'workout.muscleGroups.hamstrings';
-    if (g.includes('glute'))    return 'workout.muscleGroups.glutes';
-    if (g.includes('calve'))    return 'workout.muscleGroups.calves';
-    if (g.includes('lower abdomin')) return 'workout.muscleGroups.lowerAbs';
-     if (g.includes('abdomin'))   return 'workout.muscleGroups.abs';      // ← يغطي Abdominal/Abdominals/Lower Abdominals
-    if (g.includes('oblique'))   return 'workout.muscleGroups.obliques'; // ← جديد
-    if (g.includes('abs'))      return 'workout.muscleGroups.abs';
-    if (g.includes('core'))     return 'workout.muscleGroups.core';
-    if (g.includes('forearm'))  return 'workout.muscleGroups.forearms';
-    if (g.includes('arm'))      return 'workout.muscleGroups.arms';   // ← السطر الجديد
-    if (g.includes('full'))     return 'workout.muscleGroups.fullBody';
-    if (g.includes('cardio'))   return 'workout.muscleGroups.cardio';
-    return null;
-  })();
-  return key ? this.t.instant(key) : group;
-}
+
+  translateMuscleGroup(group: string): string {
+    const g = (group ?? '').toLowerCase();
+    const key = (() => {
+      if (g.includes('chest'))         return 'workout.muscleGroups.chest';
+      if (g.includes('back'))          return 'workout.muscleGroups.back';
+      if (g.includes('shoulder'))      return 'workout.muscleGroups.shoulders';
+      if (g.includes('bicep'))         return 'workout.muscleGroups.biceps';
+      if (g.includes('tricep'))        return 'workout.muscleGroups.triceps';
+      if (g.includes('leg'))           return 'workout.muscleGroups.legs';
+      if (g.includes('quad'))          return 'workout.muscleGroups.quadriceps';
+      if (g.includes('hamstring'))     return 'workout.muscleGroups.hamstrings';
+      if (g.includes('glute'))         return 'workout.muscleGroups.glutes';
+      if (g.includes('calve'))         return 'workout.muscleGroups.calves';
+      if (g.includes('lower abdomin')) return 'workout.muscleGroups.lowerAbs';
+      if (g.includes('abdomin'))       return 'workout.muscleGroups.abs';
+      if (g.includes('oblique'))       return 'workout.muscleGroups.obliques';
+      if (g.includes('abs'))           return 'workout.muscleGroups.abs';
+      if (g.includes('core'))          return 'workout.muscleGroups.core';
+      if (g.includes('forearm'))       return 'workout.muscleGroups.forearms';
+      if (g.includes('arm'))           return 'workout.muscleGroups.arms';
+      if (g.includes('full'))          return 'workout.muscleGroups.fullBody';
+      if (g.includes('cardio'))        return 'workout.muscleGroups.cardio';
+      return null;
+    })();
+    return key ? this.t.instant(key) : group;
+  }
+
   getMuscleGroupColor(group: string): string {
     const g = (group ?? '').toLowerCase();
     if (g.includes('chest'))    return 'mg-chest';
@@ -252,79 +257,78 @@ translateMuscleGroup(group: string): string {
   trackByExercise(_: number, e: WorkoutExerciseDto) { return e.id; }
 
   private weekdayMap: Record<string, string> = {
-  'sunday': 'workout.sunday',
-  'monday': 'workout.monday',
-  'tuesday': 'workout.tuesday',
-  'wednesday': 'workout.wednesday',
-  'thursday': 'workout.thursday',
-  'friday': 'workout.friday',
-  'saturday': 'workout.saturday',
-};
+    'sunday':    'workout.sunday',
+    'monday':    'workout.monday',
+    'tuesday':   'workout.tuesday',
+    'wednesday': 'workout.wednesday',
+    'thursday':  'workout.thursday',
+    'friday':    'workout.friday',
+    'saturday':  'workout.saturday',
+  };
 
-private dayFocusMap: Record<string, string> = {
-  'upper body': 'workout.dayFocus.upperBody',
-  'lower body and core': 'workout.dayFocus.lowerBodyCore',
-  'lower body': 'workout.dayFocus.lowerBody',
-  'full body': 'workout.dayFocus.fullBody',
-  'push': 'workout.dayFocus.push',
-  'pull': 'workout.dayFocus.pull',
-  'legs': 'workout.dayFocus.legs',
-  'core': 'workout.dayFocus.core',
-  'cardio': 'workout.dayFocus.cardio',
-};
+  private dayFocusMap: Record<string, string> = {
+    'upper body':          'workout.dayFocus.upperBody',
+    'lower body and core': 'workout.dayFocus.lowerBodyCore',
+    'lower body':          'workout.dayFocus.lowerBody',
+    'full body':           'workout.dayFocus.fullBody',
+    'push':                'workout.dayFocus.push',
+    'pull':                'workout.dayFocus.pull',
+    'legs':                'workout.dayFocus.legs',
+    'core':                'workout.dayFocus.core',
+    'cardio':              'workout.dayFocus.cardio',
+  };
 
-translateDayName(dayName: string): string {
-  if (!dayName) return dayName;
+  translateDayName(dayName: string): string {
+    if (!dayName) return dayName;
 
-  const trimmed = dayName.trim();
-  const lower = trimmed.toLowerCase();
+    const trimmed = dayName.trim();
+    const lower = trimmed.toLowerCase();
 
-  // الحالة الأولى: اسم يوم عادي زي "Monday" أو "Wednesday"
-  if (this.weekdayMap[lower]) {
-    return this.t.instant(this.weekdayMap[lower]);
+    if (this.weekdayMap[lower]) {
+      return this.t.instant(this.weekdayMap[lower]);
+    }
+
+    const match = trimmed.match(/^Day\s+(\d+)\s*-\s*(.+)$/i);
+    if (match) {
+      const dayNumber = match[1];
+      const focusText = match[2].trim().toLowerCase();
+      const key = this.dayFocusMap[focusText];
+      const translatedFocus = key ? this.t.instant(key) : match[2].trim();
+      return `${this.t.instant('workout.day')} ${dayNumber} - ${translatedFocus}`;
+    }
+
+    return dayName;
   }
 
-  // الحالة الثانية: فورمات "Day 1 - Upper Body"
-  const match = trimmed.match(/^Day\s+(\d+)\s*-\s*(.+)$/i);
-  if (match) {
-    const dayNumber = match[1];
-    const focusText = match[2].trim().toLowerCase();
-    const key = this.dayFocusMap[focusText];
-    const translatedFocus = key ? this.t.instant(key) : match[2].trim();
-    return `${this.t.instant('workout.day')} ${dayNumber} - ${translatedFocus}`;
+  private weekdayOrder: Record<string, number> = {
+    'saturday':  0,
+    'sunday':    1,
+    'monday':    2,
+    'tuesday':   3,
+    'wednesday': 4,
+    'thursday':  5,
+    'friday':    6,
+  };
+
+  private getDaySortKey(dayName: string): number {
+    if (!dayName) return 999;
+    const trimmed = dayName.trim().toLowerCase();
+
+    if (this.weekdayOrder[trimmed] !== undefined) {
+      return this.weekdayOrder[trimmed];
+    }
+
+    const match = trimmed.match(/^day\s+(\d+)/);
+    if (match) {
+      return parseInt(match[1], 10);
+    }
+
+    return 999;
   }
 
-  // فورمات غير معروف — رجّع القيمة زي ما هي
-  return dayName;
-}
-private weekdayOrder: Record<string, number> = {
- 'saturday': 0, 'sunday': 1, 'monday': 2, 'tuesday': 3,
-  'wednesday': 4, 'thursday': 5, 'friday': 6,
-};
-
-private getDaySortKey(dayName: string): number {
-  if (!dayName) return 999;
-  const trimmed = dayName.trim().toLowerCase();
-
-  // الحالة الأولى: اسم يوم عادي زي "Monday"
-  if (this.weekdayOrder[trimmed] !== undefined) {
-    return this.weekdayOrder[trimmed];
+  sortedDays(plan: any): any[] {
+    return [...(plan.days ?? [])].sort(
+      (a, b) => this.getDaySortKey(a.dayName) - this.getDaySortKey(b.dayName)
+    );
   }
-
-  // الحالة الثانية: فورمات "Day 1 - Upper Body"
-  const match = trimmed.match(/^day\s+(\d+)/);
-  if (match) {
-    return parseInt(match[1], 10);
-  }
-
-  // فورمات غير معروف — يتسرّب لآخر القايمة
-  return 999;
-}
-
-sortedDays(plan: any): any[] {
-  return [...(plan.days ?? [])].sort(
-    (a, b) => this.getDaySortKey(a.dayName) - this.getDaySortKey(b.dayName)
-  );
-}
-
 }

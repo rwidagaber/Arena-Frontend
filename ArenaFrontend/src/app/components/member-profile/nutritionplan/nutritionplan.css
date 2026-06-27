@@ -2,7 +2,6 @@
    ── CSS Variables — Dark / Light Support ──
    ========================================================================== */
 :host {
-  /* Light defaults */
   --n-bg:            #ffffff;
   --n-card:          #ffffff;
   --n-card-border:  rgba(0, 0, 0, 0.06);
@@ -83,7 +82,7 @@
 }
 
 /* ==========================================================================
-   ── Header (نفس ستايل الووركاوت: صورة + بلور + نص وعداد في النص) ──
+   ── Header ──
    ========================================================================== */
 .nutrition-page-header {
   position: relative;
@@ -100,10 +99,8 @@
 
 .header-bg-img {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
   object-fit: cover;
   object-position: center;
   z-index: 1;
@@ -113,15 +110,13 @@
 .header-overlay-content {
   position: relative;
   z-index: 2;
-  width: 100%;
-  height: 100%;
+  width: 100%; height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
   padding: 20px;
-
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   background: rgba(0, 0, 0, 0.35);
@@ -166,12 +161,6 @@
   transition: transform 0.2s ease;
 }
 .plan-counter:hover { transform: scale(1.1); }
-
-@media (max-width: 768px) {
-  .nutrition-page-header { height: 160px; }
-  .header-title { font-size: 1.4rem; }
-  .header-subtitle { font-size: 0.85rem; }
-}
 
 .nutrition-content { padding: 24px 32px; }
 
@@ -432,8 +421,8 @@
 .analysis-macro small { font-size: 11px; color: var(--n-text-muted); font-weight: 700; }
 .analysis-macro strong { color: var(--n-text); font-size: 18px; }
 .analysis-macro.protein { background: rgba(99,102,241,0.08); border-color: rgba(99,102,241,0.15); }
-.analysis-macro.carbs { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.15); }
-.analysis-macro.fat { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.15); }
+.analysis-macro.carbs   { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.15); }
+.analysis-macro.fat     { background: rgba(239,68,68,0.08);  border-color: rgba(239,68,68,0.15); }
 
 .analysis-tags {
   display: flex;
@@ -491,17 +480,35 @@
 /* ==========================================================================
    ── 4. Search Bar ──
    ========================================================================== */
+
+/* Container الرئيسي: flex row في الديسكتوب وفي الموبايل كمان (مطابق للووركاوت) */
 .search-container {
-  position: relative; width: 100%; max-width: 520px;
-  margin-bottom: 24px; display: flex; align-items: center; gap: 12px;
+  width: 100%;
+  max-width: 520px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
+
+/* Wrapper للـ input + icon + clear — هو اللي عنده position:relative دايمًا */
+.search-input-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
 .search-input {
-  flex: 1; height: 44px; padding: 0 40px 0 42px;
+  width: 100%;
+  height: 44px;
+  padding: 0 36px 0 42px;
   background: var(--n-input-bg) !important;
   border: 1px solid var(--n-input-border) !important;
   border-radius: 100px !important;
   color: var(--n-text) !important;
-  font-size: 14px; outline: none; box-sizing: border-box;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
   transition: all 0.2s ease;
 }
 .search-input::placeholder { color: var(--n-text-sub); opacity: 1; }
@@ -509,25 +516,53 @@
   border-color: var(--accent) !important;
   box-shadow: 0 0 0 3px rgba(212, 250, 36, 0.15) !important;
 }
+
+/* الـ icon والـ clear محبوسين جوا الـ wrapper */
 .search-icon {
-  position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
-  color: var(--accent); pointer-events: none; z-index: 2;
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--accent);
+  pointer-events: none;
+  z-index: 2;
 }
 .search-clear {
-  position: absolute; right: 110px; top: 50%; transform: translateY(-50%);
-  background: none; border: none; color: var(--n-text-sub);
-  cursor: pointer; padding: 0; display: flex; align-items: center;
-  justify-content: center; width: 18px; height: 18px; transition: color 0.2s; z-index: 2;
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--n-text-sub);
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  transition: color 0.2s;
+  z-index: 2;
 }
 .search-clear:hover { color: #ef4444; }
+
 .btn-active-filter {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 0 16px; font-size: 13px; font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 500;
   color: var(--n-text-muted);
   background-color: var(--n-surface2);
   border: 1px solid var(--n-border);
-  border-radius: 100px; cursor: pointer; height: 44px;
-  flex-shrink: 0; transition: all 0.25s ease;
+  border-radius: 100px;
+  cursor: pointer;
+  height: 44px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  transition: all 0.25s ease;
 }
 .btn-active-filter:hover { color: var(--n-text); }
 .btn-active-filter.is-active {
@@ -861,16 +896,34 @@
    ── 13. Responsive ──
    ========================================================================== */
 @media (max-width: 768px) {
-  :host { margin-top: -17px !important; margin-left: -16px !important; margin-right: -16px !important; width: calc(100% + 32px) !important; }
+  :host {
+    margin-top: -17px !important;
+    margin-left: -16px !important;
+    margin-right: -16px !important;
+    width: calc(100% + 32px) !important;
+  }
+  .nutrition-page-header { height: 160px; }
+  .header-title { font-size: 1.4rem; }
+  .header-subtitle { font-size: 0.85rem; }
+  .nutrition-content { padding: 16px; }
   .plans-grid { grid-template-columns: 1fr; }
   .modern-meals-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
   .modern-macro-summary-card { flex-direction: column; padding: 20px; gap: 20px; }
-  .modern-cal-hero-box { border-right: none; border-bottom: 1px solid var(--n-border); padding-right: 0; padding-bottom: 16px; width: 100%; }
+  .modern-cal-hero-box {
+    border-right: none;
+    border-bottom: 1px solid var(--n-border);
+    padding-right: 0;
+    padding-bottom: 16px;
+    width: 100%;
+  }
+
+  /* ── Search على الموبايل: نفس صف الووركاوت (input + زر النشط جنب بعض) ── */
   .search-container { max-width: 100%; margin-bottom: 16px; }
-  .nutrition-content { padding: 16px; }
+
   .meal-analysis-header { align-items: flex-start; }
   .meal-cal-num { font-size: 42px; }
 }
+
 @media (max-width: 480px) {
   .custom-plan-card { min-height: 150px; }
   .stat-num-hero { font-size: 22px; }
@@ -891,11 +944,11 @@
 }
 
 /* ==========================================================================
-   ── RTL Support (دعم كامل للعربي زي صفحة الووركاوت) ──
+   ── RTL Support ──
    ========================================================================== */
 :host-context([dir="rtl"]) .search-icon { left: auto; right: 16px; }
-:host-context([dir="rtl"]) .search-input { padding: 0 42px 0 40px; }
-:host-context([dir="rtl"]) .search-clear { right: auto; left: 110px; }
+:host-context([dir="rtl"]) .search-input { padding: 0 42px 0 36px; }
+:host-context([dir="rtl"]) .search-clear { right: auto; left: 12px; }
 :host-context([dir="rtl"]) .custom-plan-card { flex-direction: row; }
 :host-context([dir="rtl"]) .custom-plan-card .card-image-side {
   border-top-left-radius: 0; border-bottom-left-radius: 0;
