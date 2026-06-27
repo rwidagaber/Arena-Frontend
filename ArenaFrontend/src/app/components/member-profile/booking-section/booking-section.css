@@ -1040,4 +1040,18 @@
 }
 :host-context([dir="rtl"]) .confirm-btn i {
   order: 2;
-}
+}
+:host-context([dir="rtl"]) .pg-btn.pg-prev svg {
+  transform: scaleX(-1);
+}
+:host-context([dir="rtl"]) .pg-btn.pg-next svg {
+  transform: scaleX(-1);
+}
+
+/* وعشان الـ hover ميكسرش الـ flip */
+:host-context([dir="rtl"]) .pg-btn:hover:not([disabled]).pg-prev svg {
+  transform: scaleX(-1) translateX(-2px);
+}
+:host-context([dir="rtl"]) .pg-btn:hover:not([disabled]).pg-next svg {
+  transform: scaleX(-1) translateX(2px);
+}
