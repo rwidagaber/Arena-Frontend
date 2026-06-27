@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, signal, computed, effect, afterNextRender, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, ElementRef, inject, signal, computed, effect, afterNextRender, OnInit, OnDestroy } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { GymService } from '../../../core/services/gym.service';
@@ -71,18 +71,6 @@ export class FooterComponent implements OnInit, OnDestroy {
       }
     }, { threshold: 0, rootMargin: '0px 0px -10% 0px' });
     this.revealObserver.observe(this.host.nativeElement);
-  }
-
-  /* ── Back-to-top ────────────────────────────────────────────── */
-  showTopButton = false;
-
-  @HostListener('window:scroll')
-  onScroll(): void {
-    this.showTopButton = window.scrollY > 400;
-  }
-
-  scrollToTop(): void {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   /* ── Newsletter signup ──────────────────────────────────────────── */

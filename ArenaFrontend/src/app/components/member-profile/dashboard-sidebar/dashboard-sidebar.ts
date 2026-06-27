@@ -23,7 +23,6 @@ export class DashboardSidebar {
 
   readonly activeSection = input<DashboardSection>('profile');
   readonly sectionChange = output<DashboardSection>();
-  readonly renewPlan = output<void>();
 
   readonly planName = input<string | null>(null);
   readonly planLevel = input<string>('');
