@@ -526,13 +526,15 @@
                 <!-- ── MONTHLY PROGRESS  (compact ring) ── -->
                 <div class="card glass-card pg-monthly">
                   <div class="card-hdr">
-                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    <div class="mp-hdr-icon">
+                      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    </div>
                     <h3>{{ 'memberProfile.dash.monthlyProgress' | translate }}</h3>
                   </div>
                   <div class="mp-body">
                     <div class="mp-ring-wrap">
                       <svg aria-hidden="true" class="mp-ring-svg" viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="7"/>
+                        <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(0,0,0,0.05)" stroke-width="3"/>
                         <circle cx="50" cy="50" r="40" fill="none" stroke="#C6EF2E" stroke-width="7"
                           [attr.stroke-dasharray]="'251.33'"
                           [attr.stroke-dashoffset]="251.33 - (251.33 * monthlyProgressPercent() / 100)"
@@ -546,64 +548,90 @@
                     </div>
                     <div class="mp-stats">
                       <div class="mp-stat">
-                        <span class="mp-stat-val">{{ sessionsThisMonth() }}</span>
-                        <span class="mp-stat-lbl">{{ 'memberProfile.dash.done' | translate }}</span>
+                        <div class="mp-stat-track">
+                          <div class="mp-stat-fill done-fill" [style.width.%]="monthlyTarget() > 0 ? (sessionsThisMonth() / monthlyTarget() * 100) : 0"></div>
+                        </div>
+                        <div class="mp-stat-info">
+                          <span class="mp-stat-val done-val">{{ sessionsThisMonth() }}</span>
+                          <span class="mp-stat-lbl done-lbl">{{ 'memberProfile.dash.done' | translate }}</span>
+                        </div>
                       </div>
                       <div class="mp-stat">
-                        <span class="mp-stat-val">{{ monthlyTarget() }}</span>
-                        <span class="mp-stat-lbl">{{ 'memberProfile.dash.goal' | translate }}</span>
+                        <div class="mp-stat-track">
+                          <div class="mp-stat-fill goal-fill" [style.width.%]="100"></div>
+                        </div>
+                        <div class="mp-stat-info">
+                          <span class="mp-stat-val goal-val">{{ monthlyTarget() }}</span>
+                          <span class="mp-stat-lbl goal-lbl">{{ 'memberProfile.dash.goal' | translate }}</span>
+                        </div>
                       </div>
                       <div class="mp-stat">
-                        <span class="mp-stat-val">{{ Math.max(0, monthlyTarget() - sessionsThisMonth()) }}</span>
-                        <span class="mp-stat-lbl">{{ 'memberProfile.dash.remain' | translate }}</span>
+                        <div class="mp-stat-track">
+                          <div class="mp-stat-fill remain-fill" [style.width.%]="monthlyTarget() > 0 ? (Math.max(0, monthlyTarget() - sessionsThisMonth()) / monthlyTarget() * 100) : 0"></div>
+                        </div>
+                        <div class="mp-stat-info">
+                          <span class="mp-stat-val remain-val">{{ Math.max(0, monthlyTarget() - sessionsThisMonth()) }}</span>
+                          <span class="mp-stat-lbl remain-lbl">{{ 'memberProfile.dash.remain' | translate }}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
                   <div class="mp-sparkline-wrap">
                     <div class="mp-sparkline-hdr">
-                      <span>{{ 'memberProfile.dash.monthlyActivity' | translate }}</span>
+                      <div class="mp-sph-left">
+                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="10" height="10"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                        <span>{{ 'memberProfile.dash.monthlyActivity' | translate }}</span>
+                      </div>
                       @if (mostActiveDay(); as mad) {
                         <span class="mp-mad">
-                          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="9" height="9"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
                           {{ 'memberProfile.dash.peak' | translate:{ day: (mad.nameKey | translate), date: (mad.date | date:'MMM d') } }}
                         </span>
                       }
                     </div>
-                    <svg aria-hidden="true" class="mp-sparkline" viewBox="0 0 120 32" preserveAspectRatio="none">
-                      @if (sparklinePath()) {
-                        <path [attr.d]="sparklinePath()" fill="none" stroke="#C6EF2E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      }
-                      @if (sparklinePath()) {
-                        <path [attr.d]="sparklinePath()" fill="url(#sparkGrad)" stroke="none" opacity="0.15"/>
-                      }
-                      <defs>
-                        <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stop-color="#C6EF2E"/>
-                          <stop offset="100%" stop-color="#C6EF2E" stop-opacity="0"/>
-                        </linearGradient>
-                      </defs>
-                    </svg>
+                    <div class="mp-chart-area">
+                      <svg aria-hidden="true" class="mp-sparkline" viewBox="0 0 120 36" preserveAspectRatio="none">
+                        @if (sparklinePath(); as path) {
+                          <path [attr.d]="path" fill="none" stroke="#C6EF2E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path [attr.d]="path" fill="url(#sparkGrad)" stroke="none" opacity="0.12"/>
+                          @for (pt of sparklineDotData(); track $index) {
+                            <circle class="mp-sparkline-dot" [attr.cx]="pt.x" [attr.cy]="pt.y" r="2" fill="#C6EF2E"/>
+                          }
+                        }
+                        <defs>
+                          <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#C6EF2E"/>
+                            <stop offset="100%" stop-color="#C6EF2E" stop-opacity="0"/>
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                    </div>
                   </div>
                   @if (hasProgressLogs()) {
                     <div class="mp-weight-trend">
                       <div class="mp-sparkline-hdr">
-                        <span>{{ 'memberProfile.dash.weightTrend' | translate }}</span>
+                        <div class="mp-sph-left">
+                          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="10" height="10"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
+                          <span>{{ 'memberProfile.dash.weightTrend' | translate }}</span>
+                        </div>
                         @if (weightChange(); as ch) {
-                          <span class="wt-change" [class.wt-up]="ch > 0" [class.wt-down]="ch < 0">
+                          <span class="wt-change" [class.wt-up]="ch > 0" [class.wt-down]="ch < 0" [class.wt-steady]="ch === 0">
                             {{ ch > 0 ? '+' : '' }}{{ ch }}kg
                           </span>
                         }
                       </div>
-                      <svg aria-hidden="true" class="mp-sparkline" viewBox="0 0 120 32" preserveAspectRatio="none">
-                        <path [attr.d]="weightTrendPath()" fill="none" stroke="#9a9a9a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path [attr.d]="weightTrendPath()" fill="url(#wtGrad)" stroke="none" opacity="0.15"/>
-                        <defs>
-                          <linearGradient id="wtGrad" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stop-color="#9a9a9a"/>
-                            <stop offset="100%" stop-color="#9a9a9a" stop-opacity="0"/>
-                          </linearGradient>
-                        </defs>
-                      </svg>
+                      <div class="mp-chart-area">
+                        <svg aria-hidden="true" class="mp-sparkline" viewBox="0 0 120 32" preserveAspectRatio="none">
+                          <path [attr.d]="weightTrendPath()" fill="none" stroke="#9a9a9a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path [attr.d]="weightTrendPath()" fill="url(#wtGrad)" stroke="none" opacity="0.12"/>
+                          <defs>
+                            <linearGradient id="wtGrad" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stop-color="#9a9a9a"/>
+                              <stop offset="100%" stop-color="#9a9a9a" stop-opacity="0"/>
+                            </linearGradient>
+                          </defs>
+                        </svg>
+                      </div>
                     </div>
                   }
                 </div>
