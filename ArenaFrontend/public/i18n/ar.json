@@ -21,7 +21,11 @@
     "dashboard": "لوحة التحكم",
     "profile": "الملف الشخصي",
     "pricing": "خطط العضوية",
-    "uploadPhoto": "تحميل صورة"
+    "uploadPhoto": "تحميل صورة",
+    "account": "الحساب",
+    "accountSettings": "إعدادات الحساب",
+    "subscriptionBilling": "الاشتراك والفوترة",
+    "help": "المساعدة والدعم"
   },
   "mealAnalysis": {
     "kicker": "تغذية بالذكاء الاصطناعي",
@@ -146,7 +150,12 @@
     "statYears": "سنوات الخبرة",
     "statMembers": "أعضاء نشطون",
     "statTrainers": "مدربون خبراء",
-    "statClasses": "حصص أسبوعية"
+    "statClasses": "حصص أسبوعية",
+    "heroEyebrow": "أرينا سمارت جيم",
+    "heroLine1": "تدرّب وكأنك",
+    "heroLine2": "تعنيها.",
+    "heroSub": "لا اختصارات. لا أعذار. أنت والمجهود والنتائج التي جئت من أجلها.",
+    "join": "ابدأ التدريب"
   },
   "auth": {
     "login": {
@@ -320,7 +329,8 @@
     "settings": "الإعدادات",
     "logout": "تسجيل الخروج",
     "chatbot": "المساعد الذكي",
-    "getPlanDetails": "عرض تفاصيل الخطة"
+    "getPlanDetails": "عرض تفاصيل الخطة",
+    "openNav": "فتح قائمة التنقل"
   },
   "section": {
     "workoutPlaceholder": "ستظهر خطة التمرين المخصصة لك هنا.",
@@ -625,6 +635,30 @@
     "motivation11": "أنت تبني شيئاً دائماً",
     "motivation12": "ابقَ طموحاً. ابقَ متواضعاً.",
     "motivation13": "الميزان لا يحدّد قيمتك"
+  },
+  "bodyModel": {
+    "title": "جسمك ثلاثي الأبعاد",
+    "subtitle": "عرض ثلاثي الأبعاد لجسمك مبني على قياساتك. اختر تاريخاً — أو هدفك — لترى شكل جسمك.",
+    "preview": "مبسّط",
+    "placeholderHint": "مجسم ثلاثي الأبعاد مبسّط مبني على قياساتك.",
+    "dragHint": "اسحب للتدوير",
+    "timeline": "القياسات",
+    "needLogs": "سجّل قياساً لرؤية جسمك ثلاثي الأبعاد.",
+    "bmiShort": "مؤشر الكتلة",
+    "goal": "الهدف",
+    "goalView": "توقّع الهدف",
+    "bodyType": "نوع الجسم",
+    "shape": {
+      "hourglass": "ساعة رملية",
+      "pear": "كمثرى",
+      "apple": "تفاحة",
+      "rectangle": "مستطيل",
+      "invertedTriangle": "مثلث مقلوب",
+      "diamond": " معيّن",
+      "trapezoid": "شبه منحرف",
+      "triangle": "مثلث"
+    },
+    "noWebgl": "متصفحك أو جهازك لا يدعم الرسومات ثلاثية الأبعاد (WebGL)، لذا لا يمكن عرض نموذج الجسم."
   },
   "memberProfile": {
     "dashboardLabel": "لوحة الأعضاء",
@@ -971,6 +1005,7 @@
     "deactivate": "إلغاء التفعيل",
     "updatingPlan": "جارٍ التحديث...",
     "planUpdateFailed": "تعذر تحديث الخطة. حاول مرة أخرى.",
+    "mustKeepOneActive": "يجب الإبقاء على خطة واحدة نشطة على الأقل.",
     "title": "الخطط الغذائيه",
     "planCountPrefix": "أفضل الخطط والبرامج الاحترافية المتاحة لك —",
     "planCountSuffix": "خطة تمرين متاحة"

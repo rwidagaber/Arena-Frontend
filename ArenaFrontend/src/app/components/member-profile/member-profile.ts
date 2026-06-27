@@ -10,14 +10,12 @@ import { switchMap } from 'rxjs/operators';
 import type { GetProfileDto, UserSubscriptionDto } from '../../core/models/auth';
 import type { MemberProfile as MemberProfileModel, UpdateProfileDto, WorkoutSession } from '../../core/models/member';
 import { DashboardSidebar, DashboardSection } from './dashboard-sidebar/dashboard-sidebar';
-import { RecentWorkouts } from './recent-workouts/recent-workouts';
 import { MembershipSection } from './membership-section/membership-section';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { QrDisplayComponent } from '../../features/QR/qr-display.component/qr-display.component';
 import { ProgressReportComponent } from '../progress-report/progress-report.component';
 import { RevealDirective } from '../progress-report/reveal.directive';
 import { Nutritionplan } from './nutritionplan/nutritionplan';
-import { DailyNutritionSummary } from './daily-nutrition-summary/daily-nutrition-summary';
 import { ThemeService } from '../../core/services/themeservice';
 import { TranslationService, type Lang } from '../../core/services/translation.service';
 import { WorkoutComponent } from "./workoutplan/workout";
@@ -57,14 +55,12 @@ function mapAuthToProfile(dto: GetProfileDto): MemberProfileModel {
   imports: [
     CommonModule,
     DashboardSidebar,
-    RecentWorkouts,
     MembershipSection,
     TranslateModule,
     QrDisplayComponent,
     ProgressReportComponent,
     RevealDirective,
     Nutritionplan,
-    DailyNutritionSummary,
     WorkoutComponent,
 
     BookingSection,
@@ -118,6 +114,9 @@ export class MemberProfile implements OnInit {
 
   attendances = signal<AttendanceRecord[]>([]);
   progressSummary = signal<ProgressSummaryDto | null>(null);
+  // Secondary (attendance/progress-derived) data loads after the profile; the
+  // shell renders on `loading`, the streak/achievements wait on `statsLoading`.
+  statsLoading = signal(true);
 
   /** Active workout plan — source for the "Working Weights" board. */
   workoutPlan = signal<WorkoutPlanDto | null>(null);
@@ -148,6 +147,27 @@ export class MemberProfile implements OnInit {
   });
 
   hasMainLifts = computed(() => this.mainLifts().length > 0);
+
+  /** Today's suggested session from the active plan. The plan's days aren't
+      bound to calendar weekdays, so we rotate through them by day-of-week to
+      give a stable "today" suggestion. Returns null when there's no plan. */
+  todaysWorkout = computed(() => {
+    const plan = this.workoutPlan();
+    if (!plan?.days?.length) return null;
+    const day = plan.days[new Date().getDay() % plan.days.length];
+    const exercises = day.exercises ?? [];
+    const muscles = [...new Set(
+      exercises.map(e => (e.muscleGroup ?? e.exercise?.muscleGroup ?? '').trim()).filter(Boolean)
+    )].slice(0, 3);
+    const preview = exercises
+      .map(e => (e.exercise?.name ?? e.name ?? '').trim())
+      .filter(Boolean)
+      .slice(0, 3);
+    return { dayName: day.dayName, count: exercises.length, muscles, preview };
+  });
+
+  /** True when the member has already checked in today. */
+  trainedToday = computed(() => this.daysSinceLastWorkout() === 0);
 
   private readonly quoteCount = 18;
 
@@ -719,6 +739,23 @@ export class MemberProfile implements OnInit {
     }
   }
 
+  /** Progress toward the target weight as a 0–100% bar. Uses the first logged
+      weight as the starting point; falls back to current weight when there are
+      no logs yet (0% until the member makes progress). */
+  goalProgress = computed<{ percent: number; current: number; target: number } | null>(() => {
+    const current = this.profile()?.weight;
+    const target = this.profile()?.targetWeight;
+    if (current == null || target == null) return null;
+    const data = this.weightLogData();
+    const start = data.length ? data[0].weight : current;
+    const total = Math.abs(start - target);
+    const remaining = Math.abs(current - target);
+    const percent = total <= 0
+      ? (remaining < 0.5 ? 100 : 0)
+      : Math.max(0, Math.min(100, Math.round((1 - remaining / total) * 100)));
+    return { percent, current, target };
+  });
+
   goalDelta = computed(() => {
     const w = this.profile()?.weight;
     const t = this.profile()?.targetWeight;
@@ -1028,6 +1065,7 @@ export class MemberProfile implements OnInit {
 
   loadData(): void {
     this.loading.set(true);
+    this.statsLoading.set(true);
     this.error.set(null);
 
     this.memberService.getProfile().pipe(
@@ -1041,15 +1079,20 @@ export class MemberProfile implements OnInit {
     ).subscribe(data => {
       if (!data) {
         this.loading.set(false);
+        this.statsLoading.set(false);
         return;
       }
       this.profile.set(data);
+      // Profile is ready → render the dashboard shell immediately; the
+      // secondary data below streams in without blocking the whole page.
+      this.loading.set(false);
+
       this.loadSubscriptions(data.memberProfileId);
       this.loadBookings(data.memberProfileId || data.id || '');
       this.loadWorkoutPlan();
       const memberProfileId = data.memberProfileId || data.id || '';
       if (!memberProfileId) {
-        this.loading.set(false);
+        this.statsLoading.set(false);
         return;
       }
       forkJoin({
@@ -1062,7 +1105,7 @@ export class MemberProfile implements OnInit {
       }).subscribe(result => {
         this.attendances.set(result.attendances);
         this.progressSummary.set(result.progress);
-        this.loading.set(false);
+        this.statsLoading.set(false);
       });
     });
   }

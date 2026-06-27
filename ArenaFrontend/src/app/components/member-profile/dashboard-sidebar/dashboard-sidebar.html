@@ -1,32 +1,52 @@
+<!-- Keyboard/screen-reader entry point for the desktop hover-drawer. It lives
+     OUTSIDE the visibility:hidden panel so it stays in the tab order; focusing
+     it triggers :host(:focus-within), which slides the nav in with the same
+     transition. Visually hidden until focused, so the mouse design is unchanged. -->
+<button type="button" class="kbd-nav-trigger">{{ 'sidebar.openNav' | translate }}</button>
+
 @if (isMobileOpen()) {
   <div class="sidebar-backdrop" (click)="closeMobile.emit()"></div>
 }
 <aside class="dash-sidebar" [class.mobile-open]="isMobileOpen()">
-  <div class="sidebar-brand">
-    <div class="brand-logo">
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        width="18"
-        height="18"
-      >
-        <path d="M6.5 6.5 17.5 17.5M6.5 17.5 17.5 6.5" />
-        <line x1="6" y1="12" x2="18" y2="12" />
-      </svg>
+  <div class="sidebar-user">
+    <button
+      type="button"
+      class="user-avatar"
+      [class.uploading]="uploading()"
+      (click)="avatarInput.click()"
+      aria-label="Upload profile photo"
+    >
+      @if (avatarUrl) {
+        <img [src]="avatarUrl" alt="" class="user-avatar-img" />
+      } @else {
+        <span class="user-avatar-initials">{{ initials }}</span>
+      }
+      <span class="user-avatar-edit" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+          <circle cx="12" cy="13" r="4" />
+        </svg>
+      </span>
+    </button>
+    <input
+      #avatarInput
+      type="file"
+      accept="image/*"
+      class="user-avatar-input"
+      (change)="onFileSelected($event)"
+    />
+    <div class="user-meta">
+      <span class="user-name">{{ displayName }}</span>
     </div>
-    <span class="brand-text">Arena</span>
   </div>
 
   <nav class="sidebar-nav">
-    @for (item of items; track item.key) {
+    @for (item of items; track item.key; let i = $index) {
       <button
         class="sidebar-item"
+        [style.--i]="i"
         [class.active]="activeSection() === item.key"
-        (click)="select(item.key)"
+        (click)="select(item.key, $event)"
       >
         <span class="sidebar-icon">
           @switch (item.icon) {
@@ -41,10 +61,8 @@
                 width="18"
                 height="18"
               >
-                <rect x="3" y="3" width="7" height="7" />
-                <rect x="14" y="3" width="7" height="7" />
-                <rect x="14" y="14" width="7" height="7" />
-                <rect x="3" y="14" width="7" height="7" />
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
               </svg>
             }
             @case ('calendar') {
@@ -181,12 +199,6 @@
     }
   </nav>
 
-  <div class="sidebar-plan-cta">
-    <button class="btn-renew" (click)="select('membership')">
-      {{ 'sidebar.getPlanDetails' | translate }}
-    </button>
-  </div>
-
   <div class="sidebar-footer">
     <button class="sidebar-item sidebar-logout" (click)="logout()">
       <span class="sidebar-icon">
@@ -209,3 +221,7 @@
     </button>
   </div>
 </aside>
+
+@if (cropSrc(); as src) {
+  <app-avatar-cropper [src]="src" (cropped)="onCropped($event)" (cancel)="onCropCancel()" />
+}

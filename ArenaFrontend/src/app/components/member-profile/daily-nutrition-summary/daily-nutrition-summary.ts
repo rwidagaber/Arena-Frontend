@@ -34,4 +34,11 @@ export class DailyNutritionSummary implements OnInit {
     const pct = (s.consumedCalories / s.dailyCalorieTarget) * 100;
     return pct > 100 ? 100 : pct;
   }
+
+  /** Consumed-vs-target percentage for a single macro, clamped to 0–100. */
+  macroPercent(consumed: number, target: number): number {
+    if (!target || target <= 0) return 0;
+    const pct = (consumed / target) * 100;
+    return pct > 100 ? 100 : pct < 0 ? 0 : pct;
+  }
 }
