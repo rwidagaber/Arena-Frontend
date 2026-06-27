@@ -50,6 +50,13 @@ export class Nutritionplan implements OnInit, OnDestroy {
   dailySummary       = signal<DailyNutritionSummaryDto | null>(null);
   activePlan         = computed(() => this.allPlans().find(p => p.isActive) ?? null);
   activePlanCount    = computed(() => this.allPlans().filter(p => p.isActive).length);
+
+  /** آخر plan في الـ array = أحدث plan اتضاف */
+  latestPlanId = computed(() => {
+    const plans = this.allPlans();
+    return plans.length ? plans[plans.length - 1].id : null;
+  });
+
   dailyCalorieTarget = computed(
     () => this.dailySummary()?.dailyCalorieTarget ?? this.activePlan()?.dailyCalories ?? 0
   );
@@ -362,7 +369,7 @@ export class Nutritionplan implements OnInit, OnDestroy {
     if (fileInput) fileInput.value = '';
   }
 
-   ngOnDestroy(): void {
+  ngOnDestroy(): void {
     const preview = this.mealImagePreview();
     if (preview) URL.revokeObjectURL(preview);
   }
