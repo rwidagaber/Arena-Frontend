@@ -3,21 +3,22 @@
    ========================================================================== */
 :root,
 [data-theme="dark"] {
-  --about-bg:           #0c0e14;
-  --about-card-bg:      #121620;
-  --about-card-border:  rgba(255, 255, 255, 0.05);
+  --about-bg:           #0F1119;
+  --about-card-bg:      #20273A;
+  --about-card-border:   rgba(16, 19, 27);
   --about-divider:      rgba(255, 255, 255, 0.1);
   --about-text:         #ffffff;
   --about-text-muted:   rgba(255, 255, 255, 0.7);
   --about-tab-inactive: rgba(255, 255, 255, 0.4);
   --about-btn-bg:       #000000;
-  --about-btn-border:   rgba(255, 255, 255, 0.15);
+  --about-btn-border:   rgba(255, 255, 255, 0.1);
   --about-btn-text:     #ffffff;
+  
 }
 
 [data-theme="light"] {
-  --about-bg:           #f2f3f5;
-  --about-card-bg:      #ffffff;
+  --about-bg:            #E6E7E2;
+  --about-card-bg:      ##FEFFFF;
   --about-card-border:  rgba(0, 0, 0, 0.08);
   --about-divider:      rgba(0, 0, 0, 0.1);
   --about-text:         #0c0e14;
@@ -80,11 +81,15 @@
   text-transform: uppercase;
   letter-spacing: 4px;
   color: transparent; 
-  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.37); 
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.616); 
   text-align: center;
   white-space: nowrap; 
   user-select: none;
 } 
+
+[dir="rtl"] .giant-stroke-text {
+  font-size: clamp(4rem, 10vw, 8rem);
+}
 
 /* ==========================================================================
    2. PREMIUM TEXT STATEMENT SECTION (توزيع موازن وفخم)
@@ -362,7 +367,7 @@
     width: 100%;
   }
   .animated-statement {
-    font-size: 2rem;
+    font-size: clamp(2rem, 5vw, 3rem);
   }
   .mv-grid {
     grid-template-columns: 1fr;
@@ -378,6 +383,17 @@
   .image-wrapper {
     height: 380px;
   }
+  .about-hero-section {
+    align-items: flex-end;
+  }
+  .giant-stroke-text {
+    font-size: clamp(3rem, 9vw, 5rem);
+    white-space: normal;
+    text-align: center;
+  }
+  [dir="rtl"] .giant-stroke-text {
+    font-size: clamp(3.5rem, 11vw, 6rem);
+  }
 }
 
 @media (max-width: 600px) {
@@ -387,11 +403,16 @@
     border-radius: 14px;
     height: 40vh;
     min-height: 220px;
+    align-items: flex-end;
   }
   .giant-stroke-text {
-    font-size: clamp(1.4rem, 8vw, 2.5rem);
+    font-size: clamp(2.5rem, 12vw, 4rem);
     white-space: normal;
+    text-align: center;
     letter-spacing: 2px;
+  }
+  [dir="rtl"] .giant-stroke-text {
+    font-size: clamp(3rem, 14vw, 5rem);
   }
   .premium-statement-section {
     padding: 60px 0 50px 0;

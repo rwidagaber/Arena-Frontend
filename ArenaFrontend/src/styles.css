@@ -157,7 +157,7 @@ body {
 }
 
 [data-theme="dark"] {
-  --bg-primary: #0b0c0c;
+  --bg-primary: #0F1119;
   --bg-secondary: #111212;
   --text-primary: #ffffff;
   --text-secondary: #a0a0a0;
@@ -172,7 +172,7 @@ body {
 }
 
 [data-theme="light"] {
-  --bg-primary: #ffffff;
+  --bg-primary: #E6E7E2;
   --bg-secondary: #f5f5f5;
   --text-primary: #0b0c0c;
   --text-secondary: #6b7280;
@@ -180,7 +180,7 @@ body {
   --card-bg: rgba(255, 255, 255, 0.15); /* ✅ فاتح شفاف للايت */
   --card-border: rgba(255, 255, 255, 0.3);
   --input-bg: rgba(0, 0, 0, 0.03);
-  --accent: ##D4FA24;;
+  --accent: #D4FA24;;
   --input-focus-bg: rgba(255, 255, 255, 0.8);
   --autofill-bg: rgba(240, 240, 240, 0.95);
   --card-bg-mobile: rgba(255, 255, 255, 0.95);

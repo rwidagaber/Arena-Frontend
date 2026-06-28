@@ -1304,5 +1304,30 @@
     "selectSession": "Select a session",
     "qrWillAppear": "Your QR code will appear here."
   }
+},
+"contact": {
+  "contactus": "Contact Us",
+  "heading": "Let's get in touch",
+  "subheading": "Don't be afraid to say hello with us!",
+  "phone": "Phone",
+  "email": "Email",
+  "location": "Location",
+  "address": "2nd Floor, Wellness Plaza, Main Street, City Center",
+  "mapLink": "See on Google Map",
+  "sideNote": "Great! We're excited to hear from you and let's start something special together. Call us for any inquiry.",
+  "formTitle": "Send a message",
+  "name": "Name",
+  "namePlaceholder": "John Doe",
+  "emailPlaceholder": "you@email.com",
+  "phonePlaceholder": "+20 100 000 0000",
+  "message": "Message",
+  "messagePlaceholder": "Tell us about your interest...",
+  "submit": "Send message",
+  "FINDUS": "Find Us",
+  "phoneNumber": "+(20)1001234567",
+  "successMessage": "Your message has been sent successfully.",
+  "errorMessage": "Something went wrong. Please try again.",
+  "sending": "Sending..."
+
 }
 }

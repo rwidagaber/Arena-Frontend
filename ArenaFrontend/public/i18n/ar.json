@@ -1307,5 +1307,30 @@
     "expired": "منتهي الصلاحية",
     "qrExpired": "انتهت صلاحية رمز QR",
     "expiresIn": "ينتهي خلال"
+},
+"contact": {
+  "contactus": "تواصل معنا",
+  "heading": "دعنا نتواصل",
+  "subheading": "لا تتردد في التواصل معنا!",
+  "phone": "الهاتف",
+  "email": "البريد الإلكتروني",
+  "location": "الموقع",
+  "address": "الطابق الثاني، ويلنس بلازا، الشارع الرئيسي، وسط المدينة",
+  "mapLink": "عرض على خرائط جوجل",
+  "sideNote": "رائع! يسعدنا سماعك ولنبدأ شيئاً مميزاً معاً. اتصل بنا لأي استفسار.",
+  "formTitle": "أرسل رسالة",
+  "name": "الاسم",
+  "namePlaceholder": "محمد أحمد",
+  "emailPlaceholder": "you@email.com",
+  "phonePlaceholder": "+20 100 000 0000",
+  "message": "الرسالة",
+  "messagePlaceholder": "أخبرنا عن اهتمامك...",
+  "submit": "إرسال الرسالة",
+  "FINDUS": "موقعنا",
+  "phoneNumber": "4567 123 100 (20)+",
+  "successMessage": "تم إرسال رسالتك بنجاح!",
+"errorMessage": "حدث خطأ، حاول مرة أخرى.",
+"sending": "جاري الإرسال..."
 }
+
   }
