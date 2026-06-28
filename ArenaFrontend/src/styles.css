@@ -127,6 +127,11 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Block container so the sticky <app-header> reserves space and pins correctly. */
+app-root {
+  display: block;
+}
+
 :root {
   /* Global header height — the app header is in normal flow (position: sticky),
      so pages no longer need their own magic top offset to clear it. This single
