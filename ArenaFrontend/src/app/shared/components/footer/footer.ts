@@ -2,6 +2,7 @@ import { Component, ElementRef, inject, signal, computed, effect, afterNextRende
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { GymService } from '../../../core/services/gym.service';
+import { TranslationService } from '../../../core/services/translation.service';
 import { WorkingHoursDay } from '../../../core/models/gym';
 
 interface SocialLink {
@@ -27,13 +28,17 @@ interface HoursRow {
 })
 export class FooterComponent implements OnInit, OnDestroy {
   private translate = inject(TranslateService);
+  private i18n = inject(TranslationService);
   private gym = inject(GymService);
   private host = inject(ElementRef<HTMLElement>);
 
   currentYear = new Date().getFullYear();
 
+  /** Reads the reactive language signal so signal-based consumers (e.g. the
+   *  `hoursRows` computed via `formatTime`) recompute when the user switches
+   *  language at runtime, keeping the AM/PM markers localized. */
   get currentLang() {
-    return this.translate.currentLang || this.translate.defaultLang || 'en';
+    return this.i18n.currentLang() || this.translate.currentLang || this.translate.defaultLang || 'en';
   }
 
   /* ── Contact details (same in both languages, so kept as data) ── */

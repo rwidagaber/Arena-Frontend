@@ -66,7 +66,10 @@
   background-position: 20px 0, 20px 0, 0 0, 0 0;
   background-size: 40px 40px;
   background-repeat: repeat;
-  position: absolute;
+  /* Sticky (not absolute): the header stays in normal flow so it reserves its
+     own height and page content always starts below it — no per-page top
+     offset needed — while still pinning to the top edge as the user scrolls. */
+  position: sticky;
   top: 0;
   left: 0;
   width: 100%;
@@ -76,7 +79,8 @@
 }
 
 .gympro-header-exact.is-sticky {
-  position: fixed;
+  /* Already pinned via position: sticky — this class only condenses the bar and
+     adds the frosted-glass treatment once the page is scrolled. */
   background-color: rgba(12, 15, 23, 0.95) !important;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -84,7 +88,6 @@
   border-bottom: 1px solid var(--header-border);
   padding-top: 10px !important;
   padding-bottom: 10px !important;
-  animation: headerSlideDown 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 :host-context([data-theme="light"]) .gympro-header-exact.is-sticky {

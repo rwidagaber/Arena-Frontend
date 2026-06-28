@@ -12,8 +12,9 @@
                     repeating-linear-gradient(45deg, var(--grid-line-color) 0px, var(--grid-line-color) 2px, transparent 2px, transparent 24px);
   background-size: 60px 60px;
   background-position: center top;
-  padding: 100px 24px 80px 24px;
-  min-height: 100vh;
+  /* Header is in flow now — this top padding is page breathing room, not an offset. */
+  padding: 48px 24px 80px 24px;
+  min-height: calc(100vh - var(--header-h));
   transition: background-color 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -537,7 +538,7 @@ html[dir="rtl"] .ms-3 {
 
 @media (max-width: 576px) {
   :host {
-    padding-top: 80px;
+    padding-top: 32px;
     padding-bottom: 60px;
   }
   .day-card {

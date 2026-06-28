@@ -58,7 +58,8 @@ app-footer {
   --shadow-modal: 0 24px 80px rgba(0, 0, 0, 0.50);
   --shadow-btn: 0 4px 12px rgba(198, 239, 46, 0.30);
 
-  --header-h: 80px;              /* global header height to clear so content isn't hidden behind it */
+  --header-h: 104px;             /* real (non-sticky) header height — the single default the dashboard,
+                                    progress and booking sections clear so content starts after the header */
 
   font-family: var(--font-ui);
 }
@@ -90,8 +91,8 @@ app-footer {
    ═══════════════════════════════════════════════ */
 .dash-layout {
   display: flex;
+  /* Header is in normal flow now, so no top margin is needed to clear it. */
   min-height: calc(100vh - var(--header-h));
-  margin-top: var(--header-h);
   background:
     radial-gradient(1100px 620px at 100% -12%, rgba(198,239,46,0.14) 0%, transparent 52%),
     radial-gradient(820px 520px at -6% 106%, rgba(16,19,27,0.06) 0%, transparent 52%),

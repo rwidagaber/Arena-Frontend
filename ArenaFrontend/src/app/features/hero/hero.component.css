@@ -13,7 +13,8 @@
   background-position: center top;
   position: relative;
   overflow: hidden;
-  min-height: 100vh;
+  /* Fill the first screen below the in-flow header (which reserves --header-h). */
+  min-height: calc(100vh - var(--header-h));
   padding-bottom: 60px;
   transition: background-color 0.3s ease;
 }
@@ -34,7 +35,8 @@
 .hero-section {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 80px 24px 0;
+  /* Header is in flow now, so this is just breathing room (not a header offset). */
+  padding: 48px 24px 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -200,7 +202,7 @@
 
 @media (max-width: 768px) {
   .hero-section {
-    padding-top: 60px;
+    padding-top: 32px;
   }
   
   .glow-ring {

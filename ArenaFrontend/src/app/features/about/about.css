@@ -3,10 +3,12 @@
    ========================================================================== */
 .about-hero-section {
   position: relative;
-  width: 100%; 
-  max-width: 100%; 
-  margin: 90px auto 0 auto; 
-  padding: 0 40px; 
+  width: 100%;
+  max-width: 100%;
+  /* Header is in flow now, so this is just breathing room below it (was 90px to
+     clear the old floating/absolute header). */
+  margin: 24px auto 0 auto;
+  padding: 0 40px;
   box-sizing: border-box; 
   height: 50vh; 
   min-height: 320px; 
