@@ -86,6 +86,10 @@
   user-select: none;
 } 
 
+[dir="rtl"] .giant-stroke-text {
+  font-size: clamp(4rem, 10vw, 8rem);
+}
+
 /* ==========================================================================
    2. PREMIUM TEXT STATEMENT SECTION (توزيع موازن وفخم)
    ========================================================================== */
@@ -362,7 +366,7 @@
     width: 100%;
   }
   .animated-statement {
-    font-size: 2rem;
+    font-size: clamp(2rem, 5vw, 3rem);
   }
   .mv-grid {
     grid-template-columns: 1fr;
@@ -378,6 +382,17 @@
   .image-wrapper {
     height: 380px;
   }
+  .about-hero-section {
+    align-items: flex-end;
+  }
+  .giant-stroke-text {
+    font-size: clamp(3rem, 9vw, 5rem);
+    white-space: normal;
+    text-align: center;
+  }
+  [dir="rtl"] .giant-stroke-text {
+    font-size: clamp(3.5rem, 11vw, 6rem);
+  }
 }
 
 @media (max-width: 600px) {
@@ -387,11 +402,16 @@
     border-radius: 14px;
     height: 40vh;
     min-height: 220px;
+    align-items: flex-end;
   }
   .giant-stroke-text {
-    font-size: clamp(1.4rem, 8vw, 2.5rem);
+    font-size: clamp(2.5rem, 12vw, 4rem);
     white-space: normal;
+    text-align: center;
     letter-spacing: 2px;
+  }
+  [dir="rtl"] .giant-stroke-text {
+    font-size: clamp(3rem, 14vw, 5rem);
   }
   .premium-statement-section {
     padding: 60px 0 50px 0;
