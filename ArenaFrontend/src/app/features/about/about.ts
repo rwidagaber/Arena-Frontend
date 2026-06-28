@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { TranslationService } from '../../core/services/translation.service';
 
 @Component({
   selector: 'app-about',
@@ -10,4 +11,10 @@ import { TranslateModule } from '@ngx-translate/core';
 })
 export class About {
   activeTab: string = 'mission';
+
+  translationService = inject(TranslationService);
+
+  get isRtl(): boolean {
+    return this.translationService.currentLang() === 'ar';
+  }
 }
