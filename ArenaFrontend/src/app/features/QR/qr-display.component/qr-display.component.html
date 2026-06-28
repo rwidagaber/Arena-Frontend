@@ -10,9 +10,9 @@
           <path d="M7 12h10" />
         </svg>
       </div>
-      <span class="eyebrow">{{ 'qr.attendanceScan' | translate }}</span>
-      <h1>{{ 'qr.confirmCheckin' | translate }}</h1>
-      <p class="scan-copy">{{ 'qr.scanDescription' | translate }}</p>
+      <span class="eyebrow">Attendance scan</span>
+      <h1>Confirm member check-in</h1>
+      <p class="scan-copy">This QR code will be marked as used and the attendance record will be saved in the database.</p>
 
       <div class="scan-code">{{ scanCode }}</div>
 
@@ -22,9 +22,9 @@
 
       @if (scanResult) {
         <div class="qr-alert" [class.warning]="scanResult.isAlreadyUsed || scanResult.isExpired">
-          <strong>{{ scanResult.message | translate }}</strong>
+          <strong>{{ scanResult.message }}</strong>
           @if (scanResult.bookingId) {
-            <span>{{ 'qr.booking' | translate }}: {{ scanResult.bookingId }}</span>
+            <span>Booking: {{ scanResult.bookingId }}</span>
           }
         </div>
       }
@@ -32,24 +32,24 @@
       <div class="scan-actions">
         <button class="primary-action" type="button" (click)="confirmScan()" [disabled]="isScanning || !!scanResult">
           @if (isScanning) {
-            {{ 'qr.saving' | translate }}
+            Saving...
           } @else {
-            {{ 'qr.saveAttendance' | translate }}
+            Save attendance
           }
         </button>
-        <a class="secondary-action" routerLink="/dashboard" [queryParams]="{ section: 'qr' }">{{ 'qr.backToQrCodes' | translate }}</a>
+        <a class="secondary-action" routerLink="/dashboard" [queryParams]="{ section: 'qr' }">Back to QR codes</a>
       </div>
     </div>
   } @else {
     <div class="qr-header">
       <div>
-        <span class="eyebrow">{{ 'qr.sessionAccess' | translate }}</span>
-        <h1>{{ 'qr.todaySessionQrCodes' | translate }}</h1>
-        <p>{{ 'qr.chooseSession' | translate }}</p>
+        <span class="eyebrow">Session access</span>
+        <h1>Today session QR codes</h1>
+        <p>Choose a confirmed session for today and show the QR at check-in.</p>
       </div>
       <div class="qr-status-pill">
         <span></span>
-        {{ 'qr.mobileScannable' | translate }}
+        Mobile scannable
       </div>
     </div>
 
@@ -60,11 +60,11 @@
     <div class="qr-grid">
       <aside class="session-panel">
         <div class="panel-heading">
-          <h2>{{ 'qr.todaySessions' | translate }}</h2>
+          <h2>Today sessions</h2>
           @if (isLoadingBookings) {
-            <span>{{ 'qr.loading' | translate }}</span>
+            <span>Loading...</span>
           } @else {
-            <span>{{ bookings.length }} {{ 'qr.ready' | translate }}</span>
+            <span>{{ bookings.length }} ready</span>
           }
         </div>
 
@@ -81,8 +81,8 @@
                 <path d="M3 10h18" />
               </svg>
             </div>
-            <h3>{{ 'qr.noQrCodesAvailable' | translate }}</h3>
-            <p>{{ 'qr.confirmedBookingsAppear' | translate }}</p>
+            <h3>No QR codes available today</h3>
+            <p>Confirmed bookings appear here only on the booking day.</p>
           </div>
         } @else {
           <div class="session-list">
@@ -97,7 +97,7 @@
                 <span class="session-date">{{ formatSessionDate(booking) }}</span>
                 <span class="session-time">{{ formatSessionTime(booking) }}</span>
                 <span class="session-tag" [class.locked]="idx > 0">
-                  {{ (idx > 0 ? 'qr.locked' : 'qr.confirmed') | translate }}
+                  {{ (idx > 0 ? 'Locked' : 'Confirmed') | translate }}
                 </span>
               </button>
             }
@@ -109,48 +109,48 @@
         @if (isLoading) {
           <div class="loading-state">
             <div class="spinner"></div>
-            <p>{{ 'qr.generatingQr' | translate }}</p>
+            <p>Generating your secure QR code...</p>
           </div>
         } @else if (qrData) {
           <div class="qr-card-head">
             <div>
-              <span class="eyebrow">{{ 'qr.selectedSession' | translate }}</span>
+              <span class="eyebrow">Selected session</span>
               <h2>{{ formatSessionDate(selectedBooking) }}</h2>
               <p>{{ formatSessionTime(selectedBooking) }}</p>
             </div>
-            <span class="use-state" [class.used]="qrData.isUsed">{{ (qrData.isUsed ? 'qr.used' : 'qr.active') | translate }}</span>
+            <span class="use-state" [class.used]="qrData.isUsed">{{ qrData.isUsed ? 'Used' : 'Active' }}</span>
           </div>
 
           <div class="qr-image-shell" [class.expired]="isExpired || qrData.isUsed">
             <img [src]="qrImageUrl" alt="Session attendance QR code" class="qr-image" />
             @if (isExpired || qrData.isUsed) {
               <div class="qr-overlay">
-                <strong>{{ (qrData.isUsed ? 'qr.alreadyUsed' : 'qr.expired') | translate }}</strong>
+                <strong>{{ qrData.isUsed ? 'Already used' : 'Expired' }}</strong>
               </div>
             }
           </div>
 
           <div class="countdown" [class.expired]="isExpired">
             @if (isExpired) {
-              {{ 'qr.qrExpired' | translate }}
+              QR expired
             } @else {
-              {{ 'qr.expiresIn' | translate }} {{ timeLeft || ('qr.calculating' | translate) }}
+              Expires in {{ timeLeft || 'calculating...' }}
             }
           </div>
 
           <div class="qr-details">
             <div>
-              <span>{{ 'qr.generated' | translate }}</span>
+              <span>Generated</span>
               <strong>{{ qrData.generatedAt | date:'medium' }}</strong>
             </div>
             <div>
-              <span>{{ 'qr.expires' | translate }}</span>
+              <span>Expires</span>
               <strong>{{ qrData.expirationTime | date:'medium' }}</strong>
             </div>
           </div>
 
           <button class="secondary-action refresh-action" type="button" (click)="generateQr(qrData.bookingId)">
-            {{ 'qr.refreshQr' | translate }}
+            Refresh QR
           </button>
         } @else {
           <div class="empty-state large">
@@ -163,8 +163,8 @@
                 <path d="M21 14v7h-7" />
               </svg>
             </div>
-            <h3>{{ 'qr.selectSession' | translate }}</h3>
-            <p>{{ 'qr.qrWillAppear' | translate }}</p>
+            <h3>Select a session</h3>
+            <p>Your QR code will appear here.</p>
           </div>
         }
       </div>
