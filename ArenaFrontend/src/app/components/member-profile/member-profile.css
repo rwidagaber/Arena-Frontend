@@ -84,6 +84,10 @@ app-footer {
 .reveal-in { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  /* No hover lifts / drift for users who prefer reduced motion. */
+  .today-card, .streak-banner { transition: none; }
+  .today-card:hover, .streak-banner:hover { transform: none; }
+  .hero-bg, .hero-glow { animation: none; }
 }
 
 /* ═══════════════════════════════════════════════
@@ -174,19 +178,25 @@ app-footer {
   overflow: hidden;
   border-radius: 20px;
   min-height: 420px;
+  /* Soft layered shadow so the hero floats on the paper like the cards below. */
+  box-shadow: 0 1px 3px rgba(20,20,20,0.05), 0 24px 48px -28px rgba(20,20,20,0.28);
   animation: fadeSlide 0.55s ease-out backwards;
   animation-delay: var(--hero-delay, 0s);
 }
+[data-theme="dark"] .hero-section {
+  box-shadow: 0 1px 2px rgba(0,0,0,0.40), 0 28px 60px -30px rgba(0,0,0,0.85);
+}
 
+/* Refined accent edge — a thinner, calmer lime line (was a bright glowing bar). */
 .hero-section::after {
   content: '';
   position: absolute;
   bottom: 0; left: 0; right: 0;
-  height: 3px;
+  height: 2px;
   background: linear-gradient(90deg, transparent 0%, #C6EF2E 20%, #C6EF2E 80%, transparent 100%);
   z-index: 3;
-  opacity: 1;
-  box-shadow: 0 0 18px rgba(198,239,46,0.55);
+  opacity: 0.8;
+  box-shadow: 0 0 10px rgba(198,239,46,0.35);
 }
 
 .hero-bg {
@@ -197,7 +207,8 @@ app-footer {
   object-fit: cover;
   object-position: center 32%;
   filter: saturate(0.95) brightness(0.9) contrast(1.04);
-  animation: heroZoom 22s ease-in-out infinite alternate;
+  /* Calmer: a barely-there drift instead of a pronounced perpetual zoom. */
+  animation: heroZoom 32s ease-in-out infinite alternate;
 }
 
 [data-theme="dark"] .hero-bg {
@@ -215,7 +226,7 @@ app-footer {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-repeat: repeat;
   background-size: 180px;
-  opacity: 0.035;
+  opacity: 0.025;
   pointer-events: none;
   z-index: 2;
 }
@@ -231,7 +242,7 @@ app-footer {
   right: -100px;
   pointer-events: none;
   z-index: 1;
-  animation: glowPulse 5s ease-in-out infinite;
+  animation: glowPulse 9s ease-in-out infinite;
 }
 
 [data-theme="dark"] .hero-glow {
@@ -1384,16 +1395,25 @@ app-footer {
   align-items: center;
   gap: 18px;
   padding: 18px 22px;
-  border-radius: 18px;
+  /* Match the content cards' radius for a consistent rhythm (was 18px). */
+  border-radius: var(--r-lg, 16px);
   background: linear-gradient(120deg, rgba(255,255,255,0.72) 0%, rgba(250,253,240,0.66) 100%);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(198,239,46,0.30);
-  box-shadow: 0 10px 30px -16px rgba(16,24,40,0.18);
+  box-shadow: 0 1px 3px rgba(20,20,20,0.04), 0 16px 32px -18px rgba(16,24,40,0.20);
   animation: fadeSlide 0.5s ease-out backwards;
   animation-delay: var(--sb-delay, 0s);
+  transition: transform 0.28s cubic-bezier(0.22,1,0.36,1), box-shadow 0.28s ease;
   position: relative;
   overflow: hidden;
+}
+.streak-banner:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 6px rgba(20,20,20,0.06), 0 26px 50px -22px rgba(16,24,40,0.26);
+}
+[data-theme="dark"] .streak-banner:hover {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.45), 0 30px 60px -30px rgba(0,0,0,0.80);
 }
 
 /* lime accent edge */
@@ -2121,8 +2141,8 @@ app-footer {
 }
 
 .mp-chart-area {
+  position: relative;
   border-radius: 8px;
-  padding: 4px 0;
   transition: background 0.3s ease;
 }
 
@@ -2140,20 +2160,32 @@ app-footer {
   overflow: visible;
 }
 
-.mp-sparkline-dot {
-  fill: #C6EF2E;
-  opacity: 0;
-  transition: opacity 0.25s ease, r 0.25s ease;
+/* Arena lime glow on the monthly wave. Applied to the SVG box (CSS pixel space),
+   not the stretched user space, so the glow stays uniform and never smears. */
+.mp-sparkline-wrap .mp-sparkline {
+  filter: drop-shadow(0 1px 5px rgba(198, 239, 46, 0.45));
 }
 
-.mp-chart-area:hover .mp-sparkline-dot {
+/* HTML overlay dots — round regardless of the SVG's horizontal stretch. */
+.mp-spark-dot {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  margin: -2.5px 0 0 -2.5px;   /* centre on the data point */
+  border-radius: 50%;
+  background: #C6EF2E;
+  opacity: 0;
+  transition: opacity 0.25s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mp-chart-area:hover .mp-spark-dot {
   opacity: 0.7;
 }
 
-.mp-chart-area:hover .mp-sparkline-dot:hover {
+.mp-chart-area:hover .mp-spark-dot:hover {
   opacity: 1;
-  r: 2.8;
-  filter: drop-shadow(0 0 4px rgba(198,239,46,0.6));
+  transform: scale(1.5);
+  box-shadow: 0 0 6px rgba(198,239,46,0.7);
 }
 
 .mp-weight-trend {
@@ -3278,13 +3310,13 @@ app-footer {
 }
 
 @keyframes glowPulse {
-  0%, 100% { opacity: 0.55; transform: scale(1); }
-  50%      { opacity: 0.72; transform: scale(1.03); }
+  0%, 100% { opacity: 0.40; transform: scale(1); }
+  50%      { opacity: 0.52; transform: scale(1.015); }
 }
 
 @keyframes heroZoom {
   from { transform: scale(1); }
-  to   { transform: scale(1.10); }
+  to   { transform: scale(1.05); }
 }
 
 @keyframes dotBreathe {
@@ -3646,8 +3678,16 @@ app-footer {
   box-shadow: 0 1px 3px rgba(20,20,20,0.05), 0 16px 32px -18px rgba(20,20,20,0.20);
   animation: fadeSlide 0.5s ease-out backwards;
   animation-delay: var(--td-delay, 0s);
+  transition: transform 0.28s cubic-bezier(0.22,1,0.36,1), box-shadow 0.28s ease;
   position: relative;
   overflow: hidden;
+}
+.today-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 6px rgba(20,20,20,0.06), 0 26px 50px -22px rgba(20,20,20,0.28);
+}
+[data-theme="dark"] .today-card:hover {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.45), 0 32px 64px -30px rgba(0,0,0,0.90);
 }
 .today-card::before {
   content: '';
