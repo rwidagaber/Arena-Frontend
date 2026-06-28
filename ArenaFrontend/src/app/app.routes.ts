@@ -74,8 +74,6 @@ export const routes: Routes = [
   {
     path: 'about',
     loadComponent: () => import('./features/about/about').then(m => m.About),
-    canActivate: [authGuard, roleGuard],
-    data: { roles: ['Member'] }
   },
   {
     path: 'chat',
@@ -119,11 +117,10 @@ export const routes: Routes = [
     canActivate: [authGuard, subGuard]
   },
 
-  // ─── Redirects ───
   {
-    path: 'contact',
-    redirectTo: ''
-  },
+  path: 'contact',
+  loadComponent: () => import('./features/contact/contact').then(m => m.Contact)
+},
   {
     path: '**',
     redirectTo: ''                     // ✅ أي route غلط → home
