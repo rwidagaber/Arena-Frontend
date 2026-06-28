@@ -1278,7 +1278,35 @@
   "exploreMemberships": "استكشف العضويات",
 
   "quote": "«الألم الذي تشعر به اليوم هو القوة التي ستحملها غداً.»",
-  "quoteAuthor": "فريق أرينا"
+  "quoteAuthor": "فريق أرينا"},
+
+   "qr":{
+    "attendanceScan": "مسح الحضور",
+    "confirmCheckin": "تأكيد تسجيل حضور العضو",
+    "scanDescription": "سيتم تعليم رمز QR كمستخدم وسيتم حفظ سجل الحضور في قاعدة البيانات.",
+    "booking": "الحجز",
+    "saving": "جارٍ الحفظ...",
+    "saveAttendance": "حفظ الحضور",
+    "backToQrCodes": "العودة إلى رموز QR",
+    "sessionAccess": "الوصول للجلسة",
+    "todaySessionQrCodes": "رموز QR لجلسات اليوم",
+    "chooseSession": "اختر جلسة مؤكدة لليوم واعرض رمز QR عند تسجيل الحضور.",
+    "mobileScannable": "قابل للمسح بالهاتف",
+    "todaySessions": "جلسات اليوم",
+    "loading": "جارٍ التحميل...",
+    "ready": "جاهز",
+    "noQrCodesAvailable": "لا توجد رموز QR متاحة اليوم",
+    "confirmedBookingsAppear": "تظهر الحجوزات المؤكدة هنا فقط في يوم الحجز.",
+    "locked": "مقفل",
+    "confirmed": "مؤكد",
+    "selectedSession": "الجلسة المختارة",
+    "generatingQr": "جارٍ إنشاء رمز QR الآمن الخاص بك...",
+    "active": "نشط",
+    "used": "مُستخدَم",
+    "alreadyUsed": "مُستخدَم بالفعل",
+    "expired": "منتهي الصلاحية",
+    "qrExpired": "انتهت صلاحية رمز QR",
+    "expiresIn": "ينتهي خلال"
 },
 "contact": {
   "contactus": "تواصل معنا",
@@ -1305,4 +1333,4 @@
 "sending": "جاري الإرسال..."
 }
 
-}
+  }
