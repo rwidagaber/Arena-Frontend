@@ -8,7 +8,7 @@ import { environment } from '../../../../environments/environment';
 import { BookingDto, QrDto, QrScanResultDto } from '../qr.model';
 import { QrService } from '../qr.service';
 
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-qr-display',
@@ -24,6 +24,7 @@ export class QrDisplayComponent implements OnInit, OnChanges, OnDestroy {
   private qrService = inject(QrService);
   private bookingService = inject(BookingService);
   private auth = inject(AuthService);
+  private translate = inject(TranslateService);
 
   bookingId = '';
   scanCode = '';
@@ -100,7 +101,7 @@ export class QrDisplayComponent implements OnInit, OnChanges, OnDestroy {
       error: err => {
         if (this.memberProfileId !== requestMemberProfileId) return;
 
-        this.error = err?.message || 'Failed to load upcoming sessions';
+        this.error = err?.message || this.translate.instant('Failed to load upcoming sessions');
         this.isLoadingBookings = false;
       },
     });
@@ -125,20 +126,22 @@ export class QrDisplayComponent implements OnInit, OnChanges, OnDestroy {
         this.isLoading = false;
 
         const scanUrl = `${environment.apiUrl}/qr/scan/${encodeURIComponent(data.code)}`;
+        const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
+
         this.qrImageUrl = await QRCode.toDataURL(scanUrl, {
           width: 360,
           margin: 2,
           errorCorrectionLevel: 'M',
           color: {
-            dark: '#0f172a',
-            light: '#ffffff',
+            dark: isDarkTheme ? '#ffffff' : '#0b0c0c',
+            light: isDarkTheme ? '#0b0c0c' : '#ffffff',
           },
         });
 
         this.startCountdown();
       },
       error: err => {
-        this.error = err.error?.message || err?.message || 'Failed to generate QR code';
+        this.error = err.error?.message || err?.message || this.translate.instant('Failed to generate QR code');
         this.isLoading = false;
       },
     });
@@ -160,7 +163,7 @@ export class QrDisplayComponent implements OnInit, OnChanges, OnDestroy {
         this.isScanning = false;
       },
       error: err => {
-        this.scanError = err.error?.message || err?.message || 'Scan failed. Please try again.';
+        this.scanError = err.error?.message || err?.message || this.translate.instant('Scan failed. Please try again.');
         this.isScanning = false;
       },
     });
@@ -195,7 +198,7 @@ export class QrDisplayComponent implements OnInit, OnChanges, OnDestroy {
 
       if (diff <= 0) {
         this.isExpired = true;
-        this.timeLeft = 'Expired';
+        this.timeLeft = this.translate.instant('Expired');
         this.qrData = null;
         this.qrImageUrl = '';
         this.selectedBooking = null;
@@ -207,7 +210,11 @@ export class QrDisplayComponent implements OnInit, OnChanges, OnDestroy {
       const hours = Math.floor(diff / (1000 * 60 * 60));
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-      this.timeLeft = `${hours}h ${minutes}m ${seconds}s`;
+      
+      const hStr = this.translate.instant('h');
+      const mStr = this.translate.instant('m');
+      const sStr = this.translate.instant('s');
+      this.timeLeft = `${hours}${hStr} ${minutes}${mStr} ${seconds}${sStr}`;
     }, 1000);
   }
 
