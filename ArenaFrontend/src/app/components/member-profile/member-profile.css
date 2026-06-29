@@ -2700,7 +2700,13 @@ app-footer {
   max-width: 92vw;
   max-height: 94vh;
   overflow-y: auto;
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* IE / Edge */
   box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+
+.edit-modal::-webkit-scrollbar {
+  display: none;                /* Chrome / Safari */
 }
 
 .edit-modal h3 {
