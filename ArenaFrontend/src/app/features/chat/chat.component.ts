@@ -269,6 +269,14 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       });
   }
 
+  onKeyDown(event: KeyboardEvent): void {
+    if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
+      event.preventDefault();
+      this.send();
+    }
+  }
+
+
 
   toggleRecording(): void {
     if (this.recording) {

@@ -224,6 +224,7 @@
           placeholder="Message Arena assistant..."
           aria-label="Message Arena assistant"
           [disabled]="sending || transcribing || !memberProfileId"
+          (keydown)="onKeyDown($event)"
         ></textarea>
 
         <div *ngIf="recording" class="recording-bar" role="status" aria-live="polite">
