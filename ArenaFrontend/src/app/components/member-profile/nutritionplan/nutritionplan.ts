@@ -80,27 +80,27 @@ export class Nutritionplan implements OnInit, OnDestroy {
   showActiveOnly = signal(false);
 
   filteredPlans = computed(() => {
-    const q = this.searchQuery().toLowerCase().trim();
-    let result = this.allPlans();
+  const q = this.searchQuery().toLowerCase().trim();
+  let result = [...this.allPlans()].reverse(); // ← اضف reverse هنا
 
-    if (this.showActiveOnly()) {
-      result = result.filter(p => p.isActive);
-    }
+  if (this.showActiveOnly()) {
+    result = result.filter(p => p.isActive);
+  }
 
-    if (q) {
-      result = result.filter(p =>
-        p.dailyCalories.toString().includes(q) ||
-        `diet plan ${p.dailyCalories}`.toLowerCase().includes(q) ||
-        p.meals.some(m =>
-          m.name.toLowerCase().includes(q) ||
-          m.mealType.toLowerCase().includes(q) ||
-          m.ingredients.toLowerCase().includes(q)
-        )
-      );
-    }
+  if (q) {
+    result = result.filter(p =>
+      p.dailyCalories.toString().includes(q) ||
+      `diet plan ${p.dailyCalories}`.toLowerCase().includes(q) ||
+      p.meals.some(m =>
+        m.name.toLowerCase().includes(q) ||
+        m.mealType.toLowerCase().includes(q) ||
+        m.ingredients.toLowerCase().includes(q)
+      )
+    );
+  }
 
-    return result;
-  });
+  return result;
+});
 
   // ── Pagination ────────────────────────────────────────────────────────────────
   currentPage = signal(0);
