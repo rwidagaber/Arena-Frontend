@@ -209,9 +209,22 @@ export class MemberProfile implements OnInit {
     return sub.planNameEn || '';
   });
 
-  /** True when the member's active plan includes AI features. Drives whether the
-   *  AI-subscription teaser card is shown (we show it only when they don't). */
-  hasAI = computed(() => !!this.profile()?.activeSubscription?.hasAI);
+  /** A subscription counts as active unless it's explicitly expired/cancelled or
+   *  its end date has passed. */
+  private isSubActive(s: UserSubscriptionDto): boolean {
+    const status = (s.status ?? '').toLowerCase();
+    if (status === 'expired' || status === 'cancelled' || status === 'canceled' || status === 'inactive') return false;
+    if (s.endDate) return new Date(s.endDate).getTime() >= Date.now();
+    return true;
+  }
+
+  /** True when the member has an ACTIVE subscription that includes AI features.
+   *  Checks the loaded subscription list first, then the profile's active sub.
+   *  Drives the AI card: unlocked (real plan) when true, locked teaser when false. */
+  hasAI = computed(() =>
+    this.userSubscriptions().some(s => s.hasAI && this.isSubActive(s)) ||
+    !!this.profile()?.activeSubscription?.hasAI
+  );
 
   planMonthlyCap = computed(() => {
     const level = this.planLevel();
@@ -1178,6 +1191,9 @@ export class MemberProfile implements OnInit {
 
   userSubscriptions = signal<UserSubscriptionDto[]>([]);
   loadingSubscriptions = signal(false);
+  /** Flips true once the subscription check has finished — the AI card waits for
+   *  this so it never flashes the wrong (locked/unlocked) state first. */
+  subscriptionsLoaded = signal(false);
 
   loadData(): void {
     this.loading.set(true);
@@ -1267,6 +1283,7 @@ export class MemberProfile implements OnInit {
     ).subscribe(subs => {
       this.userSubscriptions.set(subs);
       this.loadingSubscriptions.set(false);
+      this.subscriptionsLoaded.set(true);
     });
   }
 }

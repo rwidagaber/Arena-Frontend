@@ -153,6 +153,7 @@
                   · No AI subscription → locked + blurred over static sample data.
                   · Has an AI subscription → unlocked, real plan pulled from the DB.
                   ════════════════════════════════════════ -->
+            @if (subscriptionsLoaded()) {
             <section class="ai-teaser" [class.is-locked]="!hasAI()" appReveal style="--ai-delay:0.14s">
               <div class="ai-teaser-preview" [attr.aria-hidden]="!hasAI() ? true : null">
                 <div class="ait-head">
@@ -314,6 +315,7 @@
               </div>
               }
             </section>
+            }
 
             <!-- ════════════════════════════════════════
                   OVERVIEW BAND  (daily quote + key numbers at a glance)
