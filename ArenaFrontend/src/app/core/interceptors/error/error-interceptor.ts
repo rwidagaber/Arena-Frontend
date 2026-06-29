@@ -116,6 +116,8 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           bodyMsg = Array.isArray(errorBody.message)
             ? errorBody.message.join(', ')
             : errorBody.message;
+        } else if (errorBody.error && typeof errorBody.error === 'string') {
+          bodyMsg = errorBody.error;
         } else if (Array.isArray(errorBody.errors)) {
           bodyMsg = errorBody.errors.join(', ');
         } else if (errorBody.errors && typeof errorBody.errors === 'object') {
