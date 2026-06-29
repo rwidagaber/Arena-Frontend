@@ -20,6 +20,8 @@ import { ThemeService } from '../../core/services/themeservice';
 import { TranslationService, type Lang } from '../../core/services/translation.service';
 import { WorkoutComponent } from "./workoutplan/workout";
 import { WorkoutService } from '../../core/services/workout';
+import { NutritionService } from '../../core/services/nutrition';
+import type { NutritionPlanDto } from '../../core/models/nutrition';
 import type { WorkoutPlanDto } from '../../core/models/workout';
 import { BookingSection } from './booking-section/booking-section';
 import { BookingService } from '../../core/services/booking.service';
@@ -74,6 +76,7 @@ export class MemberProfile implements OnInit {
   private progressService = inject(ProgressReportService);
   private bookingService = inject(BookingService);
   private workoutSvc = inject(WorkoutService);
+  private nutritionSvc = inject(NutritionService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private themeService = inject(ThemeService);
@@ -122,6 +125,9 @@ export class MemberProfile implements OnInit {
   workoutPlan = signal<WorkoutPlanDto | null>(null);
   loadingWorkoutPlan = signal(false);
 
+  /** Active nutrition plan — feeds the AI teaser's macro targets. */
+  nutritionPlan = signal<NutritionPlanDto | null>(null);
+
   /** Heaviest working weights from the active plan: dedupe by exercise, keep the
       heaviest set, sort desc, take the top 4. These are program working targets
       (trainer-prescribed weights), NOT logged personal records. */
@@ -166,6 +172,24 @@ export class MemberProfile implements OnInit {
     return { dayName: day.dayName, count: exercises.length, muscles, preview };
   });
 
+  /** Real workout snippet for the AI teaser: today's day from the active plan
+   *  (falling back to the first day that has exercises), with up to 3 exercises
+   *  and their prescribed sets × reps. Null when the member has no plan yet. */
+  teaserWorkout = computed(() => {
+    const plan = this.workoutPlan();
+    if (!plan?.days?.length) return null;
+    const todayIdx = new Date().getDay() % plan.days.length;
+    const ordered = [plan.days[todayIdx], ...plan.days];
+    for (const day of ordered) {
+      const exercises = (day.exercises ?? [])
+        .map(e => ({ name: (e.exercise?.name ?? e.name ?? '').trim(), sets: e.sets, reps: e.reps }))
+        .filter(e => e.name)
+        .slice(0, 3);
+      if (exercises.length) return { dayName: day.dayName, exercises };
+    }
+    return null;
+  });
+
   /** True when the member has already checked in today. */
   trainedToday = computed(() => this.daysSinceLastWorkout() === 0);
 
@@ -184,6 +208,10 @@ export class MemberProfile implements OnInit {
     if (!sub) return '';
     return sub.planNameEn || '';
   });
+
+  /** True when the member's active plan includes AI features. Drives whether the
+   *  AI-subscription teaser card is shown (we show it only when they don't). */
+  hasAI = computed(() => !!this.profile()?.activeSubscription?.hasAI);
 
   planMonthlyCap = computed(() => {
     const level = this.planLevel();
@@ -1111,6 +1139,19 @@ export class MemberProfile implements OnInit {
     });
   }
 
+  /** CTA on the AI teaser → the plans page to upgrade to an AI subscription. */
+  goToPlans(): void {
+    this.router.navigate(['/plans']);
+  }
+
+  /** Empty-state CTA (subscribed, no plan yet) → the AI chatbot to generate one. */
+  goToChat(): void {
+    this.router.navigate(['/chat']);
+  }
+
+  /** Decorative chain-link X positions for the locked card overlay. */
+  protected readonly chainLinks = [-40, 0, 40, 80, 120, 160, 200, 240, 280, 320, 360, 400, 440];
+
   ngOnInit(): void {
     const cached = this.auth.currentUser$.subscribe(user => {
       if (user && user.firstName) {
@@ -1165,6 +1206,7 @@ export class MemberProfile implements OnInit {
       this.loadSubscriptions(data.memberProfileId);
       this.loadBookings(data.memberProfileId || data.id || '');
       this.loadWorkoutPlan();
+      this.loadNutritionPlan();
       const memberProfileId = data.memberProfileId || data.id || '';
       if (!memberProfileId) {
         this.statsLoading.set(false);
@@ -1196,6 +1238,12 @@ export class MemberProfile implements OnInit {
       this.workoutPlan.set(plan ?? null);
       this.loadingWorkoutPlan.set(false);
     });
+  }
+
+  loadNutritionPlan(): void {
+    this.nutritionSvc.getActivePlan().pipe(
+      catchError(() => of(null as NutritionPlanDto | null))
+    ).subscribe(plan => this.nutritionPlan.set(plan ?? null));
   }
 
   loadBookings(memberProfileId: string): void {
