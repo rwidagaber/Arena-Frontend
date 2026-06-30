@@ -247,11 +247,18 @@
       "maxHeight": "Height must not exceed {{max}} cm"
     },
     "errors": {
-      "invalidCredentials": "Invalid email or password",
-      "emailExists": "This email is already registered",
-      "accountNotFound": "No account found with this email",
-      "somethingWrong": "Something went wrong, please try again"
-    }
+  "invalidCredentials": "Invalid email or password",
+  "emailExists": "This email is already registered",
+  "accountNotFound": "No account found with this email",
+  "somethingWrong": "Something went wrong, please try again",
+  "invalidRequest": "Invalid request. Please check your input.",
+  "noPermission": "You don't have permission to do this.",
+  "notFound": "The requested resource was not found.",
+  "invalidData": "Invalid data. Please check your input.",
+  "tooManyAttempts": "Too many attempts. Please try again later.",
+  "serviceUnavailable": "Service unavailable. Please try again later.",
+  "sessionExpired": "Session expired. Please login again."
+}
   },
   "dashboard": {
     "title": "Dashboard",
