@@ -2,6 +2,7 @@
   "framework": "angular",
   "buildCommand": "npm run build",
   "outputDirectory": "dist/ArenaFrontend/browser",
+  "cleanUrls": true,
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]
