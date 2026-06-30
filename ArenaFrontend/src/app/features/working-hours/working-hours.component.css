@@ -1,6 +1,6 @@
 :host {
   display: block;
-  --neon-green: #d4fa24;
+  --neon-green: #C6EF2E;
   --dark-bg: var(--bg-primary);
   --card-bg: var(--card-bg);
   --text-primary: var(--text-primary);
@@ -12,8 +12,9 @@
                     repeating-linear-gradient(45deg, var(--grid-line-color) 0px, var(--grid-line-color) 2px, transparent 2px, transparent 24px);
   background-size: 60px 60px;
   background-position: center top;
-  padding: 100px 24px 80px 24px;
-  min-height: 100vh;
+  /* Header is in flow now — this top padding is page breathing room, not an offset. */
+  padding: 48px 24px 80px 24px;
+  min-height: calc(100vh - var(--header-h));
   transition: background-color 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -109,8 +110,8 @@
 }
 
 .live-status-card.open-status {
-  border-color: rgba(46, 204, 113, 0.35);
-  box-shadow: 0 15px 40px rgba(46, 204, 113, 0.08);
+  border-color: rgba(198, 239, 46, 0.4);
+  box-shadow: 0 8px 30px rgba(198, 239, 46, 0.12);
 }
 
 .live-status-card:not(.open-status) {
@@ -136,8 +137,8 @@
 }
 
 .open-status .pulse-dot {
-  background-color: #2ecc71;
-  box-shadow: 0 0 10px #2ecc71;
+  background-color: #C6EF2E;
+  box-shadow: 0 0 6px rgba(198, 239, 46, 0.5);
 }
 
 .pulse-ring {
@@ -150,7 +151,7 @@
 }
 
 .open-status .pulse-ring {
-  border-color: rgba(46, 204, 113, 0.35);
+  border-color: rgba(198, 239, 46, 0.25);
 }
 
 @keyframes pulse-out {
@@ -172,8 +173,9 @@
 }
 
 .open-status .status-heading {
-  color: #2ecc71;
+  color: #8aab00;
 }
+
 
 .live-status-card:not(.open-status) .status-heading {
   color: #e74c3c;
@@ -187,13 +189,13 @@
 .active-shift {
   display: inline-flex;
   align-items: center;
-  background-color: rgba(46, 204, 113, 0.1);
-  color: #2ecc71;
+  background-color: rgba(198, 239, 46, 0.1);
+  color: #8aab00;
   padding: 6px 16px;
   border-radius: 100px;
   font-weight: 600;
   font-size: 0.85rem;
-  border: 1px solid rgba(46, 204, 113, 0.15);
+  border: 1px solid rgba(198, 239, 46, 0.2);
 }
 
 /* Days Schedule Grid */
@@ -248,9 +250,12 @@
   box-shadow: 0 4px 10px rgba(212, 250, 36, 0.2);
 }
 
-[dir="rtl"] .today-badge {
-  right: auto;
+:host-context(html[dir="rtl"]) .today-badge {
+ right: auto;
   left: 16px;
+  top: 16px;
+  padding: 6px 16px;
+  font-size: 0.85rem;
 }
 
 .icon-box {
@@ -537,7 +542,7 @@ html[dir="rtl"] .ms-3 {
 
 @media (max-width: 576px) {
   :host {
-    padding-top: 80px;
+    padding-top: 32px;
     padding-bottom: 60px;
   }
   .day-card {

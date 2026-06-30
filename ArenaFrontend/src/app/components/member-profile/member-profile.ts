@@ -20,6 +20,8 @@ import { ThemeService } from '../../core/services/themeservice';
 import { TranslationService, type Lang } from '../../core/services/translation.service';
 import { WorkoutComponent } from "./workoutplan/workout";
 import { WorkoutService } from '../../core/services/workout';
+import { NutritionService } from '../../core/services/nutrition';
+import type { NutritionPlanDto } from '../../core/models/nutrition';
 import type { WorkoutPlanDto } from '../../core/models/workout';
 import { BookingSection } from './booking-section/booking-section';
 import { BookingService } from '../../core/services/booking.service';
@@ -74,6 +76,7 @@ export class MemberProfile implements OnInit {
   private progressService = inject(ProgressReportService);
   private bookingService = inject(BookingService);
   private workoutSvc = inject(WorkoutService);
+  private nutritionSvc = inject(NutritionService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private themeService = inject(ThemeService);
@@ -122,6 +125,9 @@ export class MemberProfile implements OnInit {
   workoutPlan = signal<WorkoutPlanDto | null>(null);
   loadingWorkoutPlan = signal(false);
 
+  /** Active nutrition plan — feeds the AI teaser's macro targets. */
+  nutritionPlan = signal<NutritionPlanDto | null>(null);
+
   /** Heaviest working weights from the active plan: dedupe by exercise, keep the
       heaviest set, sort desc, take the top 4. These are program working targets
       (trainer-prescribed weights), NOT logged personal records. */
@@ -166,6 +172,24 @@ export class MemberProfile implements OnInit {
     return { dayName: day.dayName, count: exercises.length, muscles, preview };
   });
 
+  /** Real workout snippet for the AI teaser: today's day from the active plan
+   *  (falling back to the first day that has exercises), with up to 3 exercises
+   *  and their prescribed sets × reps. Null when the member has no plan yet. */
+  teaserWorkout = computed(() => {
+    const plan = this.workoutPlan();
+    if (!plan?.days?.length) return null;
+    const todayIdx = new Date().getDay() % plan.days.length;
+    const ordered = [plan.days[todayIdx], ...plan.days];
+    for (const day of ordered) {
+      const exercises = (day.exercises ?? [])
+        .map(e => ({ name: (e.exercise?.name ?? e.name ?? '').trim(), sets: e.sets, reps: e.reps }))
+        .filter(e => e.name)
+        .slice(0, 3);
+      if (exercises.length) return { dayName: day.dayName, exercises };
+    }
+    return null;
+  });
+
   /** True when the member has already checked in today. */
   trainedToday = computed(() => this.daysSinceLastWorkout() === 0);
 
@@ -184,6 +208,23 @@ export class MemberProfile implements OnInit {
     if (!sub) return '';
     return sub.planNameEn || '';
   });
+
+  /** A subscription counts as active unless it's explicitly expired/cancelled or
+   *  its end date has passed. */
+  private isSubActive(s: UserSubscriptionDto): boolean {
+    const status = (s.status ?? '').toLowerCase();
+    if (status === 'expired' || status === 'cancelled' || status === 'canceled' || status === 'inactive') return false;
+    if (s.endDate) return new Date(s.endDate).getTime() >= Date.now();
+    return true;
+  }
+
+  /** True when the member has an ACTIVE subscription that includes AI features.
+   *  Checks the loaded subscription list first, then the profile's active sub.
+   *  Drives the AI card: unlocked (real plan) when true, locked teaser when false. */
+  hasAI = computed(() =>
+    this.userSubscriptions().some(s => s.hasAI && this.isSubActive(s)) ||
+    !!this.profile()?.activeSubscription?.hasAI
+  );
 
   planMonthlyCap = computed(() => {
     const level = this.planLevel();
@@ -469,14 +510,18 @@ export class MemberProfile implements OnInit {
     return daily;
   });
 
+  /** Rolling average of the daily 0/1 attendance so the sparkline reads as
+   *  gentle waves instead of sharp single-day spikes. */
+  sparklineSmoothed = computed(() => this.movingAverage(this.sparklineData(), 3));
+
   sparklinePath = computed(() => {
-    const data = this.sparklineData();
+    const data = this.sparklineSmoothed();
     const w = 120;
     const h = 36;
     const count = data.length;
     if (count === 0) return '';
     const stepX = w / (count - 1 || 1);
-    const max = Math.max(...data, 1);
+    const max = Math.max(...data, 0.0001);
     const pts = data.map((v, i) => ({
       x: i * stepX,
       y: h - (v / max) * (h - 6) - 3,
@@ -484,23 +529,46 @@ export class MemberProfile implements OnInit {
     return this.smoothPath(pts);
   });
 
+  /** Area-fill variant: the line closed down to the baseline so the gradient
+   *  fills the region under the curve (not a stray auto-closed shape). */
+  sparklineAreaPath = computed(() => {
+    const line = this.sparklinePath();
+    return line ? `${line} L120,36 L0,36 Z` : '';
+  });
+
   sparklineDotData = computed(() => {
-    const data = this.sparklineData();
+    const raw = this.sparklineData();
+    const smoothed = this.sparklineSmoothed();
     const w = 120;
     const h = 36;
-    const count = data.length;
+    const count = raw.length;
     if (count === 0) return [];
     const stepX = w / (count - 1 || 1);
-    const max = Math.max(...data, 1);
-    return data.reduce<{x: number; y: number}[]>((acc, v, i) => {
+    const max = Math.max(...smoothed, 0.0001);
+    // Mark the days actually trained, but sit each dot on the smoothed curve.
+    return raw.reduce<{x: number; y: number}[]>((acc, v, i) => {
       if (v > 0) {
         const x = i * stepX;
-        const y = h - (v / max) * (h - 6) - 3;
+        const y = h - (smoothed[i] / max) * (h - 6) - 3;
         acc.push({ x: +x.toFixed(1), y: +y.toFixed(1) });
       }
       return acc;
     }, []);
   });
+
+  /** Centred moving average over ±radius samples — turns spiky series into
+   *  flowing waves while keeping the same number of points. */
+  private movingAverage(data: number[], radius: number): number[] {
+    const n = data.length;
+    return data.map((_, i) => {
+      let sum = 0, cnt = 0;
+      for (let j = Math.max(0, i - radius); j <= Math.min(n - 1, i + radius); j++) {
+        sum += data[j];
+        cnt++;
+      }
+      return cnt ? sum / cnt : 0;
+    });
+  }
 
   private smoothPath(pts: {x: number; y: number}[]): string {
     const n = pts.length;
@@ -512,10 +580,16 @@ export class MemberProfile implements OnInit {
       const p1 = pts[i];
       const p2 = pts[i + 1];
       const p3 = pts[Math.min(i + 2, n - 1)];
+      // Clamp the control points' Y within the segment's own range so the curve
+      // never overshoots above the peak or dips below the baseline — otherwise
+      // sharp 0↔1 attendance spikes produce ugly waves that bulge past the data.
+      const loY = Math.min(p1.y, p2.y);
+      const hiY = Math.max(p1.y, p2.y);
+      const clampY = (v: number) => Math.max(loY, Math.min(hiY, v));
       const cp1x = p1.x + (p2.x - p0.x) / 6;
-      const cp1y = p1.y + (p2.y - p0.y) / 6;
+      const cp1y = clampY(p1.y + (p2.y - p0.y) / 6);
       const cp2x = p2.x - (p3.x - p1.x) / 6;
-      const cp2y = p2.y - (p3.y - p1.y) / 6;
+      const cp2y = clampY(p2.y - (p3.y - p1.y) / 6);
       d += `C${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`;
     }
     return d;
@@ -679,6 +753,12 @@ export class MemberProfile implements OnInit {
       y: h - ((d.weight - min) / range) * (h - 4) - 2,
     }));
     return this.smoothPath(pts);
+  });
+
+  /** Area-fill variant of the weight trend, closed to its baseline (h = 32). */
+  weightTrendAreaPath = computed(() => {
+    const line = this.weightTrendPath();
+    return line ? `${line} L120,32 L0,32 Z` : '';
   });
 
   hasProgressLogs = computed(() => this.weightLogData().length >= 2);
@@ -1072,6 +1152,19 @@ export class MemberProfile implements OnInit {
     });
   }
 
+  /** CTA on the AI teaser → the plans page to upgrade to an AI subscription. */
+  goToPlans(): void {
+    this.router.navigate(['/plans']);
+  }
+
+  /** Empty-state CTA (subscribed, no plan yet) → the AI chatbot to generate one. */
+  goToChat(): void {
+    this.router.navigate(['/chat']);
+  }
+
+  /** Decorative chain-link X positions for the locked card overlay. */
+  protected readonly chainLinks = [-40, 0, 40, 80, 120, 160, 200, 240, 280, 320, 360, 400, 440];
+
   ngOnInit(): void {
     const cached = this.auth.currentUser$.subscribe(user => {
       if (user && user.firstName) {
@@ -1098,6 +1191,9 @@ export class MemberProfile implements OnInit {
 
   userSubscriptions = signal<UserSubscriptionDto[]>([]);
   loadingSubscriptions = signal(false);
+  /** Flips true once the subscription check has finished — the AI card waits for
+   *  this so it never flashes the wrong (locked/unlocked) state first. */
+  subscriptionsLoaded = signal(false);
 
   loadData(): void {
     this.loading.set(true);
@@ -1126,6 +1222,7 @@ export class MemberProfile implements OnInit {
       this.loadSubscriptions(data.memberProfileId);
       this.loadBookings(data.memberProfileId || data.id || '');
       this.loadWorkoutPlan();
+      this.loadNutritionPlan();
       const memberProfileId = data.memberProfileId || data.id || '';
       if (!memberProfileId) {
         this.statsLoading.set(false);
@@ -1159,6 +1256,12 @@ export class MemberProfile implements OnInit {
     });
   }
 
+  loadNutritionPlan(): void {
+    this.nutritionSvc.getActivePlan().pipe(
+      catchError(() => of(null as NutritionPlanDto | null))
+    ).subscribe(plan => this.nutritionPlan.set(plan ?? null));
+  }
+
   loadBookings(memberProfileId: string): void {
     if (!memberProfileId) return;
     this.loadingBookings.set(true);
@@ -1180,6 +1283,7 @@ export class MemberProfile implements OnInit {
     ).subscribe(subs => {
       this.userSubscriptions.set(subs);
       this.loadingSubscriptions.set(false);
+      this.subscriptionsLoaded.set(true);
     });
   }
 }

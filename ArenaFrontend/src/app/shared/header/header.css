@@ -45,6 +45,14 @@
    ========================================================================== */
 :host {
   display: block;
+  /* The host is sticky (not the inner <header>): it's a sibling of the routed
+     page content in app-root, so it reserves its height in normal flow AND pins
+     to the top across the whole page scroll. Putting sticky on the inner header
+     instead fails — its containing block is this short host, so it has no room
+     to travel and scrolls away immediately. */
+  position: sticky;
+  top: 0;
+  z-index: 1000;
   background-color: var(--header-bg);
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -66,9 +74,9 @@
   background-position: 20px 0, 20px 0, 0 0, 0 0;
   background-size: 40px 40px;
   background-repeat: repeat;
-  position: absolute;
-  top: 0;
-  left: 0;
+  /* In normal flow inside the sticky host (see :host above). Relative so the
+     decorative ::before/::after layers and the scroll-progress bar anchor to it. */
+  position: relative;
   width: 100%;
   z-index: 999;
   border-bottom: 1px solid var(--header-border);
@@ -76,7 +84,8 @@
 }
 
 .gympro-header-exact.is-sticky {
-  position: fixed;
+  /* Already pinned via position: sticky — this class only condenses the bar and
+     adds the frosted-glass treatment once the page is scrolled. */
   background-color: rgba(12, 15, 23, 0.95) !important;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -84,7 +93,6 @@
   border-bottom: 1px solid var(--header-border);
   padding-top: 10px !important;
   padding-bottom: 10px !important;
-  animation: headerSlideDown 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 :host-context([data-theme="light"]) .gympro-header-exact.is-sticky {
