@@ -68,12 +68,41 @@ export class NotificationService {
     };
   }
 
+  private filterRedundantReminders(list: NotificationDto[]): NotificationDto[] {
+    const confirmationTitles = new Set([
+      'Booking Confirmed',
+      'تم تأكيد الحجز',
+      'Booking Rescheduled',
+      'تم إعادة جدولة الحجز'
+    ]);
+    const reminderTitles = new Set([
+      'Session Reminder',
+      'تذكير بالجلسة'
+    ]);
+
+    return list.filter((item) => {
+      if (reminderTitles.has(item.title)) {
+        const itemTime = new Date(item.createdAt).getTime();
+        const hasConfirmation = list.some(other =>
+          other.id !== item.id &&
+          confirmationTitles.has(other.title) &&
+          Math.abs(new Date(other.createdAt).getTime() - itemTime) < 5000
+        );
+        if (hasConfirmation) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }
+
   // ── REST ──────────────────────────────────────────────────────────
   loadNotifications() {
     this.http.get<any[]>(this.base).subscribe(list => {
       const normalized = (list ?? []).map(item => this.normalizeNotification(item));
-      this.notifications.set(normalized.slice(0, 10));
-      this.unreadCount.set(normalized.filter(n => !n.isRead).length);
+      const filtered = this.filterRedundantReminders(normalized);
+      this.notifications.set(filtered.slice(0, 10));
+      this.unreadCount.set(filtered.filter(n => !n.isRead).length);
     });
   }
 
@@ -161,8 +190,18 @@ export class NotificationService {
 
     this.hub.on('ReceiveNotification', (data: any) => {
       const n = this.normalizeNotification(data);
-      this.notifications.update(list => [n, ...list].slice(0, 10));
-      this.unreadCount.update(c => c + 1);
+      
+      const currentList = this.notifications();
+      const newList = [n, ...currentList];
+      const filteredList = this.filterRedundantReminders(newList);
+      
+      const isFiltered = !filteredList.some(item => item.id === n.id);
+      if (isFiltered) {
+        return;
+      }
+      
+      this.notifications.set(filteredList.slice(0, 10));
+      this.unreadCount.set(filteredList.filter(item => !item.isRead).length);
       this.showToast(n);
     });
 
