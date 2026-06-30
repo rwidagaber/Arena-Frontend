@@ -3,24 +3,28 @@ import {
 } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, throwError, switchMap, BehaviorSubject, filter, take } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth'; // غير المسار لو مختلف
 
 let isRefreshing = false;
 const refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
-// ✅ رسائل واضحة لكل status code
-const STATUS_MESSAGES: Record<number, string> = {
-  400: 'Invalid request. Please check your input.',
-  401: 'Invalid email or password.',
-  403: 'You don\'t have permission to do this.',
-  404: 'The requested resource was not found.',
-  409: 'This account already exists.',
-  422: 'Invalid data. Please check your input.',
-  429: 'Too many attempts. Please try again later.',
-  500: 'Server error. Please try again later.',
-  502: 'Service unavailable. Please try again later.',
-  503: 'Service unavailable. Please try again later.',
+// ✅ مفاتيح الترجمة لكل status code (مطابقة لملف auth.errors / auth.validation)
+const STATUS_MESSAGE_KEYS: Record<number, string> = {
+  400: 'auth.errors.invalidRequest',
+  401: 'auth.errors.invalidCredentials',
+  403: 'auth.errors.noPermission',
+  404: 'auth.errors.notFound',
+  409: 'auth.errors.emailExists',
+  422: 'auth.errors.invalidData',
+  429: 'auth.errors.tooManyAttempts',
+  500: 'auth.errors.somethingWrong',
+  502: 'auth.errors.serviceUnavailable',
+  503: 'auth.errors.serviceUnavailable',
 };
+
+const DEFAULT_ERROR_KEY = 'auth.errors.somethingWrong';
+const SESSION_EXPIRED_KEY = 'auth.errors.sessionExpired';
 
 const isTechnical = (msg: string): boolean => {
   const technicalPatterns = [
@@ -37,7 +41,22 @@ const isTechnical = (msg: string): boolean => {
 };
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
+
+  // ✅ سيب طلبات ملفات الترجمة (./i18n/en.json , ./i18n/ar.json) تعدي عادي
+  // من غير أي تدخل من الـ interceptor ده. لازم ده يكون أول حاجة في الفنكشن،
+  // قبل أي inject تاني، عشان منعملش حلقة مقفولة:
+  // TranslateService → HttpClient → errorInterceptor → TranslateService
+  if (req.url.includes('/i18n/')) {
+    return next(req);
+  }
+
   const authService = inject(AuthService);
+  const translate = inject(TranslateService);
+
+  // helper بيرجع Error بالرسالة المترجمة + المفتاح الأصلي (i18nKey) عشان نقدر
+  // نعيد الترجمة لو المستخدم غيّر اللغة بعد ظهور الإيرور
+  const translatedError = (key: string, params?: Record<string, unknown>) =>
+    throwError(() => Object.assign(new Error(translate.instant(key, params)), { i18nKey: key, i18nParams: params }));
 
   return next(req).pipe(
     catchError((err) => {
@@ -45,65 +64,78 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       // ── Refresh Token Logic ───────────────────────────────────────────────
       if (err instanceof HttpErrorResponse && err.status === 401) {
 
-        // لو الـ request نفسه هو refresh أو login → متعملش refresh تاني
-        if (req.url.includes('/auth/refresh') || req.url.includes('/auth/login')) {
+        // لو الـ request اللي فشل هو الـ refresh نفسه → فعلاً انتهت الجلسة
+        if (req.url.includes('/auth/refresh')) {
           isRefreshing = false;
           authService.clearSession();
-          return throwError(() => new Error('Session expired. Please login again.'));
+          return translatedError(SESSION_EXPIRED_KEY);
         }
 
-        if (!isRefreshing) {
-          isRefreshing = true;
-          refreshTokenSubject.next(null);
+        // لو الـ request اللي فشل هو الـ login نفسه → سيبه يكمل تحت
+        // للـ Normal Error Handling عشان ياخد رسالة "Invalid email or password"
+        // الحقيقية بدل "Session expired"
+        if (!req.url.includes('/auth/login')) {
 
-          return authService.refresh().pipe(
-            switchMap((tokens) => {
-              isRefreshing = false;
-              refreshTokenSubject.next(tokens.accessToken);
+          if (!isRefreshing) {
+            isRefreshing = true;
+            refreshTokenSubject.next(null);
 
-              // أعد الـ request الأصلي بالتوكن الجديد
-              const retryReq = req.clone({
-                setHeaders: { Authorization: `Bearer ${tokens.accessToken}` }
-              });
-              return next(retryReq);
-            }),
-            catchError((refreshErr) => {
-              isRefreshing = false;
-              refreshTokenSubject.next(null);
-              authService.clearSession();
-              return throwError(() => new Error('Session expired. Please login again.'));
-            })
-          );
+            return authService.refresh().pipe(
+              switchMap((tokens) => {
+                isRefreshing = false;
+                refreshTokenSubject.next(tokens.accessToken);
 
-        } else {
-          // لو في refresh جاري، استنى التوكن الجديد وبعدين أعد الـ request
-          return refreshTokenSubject.pipe(
-            filter(token => token !== null),
-            take(1),
-            switchMap(token => {
-              const retryReq = req.clone({
-                setHeaders: { Authorization: `Bearer ${token!}` }
-              });
-              return next(retryReq);
-            })
-          );
+                // أعد الـ request الأصلي بالتوكن الجديد
+                const retryReq = req.clone({
+                  setHeaders: { Authorization: `Bearer ${tokens.accessToken}` }
+                });
+                return next(retryReq);
+              }),
+              catchError((refreshErr) => {
+                isRefreshing = false;
+                refreshTokenSubject.next(null);
+                authService.clearSession();
+                return translatedError(SESSION_EXPIRED_KEY);
+              })
+            );
+
+          } else {
+            // لو في refresh جاري، استنى التوكن الجديد وبعدين أعد الـ request
+            return refreshTokenSubject.pipe(
+              filter(token => token !== null),
+              take(1),
+              switchMap(token => {
+                const retryReq = req.clone({
+                  setHeaders: { Authorization: `Bearer ${token!}` }
+                });
+                return next(retryReq);
+              })
+            );
+          }
         }
+        // لو دخلنا هنا يبقى req.url فيه /auth/login → بنكمل تحت عادي
       }
 
       // ── Normal Error Handling ─────────────────────────────────────────────
       if (!(err instanceof HttpErrorResponse)) {
         if (err instanceof Error) {
+          // لو الرسالة already مترجمة (جاية من نفس الـ interceptor) أو مش technical خليها
           const msg = isTechnical(err.message)
-            ? 'Something went wrong. Please try again.'
+            ? translate.instant(DEFAULT_ERROR_KEY)
             : err.message;
-          return throwError(() => new Error(msg));
+          const key = isTechnical(err.message) ? DEFAULT_ERROR_KEY : (err as any).i18nKey;
+          return throwError(() => Object.assign(new Error(msg), { i18nKey: key }));
         }
-        return throwError(() => new Error('Something went wrong. Please try again.'));
+        return translatedError(DEFAULT_ERROR_KEY);
       }
 
-      let message = STATUS_MESSAGES[err.status] ?? 'Something went wrong. Please try again.';
+      // الرسالة الافتراضية حسب status code (مترجمة)
+      const statusKey = STATUS_MESSAGE_KEYS[err.status] ?? DEFAULT_ERROR_KEY;
+      let message = translate.instant(statusKey);
 
       // حاول تاخد رسالة من الـ body بس لو مش technical
+      // ⚠️ ملحوظة: دي رسالة جاية من السيرفر مباشرة، مش مفتاح ترجمة،
+      // فهتفضل زي ما هي (عادةً إنجليزي) إلا لو السيرفر نفسه بيرجع مفتاح ترجمة معروف.
       if (err.error) {
         const errorBody = err.error;
         let bodyMsg = '';
@@ -126,15 +158,18 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           bodyMsg = errorBody.title;
         }
 
-        // استخدم رسالة السيرفر بس لو مش technical
-        if (bodyMsg && !isTechnical(bodyMsg)) {
-          message = bodyMsg;
-        }
+        // ✅ لو عايز تدي أولوية لرسالة السيرفر، فعّل السطر ده.
+        // مش بنفعّله افتراضيًا عشان الرسالة المترجمة (status-based) هتفضل
+        // أدق وأنضف من رسالة سيرفر إنجليزي خام جوه واجهة عربي.
+        // if (bodyMsg && !isTechnical(bodyMsg)) {
+        //   message = bodyMsg;
+        // }
+        void bodyMsg; // (متسيبهاش لو هتفعّل الأولوية فوق)
       }
 
       console.error('HTTP ERROR:', err); // للـ debugging بس
 
-      return throwError(() => new Error(message));
+      return throwError(() => Object.assign(new Error(message), { i18nKey: statusKey }));
     })
   );
 };

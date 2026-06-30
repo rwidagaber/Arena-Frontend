@@ -89,9 +89,9 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
           this.router.navigateByUrl(ret);
         }
       },
-      error: (err: Error) => {
+      error: (err: any) => {
         this.loading = false;
-        this.serverError = err.message;
+        this.serverError = err.i18nKey ?? err.message;
       }
     });
   }
@@ -113,9 +113,9 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
           this.router.navigateByUrl(ret);
         }
       },
-      error: (err: Error) => {
+      error: (err: any) => {
         this.loading = false;
-        this.serverError = err.message;
+        this.serverError = err.i18nKey ?? err.message;
       },
     });
   }

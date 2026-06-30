@@ -92,9 +92,9 @@ export class CompleteProfileComponent implements OnInit, OnDestroy {
         window.removeEventListener('popstate', this.preventBack);
         this.router.navigate(['/home']);
       },
-      error: (err: Error) => {
+      error: (err: any) => {
         this.loading = false;
-        this.serverError = err.message;
+        this.serverError = err.i18nKey ?? err.message;
       }
     });
   }
