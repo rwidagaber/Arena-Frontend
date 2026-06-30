@@ -12,7 +12,7 @@ import { NotificationService, NotificationDto } from '../../../core/services/not
 })
 export class NotificationToastComponent {
   readonly svc = inject(NotificationService);
-  readonly t   = inject(TranslateService);
+  readonly t = inject(TranslateService);
 
   /** Translated aria-label for the dismiss button. */
   get dismissLabel(): string {
@@ -29,12 +29,11 @@ export class NotificationToastComponent {
     this.svc.dismissToast(n.id);
   }
 
-  dotClass(type: string) {
-    return {
-      'dot-success': type === 'Success',
-      'dot-warning': type === 'Warning',
-      'dot-error':   type === 'Error',
-      'dot-info':    type === 'Info',
-    };
+  pause(n: NotificationDto): void {
+    this.svc.pauseToast(n.id);
+  }
+
+  resume(n: NotificationDto): void {
+    this.svc.resumeToast(n.id);
   }
 }
