@@ -149,6 +149,175 @@
             }
 
             <!-- ════════════════════════════════════════
+                  AI SUBSCRIPTION CARD
+                  · No AI subscription → locked + blurred over static sample data.
+                  · Has an AI subscription → unlocked, real plan pulled from the DB.
+                  ════════════════════════════════════════ -->
+            @if (subscriptionsLoaded()) {
+            <section class="ai-teaser" [class.is-locked]="!hasAI()" appReveal style="--ai-delay:0.14s">
+              <div class="ai-teaser-preview" [attr.aria-hidden]="!hasAI() ? true : null">
+                <div class="ait-head">
+                  <div class="ait-head-titles">
+                    <h3 class="ait-card-title">{{ 'memberProfile.dash.aiCardTitle' | translate }}</h3>
+                    <span class="ait-card-sub">{{ 'memberProfile.dash.aiCardSub' | translate }}</span>
+                  </div>
+                  <span class="ait-badge">{{ 'memberProfile.dash.aiTeaserBadge' | translate }}</span>
+                </div>
+
+                @if (hasAI() && !teaserWorkout() && !nutritionPlan()) {
+                <!-- Subscribed but no plan yet → send them to the AI coach to build one -->
+                <div class="ait-empty">
+                  <span class="ait-empty-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                  </span>
+                  <p class="ait-empty-msg">{{ 'memberProfile.dash.aiPlanEmptyMsg' | translate }}</p>
+                  <button type="button" class="ait-cta" (click)="goToChat()">
+                    {{ 'memberProfile.dash.aiPlanEmptyCta' | translate }}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                  </button>
+                </div>
+                } @else {
+                <div class="ait-plan">
+                  <!-- ── Workout ── -->
+                  @if (hasAI()) {
+                    @if (teaserWorkout(); as tw) {
+                    <div class="ait-col">
+                      <div class="ait-col-hdr">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                        <span>{{ 'memberProfile.dash.aiTeaserWorkout' | translate }}</span>
+                        <span class="ait-col-tag">{{ tw.dayName }}</span>
+                      </div>
+                      <ul class="ait-ex-list">
+                        @for (ex of tw.exercises; track $index) {
+                          <li><span>{{ ex.name }}</span><span class="ait-sets">{{ ex.sets }} × {{ ex.reps }}</span></li>
+                        }
+                      </ul>
+                    </div>
+                    }
+                  } @else {
+                    <!-- Static sample (sits behind the blur for non-AI members) -->
+                    <div class="ait-col">
+                      <div class="ait-col-hdr">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                        <span>{{ 'memberProfile.dash.aiTeaserWorkout' | translate }}</span>
+                        <span class="ait-col-tag">Push Day</span>
+                      </div>
+                      <ul class="ait-ex-list">
+                        <li><span>Bench Press</span><span class="ait-sets">4 × 8</span></li>
+                        <li><span>Incline DB Press</span><span class="ait-sets">3 × 10</span></li>
+                        <li><span>Cable Fly</span><span class="ait-sets">3 × 12</span></li>
+                      </ul>
+                    </div>
+                  }
+
+                  <!-- ── Nutrition ── -->
+                  @if (hasAI()) {
+                    @if (nutritionPlan(); as np) {
+                    <div class="ait-col">
+                      <div class="ait-col-hdr">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
+                        <span>{{ 'memberProfile.dash.aiTeaserNutrition' | translate }}</span>
+                        <span class="ait-col-tag">{{ 'memberProfile.dash.aiTeaserNutritionSub' | translate }}</span>
+                      </div>
+                      <div class="ait-macros">
+                        <div class="ait-macro ait-macro-kcal"><span class="ait-macro-v">{{ np.dailyCalories | number:'1.0-0' }}</span><span class="ait-macro-u">kcal</span></div>
+                        <div class="ait-macro"><span class="ait-macro-v">{{ np.proteinGrams }}g</span><span class="ait-macro-u">protein</span></div>
+                        <div class="ait-macro"><span class="ait-macro-v">{{ np.carbsGrams }}g</span><span class="ait-macro-u">carbs</span></div>
+                        <div class="ait-macro"><span class="ait-macro-v">{{ np.fatGrams }}g</span><span class="ait-macro-u">fat</span></div>
+                      </div>
+                      <div class="ait-mealscan">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                        {{ 'memberProfile.dash.aiTeaserMealScan' | translate }}
+                      </div>
+                    </div>
+                    }
+                  } @else {
+                    <!-- Static sample (sits behind the blur for non-AI members) -->
+                    <div class="ait-col">
+                      <div class="ait-col-hdr">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
+                        <span>{{ 'memberProfile.dash.aiTeaserNutrition' | translate }}</span>
+                        <span class="ait-col-tag">{{ 'memberProfile.dash.aiTeaserNutritionSub' | translate }}</span>
+                      </div>
+                      <div class="ait-macros">
+                        <div class="ait-macro ait-macro-kcal"><span class="ait-macro-v">1,980</span><span class="ait-macro-u">kcal</span></div>
+                        <div class="ait-macro"><span class="ait-macro-v">150g</span><span class="ait-macro-u">protein</span></div>
+                        <div class="ait-macro"><span class="ait-macro-v">190g</span><span class="ait-macro-u">carbs</span></div>
+                        <div class="ait-macro"><span class="ait-macro-v">55g</span><span class="ait-macro-u">fat</span></div>
+                      </div>
+                      <div class="ait-mealscan">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                        {{ 'memberProfile.dash.aiTeaserMealScan' | translate }}
+                      </div>
+                    </div>
+                  }
+                </div>
+
+                <div class="ait-unlocks">
+                  <span class="ait-unlocks-lbl">{{ 'memberProfile.dash.aiTeaserUnlocks' | translate }}</span>
+                  <span class="ait-chip">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    {{ 'memberProfile.dash.aiTeaserChipCoach' | translate }}
+                  </span>
+                  <span class="ait-chip">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    {{ 'memberProfile.dash.aiTeaserChipProgress' | translate }}
+                  </span>
+                  <span class="ait-chip">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    {{ 'memberProfile.dash.aiTeaserChipBestTime' | translate }}
+                  </span>
+                </div>
+
+                <div class="ait-foot">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                  {{ 'memberProfile.dash.aiTeaserRecalibrate' | translate }}
+                </div>
+                }
+              </div>
+
+              <!-- Golden crossed chains (X) + central lock — only for non-AI members -->
+              @if (!hasAI()) {
+              <div class="ai-teaser-lock">
+                <svg class="ait-chains" viewBox="0 0 400 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="goldChain" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stop-color="#f8e7a6"/>
+                      <stop offset="45%" stop-color="#d4af37"/>
+                      <stop offset="100%" stop-color="#9c6f1a"/>
+                    </linearGradient>
+                  </defs>
+                  <g transform="rotate(27 200 100)">
+                    @for (cx of chainLinks; track cx) {
+                      <ellipse [attr.cx]="cx" cy="100" rx="16" ry="8.5" fill="none" stroke="url(#goldChain)" stroke-width="7"/>
+                    }
+                  </g>
+                  <g transform="rotate(-27 200 100)">
+                    @for (cx of chainLinks; track cx) {
+                      <ellipse [attr.cx]="cx" cy="100" rx="16" ry="8.5" fill="none" stroke="url(#goldChain)" stroke-width="7"/>
+                    }
+                  </g>
+                </svg>
+
+                <div class="ait-cta-box">
+                  <span class="ait-lock-badge" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                  </span>
+                  <h3 class="ait-title">{{ 'memberProfile.dash.aiTeaserTitle' | translate }}</h3>
+                  <p class="ait-sub">{{ 'memberProfile.dash.aiTeaserSub' | translate }}</p>
+                  <button type="button" class="ait-cta" (click)="goToPlans()">
+                    {{ 'memberProfile.dash.aiTeaserCta' | translate }}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                  </button>
+                </div>
+              </div>
+              }
+            </section>
+            }
+
+            <!-- ════════════════════════════════════════
                   OVERVIEW BAND  (daily quote + key numbers at a glance)
                   ════════════════════════════════════════ -->
             @if (!statsLoading()) {
@@ -592,19 +761,28 @@
                     <div class="mp-chart-area">
                       <svg aria-hidden="true" class="mp-sparkline" viewBox="0 0 120 36" preserveAspectRatio="none">
                         @if (sparklinePath(); as path) {
-                          <path [attr.d]="path" fill="none" stroke="#C6EF2E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                          <path [attr.d]="path" fill="url(#sparkGrad)" stroke="none" opacity="0.12"/>
-                          @for (pt of sparklineDotData(); track $index) {
-                            <circle class="mp-sparkline-dot" [attr.cx]="pt.x" [attr.cy]="pt.y" r="2" fill="#C6EF2E"/>
-                          }
+                          <path [attr.d]="sparklineAreaPath()" fill="url(#sparkGrad)" stroke="none" opacity="0.85"/>
+                          <path class="mp-spark-line" [attr.d]="path" fill="none" stroke="url(#sparkStroke)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
                         }
                         <defs>
                           <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stop-color="#C6EF2E"/>
+                            <stop offset="0%" stop-color="#C6EF2E" stop-opacity="0.28"/>
                             <stop offset="100%" stop-color="#C6EF2E" stop-opacity="0"/>
+                          </linearGradient>
+                          <linearGradient id="sparkStroke" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stop-color="#aed81f"/>
+                            <stop offset="50%" stop-color="#d4f24c"/>
+                            <stop offset="100%" stop-color="#C6EF2E"/>
                           </linearGradient>
                         </defs>
                       </svg>
+                      <!-- Dots live in an HTML overlay (not inside the stretched SVG) so they
+                           stay perfectly round and don't smear horizontally on hover. -->
+                      @if (sparklinePath()) {
+                        @for (pt of sparklineDotData(); track $index) {
+                          <span class="mp-spark-dot" [style.left.%]="pt.x / 1.2" [style.top.%]="pt.y / 0.36"></span>
+                        }
+                      }
                     </div>
                   </div>
                   @if (hasProgressLogs()) {
@@ -622,8 +800,8 @@
                       </div>
                       <div class="mp-chart-area">
                         <svg aria-hidden="true" class="mp-sparkline" viewBox="0 0 120 32" preserveAspectRatio="none">
-                          <path [attr.d]="weightTrendPath()" fill="none" stroke="#9a9a9a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                          <path [attr.d]="weightTrendPath()" fill="url(#wtGrad)" stroke="none" opacity="0.12"/>
+                          <path [attr.d]="weightTrendAreaPath()" fill="url(#wtGrad)" stroke="none" opacity="0.12"/>
+                          <path [attr.d]="weightTrendPath()" fill="none" stroke="#9a9a9a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
                           <defs>
                             <linearGradient id="wtGrad" x1="0" y1="0" x2="0" y2="1">
                               <stop offset="0%" stop-color="#9a9a9a"/>

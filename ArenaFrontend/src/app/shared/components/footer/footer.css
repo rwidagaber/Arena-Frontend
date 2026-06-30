@@ -641,7 +641,12 @@
   gap: 0.5rem;
   font-weight: 600;
   color: var(--fb-heading);
+  /* Keep the whole day range (e.g. "Saturday – Thursday") on one line so the
+     end day never drops below the start day. */
+  white-space: nowrap;
 }
+/* The "– <end day>" segment must not be shrunk/wrapped by the flex row. */
+.footer-hours-day span { flex-shrink: 0; white-space: nowrap; }
 .footer-hours-day i { color: var(--fb-muted); font-size: 0.85rem; flex-shrink: 0; }
 .footer-hours-time {
   margin-inline-start: 1.35rem;
@@ -753,14 +758,31 @@
 }
 
 @media (max-width: 768px) {
-  .site-footer { padding-top: 3rem; }
-  .footer-divider { margin: 2rem 0; }
+  .footer-divider { margin: 1.75rem 0; }
+  /* Once the CTA wraps below the heading, align the row to the start so it
+     no longer hangs off the bottom edge of the tall hero title. */
+  .footer-hero { align-items: flex-start; }
+  .footer-contact-band { padding: 1.5rem 1.5rem; }
 }
 
 @media (max-width: 576px) {
+  .site-footer { padding-top: 2.5rem; }
   .footer-main { grid-template-columns: 1fr; gap: 2rem; }
   .footer-bottom { flex-direction: column; align-items: flex-start; }
-  .back-to-top { bottom: 9.5rem; inset-inline-end: 1.25rem; }
+  /* Hero CTA spans the row for a comfortable full-width tap target. */
+  .footer-hero { gap: 1.25rem; }
+  .hero-cta { width: 100%; justify-content: center; }
+  /* Trim oversized card padding so content isn't cramped on phones. */
+  .footer-contact-band { padding: 1.4rem 1.15rem; }
+  .footer-newsletter { padding: 1.6rem 1.15rem; }
+  .fcb-cta { width: 100%; justify-content: center; }
+}
+
+@media (max-width: 380px) {
+  /* Very small phones: ease the gutters between the stat/info chips. */
+  .footer-stats { gap: 1rem 0.75rem; }
+  .fcb-info { gap: 0.85rem 1.25rem; }
+  .footer-social { gap: 0.5rem; }
 }
 
 /* ==========================================================================

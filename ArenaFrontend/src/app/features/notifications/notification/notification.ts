@@ -1,6 +1,5 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NotificationService, NotificationDto } from '../../../core/services/notification.service';
 
@@ -11,7 +10,7 @@ const PAGE_SIZE = 5;
 @Component({
   selector: 'app-notification',
   standalone: true,
-  imports: [CommonModule, RouterLink, TranslateModule],
+  imports: [CommonModule, TranslateModule],
   templateUrl: './notification.html',
   styleUrl: './notification.css',
 })
