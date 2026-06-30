@@ -1,4 +1,35 @@
 /* ==========================================================================
+   THEME VARIABLES — LIGHT & DARK
+   ========================================================================== */
+:root,
+[data-theme="dark"] {
+  --about-bg:           #0F1119;
+  --about-card-bg:      #20273A;
+  --about-card-border:   rgba(16, 19, 27);
+  --about-divider:      rgba(255, 255, 255, 0.1);
+  --about-text:         #ffffff;
+  --about-text-muted:   rgba(255, 255, 255, 0.7);
+  --about-tab-inactive: rgba(255, 255, 255, 0.4);
+  --about-btn-bg:       #000000;
+  --about-btn-border:   rgba(255, 255, 255, 0.1);
+  --about-btn-text:     #ffffff;
+  
+}
+
+[data-theme="light"] {
+  --about-bg:            #E6E7E2;
+  --about-card-bg:      ##FEFFFF;
+  --about-card-border:  rgba(0, 0, 0, 0.08);
+  --about-divider:      rgba(0, 0, 0, 0.1);
+  --about-text:         #0c0e14;
+  --about-text-muted:   rgba(12, 14, 20, 0.65);
+  --about-tab-inactive: rgba(12, 14, 20, 0.35);
+  --about-btn-bg:       #0c0e14;
+  --about-btn-border:   rgba(0, 0, 0, 0.15);
+  --about-btn-text:     #ffffff;
+}
+
+/* ==========================================================================
    1. HERO SECTION (الهيدر المفرغ العائم)
    ========================================================================== */
 .about-hero-section {
@@ -52,11 +83,15 @@
   text-transform: uppercase;
   letter-spacing: 4px;
   color: transparent; 
-  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.37); 
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.616); 
   text-align: center;
   white-space: nowrap; 
   user-select: none;
 } 
+
+[dir="rtl"] .giant-stroke-text {
+  font-size: clamp(4rem, 10vw, 8rem);
+}
 
 /* ==========================================================================
    2. PREMIUM TEXT STATEMENT SECTION (توزيع موازن وفخم)
@@ -64,36 +99,35 @@
 .premium-statement-section {
   position: relative;
   padding: 100px 0 80px 0;
-  background-color: #0c0e14; 
-  color: #ffffff;
+  background-color: var(--about-bg); 
+  color: var(--about-text);
   overflow: hidden;
 }
 
 .statement-container {
-  max-width: 1300px; /* وسعنا الحاوية شوية لتوزيع أفضل */
+  max-width: 1300px;
   margin: 0 auto;
   padding: 0 40px;
 }
 
-/* السحر هنا: حولناه لنظام عمودي ممركز يلغي أي فراغات جانية */
 .statement-row {
   display: flex;
   flex-direction: column;
   align-items: center; 
-  text-align: center; /* يخلي السطور كلها متوازنة في النص */
-  gap: 35px; /* مسافة متناسقة بين البادج والكلام */
+  text-align: center;
+  gap: 35px;
   width: 100%;
 }
 
 .statement-left {
   width: 100%;
   display: flex;
-  justify-content: center; /* يخلي البادج في السنتر فوق الكلام */
+  justify-content: center;
 }
 
 .statement-right {
   width: 100%;
-  max-width: 1050px; /* تمنع السطور من التمدد الزائد وتخلي شكل الفقرة فخم */
+  max-width: 1050px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -102,7 +136,7 @@
 .arena-badge {
   background: rgba(198, 239, 46, 0.06);
   color: #c6ef2e; 
-  padding: 10px 22px; /* كبرنا البادج شوية عشان يظهر كعنوان فخم */
+  padding: 10px 22px;
   border-radius: 6px;
   font-size: 0.8rem;
   font-weight: 800;
@@ -115,10 +149,10 @@
 
 .animated-statement {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: clamp(2.2rem, 4.5vw, 3.8rem); /* كبرنا الخط سنة عشان يملا العين */
+  font-size: clamp(2.2rem, 4.5vw, 3.8rem);
   font-weight: 800;
   line-height: 1.35;
-  color: #ffffff;
+  color: var(--about-text);
   letter-spacing: -1px;
   margin: 0;
 }
@@ -152,8 +186,8 @@
    ========================================================================== */
 .mission-vision-section {
   padding: 80px 0;
-  background-color: #0c0e14;
-  color: #ffffff;
+  background-color: var(--about-bg);
+  color: var(--about-text);
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
@@ -171,8 +205,8 @@
 }
 
 .mv-tabs-card {
-  background: #121620; 
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--about-card-bg); 
+  border: 1px solid var(--about-card-border);
   border-radius: 20px;
   padding: 45px;
   min-height: 480px;
@@ -183,7 +217,7 @@
 .tabs-header {
   display: flex;
   gap: 30px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--about-divider);
   padding-bottom: 15px;
   margin-bottom: 30px;
 }
@@ -191,7 +225,7 @@
 .tab-btn {
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--about-tab-inactive);
   font-size: 1.1rem;
   font-weight: 800;
   letter-spacing: 1px;
@@ -202,7 +236,7 @@
 }
 
 .tab-btn:hover, .tab-btn.active {
-  color: #ffffff;
+  color: var(--about-text);
 }
 
 .tab-btn.active::after {
@@ -217,7 +251,7 @@
 }
 
 .mv-description {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--about-text-muted);
   font-size: 1.05rem;
   line-height: 1.7;
   margin-bottom: 30px;
@@ -232,7 +266,7 @@
 .mv-features-list li {
   font-size: 1rem;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--about-text);
   margin-bottom: 15px;
   display: flex;
   align-items: center;
@@ -245,9 +279,9 @@
 }
 
 .mv-action-btn {
-  background-color: #000000;
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background-color: var(--about-btn-bg);
+  color: var(--about-btn-text);
+  border: 1px solid var(--about-btn-border);
   padding: 15px 35px;
   font-size: 0.9rem;
   font-weight: 800;
@@ -335,7 +369,7 @@
     width: 100%;
   }
   .animated-statement {
-    font-size: 2rem;
+    font-size: clamp(2rem, 5vw, 3rem);
   }
   .mv-grid {
     grid-template-columns: 1fr;
@@ -350,5 +384,81 @@
   }
   .image-wrapper {
     height: 380px;
+  }
+  .about-hero-section {
+    align-items: flex-end;
+  }
+  .giant-stroke-text {
+    font-size: clamp(3rem, 9vw, 5rem);
+    white-space: normal;
+    text-align: center;
+  }
+  [dir="rtl"] .giant-stroke-text {
+    font-size: clamp(3.5rem, 11vw, 6rem);
+  }
+}
+
+@media (max-width: 600px) {
+  .about-hero-section {
+    margin-top: 60px;
+    padding: 0 12px;
+    border-radius: 14px;
+    height: 40vh;
+    min-height: 220px;
+    align-items: flex-end;
+  }
+  .giant-stroke-text {
+    font-size: clamp(2.5rem, 12vw, 4rem);
+    white-space: normal;
+    text-align: center;
+    letter-spacing: 2px;
+  }
+  [dir="rtl"] .giant-stroke-text {
+    font-size: clamp(3rem, 14vw, 5rem);
+  }
+  .premium-statement-section {
+    padding: 60px 0 50px 0;
+  }
+  .statement-container {
+    padding: 0 20px;
+  }
+  .animated-statement {
+    font-size: clamp(1.5rem, 6vw, 2rem);
+  }
+  .mv-container {
+    padding: 0 16px;
+  }
+  .mission-vision-section {
+    padding: 50px 0;
+  }
+  .mv-tabs-card {
+    padding: 24px 20px;
+    min-height: unset;
+  }
+  .tabs-header {
+    gap: 20px;
+  }
+  .tab-btn {
+    font-size: 0.95rem;
+  }
+  .mv-description {
+    font-size: 0.95rem;
+  }
+  .mv-features-list li {
+    font-size: 0.9rem;
+  }
+  .mv-action-btn {
+    width: 100%;
+    text-align: center;
+    align-self: stretch;
+  }
+  .image-wrapper {
+    height: 260px;
+  }
+  .neon-quote-card {
+    padding: 20px;
+  }
+  .quote-text {
+    font-size: 0.95rem;
   }
 }

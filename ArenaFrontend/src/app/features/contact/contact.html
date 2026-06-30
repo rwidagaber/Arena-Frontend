@@ -1,0 +1,100 @@
+<section class="contact-hero-section">
+  <div class="hero-overlay"></div>
+  <div class="hero-container">
+    <h1 class="giant-stroke-text">{{ 'contact.contactus' | translate }}</h1>
+  </div>
+</section>
+
+<section class="contact-form-section">
+  <div class="contact-grid-container">
+
+    <!-- العمود الأيسر: معلومات التواصل -->
+    <div class="contact-info-side">
+      <h2 class="contact-main-heading">{{ 'contact.heading' | translate }}</h2>
+      <p class="contact-sub-heading">{{ 'contact.subheading' | translate }}</p>
+
+      <div class="info-blocks-wrapper">
+        <div class="info-block">
+          <span class="info-label">{{ 'contact.phone' | translate }}</span>
+          <a href="tel:+20100123456" class="info-value">{{ 'contact.phoneNumber' | translate }}</a>
+        </div>
+
+        <div class="info-block">
+          <span class="info-label">{{ 'contact.email' | translate }}</span>
+          <a href="mailto:arenagymofficial1@gmail.com" class="info-value">arenagymofficial1&#64;gmail.com</a>
+        </div>
+
+        <div class="info-block">
+          <span class="info-label">{{ 'contact.location' | translate }}</span>
+          <p class="info-value-text">{{ 'contact.address' | translate }}</p>
+          <a href="#map" class="map-link">{{ 'contact.mapLink' | translate }} ↗</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- العمود الأيمن: الفورم -->
+    <div class="contact-form-side">
+      <p class="side-note-text">{{ 'contact.sideNote' | translate }}</p>
+
+      <div class="contact-card">
+        <h3 class="form-title">{{ 'contact.formTitle' | translate }}</h3>
+
+        <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" novalidate>
+          <div class="form-grid">
+
+            <div class="contact-field">
+              <label for="name">{{ 'contact.name' | translate }}</label>
+              <input type="text" id="name" formControlName="name" [placeholder]="'contact.namePlaceholder' | translate">
+            </div>
+
+            <div class="contact-field">
+              <label for="email">{{ 'contact.email' | translate }}</label>
+              <input type="email" id="email" formControlName="email" [placeholder]="'contact.emailPlaceholder' | translate">
+            </div>
+
+            <div class="contact-field">
+              <label for="phone">{{ 'contact.phone' | translate }}</label>
+              <input type="tel" id="phone" formControlName="phone" [placeholder]="'contact.phonePlaceholder' | translate">
+            </div>
+
+            <div class="contact-field full">
+              <label for="message">{{ 'contact.message' | translate }}</label>
+              <textarea id="message" formControlName="message" [placeholder]="'contact.messagePlaceholder' | translate" (input)="autoResize($event)"></textarea>
+            </div>
+
+          </div>
+
+          <button type="submit" class="contact-submit" [disabled]="isSending()">
+            {{ isSending() ? ('contact.sending' | translate) : ('contact.submit' | translate) }}
+          </button>
+
+          @if (sendSuccess()) {
+            <p style="color: var(--c-green); margin-top: 16px; text-align:center;">
+              {{ 'contact.successMessage' | translate }}
+            </p>
+          }
+          @if (sendError()) {
+            <p style="color: #ff4d4d; margin-top: 16px; text-align:center;">
+              {{ 'contact.errorMessage' | translate }}
+            </p>
+          }
+        </form>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="location-section" id="map">
+  <div>
+    <h2 class="location-title">{{ 'contact.FINDUS' | translate }}</h2>
+    <div class="map-wrapper">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2439.601675469493!2d4.9483166!3d52.3050838!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47c60b9b6abfe9fb%3A0x2602f8fbe3497c7f!2sArenaGym%20B.V.!5e0!3m2!1sen!2seg!4v1782653094520!5m2!1sen!2seg"
+        allowfullscreen=""
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade">
+      </iframe>
+    </div>
+  </div>
+</section>

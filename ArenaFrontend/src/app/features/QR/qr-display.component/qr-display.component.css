@@ -1,29 +1,57 @@
+/* ==========================================================================
+   Host
+   ========================================================================== */
 :host {
   display: block;
   color-scheme: light dark;
 }
 
+/* ==========================================================================
+   Design Tokens — Light Mode (default)
+   ========================================================================== */
 .qr-page {
-  --qr-bg: #f8fafc;
-  --qr-surface: #ffffff;
-  --qr-surface-2: #f1f5f9;
-  --qr-border: #e2e8f0;
-  --qr-text: #0f172a;
-  --qr-muted: #64748b;
-  --qr-accent: #a3e635;
-  --qr-accent-strong: #65a30d;
-  --qr-danger: #dc2626;
+  --qr-bg: var(--bg-primary, #E6E7E2);
+  --qr-surface: var(--card-bg, #FEFFFF);
+  --qr-surface-2: var(--bg-secondary, #f1f5f9);
+  --qr-border: var(--border-color, #e2e8f0);
+  --qr-text: var(--text-primary, #0f172a);
+  --qr-muted: var(--text-secondary, #64748b);
+  --qr-accent: var(--accent, #C6EF2E);
+ --qr-accent-strong: #C6EF2E;
+   --qr-danger: #dc2626;
   --qr-warning: #d97706;
+
   min-height: 100%;
   color: var(--qr-text);
+  background-color: transparent;
 }
 
-.qr-header {
-  align-items: flex-start;
-  display: flex;
-  gap: 18px;
-  justify-content: space-between;
-  margin-bottom: 22px;
+/* ==========================================================================
+   Design Tokens — Dark Mode
+   Triggered by [data-theme="dark"] on <html>, matching the same attribute
+   read in qr-display.component.ts (document.documentElement.getAttribute).
+   ========================================================================== */
+:host-context([data-theme="dark"]) .qr-page {
+  --qr-bg: var(--bg-primary, #0F1119);
+  --qr-surface: var(--card-bg,#20273A);
+  --qr-surface-2: var(--bg-secondary, #1b2638);
+  --qr-border: var(--border-color, #2a3650);
+  --qr-text: var(--text-primary, #f1f5f9);
+  --qr-muted: var(--text-secondary, #94a3b8);
+  --qr-accent: var(--accent, #C6EF2E);
+  --qr-accent-strong: var(--accent, #bef264);
+  --qr-danger: #f87171;
+  --qr-warning: #fbbf24;
+}
+
+/* ==========================================================================
+   Base Typography
+   ========================================================================== */
+h1,
+h2,
+h3,
+p {
+  margin: 0;
 }
 
 .eyebrow {
@@ -36,11 +64,15 @@
   text-transform: uppercase;
 }
 
-h1,
-h2,
-h3,
-p {
-  margin: 0;
+/* ==========================================================================
+   Page Header (session selection screen)
+   ========================================================================== */
+.qr-header {
+  align-items: flex-start;
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+  margin-bottom: 22px;
 }
 
 .qr-header h1,
@@ -82,6 +114,9 @@ p {
   width: 8px;
 }
 
+/* ==========================================================================
+   Layout Grid
+   ========================================================================== */
 .qr-grid {
   align-items: start;
   display: grid;
@@ -98,6 +133,9 @@ p {
   box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
 }
 
+/* ==========================================================================
+   Session Panel (left column: today's sessions list)
+   ========================================================================== */
 .session-panel {
   padding: 18px;
 }
@@ -185,6 +223,9 @@ p {
   color: var(--qr-muted);
 }
 
+/* ==========================================================================
+   QR Card (right column: selected session's QR code)
+   ========================================================================== */
 .qr-card {
   padding: clamp(18px, 4vw, 28px);
 }
@@ -200,7 +241,7 @@ p {
 }
 
 .qr-image-shell {
-  background: #ffffff;
+  background: var(--bg-secondary, #ffffff);
   border: 1px solid var(--qr-border);
   border-radius: 8px;
   display: grid;
@@ -252,6 +293,9 @@ p {
   color: var(--qr-danger);
 }
 
+/* ==========================================================================
+   QR Details (generated / expires timestamps)
+   ========================================================================== */
 .qr-details {
   display: grid;
   gap: 10px;
@@ -280,6 +324,9 @@ p {
   line-height: 1.35;
 }
 
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
 .primary-action,
 .secondary-action {
   align-items: center;
@@ -316,6 +363,9 @@ p {
   width: 100%;
 }
 
+/* ==========================================================================
+   Loading & Empty States
+   ========================================================================== */
 .loading-state,
 .empty-state {
   align-items: center;
@@ -386,6 +436,9 @@ p {
   height: 72px;
 }
 
+/* ==========================================================================
+   Alerts
+   ========================================================================== */
 .qr-alert {
   background: color-mix(in srgb, var(--qr-accent) 14%, var(--qr-surface));
   border-radius: 8px;
@@ -401,6 +454,9 @@ p {
   color: var(--qr-warning);
 }
 
+/* ==========================================================================
+   Scan Mode (confirm check-in screen)
+   ========================================================================== */
 .scan-mode {
   display: grid;
   min-height: calc(100vh - 32px);
@@ -431,6 +487,9 @@ p {
   padding: 14px;
 }
 
+/* ==========================================================================
+   Animations
+   ========================================================================== */
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -446,6 +505,9 @@ p {
   }
 }
 
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
 @media (max-width: 900px) {
   .qr-grid {
     grid-template-columns: 1fr;
@@ -477,51 +539,4 @@ p {
   .secondary-action {
     width: 100%;
   }
-}
-
-@media (prefers-color-scheme: dark) {
-  .qr-page {
-    --qr-bg: #020617;
-    --qr-surface: #0f172a;
-    --qr-surface-2: #111c2f;
-    --qr-border: #263449;
-    --qr-text: #e5e7eb;
-    --qr-muted: #94a3b8;
-    --qr-accent: #bef264;
-    --qr-accent-strong: #d9f99d;
-  }
-
-  .session-panel,
-  .qr-card,
-  .scan-shell {
-    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
-  }
-}
-
-:host-context([data-theme="light"]) .qr-page {
-  --qr-bg: #f8fafc;
-  --qr-surface: #ffffff;
-  --qr-surface-2: #f1f5f9;
-  --qr-border: #e2e8f0;
-  --qr-text: #0f172a;
-  --qr-muted: #64748b;
-  --qr-accent: #a3e635;
-  --qr-accent-strong: #65a30d;
-}
-
-:host-context([data-theme="dark"]) .qr-page {
-  --qr-bg: #020617;
-  --qr-surface: #0f172a;
-  --qr-surface-2: #111c2f;
-  --qr-border: #263449;
-  --qr-text: #e5e7eb;
-  --qr-muted: #94a3b8;
-  --qr-accent: #bef264;
-  --qr-accent-strong: #d9f99d;
-}
-
-:host-context([data-theme="dark"]) .session-panel,
-:host-context([data-theme="dark"]) .qr-card,
-:host-context([data-theme="dark"]) .scan-shell {
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
 }

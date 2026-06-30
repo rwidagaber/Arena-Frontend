@@ -1,0 +1,401 @@
+/* ==========================================================================
+   THEME VARIABLES
+   ========================================================================== */
+:root,
+[data-theme="dark"] {
+  --c-bg:              #0c0e14;
+  --c-surface:         #161b27;
+  --c-green:           #C6EF2E;
+  --c-text:            #ffffff;
+  --c-muted:           rgba(255,255,255,0.55);
+  --c-border:          rgba(255,255,255,0.08);
+  --c-line:            rgba(255,255,255,0.15);
+  --c-btn-text:        #000000;
+  --c-placeholder:     rgba(255,255,255,0.3);
+  /* card internals */
+  --c-card-text:       #ffffff;
+  --c-card-label:      rgba(255,255,255,0.45);
+  --c-card-input:      #ffffff;
+  --c-card-placeholder:rgba(255,255,255,0.3);
+  --c-card-line:       rgba(198,239,46,0.7);
+}
+
+[data-theme="light"] {
+  --c-bg:              #E6E7E2;
+  --c-surface:         #FEFFFF;
+  --c-green:           #C6EF2E;
+  --c-text:            #0c0e14;
+  --c-muted:           rgba(12,14,20,0.55);
+  --c-border:          rgba(0,0,0,0.12);
+  --c-line:            rgba(0,0,0,0.1);
+  --c-btn-text:        #000000;
+  --c-placeholder:     rgba(12,14,20,0.35);
+  /* card internals — الكارد فاتح في اللايت مود */
+  --c-card-text:       #0c0e14;
+  --c-card-label:      rgba(12,14,20,0.5);
+  --c-card-input:      #0c0e14;
+  --c-card-placeholder:rgba(12,14,20,0.35);
+  --c-card-line:       rgba(198,239,46,0.9);
+}
+
+/* ==========================================================================
+   HERO
+   ========================================================================== */
+.contact-hero-section {
+  position: relative;
+  width: 100%; 
+  max-width: 100%; 
+  margin: 90px auto 0 auto; 
+  padding: 0 40px; 
+  box-sizing: border-box; 
+  height: 50vh; 
+  min-height: 320px; 
+  background-image: url('/assets/images/aboutus.jpeg');
+  background-size: cover;
+  background-position: center top; 
+  background-repeat: no-repeat;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end; 
+  border-radius: 24px; 
+  overflow: hidden; 
+}
+.hero-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(
+    to bottom, 
+    rgba(16, 19, 27, 0.2) 0%,   
+    rgba(16, 19, 27, 0.85) 100% 
+  );
+  z-index: 1;
+}
+
+
+.hero-container {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  padding: 0 20px;
+  padding-bottom: 25px; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.giant-stroke-text {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 7.5vw, 6.5rem); 
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  color: transparent; 
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.616); 
+  text-align: center;
+  white-space: nowrap; 
+  user-select: none;
+} 
+
+[dir="rtl"] .giant-stroke-text {
+  font-size: clamp(3rem, 8vw, 6rem);
+}
+
+/* ==========================================================================
+   MAIN SECTION
+   ========================================================================== */
+.contact-form-section {
+  background-color: var(--c-bg);
+  color: var(--c-text);
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  transition: background-color 0.4s;
+}
+
+.location-section {
+  background-color: var(--c-bg);
+  transition: background-color 0.4s;
+}
+
+/* grid عمودين */
+.contact-grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
+  padding: 80px 60px;
+  gap: 60px;
+}
+
+/* --- العمود الأيسر --- */
+.contact-info-side {
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-main-heading {
+  font-size: clamp(2.2rem, 4vw, 3.5rem);
+  font-weight: 800;
+  line-height: 1.1;
+  margin: 0 0 16px;
+  letter-spacing: -1px;
+  color: var(--c-text);
+}
+
+.contact-sub-heading {
+  font-size: 1.05rem;
+  color: var(--c-muted);
+  margin: 0 0 56px;
+}
+
+.info-blocks-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+.info-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: transform 0.3s ease;
+}
+
+.info-block:hover { transform: translateX(6px); }
+[dir="rtl"] .info-block:hover { transform: translateX(-6px); }
+
+.info-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--c-green);
+}
+
+.info-value {
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--c-text);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.info-value:hover { opacity: 0.75; }
+
+.info-value-text {
+  font-size: 1.05rem;
+  font-weight: 500;
+  margin: 0;
+  line-height: 1.5;
+  color: var(--c-text);
+}
+
+.map-link {
+  font-size: 0.9rem;
+  color: var(--c-green);
+  text-decoration: none;
+  margin-top: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: opacity 0.2s;
+}
+.map-link:hover { opacity: 0.75; }
+
+/* --- العمود الأيمن (الفورم) --- */
+.contact-form-side {
+  display: flex;
+  flex-direction: column;
+}
+
+.side-note-text {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--c-muted);
+  margin-bottom: 28px;
+}
+
+/* الكارد */
+.contact-card {
+  background: var(--c-surface);
+  border-radius: 20px;
+  border: 1px solid var(--c-border);
+  padding: 48px;
+}
+
+.form-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--c-card-text);
+  margin: 0 0 36px;
+  letter-spacing: -0.5px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px 32px;
+  margin-bottom: 36px;
+}
+
+/* ==========================================================================
+   FIELDS — بدون تعارض مع Bootstrap
+   ========================================================================== */
+.contact-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.contact-field.full {
+  grid-column: span 2;
+}
+
+.contact-field label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--c-card-label);
+}
+
+.contact-field input {
+  display: block !important;
+  width: 100% !important;
+  padding: 11px 0 !important;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1.5px solid var(--c-card-line) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: var(--c-card-input) !important;
+  font-size: 0.95rem !important;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+  box-sizing: border-box !important;
+  outline: none !important;
+  transition: border-color 0.2s !important;
+  margin: 0 !important;
+}
+
+.contact-field input::placeholder {
+  color: var(--c-card-placeholder) !important;
+}
+
+.contact-field input:focus {
+  border-bottom-color: var(--c-green) !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+
+.contact-field textarea {
+  display: block !important;
+  width: 100% !important;
+  padding: 11px 0 !important;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1.5px solid var(--c-card-line) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: var(--c-card-input) !important;
+  font-size: 0.95rem !important;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+  box-sizing: border-box !important;
+  outline: none !important;
+  transition: border-color 0.2s !important;
+  margin: 0 !important;
+  resize: none !important;
+  overflow: hidden !important;
+  line-height: 1.5 !important;
+}
+
+.contact-field textarea::placeholder {
+  color: var(--c-card-placeholder) !important;
+}
+
+.contact-field textarea:focus {
+  border-bottom-color: var(--c-green) !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.contact-field:focus-within label {
+  color: var(--c-green);
+}
+
+/* ==========================================================================
+   زر الإرسال
+   ========================================================================== */
+.contact-submit {
+  display: block !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  background: var(--c-green) !important;
+  color: var(--c-btn-text) !important;
+  text-align: center !important;
+  padding: 16px !important;
+  font-size: 1rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  border: none !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  transition: filter 0.2s, transform 0.1s !important;
+  margin-top: 8px !important;
+}
+
+.contact-submit:hover  { filter: brightness(1.12); }
+.contact-submit:active { transform: scale(0.99); }
+
+/* ==========================================================================
+   LOCATION SECTION
+   ========================================================================== */
+.location-section {
+  padding: 0 60px 80px;
+}
+
+.location-title {
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 32px;
+  color: var(--c-text);
+}
+
+.map-wrapper {
+  width: 100%;
+  height: 420px;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.map-wrapper iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  filter: grayscale(100%) contrast(95%);
+  transition: filter 0.5s;
+  display: block;
+}
+
+.map-wrapper:hover iframe { filter: none; }
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+@media (max-width: 991px) {
+  .contact-grid-container {
+    grid-template-columns: 1fr;
+    padding: 60px 40px;
+    gap: 48px;
+  }
+  .location-section { padding: 0 40px 60px; }
+}
+
+@media (max-width: 576px) {
+  .contact-hero-section { margin: 70px 16px 0; height: 35vh; }
+  .contact-grid-container { padding: 40px 20px; gap: 36px; }
+  .contact-card { padding: 28px 20px; }
+  .form-grid { grid-template-columns: 1fr; gap: 24px; }
+  .contact-field.full { grid-column: span 1; }
+  .location-section { padding: 0 20px 50px; }
+  .map-wrapper { height: 280px; }
+}

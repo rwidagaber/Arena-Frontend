@@ -72,17 +72,17 @@ export class WorkoutComponent implements OnInit {
     return plans.length ? plans[plans.length - 1].id : null;
   });
 
-  filteredPlans = computed<WorkoutPlanDto[]>(() => {
-    const q        = this.searchQuery().toLowerCase().trim();
-    const active   = this.showActiveOnly();
-    const latestId = this.latestPlanId();
+ filteredPlans = computed<WorkoutPlanDto[]>(() => {
+  const q        = this.searchQuery().toLowerCase().trim();
+  const active   = this.showActiveOnly();
+  const latestId = this.latestPlanId();
 
-    return this.plans().filter(p => {
-      const matchSearch = !q || p.name.toLowerCase().includes(q);
-      const matchActive = !active || p.id === latestId;
-      return matchSearch && matchActive;
-    });
+  return [...this.plans()].reverse().filter(p => {
+    const matchSearch = !q || p.name.toLowerCase().includes(q);
+    const matchActive = !active || p.id === latestId;
+    return matchSearch && matchActive;
   });
+});
 
   // ── Pagination ────────────────────────────────────────────────────────────────
   currentPage = signal(0);

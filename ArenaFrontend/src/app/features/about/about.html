@@ -1,7 +1,7 @@
 <section class="about-hero-section">
   <div class="hero-overlay"></div>
   <div class="hero-container">
-    <h1 class="giant-stroke-text">LEARN ABOUT US</h1>
+    <h1 class="giant-stroke-text">{{ 'About us.learnAboutUs' | translate }}</h1>
   </div>
 </section>
 
@@ -11,15 +11,15 @@
     <div class="statement-row">
       
       <div class="statement-left">
-        <span class="arena-badge">ABOUT ARENA</span>
+        <span class="arena-badge">{{ 'About us.aboutArena' | translate }}</span>
       </div>
       
       <div class="statement-right">
         <h2 class="animated-statement">
-          <span class="anim-line">WE ARE DEDICATED TO</span>
-          <span class="anim-line">HELPING YOU LIVE A</span>
-          <span class="anim-line"><span class="highlight-neon">STRONGER, HEALTHIER,</span></span>
-          <span class="anim-line">& CONFIDENT LIFE.</span>
+          <span class="anim-line">{{ 'About us.heroLine1' | translate }}</span>
+          <span class="anim-line">{{ 'About us.heroLine2' | translate }}</span>
+          <span class="anim-line"><span class="highlight-neon">{{ 'About us.heroLine3' | translate }}</span></span>
+          <span class="anim-line">{{ 'About us.heroLine4' | translate }}</span>
         </h2>
       </div>
 
@@ -34,8 +34,8 @@
       
       <div class="mv-tabs-card">
         <div class="tabs-header">
-          <button class="tab-btn" [class.active]="activeTab === 'mission'" (click)="activeTab = 'mission'">OUR MISSION</button>
-          <button class="tab-btn" [class.active]="activeTab === 'vision'" (click)="activeTab = 'vision'">OUR VISION</button>
+          <button class="tab-btn" [class.active]="activeTab === 'mission'" (click)="activeTab = 'mission'">{{ 'About us.ourMission' | translate }}</button>
+          <button class="tab-btn" [class.active]="activeTab === 'vision'" (click)="activeTab = 'vision'">{{ 'About us.ourVision' | translate }}</button>
         </div>
         
         <div class="tabs-content">
@@ -43,13 +43,13 @@
           @if (activeTab === 'mission') {
             <div class="tab-pane-content">
               <p class="mv-description">
-                Our mission is to engineer an elite, high-performance fitness ecosystem that completely redefines the training experience. We bridge the gap between raw human potential and scientific athletic conditioning. Through top-tier biomechanical equipment, custom data-driven programming, and an unyielding community culture, we empower every individual to break genetic boundaries, cultivate physical resilience, and dominate their personal fitness goals.
+                {{ 'About us.missionDescription' | translate }}
               </p>
               <ul class="mv-features-list">
-                <li><span class="bullet-icon">◆</span> <strong>Next-Gen Smart Equipment:</strong> Access to advanced AI-integrated machines tracking your muscle engagement in real-time.</li>
-                <li><span class="bullet-icon">◆</span> <strong>Hyper-Personalized Coaching:</strong> Customized training blueprints designed by elite certified athletes and nutritionists.</li>
-                <li><span class="bullet-icon">◆</span> <strong>Result-Driven Training Programs:</strong> Scientific methodologies optimized for fat loss, hypertrophy, and functional strength.</li>
-                <li><span class="bullet-icon">◆</span> <strong>Elite Hybrid Recovery Systems:</strong> Specialized modern recovery zones to reduce fatigue and prevent athletic injuries.</li>
+                <li><span class="bullet-icon">◆</span> <strong>{{ 'About us.missionFeature1Title' | translate }}</strong> {{ 'About us.missionFeature1' | translate }}</li>
+                <li><span class="bullet-icon">◆</span> <strong>{{ 'About us.missionFeature2Title' | translate }}</strong> {{ 'About us.missionFeature2' | translate }}</li>
+                <li><span class="bullet-icon">◆</span> <strong>{{ 'About us.missionFeature3Title' | translate }}</strong> {{ 'About us.missionFeature3' | translate }}</li>
+                <li><span class="bullet-icon">◆</span> <strong>{{ 'About us.missionFeature4Title' | translate }}</strong> {{ 'About us.missionFeature4' | translate }}</li>
               </ul>
             </div>
           }
@@ -57,15 +57,15 @@
           @if (activeTab === 'vision') {
             <div class="tab-pane-content">
               <p class="mv-description">
-                Our vision is to become the ultimate regional benchmark for smart fitness, athletic excellence, and lifestyle longevity. We aim to inspire a revolutionary shift in how people perceive physical training—transforming it from a chore into a precise science of self-mastery. By continuously integrating cutting-edge sports tech and fostering mental grit, Arena Smart Gym aspires to build a global legacy of healthier, stronger, and completely unstoppable individuals.
+                {{ 'About us.visionDescription' | translate }}
               </p>
               <ul class="mv-features-list">
-                <li><span class="bullet-icon">◆</span> <strong>Global Community Expansion:</strong> Scaling the Arena standard to become the destination for high-end fitness enthusiasts.</li>
-                <li><span class="bullet-icon">◆</span> <strong>Pioneering Fitness Innovation:</strong> Leading the fitness industry by introducing the latest international athletic tech.</li>
-                <li><span class="bullet-icon">◆</span> <strong>Fostering Longevity & Mental Grit:</strong> Enhancing our members' cognitive focus, discipline, and long-term vital health.</li>
-                <li><span class="bullet-icon">◆</span> <strong>Holistic Wellness Ecosystems:</strong> Creating a unified space where premium nutrition, recovery, and training seamlessly unite.</li>
+                <li><span class="bullet-icon">◆</span> <strong>{{ 'About us.visionFeature1Title' | translate }}</strong> {{ 'About us.visionFeature1' | translate }}</li>
+                <li><span class="bullet-icon">◆</span> <strong>{{ 'About us.visionFeature2Title' | translate }}</strong> {{ 'About us.visionFeature2' | translate }}</li>
+                <li><span class="bullet-icon">◆</span> <strong>{{ 'About us.visionFeature3Title' | translate }}</strong> {{ 'About us.visionFeature3' | translate }}</li>
+                <li><span class="bullet-icon">◆</span> <strong>{{ 'About us.visionFeature4Title' | translate }}</strong> {{ 'About us.visionFeature4' | translate }}</li>
               </ul>
-              <button class="mv-action-btn" [routerLink]="'/plans'" routerLinkActive="text-lime-active">EXPLORE MEMBERSHIPS</button>
+              <button class="mv-action-btn" [routerLink]="'/plans'" routerLinkActive="text-lime-active">{{ 'About us.exploreMemberships' | translate }}</button>
             </div>
           }
 
@@ -79,11 +79,11 @@
         
         <div class="neon-quote-card">
           <p class="quote-text">
-            "THE ONLY PLACE WHERE SUCCESS COMES BEFORE WORK IS IN THE DICTIONARY. WE BUILD GRIT."
+            {{ 'About us.quote' | translate }}
           </p>
           <div class="quote-author">
             <div class="author-avatar-placeholder"></div>
-            <span class="author-name">ARENA TEAM</span>
+            <span class="author-name">{{ 'About us.quoteAuthor' | translate }}</span>
           </div>
         </div>
       </div>

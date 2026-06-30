@@ -1240,5 +1240,109 @@
     "tabToday": "Today",
     "tabWeek": "This Week",
     "tabEarlier": "Earlier"
-  }
+  },
+  "About us":{
+  "learnAboutUs": "LEARN ABOUT US",
+  "aboutArena": "ABOUT ARENA",
+
+  "heroLine1": "WE ARE DEDICATED TO",
+  "heroLine2": "HELPING YOU LIVE A",
+  "heroLine3": "STRONGER, HEALTHIER,",
+  "heroLine4": "& CONFIDENT LIFE.",
+
+  "ourMission": "OUR MISSION",
+  "ourVision": "OUR VISION",
+
+  "missionDescription": "Our mission is to create a world-class fitness environment that transforms the way people train. We combine advanced equipment, personalized coaching, and science-based training methods to help every member unlock their full potential, build lasting strength, and achieve sustainable fitness results.",
+
+  "missionFeature1Title": "Advanced Smart Equipment:",
+  "missionFeature1": "Train with modern machines designed to monitor performance and improve workout efficiency.",
+
+  "missionFeature2Title": "Personalized Coaching:",
+  "missionFeature2": "Receive customized training and nutrition plans tailored to your fitness goals.",
+
+  "missionFeature3Title": "Science-Based Programs:",
+  "missionFeature3": "Follow proven training methods for fat loss, muscle growth, strength, and overall fitness.",
+
+  "missionFeature4Title": "Recovery & Injury Prevention:",
+  "missionFeature4": "Benefit from dedicated recovery spaces that reduce fatigue and support long-term performance.",
+
+  "visionDescription": "Our vision is to become the leading destination for smart fitness and athletic excellence by inspiring healthier lifestyles through innovation, technology, and a supportive community. We strive to help individuals reach their highest potential both physically and mentally.",
+
+  "visionFeature1Title": "Growing Our Community:",
+  "visionFeature1": "Expand the Arena experience to inspire fitness enthusiasts everywhere.",
+
+  "visionFeature2Title": "Fitness Innovation:",
+  "visionFeature2": "Continuously introduce modern technologies and training methods.",
+
+  "visionFeature3Title": "Health & Mental Strength:",
+  "visionFeature3": "Encourage discipline, confidence, focus, and lifelong wellness.",
+
+  "visionFeature4Title": "Complete Wellness Experience:",
+  "visionFeature4": "Bring together training, nutrition, and recovery in one integrated environment.",
+
+  "exploreMemberships": "EXPLORE MEMBERSHIPS",
+
+  "quote": "\"The pain you feel today is the strength you'll feel tomorrow.\"",
+  "quoteAuthor": "ARENA TEAM"
+  },
+ "qr": {
+  "attendanceScan": "Attendance Scan",
+  "confirmCheckin": "Confirm Check-in",
+  "scanDescription": "Scan this QR code at the front desk to confirm your attendance for this session.",
+  "booking": "Booking",
+  "saving": "Saving...",
+  "saveAttendance": "Save Attendance",
+  "backToQrCodes": "Back to QR Codes",
+  "sessionAccess": "Session Access",
+  "todaySessionQrCodes": "Today's Session QR Codes",
+  "chooseSession": "Choose a session to generate its QR code.",
+  "mobileScannable": "Mobile Scannable",
+  "todaySessions": "Today's Sessions",
+  "loading": "Loading...",
+  "ready": "ready",
+  "noQrCodesAvailable": "No QR Codes Available",
+  "confirmedBookingsAppear": "Your confirmed bookings for today will appear here.",
+  "locked": "Locked",
+  "confirmed": "Confirmed",
+  "selectedSession": "Selected Session",
+  "used": "Used",
+  "active": "Active",
+  "alreadyUsed": "Already Used",
+  "expired": "Expired",
+  "qrExpired": "This QR code has expired",
+  "expiresIn": "Expires in",
+  "calculating": "Calculating...",
+  "generated": "Generated",
+  "expires": "Expires",
+  "selectSession": "Select a Session",
+  "qrWillAppear": "Your QR code will appear here once you select a session.",
+  "generatingQr": "Generating QR Code...",
+  "refreshQr": "Refresh QR Code"
+},
+"contact": {
+  "contactus": "Contact Us",
+  "heading": "Let's get in touch",
+  "subheading": "Don't be afraid to say hello with us!",
+  "phone": "Phone",
+  "email": "Email",
+  "location": "Location",
+  "address": "2nd Floor, Wellness Plaza, Main Street, City Center",
+  "mapLink": "See on Google Map",
+  "sideNote": "Great! We're excited to hear from you and let's start something special together. Call us for any inquiry.",
+  "formTitle": "Send a message",
+  "name": "Name",
+  "namePlaceholder": "John Doe",
+  "emailPlaceholder": "you@email.com",
+  "phonePlaceholder": "+20 100 000 0000",
+  "message": "Message",
+  "messagePlaceholder": "Tell us about your interest...",
+  "submit": "Send message",
+  "FINDUS": "Find Us",
+  "phoneNumber": "+(20)1001234567",
+  "successMessage": "Your message has been sent successfully.",
+  "errorMessage": "Something went wrong. Please try again.",
+  "sending": "Sending..."
+
+}
 }
