@@ -257,7 +257,8 @@
   "invalidData": "Invalid data. Please check your input.",
   "tooManyAttempts": "Too many attempts. Please try again later.",
   "serviceUnavailable": "Service unavailable. Please try again later.",
-  "sessionExpired": "Session expired. Please login again."
+  "sessionExpired": "Session expired. Please login again.",
+  "googleAccountOnly": "This email is linked to Google Sign-In. Use \"Forgot Password\" to set a password."
 }
   },
   "dashboard": {
