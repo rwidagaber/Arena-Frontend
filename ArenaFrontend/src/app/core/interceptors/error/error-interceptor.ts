@@ -4,12 +4,11 @@ import {
 import { inject } from '@angular/core';
 import { catchError, throwError, switchMap, BehaviorSubject, filter, take } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
-import { AuthService } from '../../services/auth'; // غير المسار لو مختلف
+import { AuthService } from '../../services/auth';
 
 let isRefreshing = false;
 const refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
-// ✅ مفاتيح الترجمة لكل status code (مطابقة لملف auth.errors / auth.validation)
 const STATUS_MESSAGE_KEYS: Record<number, string> = {
   400: 'auth.errors.invalidRequest',
   401: 'auth.errors.invalidCredentials',
@@ -28,24 +27,20 @@ const SESSION_EXPIRED_KEY = 'auth.errors.sessionExpired';
 
 const isTechnical = (msg: string): boolean => {
   const technicalPatterns = [
-    /at\s+\w+\s*\(/,           // stack trace
-    /Exception/,                // C# exceptions
-    /System\./,                 // .NET namespaces
-    /Microsoft\./,              // ASP.NET
-    /Object reference/,         // null ref
-    /Http failure response/,    // Angular HTTP wrapper
-    /\w+:\d+:\d+/,              // file:line:col
-    /localhost/,                // dev URLs
+    /at\s+\w+\s*\(/,
+    /Exception/,
+    /System\./,
+    /Microsoft\./,
+    /Object reference/,
+    /Http failure response/,
+    /\w+:\d+:\d+/,
+    /localhost/,
   ];
   return technicalPatterns.some(p => p.test(msg));
 };
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
-  // ✅ سيب طلبات ملفات الترجمة (./i18n/en.json , ./i18n/ar.json) تعدي عادي
-  // من غير أي تدخل من الـ interceptor ده. لازم ده يكون أول حاجة في الفنكشن،
-  // قبل أي inject تاني، عشان منعملش حلقة مقفولة:
-  // TranslateService → HttpClient → errorInterceptor → TranslateService
   if (req.url.includes('/i18n/')) {
     return next(req);
   }
@@ -53,8 +48,6 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const translate = inject(TranslateService);
 
-  // helper بيرجع Error بالرسالة المترجمة + المفتاح الأصلي (i18nKey) عشان نقدر
-  // نعيد الترجمة لو المستخدم غيّر اللغة بعد ظهور الإيرور
   const translatedError = (key: string, params?: Record<string, unknown>) =>
     throwError(() => Object.assign(new Error(translate.instant(key, params)), { i18nKey: key, i18nParams: params }));
 
@@ -64,16 +57,12 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       // ── Refresh Token Logic ───────────────────────────────────────────────
       if (err instanceof HttpErrorResponse && err.status === 401) {
 
-        // لو الـ request اللي فشل هو الـ refresh نفسه → فعلاً انتهت الجلسة
         if (req.url.includes('/auth/refresh')) {
           isRefreshing = false;
           authService.clearSession();
           return translatedError(SESSION_EXPIRED_KEY);
         }
 
-        // لو الـ request اللي فشل هو الـ login نفسه → سيبه يكمل تحت
-        // للـ Normal Error Handling عشان ياخد رسالة "Invalid email or password"
-        // الحقيقية بدل "Session expired"
         if (!req.url.includes('/auth/login')) {
 
           if (!isRefreshing) {
@@ -85,7 +74,6 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
                 isRefreshing = false;
                 refreshTokenSubject.next(tokens.accessToken);
 
-                // أعد الـ request الأصلي بالتوكن الجديد
                 const retryReq = req.clone({
                   setHeaders: { Authorization: `Bearer ${tokens.accessToken}` }
                 });
@@ -100,7 +88,6 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             );
 
           } else {
-            // لو في refresh جاري، استنى التوكن الجديد وبعدين أعد الـ request
             return refreshTokenSubject.pipe(
               filter(token => token !== null),
               take(1),
@@ -113,13 +100,11 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             );
           }
         }
-        // لو دخلنا هنا يبقى req.url فيه /auth/login → بنكمل تحت عادي
       }
 
       // ── Normal Error Handling ─────────────────────────────────────────────
       if (!(err instanceof HttpErrorResponse)) {
         if (err instanceof Error) {
-          // لو الرسالة already مترجمة (جاية من نفس الـ interceptor) أو مش technical خليها
           const msg = isTechnical(err.message)
             ? translate.instant(DEFAULT_ERROR_KEY)
             : err.message;
@@ -129,13 +114,9 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         return translatedError(DEFAULT_ERROR_KEY);
       }
 
-      // الرسالة الافتراضية حسب status code (مترجمة)
       const statusKey = STATUS_MESSAGE_KEYS[err.status] ?? DEFAULT_ERROR_KEY;
       let message = translate.instant(statusKey);
 
-      // حاول تاخد رسالة من الـ body بس لو مش technical
-      // ⚠️ ملحوظة: دي رسالة جاية من السيرفر مباشرة، مش مفتاح ترجمة،
-      // فهتفضل زي ما هي (عادةً إنجليزي) إلا لو السيرفر نفسه بيرجع مفتاح ترجمة معروف.
       if (err.error) {
         const errorBody = err.error;
         let bodyMsg = '';
@@ -158,16 +139,19 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           bodyMsg = errorBody.title;
         }
 
-        // ✅ لو عايز تدي أولوية لرسالة السيرفر، فعّل السطر ده.
-        // مش بنفعّله افتراضيًا عشان الرسالة المترجمة (status-based) هتفضل
-        // أدق وأنضف من رسالة سيرفر إنجليزي خام جوه واجهة عربي.
-        // if (bodyMsg && !isTechnical(bodyMsg)) {
-        //   message = bodyMsg;
-        // }
-        void bodyMsg; // (متسيبهاش لو هتفعّل الأولوية فوق)
+        // ✅ هنا — بعد استخراج bodyMsg، اشيك على الـ code
+        const serverCode = (typeof errorBody === 'object' && errorBody !== null)
+          ? (errorBody as any).code as string | undefined
+          : undefined;
+
+        if (serverCode === 'GOOGLE_ACCOUNT_ONLY') {
+          return translatedError('auth.errors.googleAccountOnly');
+        }
+
+        void bodyMsg;
       }
 
-      console.error('HTTP ERROR:', err); // للـ debugging بس
+      console.error('HTTP ERROR:', err);
 
       return throwError(() => Object.assign(new Error(message), { i18nKey: statusKey }));
     })
