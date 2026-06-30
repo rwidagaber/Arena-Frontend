@@ -8,7 +8,7 @@ import { AuthService } from '../../core/services/auth';
 import { BookingEventsService } from '../../core/services/booking-events.service';
 import { ChatService } from '../../core/services/chat.service';
 import { ChatConversation, ChatMessage, ChatMessageBlock, ChatResponse } from '../../core/models/chat';
-// import { HeaderComponent } from '../../shared/header/header';
+import { NotificationService } from '../../core/services/notification.service';
 
 @Component({
   selector: 'app-chat',
@@ -24,6 +24,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly bookingEvents = inject(BookingEventsService);
+  private readonly notificationService = inject(NotificationService);
 
   messages: ChatMessage[] = [];
   conversations: ChatConversation[] = [];
@@ -199,7 +200,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       });
   }
 
-  deleteConversation(conversation: ChatConversation, event: MouseEvent): void {
+  async deleteConversation(conversation: ChatConversation, event: MouseEvent): Promise<void> {
     event.stopPropagation();
 
     if (this.deletingConversationId) {
@@ -207,7 +208,15 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     const title = conversation.title || 'this chat';
-    const confirmed = window.confirm(`Delete "${title}"? This cannot be undone.`);
+    
+    // Show premium confirmation dialog instead of browser confirm
+    const confirmed = await this.notificationService.confirm(
+      'Delete Chat',
+      `Are you sure you want to delete "${title}"? This cannot be undone.`,
+      'Delete',
+      'Cancel',
+      'Confirm Action'
+    );
 
     if (!confirmed) {
       return;

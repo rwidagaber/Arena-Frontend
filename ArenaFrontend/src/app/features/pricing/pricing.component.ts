@@ -6,6 +6,7 @@ import { AuthService } from '../../core/services/auth';
 import { Router, ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ScrollRevealDirective } from '../../shared/directives/scroll-reveal.directive';
+import { NotificationService } from '../../core/services/notification.service';
 
 @Component({
   selector: 'app-pricing',
@@ -44,8 +45,9 @@ export class PricingComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute,
-    private translate: TranslateService
-  ) {}
+    private translate: TranslateService,
+    private notificationService: NotificationService
+  ) { }
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
@@ -95,7 +97,16 @@ export class PricingComponent implements OnInit {
       error: (err) => {
         this.loadingPlanId = null;
         const errMsg = err.error?.message || err.message || this.translate.instant('PRICING.ERROR_UNKNOWN');
-        alert(this.translate.instant('PRICING.ERROR_PAYMENT') + errMsg);
+        
+        // Show premium custom alert popup instead of browser alert
+        this.notificationService.showAlert({
+          type: 'Error',
+          eyebrow: 'Payment Failed',
+          title: this.translate.instant('PRICING.ERROR_PAYMENT') || 'Payment Error',
+          message: errMsg,
+          ctaText: 'OK'
+        });
+
         console.error('Payment Error:', err);
       }
     });

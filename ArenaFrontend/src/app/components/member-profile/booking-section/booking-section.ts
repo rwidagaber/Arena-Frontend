@@ -13,6 +13,7 @@ import { StatsOverview, StatItem } from '../stats-overview/stats-overview';
 import { AuthService } from '../../../core/services/auth';
 import { BookingEventsService } from '../../../core/services/booking-events.service';
 import { ThemeService } from '../../../core/services/themeservice';
+import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
   selector: 'app-booking-section',
@@ -33,6 +34,7 @@ export class BookingSection implements OnInit, OnDestroy {
   private translate = inject(TranslateService);
   private authService = inject(AuthService);
   private bookingEvents = inject(BookingEventsService);
+  private notificationService = inject(NotificationService);
   private themeService = inject(ThemeService);
 
   /** The member-profile id used to fetch bookings */
@@ -293,14 +295,32 @@ export class BookingSection implements OnInit, OnDestroy {
       });
   }
 
-  onCancelBooking(bookingId: string): void {
+  async onCancelBooking(bookingId: string): Promise<void> {
+    const confirmed = await this.notificationService.confirm(
+      'Cancel Booking',
+      'Are you sure you want to cancel this booking? This cannot be undone.',
+      'Cancel Session',
+      'Keep Session',
+      'Booking Cancellation'
+    );
+
+    if (!confirmed) return;
+
     this.bookingService
       .cancelBooking(bookingId)
-      .pipe(catchError(() => of(null)))
-      .subscribe(() => {
-        // Always reload regardless of success/failure so UI never stays stale
-        this.loadBookings();
-        this.bookingCancelled.emit(bookingId);
+      .subscribe({
+        next: () => {
+          this.loadBookings();
+          this.bookingCancelled.emit(bookingId);
+        },
+        error: (err) => {
+          const rawMsg = err.message || 'An error occurred';
+          this.notificationService.showLocalToast(
+            'Cancellation Failed',
+            rawMsg,
+            'Error'
+          );
+        }
       });
   }
 
@@ -595,7 +615,7 @@ export class BookingSection implements OnInit, OnDestroy {
         setTimeout(() => {
           this.showBookingForm.set(false);
           this.resetForm();
-        }, 2000);
+        }, 1500);
       },
       error: err => {
         this.bookingSubmitLoading.set(false);
@@ -625,6 +645,15 @@ export class BookingSection implements OnInit, OnDestroy {
         const mappedKey = keyMapping[rawMsg];
         const translatedMsg = mappedKey ? this.translate.instant(mappedKey) : this.translate.instant(rawMsg);
         this.bookingError.set(translatedMsg);
+
+        // Show premium error alert popup
+        this.notificationService.showAlert({
+          type: 'Error',
+          eyebrow: 'Booking Failed',
+          title: 'Unable to Book Session',
+          message: translatedMsg,
+          ctaText: 'OK'
+        });
       }
     });
   }

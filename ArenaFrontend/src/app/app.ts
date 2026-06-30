@@ -10,6 +10,7 @@ import { CursorGlowComponent } from './shared/components/cursor-glow/cursor-glow
 import { TranslateService } from '@ngx-translate/core';
 import { ThemeService } from '../app/core/services/themeservice';
 import { AuthService } from './core/services/auth';
+import { CustomAlertComponent } from './features/notifications/custom-alert/custom-alert';
 import { filter } from 'rxjs/operators';
 
 @Component({
@@ -23,6 +24,7 @@ import { filter } from 'rxjs/operators';
     BackToTopComponent,
     DashboardSidebar,
     CursorGlowComponent,
+    CustomAlertComponent,
   ],
   templateUrl: './app.html',
   styleUrl: './app.css'

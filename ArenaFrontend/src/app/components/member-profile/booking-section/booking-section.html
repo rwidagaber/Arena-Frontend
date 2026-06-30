@@ -123,21 +123,6 @@
       </div>
     </div>
 
-    <!-- Feedback and Confirm -->
-    @if (bookingError()) {
-      <div class="error-alert">
-        <i class="fas fa-exclamation-triangle"></i>
-        <span>{{ bookingError() }}</span>
-      </div>
-    }
-
-    @if (bookingSuccess()) {
-      <div class="success-alert">
-        <i class="fas fa-check-circle"></i>
-        <span>{{ 'bookingSuccess' | translate }}</span>
-      </div>
-    }
-
     <div class="panel-actions">
       <button 
         type="button" 
