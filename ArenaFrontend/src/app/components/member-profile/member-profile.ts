@@ -221,10 +221,12 @@ export class MemberProfile implements OnInit {
   /** True when the member has an ACTIVE subscription that includes AI features.
    *  Checks the loaded subscription list first, then the profile's active sub.
    *  Drives the AI card: unlocked (real plan) when true, locked teaser when false. */
-  hasAI = computed(() =>
-    this.userSubscriptions().some(s => s.hasAI && this.isSubActive(s)) ||
-    !!this.profile()?.activeSubscription?.hasAI
-  );
+  // TEMP-DESIGN-REVIEW: forcing the locked AI teaser state. REVERT before commit.
+  hasAI = computed(() => false);
+  // hasAI = computed(() =>
+  //   this.userSubscriptions().some(s => s.hasAI && this.isSubActive(s)) ||
+  //   !!this.profile()?.activeSubscription?.hasAI
+  // );
 
   planMonthlyCap = computed(() => {
     const level = this.planLevel();
@@ -1162,8 +1164,6 @@ export class MemberProfile implements OnInit {
     this.router.navigate(['/chat']);
   }
 
-  /** Decorative chain-link X positions for the locked card overlay. */
-  protected readonly chainLinks = [-40, 0, 40, 80, 120, 160, 200, 240, 280, 320, 360, 400, 440];
 
   ngOnInit(): void {
     const cached = this.auth.currentUser$.subscribe(user => {

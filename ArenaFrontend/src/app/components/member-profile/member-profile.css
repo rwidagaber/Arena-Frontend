@@ -1442,8 +1442,8 @@ app-footer {
   padding: 20px 24px;
 }
 .ai-teaser.is-locked .ai-teaser-preview {
-  filter: blur(5px) saturate(1.05);
-  opacity: 0.9;
+  filter: blur(1.2px) saturate(1.05);
+  opacity: 0.94;
   user-select: none;
   pointer-events: none;
 }
@@ -1551,40 +1551,95 @@ app-footer {
   .ait-plan { grid-template-columns: 1fr; }
 }
 
-/* ── Chains + padlock lock overlay ── */
+/* ── Frosted lock overlay. A light veil at rest; on hover it clears and the blur
+   eases off so the member "peeks" at the real plan — a soft nudge to upgrade. ── */
 .ai-teaser-lock {
   position: absolute; inset: 0;
   display: flex; align-items: center; justify-content: center;
   background:
-    radial-gradient(120% 120% at 50% 0%, rgba(198,239,46,0.10), transparent 60%),
-    linear-gradient(0deg, rgba(255,255,255,0.88), rgba(255,255,255,0.68));
-  -webkit-backdrop-filter: blur(1.5px); backdrop-filter: blur(1.5px);
+    radial-gradient(120% 120% at 50% 30%, rgba(183,221,44,0.10), transparent 60%),
+    linear-gradient(0deg, rgba(255,255,255,0.42), rgba(255,255,255,0.26));
+  -webkit-backdrop-filter: blur(0.5px); backdrop-filter: blur(0.5px);
+  transition: background 0.45s ease, backdrop-filter 0.45s ease, -webkit-backdrop-filter 0.45s ease;
 }
 [data-theme="dark"] .ai-teaser-lock {
   background:
-    radial-gradient(120% 120% at 50% 0%, rgba(198,239,46,0.12), transparent 60%),
-    linear-gradient(0deg, rgba(16,19,27,0.88), rgba(16,19,27,0.64));
+    radial-gradient(120% 120% at 50% 30%, rgba(183,221,44,0.12), transparent 60%),
+    linear-gradient(0deg, rgba(16,19,27,0.48), rgba(16,19,27,0.30));
 }
 
-/* Golden chains crossing in an X across the locked card. */
-.ait-chains {
-  position: absolute; inset: 0; width: 100%; height: 100%;
-  opacity: 0.95; pointer-events: none;
-  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.4));
+/* Peek-on-hover */
+.ai-teaser-preview { transition: filter 0.45s ease, opacity 0.45s ease; }
+.ai-teaser.is-locked:hover .ai-teaser-preview { filter: blur(0.3px) saturate(1.05); opacity: 0.99; }
+.ai-teaser.is-locked:hover .ai-teaser-lock {
+  background:
+    radial-gradient(120% 120% at 50% 30%, rgba(183,221,44,0.08), transparent 60%),
+    linear-gradient(0deg, rgba(255,255,255,0.14), rgba(255,255,255,0.05));
+  -webkit-backdrop-filter: blur(0); backdrop-filter: blur(0);
+}
+[data-theme="dark"] .ai-teaser.is-locked:hover .ai-teaser-lock {
+  background:
+    radial-gradient(120% 120% at 50% 30%, rgba(183,221,44,0.10), transparent 60%),
+    linear-gradient(0deg, rgba(16,19,27,0.22), rgba(16,19,27,0.10));
 }
 
+.ai-teaser.is-locked {
+  animation: fadeSlide 0.5s ease-out backwards var(--ai-delay, 0s);
+  transform-origin: center;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ait-lock-badge::after { animation: none; }
+  .ait-cta-box:has(.ait-cta:hover) .ait-lock-badge { animation: none; }
+}
+
+/* Frosted-glass panel that focuses the eye on the CTA, lifted off the plan behind. */
 .ait-cta-box {
   position: relative; z-index: 1;
   display: flex; flex-direction: column; align-items: center; text-align: center;
-  gap: 7px; padding: 16px 24px; max-width: 440px;
+  gap: 8px; padding: 22px 30px; max-width: 440px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.55);
+  border: 1px solid rgba(255,255,255,0.7);
+  -webkit-backdrop-filter: blur(9px) saturate(1.3); backdrop-filter: blur(9px) saturate(1.3);
+  box-shadow: 0 20px 44px -24px rgba(20,20,20,0.5), inset 0 1px 0 rgba(255,255,255,0.65);
 }
-/* Golden padlock medallion at the centre of the chain X. */
+[data-theme="dark"] .ait-cta-box {
+  background: rgba(28,34,51,0.5);
+  border-color: rgba(255,255,255,0.12);
+  box-shadow: 0 20px 48px -24px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+/* Lime padlock medallion (matches the brand). A soft ring pulses outward; it lifts
+   on card hover and does an "unlock" wiggle when the CTA is hovered. */
 .ait-lock-badge {
+  position: relative;
   display: inline-flex; align-items: center; justify-content: center;
-  width: 58px; height: 58px; border-radius: 50%; margin-bottom: 4px;
-  background: linear-gradient(135deg, #f8e7a6 0%, #d4af37 52%, #9c6f1a 100%);
-  color: #3a2a06;
-  box-shadow: 0 10px 24px -6px rgba(156,111,26,0.7), inset 0 1px 0 rgba(255,255,255,0.55), 0 0 0 4px rgba(212,175,55,0.20);
+  width: 58px; height: 58px; border-radius: 50%; margin-bottom: 6px;
+  background: linear-gradient(135deg, #d4f24c 0%, #C6EF2E 50%, #a8d717 100%);
+  color: #1d3a05;
+  box-shadow: 0 10px 24px -6px rgba(168,215,23,0.6), inset 0 1px 0 rgba(255,255,255,0.55), 0 0 0 5px rgba(198,239,46,0.16);
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+.ait-lock-badge::after {
+  content: ''; position: absolute; inset: -5px; border-radius: 50%;
+  border: 2px solid rgba(198,239,46,0.55);
+  animation: aitLockPulse 2.6s ease-out infinite;
+  pointer-events: none;
+}
+.ait-lock-badge i { font-size: 24px; line-height: 1; }
+.ai-teaser.is-locked:hover .ait-lock-badge { transform: translateY(-3px) scale(1.05); }
+.ait-cta-box:has(.ait-cta:hover) .ait-lock-badge { animation: aitWiggle 0.55s ease; }
+@keyframes aitLockPulse {
+  0%   { transform: scale(0.9); opacity: 0.7; }
+  70%  { transform: scale(1.3); opacity: 0; }
+  100% { transform: scale(1.3); opacity: 0; }
+}
+@keyframes aitWiggle {
+  0%, 100% { transform: rotate(0)     translateY(-3px) scale(1.05); }
+  20%      { transform: rotate(-13deg) translateY(-3px) scale(1.05); }
+  40%      { transform: rotate(10deg)  translateY(-3px) scale(1.05); }
+  60%      { transform: rotate(-6deg)  translateY(-3px) scale(1.05); }
+  80%      { transform: rotate(3deg)   translateY(-3px) scale(1.05); }
 }
 .ait-title {
   margin: 0; font-family: var(--font-display); font-size: var(--fs-md, 19px);
@@ -1593,6 +1648,14 @@ app-footer {
 [data-theme="dark"] .ait-title { color: var(--lux-cream, #eef1f6); }
 .ait-sub { margin: 0; font-size: 13px; line-height: 1.5; color: var(--lux-ink-soft, #5f5f5c); max-width: 42ch; }
 [data-theme="dark"] .ait-sub { color: var(--lux-cream-soft, rgba(238,241,246,0.6)); }
+/* Crisp value line surfaced on the overlay (not blurred behind it). */
+.ait-value {
+  display: inline-flex; align-items: center; gap: 7px; margin: 0;
+  font-size: 12.5px; font-weight: 800; letter-spacing: 0.01em;
+  color: var(--c-accent-deep, #4d7c0f);
+}
+.ait-value i { font-size: 12px; }
+[data-theme="dark"] .ait-value { color: var(--c-accent, #C6EF2E); }
 .ait-cta {
   display: inline-flex; align-items: center; gap: 8px; margin-top: 8px;
   padding: 11px 22px; border: none; border-radius: 12px;

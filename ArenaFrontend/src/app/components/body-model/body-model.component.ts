@@ -60,12 +60,40 @@ export function metricsToInfluences(
   heightCm: number | null | undefined,
 ): BodyInfluences {
   const bmi = bmiFrom(weightKg, heightCm);
-  // BMI ~18.5 (lean) .. 35 (obese) maps to 0..1 body mass.
+  const hM = heightCm && heightCm > 0 ? heightCm / 100 : null;
+
+  // Overall size from BMI ~18.5 (lean) .. 35 (obese) -> 0..1. Because BMI is
+  // weight / height², this is monotonic in weight at a given height: a heavier
+  // member is always at least as large as a lighter one.
   const mass = bmi != null ? normalize(bmi, 18.5, 35) : 0.35;
-  // Body fat % ~8 (athletic) .. 35 (high).
-  const fat = bodyFat != null ? normalize(bodyFat, 8, 35) : mass * 0.6;
-  // Skeletal muscle mass ~25kg .. 50kg.
-  const muscle = muscleMassKg != null ? normalize(muscleMassKg, 25, 50) : 0.4;
+
+  // Fat amount uses the FAT-MASS INDEX (fat kg / height m²), not raw body-fat %,
+  // so it accounts for weight AND height — the same % on a heavier or shorter
+  // member is more actual fat and reads fuller. Falls back to % when height is
+  // unknown, or to a BMI estimate when there's no body-fat reading at all, so
+  // older logs still animate. FMI ~2 (very lean) .. 13 (high) for either sex.
+  let fat: number;
+  if (bodyFat != null && weightKg && hM) {
+    const fatMassKg = weightKg * (bodyFat / 100);
+    fat = normalize(fatMassKg / (hM * hM), 2, 13);
+  } else if (bodyFat != null) {
+    fat = normalize(bodyFat, 8, 35);
+  } else {
+    fat = mass * 0.6;
+  }
+
+  // Muscularity uses the SKELETAL-MUSCLE INDEX (muscle kg / height m²) so a given
+  // muscle mass reads stronger on a shorter frame and leaner on a taller one.
+  // SMI ~5 (low) .. 13 (very muscular).
+  let muscle: number;
+  if (muscleMassKg != null && hM) {
+    muscle = normalize(muscleMassKg / (hM * hM), 5, 13);
+  } else if (muscleMassKg != null) {
+    muscle = normalize(muscleMassKg, 25, 50);
+  } else {
+    muscle = 0.4;
+  }
+
   // Stature: gentle scale so proportions stay believable.
   const heightScale = heightCm
     ? Math.min(1.08, Math.max(0.92, heightCm / REFERENCE_HEIGHT_CM))
@@ -457,9 +485,11 @@ export class BodyModelComponent {
     const shape = this.activeShape();
     const p = SHAPE_PRESETS[shape] ?? SHAPE_PRESETS.rectangle;
     const female = this.lastGender === 'female';
-    // Cache key includes BOTH body fat and muscle, so the body re-shapes when
-    // either changes — even at constant weight (recomposition).
-    const sig = `${female}|${shape}|${inf.bodyFat.toFixed(3)}|${inf.muscle.toFixed(3)}`;
+    // Cache key includes overall mass (BMI) as well as body fat and muscle, so the
+    // body re-shapes when any of them changes — including weight at a fixed
+    // body-fat % (a heavier member reads bigger), and recomposition (fat<->muscle)
+    // at a constant weight.
+    const sig = `${female}|${shape}|${inf.mass.toFixed(3)}|${inf.bodyFat.toFixed(3)}|${inf.muscle.toFixed(3)}`;
     if (sig === this.fatSig) return;
     this.fatSig = sig;
 
@@ -480,12 +510,14 @@ export class BodyModelComponent {
           glutesBack: p.glutesBack * 0.35,
         };
 
-    // Fat amount is driven ONLY by body-fat % (inf.bodyFat), never by weight/BMI.
-    // THIS is what makes two members at the SAME weight look different: a high-fat
-    // member rounds out and softens here, while a lean/high-muscle member stays
-    // defined and gets their volume from the muscle terms below instead. Fat and
-    // muscle are independent inputs, so recomposition at constant weight shows.
-    const mag = Math.max(0.05, 0.12 + inf.bodyFat * 1.5);
+    // Overall soft-tissue magnitude, anchored to BOTH overall mass (BMI) and the
+    // fat-mass index — both derived from weight + height in metricsToInfluences.
+    // The BMI term guarantees a heavier member is at least as large at the same
+    // composition (80 kg reads bigger than 74 kg), while the fat term lets a
+    // high-fat member round out and soften more than a lean/muscular one at the
+    // same weight. Muscle adds its own firm volume in the terms below, so all of
+    // weight, height, fat % and muscle now feed the silhouette.
+    const mag = Math.max(0.05, 0.1 + inf.mass * 0.9 + inf.bodyFat * 0.8);
     const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
     const smooth = (e0: number, e1: number, x: number) => {
       const t = clamp01((x - e0) / (e1 - e0));
@@ -528,7 +560,7 @@ export class BodyModelComponent {
         // small constant adds all-over fullness so heavier bodies round out
         // everywhere, not only in the body-type zones.
         const w =
-          (0.06 + inf.bodyFat * 0.18 + // all-over subcutaneous softness (rounds out high-fat bodies)
+          (0.06 + inf.bodyFat * 0.18 + inf.mass * 0.22 + // all-over volume: subcutaneous softness (fat) + overall mass (BMI) so a heavier member reads bigger
             fw.shoulders * g(0.72, 0.06) * side +
             fw.bust * g(0.66, 0.075) * front + // broad chest fat, not a pointed bust
             fw.belly * g(0.5, 0.09) * front + // soft, low, rounded belly (gut / lower pooch)
