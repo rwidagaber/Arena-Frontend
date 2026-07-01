@@ -148,7 +148,9 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           return translatedError('auth.errors.googleAccountOnly');
         }
 
-        void bodyMsg;
+        if (bodyMsg && !isTechnical(bodyMsg)) {
+          message = bodyMsg;
+        }
       }
 
       console.error('HTTP ERROR:', err);
