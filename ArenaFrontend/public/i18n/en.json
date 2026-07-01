@@ -362,6 +362,7 @@
     "emailVerified": "Verified",
     "password": "Password",
     "changePassword": "Change Password",
+    "passwordChanged": "Password changed successfully",
     "currentPassword": "Current Password",
     "newPassword": "New Password",
     "confirmNewPassword": "Confirm New Password",

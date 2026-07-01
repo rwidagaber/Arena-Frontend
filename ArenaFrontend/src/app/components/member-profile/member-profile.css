@@ -2925,8 +2925,12 @@ app-footer {
 .settings-page {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  max-width: 640px;
+  gap: 18px;
+  width: 100%;
+  max-width: 760px;
+  /* Center the column instead of pinning it to the start edge, so it doesn't
+     look cramped against one side of the wide dashboard content area. */
+  margin-inline: auto;
 }
 .settings-title {
   font-size: var(--fs-lg, 23px);
@@ -2936,22 +2940,44 @@ app-footer {
 }
 [data-theme="dark"] .settings-title { color: var(--lux-cream, #eef1f6); }
 .settings-card {
-  padding: 18px 20px;
-  border-radius: 16px;
+  padding: 20px 22px;
+  border-radius: 18px;
   background: var(--lux-card, rgba(255,255,255,0.72));
   border: 1px solid var(--lux-line, rgba(20,20,20,0.08));
+  box-shadow: 0 1px 2px rgba(20,20,20,0.03), 0 8px 24px -18px rgba(20,20,20,0.35);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.settings-card:hover {
+  box-shadow: 0 2px 4px rgba(20,20,20,0.04), 0 16px 40px -22px rgba(20,20,20,0.45);
+  border-color: var(--lux-line, rgba(20,20,20,0.12));
 }
 [data-theme="dark"] .settings-card {
   background: var(--lux-card-dk, rgba(28,34,51,0.55));
   border-color: var(--lux-line-dk, rgba(255,255,255,0.08));
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2), 0 10px 30px -20px rgba(0,0,0,0.7);
+}
+[data-theme="dark"] .settings-card:hover {
+  border-color: var(--lux-line-dk, rgba(255,255,255,0.16));
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25), 0 18px 46px -24px rgba(0,0,0,0.8);
 }
 .settings-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.07em;
   color: var(--lux-ink-soft, #5f5f5c);
   margin: 0 0 14px;
+}
+.settings-card-title::before {
+  content: '';
+  width: 3px;
+  height: 13px;
+  border-radius: 999px;
+  background: var(--c-accent, #C6EF2E);
+  flex-shrink: 0;
 }
 [data-theme="dark"] .settings-card-title { color: var(--lux-cream-soft, rgba(238,241,246,0.6)); }
 .settings-row {
@@ -2994,6 +3020,10 @@ app-footer {
 .seg-btn:focus-visible { outline: 2px solid var(--c-accent, #C6EF2E); outline-offset: 2px; }
 [data-theme="dark"] .seg-btn { color: var(--lux-cream-soft, rgba(238,241,246,0.6)); }
 [data-theme="dark"] .seg-btn:hover { color: var(--lux-cream, #eef1f6); }
+/* The active pill sits on the lime accent — keep its label dark in dark theme too,
+   otherwise the later [data-theme] rule above wins and renders near-white on lime. */
+[data-theme="dark"] .seg-btn.seg-active,
+[data-theme="dark"] .seg-btn.seg-active:hover { color: #181818; }
 
 .settings-btn {
   padding: 8px 18px;
@@ -3004,13 +3034,18 @@ app-footer {
   font-weight: 700;
   color: var(--lux-ink, #181818);
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 }
-.settings-btn:hover { background: rgba(20,20,20,0.04); }
+.settings-btn:hover {
+  background: rgba(20,20,20,0.04);
+  border-color: var(--c-accent-strong, #aed81f);
+  transform: translateY(-1px);
+}
+.settings-btn:active { transform: translateY(0); }
 .settings-btn:focus-visible { outline: 2px solid var(--c-accent, #C6EF2E); outline-offset: 2px; }
 [data-theme="dark"] .settings-btn { color: var(--lux-cream, #eef1f6); border-color: var(--lux-line-dk, rgba(255,255,255,0.14)); }
 .settings-btn-danger { color: #ef4444; border-color: rgba(239,68,68,0.4); }
-.settings-btn-danger:hover { background: rgba(239,68,68,0.08); }
+.settings-btn-danger:hover { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.7); }
 .settings-btn-danger:disabled { opacity: 0.5; cursor: default; }
 
 @media (max-width: 520px) {

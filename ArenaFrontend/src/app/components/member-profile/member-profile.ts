@@ -849,7 +849,7 @@ export class MemberProfile implements OnInit {
       confirmNewPassword: this.cpConfirmPassword(),
     }).subscribe({
       next: () => {
-        this.cpSuccess.set('Password changed successfully');
+        this.cpSuccess.set(this.translate.instant('settings.passwordChanged'));
         this.savingPassword.set(false);
         this.cpCurrentPassword.set('');
         this.cpNewPassword.set('');

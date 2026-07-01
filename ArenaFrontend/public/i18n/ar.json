@@ -360,6 +360,7 @@
     "emailVerified": "موثّق",
     "password": "كلمة المرور",
     "changePassword": "تغيير كلمة المرور",
+    "passwordChanged": "تم تغيير كلمة المرور بنجاح",
     "currentPassword": "كلمة المرور الحالية",
     "newPassword": "كلمة المرور الجديدة",
     "confirmNewPassword": "تأكيد كلمة المرور الجديدة",
