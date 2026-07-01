@@ -118,9 +118,9 @@ export const routes: Routes = [
   },
 
   {
-  path: 'contact',
-  loadComponent: () => import('./features/contact/contact').then(m => m.Contact)
-},
+    path: 'contact',
+    loadComponent: () => import('./features/contact/contact').then(m => m.Contact)
+  },
   {
     path: '**',
     redirectTo: ''                     // ✅ أي route غلط → home

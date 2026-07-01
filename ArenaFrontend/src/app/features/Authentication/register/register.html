@@ -149,7 +149,7 @@
     </div>
 
     @if (serverError) {
-      <div class="banner error">{{ serverError }}</div>
+      <div class="banner error">{{ serverError| translate }}</div>
     }
 
     <button type="submit" class="btn-submit" [disabled]="loading">

@@ -127,9 +127,9 @@ get isDark() { return this.themeService.isDark; }
           this.router.navigate(['/']);
         }
       },
-      error: (err: Error) => {
+      error: (err: any) => {
         this.loading = false;
-        this.serverError = err.message;
+        this.serverError = err.i18nKey ?? err.message;
       }
     });
   }
@@ -146,7 +146,7 @@ get isDark() { return this.themeService.isDark; }
           queryParams: { userId: res.userId, email: this.form.value.email }
         });
       },
-      error: (err: Error) => { this.loading = false; this.serverError = err.message; },
+      error: (err: any) => { this.loading = false; this.serverError = err.i18nKey ?? err.message; },
     });
   }
 

@@ -92,9 +92,9 @@ export class ResetPasswordComponent implements OnInit, OnDestroy {
         this.success = true;
         setTimeout(() => this.router.navigate(['/login']), 2000);
       },
-      error: (err: Error) => {
+      error: (err: any) => {
         this.loading = false;
-        this.serverError = err.message;
+        this.serverError = err.i18nKey ?? err.message;
       }
     });
   }

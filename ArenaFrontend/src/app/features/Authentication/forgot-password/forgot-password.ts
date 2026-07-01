@@ -64,9 +64,9 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
         this.loading = false;
         this.success = true;
       },
-      error: (err: Error) => {
+      error: (err: any) => {
         this.loading = false;
-        this.serverError = err.message;
+        this.serverError = err.i18nKey ?? err.message;
       }
     });
   }

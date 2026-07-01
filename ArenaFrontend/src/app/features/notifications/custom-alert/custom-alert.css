@@ -1,0 +1,263 @@
+/* ═══════════════════════════════════════════════
+   PREMIUM CUSTOM ALERT DIALOG STYLING
+   Matching Workout Streak Welcome Modal aesthetic
+   ═══════════════════════════════════════════════ */
+
+.alert-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  backdrop-filter: blur(8px);
+  animation: overlayFadeIn 0.25s ease;
+  padding: 20px;
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; backdrop-filter: blur(0px); }
+  to   { opacity: 1; backdrop-filter: blur(8px); }
+}
+
+.alert-modal {
+  position: relative;
+  width: 420px;
+  max-width: 94vw;
+  background: rgba(28, 28, 28, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 26px;
+  padding: 38px 30px 30px;
+  text-align: center;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5), 0 0 40px rgba(0, 0, 0, 0.3);
+  animation: alertPop 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  overflow: hidden;
+  backdrop-filter: blur(20px);
+}
+
+@keyframes alertPop {
+  from { opacity: 0; transform: translateY(20px) scale(0.94); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Accent Mapping Variables */
+.alert-modal.alert-success,
+.alert-modal.alert-confirmation {
+  --alert-accent: #C6EF2E;
+  --alert-accent-glow: rgba(198, 239, 46, 0.22);
+  --alert-accent-text: #C6EF2E;
+  --alert-btn-text: #15240a;
+}
+
+.alert-modal.alert-error {
+  --alert-accent: #f43f5e;
+  --alert-accent-glow: rgba(244, 63, 94, 0.22);
+  --alert-accent-text: #f43f5e;
+  --alert-btn-text: #ffffff;
+}
+
+.alert-modal.alert-warning {
+  --alert-accent: #C6EF2E;
+  --alert-accent-glow: rgba(198, 239, 46, 0.22);
+  --alert-accent-text: #C6EF2E;
+  --alert-btn-text: #15240a;
+}
+
+.alert-modal.alert-info {
+  --alert-accent: #C6EF2E;
+  --alert-accent-glow: rgba(198, 239, 46, 0.22);
+  --alert-accent-text: #C6EF2E;
+  --alert-btn-text: #15240a;
+}
+
+/* Light Mode support */
+:host-context([data-theme="light"]) .alert-modal {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(20, 20, 20, 0.08);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+}
+:host-context([data-theme="light"]) .alert-modal.alert-success,
+:host-context([data-theme="light"]) .alert-modal.alert-confirmation {
+  --alert-accent-text: #4d7c0f;
+}
+
+/* Top Accent Glow Border */
+.alert-modal::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, var(--alert-accent) 30%, var(--alert-accent) 70%, transparent);
+}
+
+/* Close Button */
+.alert-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(127,127,127,0.12);
+  color: rgba(255, 255, 255, 0.6);
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+.alert-close:hover {
+  background: rgba(127,127,127,0.22);
+  color: #ffffff;
+  transform: rotate(90deg);
+}
+:host-context([data-theme="light"]) .alert-close {
+  color: #5f5f5c;
+}
+:host-context([data-theme="light"]) .alert-close:hover {
+  color: #181818;
+}
+
+/* Center Icon Badge */
+.alert-icon {
+  width: 76px; height: 76px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: var(--alert-accent);
+  color: var(--alert-btn-text);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 0 8px var(--alert-accent-glow);
+  animation: alertIconPop 0.5s cubic-bezier(0.22, 1.4, 0.42, 1) 0.1s both;
+}
+.alert-icon svg { width: 36px; height: 36px; }
+
+@keyframes alertIconPop {
+  from { transform: scale(0); filter: blur(4px); }
+  to   { transform: scale(1); filter: blur(0); }
+}
+
+/* Eyebrow */
+.alert-eyebrow {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--alert-accent-text);
+  margin-bottom: 8px;
+}
+
+/* Title */
+.alert-title {
+  font-family: var(--font-display, Georgia, serif);
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #ffffff;
+  margin: 0 0 8px;
+}
+:host-context([data-theme="light"]) .alert-title {
+  color: #181818;
+}
+
+/* Message Sub */
+.alert-sub {
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.65);
+  margin: 0 0 22px;
+}
+:host-context([data-theme="light"]) .alert-sub {
+  color: #5f5f5c;
+}
+
+/* Secondary Details Box */
+.alert-details {
+  font-family: monospace;
+  font-size: 12px;
+  text-align: left;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  margin: -8px 0 22px;
+  max-height: 120px;
+  overflow-y: auto;
+}
+:host-context([data-theme="light"]) .alert-details {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.05);
+  color: #5f5f5c;
+}
+
+/* Actions */
+.alert-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+/* Primary CTA Button */
+.alert-cta {
+  width: 100%;
+  padding: 13px 20px;
+  border: none;
+  border-radius: 14px;
+  background: var(--alert-accent);
+  color: var(--alert-btn-text);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+}
+.alert-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px -10px var(--alert-accent-glow);
+  filter: brightness(1.05);
+}
+.alert-cta:active {
+  transform: scale(0.98);
+}
+
+/* Secondary Button (Cancel) */
+.alert-secondary {
+  width: 100%;
+  padding: 13px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  background: transparent;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+.alert-secondary:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+.alert-secondary:active {
+  transform: scale(0.98);
+}
+
+:host-context([data-theme="light"]) .alert-secondary {
+  border-color: rgba(0, 0, 0, 0.15);
+  color: #181818;
+}
+:host-context([data-theme="light"]) .alert-secondary:hover {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .alert-overlay,
+  .alert-modal,
+  .alert-icon {
+    animation: none !important;
+  }
+}
