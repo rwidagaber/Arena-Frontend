@@ -1069,6 +1069,7 @@ export class MemberProfile implements OnInit {
     const dto: UpdateProfileDto = {
       firstName: this.editFirstName().trim(),
       lastName: this.editLastName().trim(),
+      preferredLanguage: this.i18n.currentLang(),
       phoneNumber: this.editPhone().trim() || undefined,
       weight: this.editWeight() ?? undefined,
       height: this.editHeight() ?? undefined,
@@ -1262,7 +1263,14 @@ export class MemberProfile implements OnInit {
     { value: 'ar', labelKey: 'memberProfile.dash.langArabic' },
   ];
   currentLang = computed(() => this.i18n.currentLang());
-  switchLang(lang: Lang): void { this.i18n.switchLang(lang); }
+  switchLang(lang: Lang): void {
+    this.i18n.switchLang(lang);
+    // Persist the choice to the account so it survives across sessions/devices,
+    // not just in localStorage. Fire-and-forget — the UI already switched.
+    this.memberService.updateProfile({ preferredLanguage: lang }).pipe(
+      catchError(() => of(null))
+    ).subscribe();
+  }
 
   loggingOut = signal(false);
   logout(): void {
