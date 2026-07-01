@@ -201,7 +201,7 @@ app-footer {
   justify-content: space-between;
   gap: 20px;
   padding: 32px 36px;
-  min-height: 280px;
+  min-height: 380px;
   border-radius: 16px;
   background: linear-gradient(135deg, #10131B 0%, #1a1f30 100%);
   border: 1px solid rgba(255,255,255,0.06);
@@ -276,62 +276,40 @@ app-footer {
   z-index: 3;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  /* Greeting, quote and status sit together as one cluster anchored at the top. */
+  justify-content: flex-start;
+  gap: 16px;
   max-width: 600px;
+  align-self: stretch;
+}
+.hero-compact-head {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 .hero-compact-eyebrow {
-  font-size: var(--fs-2xs, 10px);
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: #C6EF2E;
 }
 .hero-compact-title {
-  font-size: var(--fs-lg, 23px);
-  font-weight: 700;
+  font-size: clamp(30px, 3.4vw, 42px);
+  font-weight: 800;
   color: #ffffff;
   margin: 0;
-  letter-spacing: -0.015em;
-  line-height: 1.15;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
 }
 
-/* ── Adelux member avatar ring (initials + sessions badge) ── */
-.hero-avatar-ring {
-  position: relative;
-  z-index: 3;
-  flex-shrink: 0;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, rgba(198,239,46,0.20), rgba(198,239,46,0.05));
-  border: 2px solid rgba(198,239,46,0.25);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  order: 1;
-}
-.hero-avatar-inner {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #2b334a, #1a1f30);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-display);
-  font-size: 18px;
-  font-weight: 800;
-  color: #C6EF2E;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-}
 .hero-compact-quote {
-  margin: 2px 0 0;
-  font-size: 13px;
+  margin: 4px 0 0;
+  font-size: 16px;
   font-weight: 500;
-  color: rgba(255,255,255,0.7);
-  line-height: 1.4;
-  max-width: 48ch;
+  color: rgba(255,255,255,0.75);
+  line-height: 1.5;
+  max-width: 52ch;
   font-style: italic;
 }
 .hero-compact-quote::before { content: '\201C'; }
@@ -3254,11 +3232,9 @@ app-footer {
   .stats-strip .ss-card { flex: 1 1 30%; }
 
   /* Hero scaling */
-  .hero-compact { padding: 24px 28px; min-height: 170px; }
+  .hero-compact { padding: 24px 28px; min-height: 260px; }
   .hero-compact-title { font-size: 20px; }
   .hero-compact-quote { font-size: 12px; }
-  .hero-avatar-ring { width: 50px; height: 50px; }
-  .hero-avatar-inner { width: 42px; height: 42px; font-size: 15px; }
   .hero-compact-focus,
   .hero-compact-status,
   .hero-compact-since { font-size: 9px; padding: 2px 8px; backdrop-filter: none; }
@@ -3268,12 +3244,10 @@ app-footer {
 @media (max-width: 768px) {
   .dash-content { padding: 16px 16px calc(88px + env(safe-area-inset-bottom, 0px)); gap: 22px; }
   /* Hero */
-  .hero-compact { padding: 20px 22px; gap: 14px; flex-wrap: wrap; min-height: 150px; }
+  .hero-compact { padding: 20px 22px; gap: 14px; flex-wrap: wrap; min-height: 220px; }
   .hero-compact-title { font-size: 18px; }
   .hero-compact-quote { font-size: 11.5px; display: none; }
   .sec-title { font-size: 19px; }
-  .hero-avatar-ring { width: 44px; height: 44px; }
-  .hero-avatar-inner { width: 36px; height: 36px; font-size: 13px; }
   .hero-compact-focus,
   .hero-compact-status,
   .hero-compact-since { font-size: 9px; padding: 2px 8px; backdrop-filter: none; }
@@ -3312,11 +3286,9 @@ app-footer {
 
 @media (max-width: 480px) {
   .dash-content { padding: 12px 12px calc(84px + env(safe-area-inset-bottom, 0px)); gap: 18px; }
-  .hero-compact { padding: 16px 18px; gap: 10px; min-height: 130px; }
+  .hero-compact { padding: 16px 18px; gap: 10px; min-height: 200px; }
   .hero-compact-title { font-size: 16px; }
   .sec-title { font-size: 18px; }
-  .hero-avatar-ring { width: 36px; height: 36px; }
-  .hero-avatar-inner { width: 30px; height: 30px; font-size: 11px; }
   .hero-compact-eyebrow { font-size: 9px; }
   .hero-compact-focus,
   .hero-compact-status,
