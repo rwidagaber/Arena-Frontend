@@ -81,17 +81,22 @@ export class HeaderComponent implements OnInit, OnDestroy {
        this.webPush.requestPermissionAndSubscribe();
     });
 
-    // /me omits the profile image; pull it from /profile so the avatar reflects the DB.
-    this.auth.getMe().pipe(
-      catchError(() => of(null)),
-      switchMap(() => this.member.getProfile().pipe(catchError(() => of(null))))
-    ).subscribe(p => {
-      const img = p?.profileImage;
-      if (img) {
-        this.profileImage.set(img);
-        this.auth.patchCurrentUser({ profileImage: img });
-      }
-    });
+    // ✅ لا تحاول تجيب /me أو /profile إلا لو المستخدم فعليًا مسجل دخول.
+    // بدون الشرط ده، أي صفحة عامة (زي reset-password) بتاخد 401 من /me،
+    // فيتفعّل refresh token attempt يفشل هو كمان، ويعمل clearSession + navigate('/')
+    // قسريًا حتى لو المستخدم أصلاً في صفحة صحيحة ومسموح له بيها.
+    if (this.auth.isLoggedIn) {
+      this.auth.getMe().pipe(
+        catchError(() => of(null)),
+        switchMap(() => this.member.getProfile().pipe(catchError(() => of(null))))
+      ).subscribe(p => {
+        const img = p?.profileImage;
+        if (img) {
+          this.profileImage.set(img);
+          this.auth.patchCurrentUser({ profileImage: img });
+        }
+      });
+    }
   }
 
   ngOnDestroy(): void {
