@@ -18,6 +18,7 @@ import { RevealDirective } from '../progress-report/reveal.directive';
 import { Nutritionplan } from './nutritionplan/nutritionplan';
 import { ThemeService } from '../../core/services/themeservice';
 import { TranslationService, type Lang } from '../../core/services/translation.service';
+import { WebPushService } from '../../core/services/web-push.service';
 import { WorkoutComponent } from "./workoutplan/workout";
 import { WorkoutService } from '../../core/services/workout';
 import { NutritionService } from '../../core/services/nutrition';
@@ -77,6 +78,7 @@ export class MemberProfile implements OnInit {
   private bookingService = inject(BookingService);
   private workoutSvc = inject(WorkoutService);
   private nutritionSvc = inject(NutritionService);
+  private webPush = inject(WebPushService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private themeService = inject(ThemeService);
@@ -221,12 +223,10 @@ export class MemberProfile implements OnInit {
   /** True when the member has an ACTIVE subscription that includes AI features.
    *  Checks the loaded subscription list first, then the profile's active sub.
    *  Drives the AI card: unlocked (real plan) when true, locked teaser when false. */
-  // TEMP-DESIGN-REVIEW: forcing the locked AI teaser state. REVERT before commit.
-  hasAI = computed(() => false);
-  // hasAI = computed(() =>
-  //   this.userSubscriptions().some(s => s.hasAI && this.isSubActive(s)) ||
-  //   !!this.profile()?.activeSubscription?.hasAI
-  // );
+  hasAI = computed(() =>
+    this.userSubscriptions().some(s => s.hasAI && this.isSubActive(s)) ||
+    !!this.profile()?.activeSubscription?.hasAI
+  );
 
   planMonthlyCap = computed(() => {
     const level = this.planLevel();
@@ -804,6 +804,131 @@ export class MemberProfile implements OnInit {
   editTargetWeight = signal<number | null>(null);
   editBodyFat = signal<number | null>(null);
   editMuscle = signal<number | null>(null);
+  editDateOfBirth = signal('');
+
+  // ── Change Password ──
+  showChangePassword = signal(false);
+  cpCurrentPassword = signal('');
+  cpNewPassword = signal('');
+  cpConfirmPassword = signal('');
+  savingPassword = signal(false);
+  cpError = signal<string | null>(null);
+  cpSuccess = signal<string | null>(null);
+
+  cpValid = computed(() =>
+    !!this.cpCurrentPassword() && !!this.cpNewPassword() && !!this.cpConfirmPassword() &&
+    this.cpNewPassword().length >= 8
+  );
+
+  openChangePassword(): void {
+    this.cpCurrentPassword.set('');
+    this.cpNewPassword.set('');
+    this.cpConfirmPassword.set('');
+    this.cpError.set(null);
+    this.cpSuccess.set(null);
+    this.showChangePassword.set(true);
+  }
+
+  closeChangePassword(): void {
+    if (this.savingPassword()) return;
+    this.showChangePassword.set(false);
+  }
+
+  savePassword(): void {
+    if (this.savingPassword() || !this.cpValid()) return;
+    if (this.cpNewPassword() !== this.cpConfirmPassword()) {
+      this.cpError.set('auth.validation.passwordMismatch');
+      return;
+    }
+    this.savingPassword.set(true);
+    this.cpError.set(null);
+    this.cpSuccess.set(null);
+    this.auth.changePassword({
+      oldPassword: this.cpCurrentPassword(),
+      newPassword: this.cpNewPassword(),
+      confirmNewPassword: this.cpConfirmPassword(),
+    }).subscribe({
+      next: () => {
+        this.cpSuccess.set('Password changed successfully');
+        this.savingPassword.set(false);
+        this.cpCurrentPassword.set('');
+        this.cpNewPassword.set('');
+        this.cpConfirmPassword.set('');
+        setTimeout(() => this.closeChangePassword(), 2000);
+      },
+      error: (err) => {
+        this.cpError.set(err.message || 'Something went wrong');
+        this.savingPassword.set(false);
+      },
+    });
+  }
+
+  // ── Push Notifications ──
+  private readonly LS_PUSH = 'arena_push_enabled';
+
+  pushEnabled = signal(localStorage.getItem(this.LS_PUSH) !== 'false');
+
+  togglePush(event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    this.pushEnabled.set(checked);
+    localStorage.setItem(this.LS_PUSH, String(checked));
+    if (checked) {
+      this.webPush.requestPermissionAndSubscribe();
+    } else {
+      this.webPush.unsubscribe();
+    }
+  }
+
+  // ── Active Sessions ──
+  loggingOutAll = signal(false);
+
+  logoutAllSessions(): void {
+    if (this.loggingOutAll()) return;
+    this.loggingOutAll.set(true);
+    this.auth.logout().subscribe({
+      next: () => {
+        this.auth.clearSession();
+        this.router.navigate(['/']);
+      },
+      error: () => {
+        this.auth.clearSession();
+        this.router.navigate(['/']);
+      },
+    });
+  }
+
+  // ── Delete Account ──
+  showDeleteAccount = signal(false);
+  deletingAccount = signal(false);
+  daPassword = signal('');
+  daError = signal<string | null>(null);
+
+  openDeleteAccount(): void {
+    this.daPassword.set('');
+    this.daError.set(null);
+    this.showDeleteAccount.set(true);
+  }
+
+  closeDeleteAccount(): void {
+    if (this.deletingAccount()) return;
+    this.showDeleteAccount.set(false);
+  }
+
+  confirmDeleteAccount(): void {
+    if (this.deletingAccount() || !this.daPassword()) return;
+    this.deletingAccount.set(true);
+    this.daError.set(null);
+    this.auth.deleteAccount({ password: this.daPassword() }).subscribe({
+      next: () => {
+        this.auth.clearSession();
+        this.router.navigate(['/']);
+      },
+      error: (err) => {
+        this.daError.set(err.message || 'Something went wrong');
+        this.deletingAccount.set(false);
+      },
+    });
+  }
 
   // Fitness goal options (values match the backend MemberProfile.Goal)
   readonly goalOptions = [
@@ -898,6 +1023,7 @@ export class MemberProfile implements OnInit {
     this.editTargetWeight.set(p.targetWeight ?? null);
     this.editBodyFat.set(this.currentBodyFat());
     this.editMuscle.set(this.currentMuscleMass());
+    this.editDateOfBirth.set(p.birthday || '');
     this.editError.set(null);
     this.isEditing.set(true);
     // Move focus into the dialog once it renders (a11y: focus management).
@@ -948,6 +1074,7 @@ export class MemberProfile implements OnInit {
       height: this.editHeight() ?? undefined,
       gender: this.editGender() || undefined,
       profileImage: this.editImage() ?? undefined,
+      birthday: this.editDateOfBirth() || undefined,
       goal: this.editGoal() || undefined,
       targetWeight: this.editTargetWeight() ?? undefined,
     };
@@ -1106,6 +1233,8 @@ export class MemberProfile implements OnInit {
   onEscape(): void {
     if (this.achievementUnlock()) { this.closeAchievement(); return; }
     if (this.showCelebration()) { this.closeCelebration(); return; }
+    if (this.showChangePassword()) { this.closeChangePassword(); return; }
+    if (this.showDeleteAccount()) { this.closeDeleteAccount(); return; }
     if (this.isEditing()) { this.closeEdit(); return; }
   }
 
