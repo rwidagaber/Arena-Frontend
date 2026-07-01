@@ -35,7 +35,7 @@
 
       <button
         type="button"
-        class="theme-toggle-btn"
+        class="theme-toggle-btn d-none d-lg-flex"
         (click)="toggleTheme()"
         [attr.aria-label]="themeService.isDark ? 'Switch to light mode' : 'Switch to dark mode'"
       >
@@ -59,7 +59,7 @@
     <app-notification-bell></app-notification-bell>
   </ng-container>
   <app-notification-toast></app-notification-toast>
-      <button type="button" class="btn-lang-exact font-display text-decoration-none" (click)="toggleLang()">
+      <button type="button" class="btn-lang-exact font-display text-decoration-none d-none d-lg-inline-block" (click)="toggleLang()">
         {{ currentLang === 'en' ? 'AR' : 'EN' }}
       </button>
 
@@ -202,11 +202,11 @@
       </button>
     </ng-container>
 
-    <!-- Theme + language preferences (on mobile, moved into the hamburger menu) -->
+    <!-- Theme + language preferences (moved here from the top bar on small screens) -->
     <div class="mobile-menu-gap"></div>
-    <button type="button" class="mobile-link" (click)="toggleTheme(); closeMobileMenu()"
-            [attr.aria-label]="themeService.isDark ? 'Switch to light mode' : 'Switch to light mode'">
-      <span class="d-flex align-items-center gap-2">
+    <button type="button" class="mobile-link mobile-pref-row" (click)="toggleTheme()"
+            [attr.aria-label]="themeService.isDark ? 'Switch to light mode' : 'Switch to dark mode'">
+      <span class="mobile-pref-label">
         <svg *ngIf="themeService.isDark" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
         </svg>
@@ -221,8 +221,8 @@
       </span>
       <span class="mobile-pref-value">{{ (themeService.isDark ? 'header.darkMode' : 'header.lightMode') | translate }}</span>
     </button>
-    <button type="button" class="mobile-link" (click)="toggleLang(); closeMobileMenu()">
-      <span class="d-flex align-items-center gap-2">
+    <button type="button" class="mobile-link mobile-pref-row" (click)="toggleLang()">
+      <span class="mobile-pref-label">
         <i class="bi bi-translate"></i>
         {{ 'header.language' | translate }}
       </span>
@@ -249,7 +249,7 @@
   </nav>
 
   <!-- Reading / scroll progress indicator -->
-  <div class="reading-progress" [style.width.%]="scrollProgress" aria-hidden="true"></div>
+  <div class="scroll-progress" [style.width.%]="scrollProgress" aria-hidden="true"></div>
 </header>
 
 @if (cropSrc(); as src) {

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, HostListener, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, HostListener, signal, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription, switchMap, catchError, of } from 'rxjs';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
@@ -30,17 +30,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
   readonly themeService = inject(ThemeService);
 
   protected readonly uploadingAvatar = signal(false);
+
   protected isSticky = false;
   protected scrollProgress = 0;
 
   @HostListener('window:scroll', [])
   onWindowScroll(): void {
     this.isSticky = window.scrollY > 80;
+    // Reading progress indicator (additive — does not affect sticky logic)
     const doc = document.documentElement;
     const max = doc.scrollHeight - doc.clientHeight;
     this.scrollProgress = max > 0 ? Math.min(100, (window.scrollY / max) * 100) : 0;
   }
 
+  /* ── Mobile navigation menu ──────────────────────────────────── */
   protected mobileOpen = false;
 
   toggleMobileMenu(): void {
@@ -52,26 +55,33 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   private userSub?: Subscription;
+  protected readonly displayName = signal('');
   protected readonly profileImage = signal<string | null>(null);
 
+  /** Full name for the account dropdown, with a graceful fallback. */
   protected memberName(u: { firstName?: string | null; lastName?: string | null } | null): string {
     return [u?.firstName, u?.lastName].filter(Boolean).join(' ').trim() || 'Member';
   }
 
   protected dropdownOpen = false;
+   @Input() activeTab: string = 'home';
 
   protected readonly currentUser$ = this.auth.currentUser$;
   protected readonly isSubscribed = signal(false);
 
+
   ngOnInit(): void {
     this.userSub = this.auth.currentUser$.subscribe(u => {
+      this.displayName.set(u?.firstName ?? '');
       this.isSubscribed.set(u?.isSubscribed ?? false);
       if (!u) { this.profileImage.set(null); return; }
+      // Only set when present so a /me payload without the image doesn't clobber it.
       const img = u.profileImage ?? u.profileImageUrl ?? null;
       if (img) this.profileImage.set(img);
-      this.webPush.requestPermissionAndSubscribe();
+       this.webPush.requestPermissionAndSubscribe();
     });
 
+    // /me omits the profile image; pull it from /profile so the avatar reflects the DB.
     this.auth.getMe().pipe(
       catchError(() => of(null)),
       switchMap(() => this.member.getProfile().pipe(catchError(() => of(null))))
@@ -127,7 +137,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   logout(event: Event): void {
     event.stopPropagation();
     this.dropdownOpen = false;
-    this.webPush.unsubscribe();
+       this.webPush.unsubscribe();
     this.auth.logout().subscribe({
       next: () => this.router.navigate(['/']),
       error: () => this.router.navigate(['/']),
@@ -135,10 +145,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   toggleTheme(): void {
-    const isDark = this.themeService.isDark;
-    this.themeService.setTheme(isDark ? 'light' : 'dark');
-  }
+  const isDark = this.themeService.isDark;
+  this.themeService.setTheme(isDark ? 'light' : 'dark');
+}
 
+  /* ── Profile image upload (from the header avatar) ──────────────── */
+  /** Source image being cropped; non-null opens the shared cropper modal. */
   protected readonly cropSrc = signal<string | null>(null);
 
   onAvatarSelected(event: Event): void {
@@ -146,12 +158,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
     const file = input.files?.[0];
     input.value = '';
     if (!file || !file.type.startsWith('image/')) return;
-    if (file.size > 8 * 1024 * 1024) return;
+    if (file.size > 8 * 1024 * 1024) return; // 8 MB before cropping
     const reader = new FileReader();
     reader.onload = () => this.cropSrc.set(reader.result as string);
     reader.readAsDataURL(file);
   }
 
+  /** Cropper produced a square image → optimistic update + persist. */
   protected onAvatarCropped(dataUrl: string): void {
     this.cropSrc.set(null);
     this.profileImage.set(dataUrl);
@@ -163,6 +176,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.cropSrc.set(null);
   }
 
+  /** Re-send the existing profile with the new image so no other field is lost. */
   private persistAvatar(dataUrl: string): void {
     this.uploadingAvatar.set(true);
     this.member.getProfile().pipe(
@@ -180,8 +194,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: (saved) => {
         this.uploadingAvatar.set(false);
+        // Use the value the server saved; fall back to the uploaded data URL.
         const img = saved?.profileImage ?? dataUrl;
         this.profileImage.set(img);
+        // Patch the cached user so the dropdown header avatar updates too
+        // (/me does not always echo profileImage back).
         this.auth.patchCurrentUser({ profileImage: img });
       },
       error: (err) => {
