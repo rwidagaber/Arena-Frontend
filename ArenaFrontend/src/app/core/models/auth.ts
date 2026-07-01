@@ -36,7 +36,7 @@ export interface RefreshTokenDto {
 }
 
 export interface ChangePasswordDto {
-  currentPassword: string;
+  oldPassword: string;
   newPassword: string;
   confirmNewPassword: string;
 }

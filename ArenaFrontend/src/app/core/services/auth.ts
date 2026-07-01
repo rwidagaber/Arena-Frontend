@@ -188,6 +188,18 @@ export class AuthService {
     );
   }
 
+  changePassword(dto: ChangePasswordDto): Observable<void> {
+    return this.http.patch<void>(`${BASE}/change-password`, dto).pipe(
+      catchError(this._handleError)
+    );
+  }
+
+  deleteAccount(dto: { password: string }): Observable<void> {
+    return this.http.post<void>(`${BASE}/delete-account`, dto).pipe(
+      tap(() => this._clear()),
+      catchError(this._handleError)
+    );
+  }
 
   // ───────────────────────── Helpers ─────────────────────────
 

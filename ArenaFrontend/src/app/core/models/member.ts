@@ -41,6 +41,7 @@ export interface UpdateProfileDto {
   height?: number;
   gender?: string;
   profileImage?: string;
+  birthday?: string;
   goal?: string;
   targetWeight?: number;
 }
