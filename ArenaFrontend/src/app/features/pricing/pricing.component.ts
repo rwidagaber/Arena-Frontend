@@ -96,7 +96,7 @@ export class PricingComponent implements OnInit {
       },
       error: (err) => {
         this.loadingPlanId = null;
-        const errMsg = err.error?.message || err.message || this.translate.instant('PRICING.ERROR_UNKNOWN');
+        const errMsg = err.message || err.error?.message || this.translate.instant('PRICING.ERROR_UNKNOWN');
         
         // Show premium custom alert popup instead of browser alert
         this.notificationService.showAlert({
