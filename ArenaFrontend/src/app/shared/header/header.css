@@ -1,25 +1,27 @@
 @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css');
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&display=swap');
 
-/* ==========================================================================
-   CSS Variables — Dark / Light Theme
-   ========================================================================== */
 :host {
   --header-bg:        #0c0f17;
   --header-border:    rgba(255, 255, 255, 0.05);
   --header-glow:      rgba(198, 239, 46, 0.12);
   --nav-text:         #ffffff;
   --nav-text-muted:   #94a3b8;
-  --dropdown-bg:      #1a1f2e;
-  --dropdown-border:  rgba(255, 255, 255, 0.08);
-  --dropdown-hover:   rgba(255, 255, 255, 0.06);
-  --dropdown-text:    #e2e8f0;
-  --dropdown-divider: rgba(255, 255, 255, 0.06);
   --toggle-bg:        rgba(255, 255, 255, 0.06);
   --toggle-border:    rgba(255, 255, 255, 0.12);
-  --toggle-color:     #ffffff; /* لون الهلال */
-  --accent-text:      #C6EF2E; /* readable accent for hover/active text (dark) */
-  --header-pattern:   rgba(255, 255, 255, 0.015); /* subtle triangle texture (dark) */
+  --toggle-color:     #ffffff;
+  --accent-text:      #C6EF2E;
+  --header-pattern:   rgba(255, 255, 255, 0.015);
+  --dropdown-bg:      rgba(20, 21, 23, 0.96);
+  --dropdown-border:  rgba(198, 239, 46, 0.14);
+  --dropdown-hover:   rgba(198, 239, 46, 0.1);
+  --dropdown-text:    #b3b3b3;
+  --dropdown-divider: rgba(255, 255, 255, 0.08);
+  --dropdown-shadow:  0 14px 34px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(198, 239, 46, 0.05);
+  --sticky-bg:        #0c0f17;
+  --sticky-shadow:    0 6px 34px rgba(0, 0, 0, 0.22);
+  --hairline-gradient: linear-gradient(90deg, transparent, #C6EF2E 28%, #d8ff5e 50%, #C6EF2E 72%, transparent);
+  --hairline-opacity: 0.55;
 }
 
 :host-context([data-theme="light"]) {
@@ -28,28 +30,25 @@
   --header-glow:      rgba(198, 239, 46, 0.08);
   --nav-text:         #0c0f17;
   --nav-text-muted:   #64748b;
-  --dropdown-bg:      #ffffff;
-  --dropdown-border:  rgba(0, 0, 0, 0.08);
-  --dropdown-hover:   rgba(0, 0, 0, 0.04);
-  --dropdown-text:    #0c0f17;
-  --dropdown-divider: rgba(0, 0, 0, 0.06);
   --toggle-bg:        rgba(0, 0, 0, 0.06);
   --toggle-border:    rgba(0, 0, 0, 0.12);
-  --toggle-color:     #f8e807; /* لون الشمس */
-  --accent-text:      #3f6307; /* darker green stays readable on light bg */
-  --header-pattern:   transparent; /* no triangle texture on the light header — keep it clean */
+  --toggle-color:     #f8e807;
+  --accent-text:      #3f6307;
+  --header-pattern:   transparent;
+  --dropdown-bg:      rgba(255, 255, 255, 0.98);
+  --dropdown-border:  rgba(0, 0, 0, 0.08);
+  --dropdown-hover:   rgba(198, 239, 46, 0.14);
+  --dropdown-text:    #4a4a4a;
+  --dropdown-divider: rgba(0, 0, 0, 0.06);
+  --dropdown-shadow:  0 12px 30px rgba(0, 0, 0, 0.12);
+  --sticky-bg:        #ffffff;
+  --sticky-shadow:    0 6px 30px rgba(12, 15, 23, 0.08);
+  --hairline-gradient: linear-gradient(90deg, transparent, rgba(12, 15, 23, 0.16) 50%, transparent);
+  --hairline-opacity: 1;
 }
 
-/* ==========================================================================
-   Base
-   ========================================================================== */
 :host {
   display: block;
-  /* The host is sticky (not the inner <header>): it's a sibling of the routed
-     page content in app-root, so it reserves its height in normal flow AND pins
-     to the top across the whole page scroll. Putting sticky on the inner header
-     instead fails — its containing block is this short host, so it has no room
-     to travel and scrolls away immediately. */
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -59,11 +58,10 @@
   transition: background-color 0.3s ease;
 }
 
-.font-display { font-family: 'Plus Jakarta Sans', sans-serif; }
+.font-display {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
 
-/* ==========================================================================
-   Header
-   ========================================================================== */
 .gympro-header-exact {
   background-color: var(--header-bg);
   background-image:
@@ -74,39 +72,19 @@
   background-position: 20px 0, 20px 0, 0 0, 0 0;
   background-size: 40px 40px;
   background-repeat: repeat;
-  /* In normal flow inside the sticky host (see :host above). Relative so the
-     decorative ::before/::after layers and the scroll-progress bar anchor to it. */
   position: relative;
   width: 100%;
   z-index: 999;
   border-bottom: 1px solid var(--header-border);
-  transition: background-color 0.3s ease, border-color 0.3s ease, padding 0.3s ease;
+  will-change: transform;
+  transition: background-color 0.4s ease, box-shadow 0.4s ease, border-color 0.3s ease;
 }
 
 .gympro-header-exact.is-sticky {
-  /* Already pinned via position: sticky — this class only condenses the bar and
-     adds the frosted-glass treatment once the page is scrolled. */
-  background-color: rgba(12, 15, 23, 0.95) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
+  background-color: var(--sticky-bg) !important;
+  background-image: none !important;
+  box-shadow: var(--sticky-shadow);
   border-bottom: 1px solid var(--header-border);
-  padding-top: 10px !important;
-  padding-bottom: 10px !important;
-}
-
-:host-context([data-theme="light"]) .gympro-header-exact.is-sticky {
-  background-color: rgba(255, 255, 255, 0.95) !important;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
-}
-
-@keyframes headerSlideDown {
-  from {
-    transform: translateY(-100%);
-  }
-  to {
-    transform: translateY(0);
-  }
 }
 
 .gympro-header-exact::before {
@@ -118,97 +96,131 @@
   z-index: 1;
 }
 
+.gympro-header-exact::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 1px;
+  background: var(--hairline-gradient);
+  opacity: var(--hairline-opacity);
+  z-index: 2;
+  pointer-events: none;
+  transition: opacity 0.35s ease, filter 0.35s ease;
+}
+
+.gympro-header-exact.is-sticky::after {
+  opacity: 0.95;
+  filter: drop-shadow(0 0 14px rgba(198, 239, 46, 0.7));
+}
+
+:host-context([data-theme="light"]) .gympro-header-exact.is-sticky::after {
+  filter: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .gympro-header-exact::after {
+    animation: hairline-breathe 4.5s ease-in-out infinite;
+  }
+}
+
+@keyframes hairline-breathe {
+  0%, 100% { opacity: 0.42; filter: drop-shadow(0 0 4px rgba(198, 239, 46, 0.35)); }
+  50%      { opacity: 0.75; filter: drop-shadow(0 0 10px rgba(198, 239, 46, 0.65)); }
+}
+
+:host-context([data-theme="light"]) .gympro-header-exact::after {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(12, 15, 23, 0.16) 50%, transparent);
+  opacity: 1;
+  filter: none;
+  animation: none;
+}
+
+:host-context([data-theme="light"]) .gympro-header-exact {
+  box-shadow: 0 1px 0 rgba(12, 15, 23, 0.04), 0 8px 22px rgba(12, 15, 23, 0.05);
+}
+
 .max-header-width {
   max-width: 1320px;
   position: relative;
-  /* Above the scroll-progress indicator (z-index: 3) so the user dropdown,
-     which lives inside this content layer, can sit over it. The indicator is
-     at the header's bottom edge and never overlaps the bar content, so this is
-     visually safe — and the scroll indicator itself is left untouched. */
   z-index: 4;
 }
 
-/* ==========================================================================
-   Brand
-   ========================================================================== */
-.brand-v3-exact { gap: 0.95rem !important; }
+.brand-v3-exact {
+  gap: 0.95rem;
+  cursor: pointer;
+  position: relative;
+}
 
-.logo-circle-exact {
-  width: 48px; height: 48px;
+.brand-v3-exact:hover .brand-logo-img {
+  transform: scale(1.03);
+}
+
+.brand-v3-exact::before {
+  content: '';
+  position: absolute;
+  inset: -6px -10px;
+  z-index: -1;
   border-radius: 50%;
-  background-color: #C6EF2E;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 0 20px rgba(198, 239, 46, 0.15);
-  flex-shrink: 0;
+  background: radial-gradient(circle at 32% 50%, rgba(198, 239, 46, 0.22), transparent 65%);
+  opacity: 0.2;
+  pointer-events: none;
 }
 
-.logo-circle-exact svg { display: block; width: 28px; height: 28px; overflow: visible; }
-
-.brand-text-exact {
-  font-size: 1.6rem; font-weight: 800;
-  color: var(--nav-text);
-  letter-spacing: -0.02em;
-  transition: color 0.3s ease;
+:host-context([data-theme="light"]) .brand-v3-exact::before {
+  display: none;
 }
 
-/* Brand logo image (replaces the old SVG mark + wordmark) */
-/* Circular "coin" badge behind the logo — dark fill + lime ring, so the neon
-   logo reads strongly on both the dark and light header. The negative margin
-   lets the coin be large without growing the header bar. */
-/* Logo sits directly in the header, coloured to match the theme so it blends in
-   rather than sitting on a badge: neon mark on the dark header, navy mark on the
-   light header. Negative margin keeps the bar height unchanged. */
+@media (prefers-reduced-motion: no-preference) {
+  .brand-v3-exact::before {
+    animation: brand-pulse 4.5s ease-in-out infinite;
+  }
+}
+
+@keyframes brand-pulse {
+  0%, 100% { opacity: 0.16; transform: scale(0.95); }
+  50%      { opacity: 0.5;  transform: scale(1.05); }
+}
+
 .brand-logo-img {
-  height: 96px;
+  height: 76px;
   width: auto;
   display: block;
   flex-shrink: 0;
-  margin-block: -12px;
-  transition: transform 0.3s ease, height 0.35s cubic-bezier(0.16, 1, 0.3, 1), margin-block 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-block: -10px;
+  transition: transform 0.3s ease;
 }
-
-/* Premium sticky shrink — the logo eases smaller as the bar condenses. */
-.gympro-header-exact.is-sticky .brand-logo-img { height: 76px; margin-block: -8px; }
-:host-context([data-theme="light"]) .gympro-header-exact.is-sticky .brand-logo-img.logo-theme-light {
-  height: 82px; margin-block: -10px;
-}
-.brand-v3-exact { cursor: pointer; }
-.brand-v3-exact:hover .brand-logo-img { transform: scale(1.03); }
 
 .brand-logo-img.logo-theme-light { display: none; }
 :host-context([data-theme="light"]) .brand-logo-img.logo-theme-dark { display: none; }
-/* Light header: make the navy mark stand out — a touch larger than the dark
-   mark, lifted with a stronger shape-following shadow, and haloed by a soft
-   brand-green glow. Margin compensates so the header bar height is unchanged. */
+
 :host-context([data-theme="light"]) .brand-logo-img.logo-theme-light {
   display: block;
-  height: 104px;
-  margin-block: -16px;
+  height: 84px;
+  margin-block: -12px;
   filter: drop-shadow(0 4px 10px rgba(12, 15, 23, 0.25));
 }
 
-.dot-lime { color: #C6EF2E; }
-
-/* ==========================================================================
-   Nav
-   ========================================================================== */
 .nav-links-exact { gap: 0.4rem; }
 
 .nav-item-exact {
   color: var(--nav-text);
-  font-weight: 700; font-size: 0.95rem;
+  font-weight: 700;
+  font-size: 0.85rem;
   text-decoration: none;
-  padding: 0.5rem 0.95rem;
+  padding: 0.4rem 0.85rem;
   border-radius: 50px;
   transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-  background: transparent; border: none;
+  background: transparent;
+  border: none;
+  position: relative;
 }
 
-/* Soft lime pill on hover / active. */
 .nav-item-exact:hover {
   color: var(--accent-text);
   background: color-mix(in srgb, #C6EF2E 9%, transparent);
 }
+
 .text-lime-active,
 .nav-item-exact.text-lime-active {
   color: var(--accent-text) !important;
@@ -217,19 +229,33 @@
               0 0 16px rgba(198, 239, 46, 0.22);
 }
 
-/* ==========================================================================
-   Theme Toggle — زر بسيط بـ SVG
-   ========================================================================== */
+:host-context([data-theme="light"]) .nav-item-exact:hover {
+  background: rgba(12, 15, 23, 0.05);
+  color: var(--nav-text);
+  box-shadow: none;
+}
+
+:host-context([data-theme="light"]) .text-lime-active,
+:host-context([data-theme="light"]) .nav-item-exact.text-lime-active {
+  background: rgba(12, 15, 23, 0.07);
+  color: var(--nav-text) !important;
+  box-shadow: inset 0 0 0 1px rgba(12, 15, 23, 0.12);
+}
+
 .theme-toggle-btn {
-  width: 40px; height: 40px;
+  width: 36px; height: 36px;
   border-radius: 50%;
   background: var(--toggle-bg);
   border: 1px solid var(--toggle-border);
-  display: flex; align-items: center; justify-content: center;
+  align-items: center; justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
   padding: 0;
   color: var(--toggle-color);
+}
+
+@media (min-width: 992px) {
+  .theme-toggle-btn { display: inline-flex; }
 }
 
 .theme-toggle-btn:hover {
@@ -244,9 +270,6 @@
   transition: all 0.3s ease;
 }
 
-/* ==========================================================================
-   Buttons
-   ========================================================================== */
 .btn-lang-exact {
   color: var(--nav-text-muted);
   font-weight: 700; font-size: 0.8rem;
@@ -258,6 +281,10 @@
   letter-spacing: 0.02em;
 }
 
+@media (min-width: 992px) {
+  .btn-lang-exact { display: inline-block; }
+}
+
 .btn-lang-exact:hover {
   background: rgba(198, 239, 46, 0.12);
   border-color: #C6EF2E; color: var(--accent-text);
@@ -265,7 +292,7 @@
 
 .btn-login-exact {
   color: var(--nav-text);
-  font-weight: 700; font-size: 0.95rem;
+  font-weight: 700; font-size: 0.85rem;
   transition: color 0.2s ease; cursor: pointer;
 }
 
@@ -273,15 +300,14 @@
 
 .btn-signup-exact {
   background-color: #C6EF2E; color: #0c0f17;
-  font-weight: 800; font-size: 0.95rem;
-  padding: 0.75rem 1.6rem; border-radius: 50px; border: none;
+  font-weight: 800; font-size: 0.85rem;
+  padding: 0.6rem 1.4rem; border-radius: 50px; border: none;
   transition: all 0.2s ease-in-out;
   box-shadow: 0 4px 20px rgba(198, 239, 46, 0.15);
   position: relative;
   overflow: hidden;
 }
 
-/* premium gloss sweep */
 .btn-signup-exact::before {
   content: '';
   position: absolute;
@@ -306,18 +332,19 @@
 
 .btn-signup-exact i { font-size: 0.85rem; -webkit-text-stroke: 0.8px; }
 
-/* ==========================================================================
-   User Dropdown
-   ========================================================================== */
 .user-dropdown-container { position: relative; }
 
 .user-trigger-wrapper {
-  cursor: pointer; display: flex; align-items: center; gap: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  user-select: none;
 }
 
 .user-avatar-circle {
   position: relative;
-  width: 44px; height: 44px; border-radius: 50%;
+  width: 38px; height: 38px; border-radius: 50%;
   background: var(--toggle-bg);
   border: 2px solid #C6EF2E;
   display: flex; align-items: center; justify-content: center;
@@ -341,15 +368,15 @@
 .user-avatar-initials {
   color: #C6EF2E;
   font-weight: 800;
-  font-size: 1.05rem;
+  font-size: 0.9rem;
   text-transform: uppercase;
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .user-avatar-edit {
   position: absolute;
-  bottom: -3px; inset-inline-end: -3px;
-  width: 19px; height: 19px;
+  bottom: -2px; inset-inline-end: -2px;
+  width: 17px; height: 17px;
   border-radius: 50%;
   background: #C6EF2E;
   color: #0c0f17;
@@ -363,71 +390,51 @@
 
 .avatar-file-input { display: none; }
 
-.user-dropdown-menu {
-  position: absolute; top: calc(100% + 8px); right: 0;
-  min-width: 220px;
-  background: var(--dropdown-bg);
-  border: 1px solid var(--dropdown-border);
-  border-radius: 12px; padding: 8px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-  transition: background 0.3s ease;
+.nav-chevron {
+  color: var(--nav-text-muted);
+  transition: transform 0.2s ease;
 }
 
-.dropdown-subscription-pill {
-  display: flex; align-items: center; justify-content: center;
-  padding: 10px 16px; margin-bottom: 4px; border-radius: 8px;
-  background: rgba(234, 179, 8, 0.15); color: #eab308;
-  font-weight: 700; font-size: 0.85rem;
-  cursor: pointer; transition: background 0.2s ease; text-align: center;
-}
-
-.dropdown-subscription-pill:hover { background: rgba(234, 179, 8, 0.25); }
-
-.dropdown-divider { height: 1px; background: var(--dropdown-divider); margin: 4px 0; }
-
-.dropdown-item {
-  display: block; width: 100%; padding: 10px 16px;
-  border: none; border-radius: 8px; background: transparent;
-  color: var(--dropdown-text);
-  font-size: 0.9rem; font-weight: 500;
-  cursor: pointer; text-align: left; transition: background 0.15s ease;
-}
-
-.dropdown-item:hover:not(:disabled) { background: var(--dropdown-hover); }
-
-.dropdown-item.disabled,
-.dropdown-item:disabled { color: #475569; cursor: not-allowed; }
-
-.dropdown-logout { color: #f87171; }
-
-.dropdown-logout:hover:not(:disabled) {
-  background: rgba(248, 113, 113, 0.1) !important;
-  color: #f87171 !important;
-}
-
-.user-name-pill {
-  display: inline-flex; align-items: center;
-  padding: 9px 20px; border-radius: 100px;
-  background: linear-gradient(135deg, #C6EF2E, #aed81f);
-  color: #0c0f17;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 15px; font-weight: 800;
-  white-space: nowrap; line-height: 1; letter-spacing: -0.01em;
-  box-shadow: 0 2px 12px rgba(198, 239, 46, 0.25);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.user-name-pill:hover {
-  transform: scale(1.03);
-  box-shadow: 0 4px 20px rgba(198, 239, 46, 0.35);
-}
-
-.nav-chevron { color: var(--nav-text-muted); transition: transform 0.2s ease; }
 .nav-chevron.rotated { transform: rotate(180deg); }
 
+.user-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 12px);
+  width: 250px;
+  padding: 12px;
+  z-index: 1100;
+  box-sizing: border-box;
+  border-radius: 14px;
+  background-color: var(--dropdown-bg);
+  border: 1px solid var(--dropdown-border);
+  box-shadow: var(--dropdown-shadow);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 0.2s ease-in-out;
+}
+
+.dropdown-menu-ltr { right: 0; left: auto; }
+.dropdown-menu-rtl { left: 0; right: auto; }
+
+.user-dropdown-menu[dir="ltr"] .dropdown-item,
+.user-dropdown-menu[dir="ltr"] .dropdown-header-text {
+  text-align: left;
+}
+
+.user-dropdown-menu[dir="rtl"] .dropdown-item,
+.user-dropdown-menu[dir="rtl"] .dropdown-header-text {
+  text-align: right;
+}
+
 .dropdown-header-info {
-  display: flex; align-items: center; gap: 12px; padding: 8px 12px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 8px 10px 8px;
+}
+
+.user-dropdown-menu[dir="rtl"] .dropdown-header-info {
+  flex-direction: row;
 }
 
 .dropdown-header-avatar {
@@ -443,124 +450,63 @@
   color: #0c0f17; font-weight: 800; font-size: 1rem; text-transform: uppercase;
 }
 
-.dropdown-header-text { display: flex; flex-direction: column; line-height: 1.3; }
-
-.dropdown-header-name { color: var(--dropdown-text); font-weight: 700; font-size: 0.95rem; }
-
-.dropdown-header-plan { color: var(--nav-text-muted); font-size: 0.8rem; font-weight: 600; }
-
-/* Container وتثبيت المؤشر */
-.user-dropdown-container {
-  position: relative;
-}
-.user-trigger-wrapper {
-  cursor: pointer;
+.dropdown-header-text {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  user-select: none;
+  flex-direction: column;
+  line-height: 1.3;
 }
 
-/* الهيكل الأساسي للـ Dropdown */
-.user-dropdown-menu {
-  position: absolute;
-  top: calc(100% + 12px);
-  width: 250px;
-  padding: 12px !important;
-  z-index: 1100 !important;
+.dropdown-header-name {
+  color: var(--dropdown-text);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.dropdown-header-plan {
+  color: var(--accent-text);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: var(--dropdown-divider);
+  margin: 6px 0;
+  width: 100%;
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 9px 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--dropdown-text);
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease;
   box-sizing: border-box;
-  border-radius: 14px !important;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  transition: all 0.2s ease-in-out;
 }
 
-/* 🌓 تنسيق الألوان للوضع الداكن (الافتراضي) */
-.user-dropdown-menu {
-  background-color: rgba(20, 21, 23, 0.96) !important;
-  border: 1px solid rgba(198, 239, 46, 0.14) !important;
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(198, 239, 46, 0.05) !important;
-}
-.user-dropdown-menu .dropdown-header-name { color: #ffffff !important; }
-.user-dropdown-menu .dropdown-item { color: #b3b3b3 !important; }
-.user-dropdown-menu .dropdown-item:not(.dropdown-logout):hover:not(:disabled) {
-  background-color: rgba(198, 239, 46, 0.1) !important;
-  color: #C6EF2E !important;
-}
-.user-dropdown-menu .dropdown-divider { background-color: rgba(255, 255, 255, 0.08) !important; }
-
-/* 🌓 تنسيق الألوان لوضع الـ Light Mode التلقائي */
-:host-context([data-theme="light"]) .user-dropdown-menu {
-  background-color: rgba(255, 255, 255, 0.98) !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12) !important;
-}
-:host-context([data-theme="light"]) .user-dropdown-menu .dropdown-header-name { color: #141517 !important; }
-:host-context([data-theme="light"]) .user-dropdown-menu .dropdown-item { color: #4a4a4a !important; }
-:host-context([data-theme="light"]) .user-dropdown-menu .dropdown-item:not(.dropdown-logout):hover:not(:disabled) {
-  background-color: rgba(198, 239, 46, 0.14) !important;
-  color: #3f6307 !important;
-}
-:host-context([data-theme="light"]) .user-dropdown-menu .dropdown-divider { background-color: rgba(0, 0, 0, 0.06) !important; }
-
-/* 📍 التحكم في التموضع الأفقي والمحاذاة للجانبين */
-
-/* في حالة الإنجليزي (LTR): تفتح محاذية لليمين وتتجه يساراً */
-.dropdown-menu-ltr {
-  right: 0;
-  left: auto;
+.dropdown-item:hover:not(:disabled) {
+  background: var(--dropdown-hover);
+  color: var(--accent-text);
 }
 
-/* في حالة العربي (RTL): تلتصق تماماً بأقصى اليسار وتفتح لليمين داخل حدود الصفحة */
-.dropdown-menu-rtl {
-  left: 0 !important;
-  right: auto !important;
+.dropdown-item.disabled,
+.dropdown-item:disabled { color: #475569; cursor: not-allowed; }
+
+.dropdown-logout { color: #ef4444; }
+
+.dropdown-logout:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.1) !important;
+  color: #ef4444;
 }
 
-/* اتجاهات النصوص الداخلية للغات */
-.user-dropdown-menu[dir="ltr"] .dropdown-item,
-.user-dropdown-menu[dir="ltr"] .dropdown-header-text {
-  text-align: left !important;
-}
-.user-dropdown-menu[dir="rtl"] .dropdown-item,
-.user-dropdown-menu[dir="rtl"] .dropdown-header-text {
-  text-align: right !important;
-}
-
-/* باقي التنسيقات الداخلية للفصل وحواف الأزرار */
-.dropdown-header-info { display: flex !important; align-items: center !important; gap: 12px !important; padding: 6px 8px 10px 8px !important; }
-.user-dropdown-menu[dir="rtl"] .dropdown-header-info { flex-direction: row !important; }
-  .dropdown-header-text { display: flex !important; flex-direction: column !important; }
-.dropdown-header-plan { color: var(--accent-text) !important; font-size: 12px !important; font-weight: 600 !important; }
-.dropdown-subscription-pill { background: rgba(77, 163, 82, 0.15) !important; color: #4DA352 !important; text-align: center !important; padding: 8px !important; border-radius: 8px !important; font-size: 13px !important; font-weight: 600 !important; cursor: pointer; margin: 4px 0 8px 0 !important; }
-.dropdown-divider { height: 1px; margin: 6px 0 !important; width: 100%; }
-.dropdown-item { width: 100% !important; background: transparent !important; border: none !important; padding: 9px 12px !important; font-size: 13.5px !important; font-weight: 500 !important; border-radius: 8px !important; cursor: pointer; display: block !important; box-sizing: border-box !important; }
-.dropdown-logout { color: #ef4444 !important; }
-.dropdown-logout:hover { background-color: rgba(239, 68, 68, 0.1) !important; }
-
-/* تأثير دوران السهم اللطيف */
-.nav-chevron { transition: transform 0.2s ease; }
-.nav-chevron.rotated { transform: rotate(180deg); }
-
-/* ==========================================================================
-   ENHANCEMENTS (additive) — brand polish, animated nav underline,
-   scroll progress, mobile menu
-   ========================================================================== */
-
-/* Brand logo hover polish */
-.logo-circle-exact {
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
-}
-.brand-v3-exact { cursor: default; }
-.brand-v3-exact:hover .logo-circle-exact {
-  transform: rotate(8deg) scale(1.06);
-  box-shadow: 0 0 30px rgba(198, 239, 46, 0.4);
-}
-
-.nav-item-exact { position: relative; }
-
-/* Reading / scroll progress bar */
-.scroll-progress {
+.reading-progress {
   position: absolute;
   bottom: 0;
   inset-inline-start: 0;
@@ -574,10 +520,8 @@
   pointer-events: none;
 }
 
-/* Hamburger toggle (mobile only) */
 .mobile-toggle {
-  width: 42px;
-  height: 42px;
+  width: 42px; height: 42px;
   border-radius: 12px;
   background: var(--toggle-bg);
   border: 1px solid var(--toggle-border);
@@ -590,10 +534,12 @@
   cursor: pointer;
   transition: all 0.2s ease;
 }
+
 .mobile-toggle:hover {
   border-color: #C6EF2E;
   background: rgba(198, 239, 46, 0.1);
 }
+
 .mobile-toggle-bar {
   width: 18px;
   height: 2px;
@@ -601,11 +547,11 @@
   background: var(--nav-text);
   transition: transform 0.3s ease, opacity 0.2s ease, background 0.3s ease;
 }
+
 .mobile-toggle.is-active .mobile-toggle-bar:nth-child(1) { transform: translateY(6px) rotate(45deg); }
 .mobile-toggle.is-active .mobile-toggle-bar:nth-child(2) { opacity: 0; }
 .mobile-toggle.is-active .mobile-toggle-bar:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
 
-/* Mobile menu panel */
 .mobile-menu {
   display: flex;
   flex-direction: column;
@@ -619,9 +565,8 @@
   border-top: 0 solid var(--header-border);
   transition: max-height 0.38s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, padding 0.3s ease, border-width 0.3s ease;
 }
+
 .mobile-menu.open {
-  /* Generous cap so the merged account actions (logged-in) all fit; the menu
-     scrolls if it ever exceeds the viewport. */
   max-height: min(85vh, 720px);
   opacity: 1;
   padding: 0.5rem 1.5rem 1.1rem;
@@ -630,12 +575,7 @@
 }
 
 .gympro-header-exact.is-sticky .mobile-menu {
-  background-color: rgba(12, 15, 23, 0.98);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
-:host-context([data-theme="light"]) .gympro-header-exact.is-sticky .mobile-menu {
-  background-color: rgba(255, 255, 255, 0.98);
+  background-color: var(--sticky-bg);
 }
 
 .mobile-link {
@@ -647,47 +587,17 @@
   border-bottom: 1px solid var(--header-border);
   transition: color 0.2s ease, padding-inline-start 0.2s ease;
 }
+
 .mobile-link:last-child { border-bottom: none; }
+
 .mobile-link:hover,
 .mobile-link.text-lime-active {
   color: var(--accent-text);
   padding-inline-start: 0.6rem;
 }
 
-/* Group separator inside the mobile menu — pure spacing (no line) so it groups
-   the nav / account / preferences / logout sections without doubling borders. */
 .mobile-menu-gap { height: 0.5rem; flex-shrink: 0; }
 
-/* ── Theme + language preference rows (merged into the mobile menu) ─────── */
-.mobile-pref-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  width: 100%;
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid var(--header-border);
-  cursor: pointer;
-  font-family: inherit;
-  text-align: start;
-}
-.mobile-pref-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-.mobile-pref-label svg { flex-shrink: 0; }
-.mobile-pref-label i { font-size: 1.05rem; line-height: 1; }
-.mobile-pref-value {
-  color: var(--accent-text);
-  font-weight: 700;
-  font-size: 0.85rem;
-  flex-shrink: 0;
-}
-
-/* ── Account actions merged into the mobile menu (small screens only) ───── */
-/* The account rows reuse the .mobile-link look but need button resets. */
 .mobile-account-item,
 .mobile-account-logout {
   width: 100%;
@@ -698,184 +608,77 @@
   cursor: pointer;
   font-family: inherit;
 }
+
 .mobile-account-logout {
   color: #ef4444;
   border-bottom: none;
 }
+
 .mobile-account-logout:hover {
   color: #ef4444;
   padding-inline-start: 0.6rem;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .scroll-progress,
-  .nav-item-exact::after,
-  .mobile-menu,
-  .logo-circle-exact { transition: none; }
+.mobile-link-signup {
+  color: var(--accent-text);
+  font-weight: 800;
 }
 
-/* ==========================================================================
-   Small screens — keep the top bar from overflowing (no horizontal gap)
-   ========================================================================== */
+.mobile-pref-value {
+  color: var(--accent-text);
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  margin-inline-start: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reading-progress,
+  .mobile-menu,
+  .gympro-header-exact::after,
+  .brand-v3-exact::before { transition: none; }
+  .gympro-header-exact::after { animation: none; }
+  .brand-v3-exact::before { animation: none; }
+}
+
 @media (max-width: 575.98px) {
-  /* Tighten the header's own horizontal padding (overrides Bootstrap .px-4) */
   .gympro-header-exact {
     padding-left: 0.85rem !important;
     padding-right: 0.85rem !important;
   }
 
-  /* Shrink the brand so it shares the row with the action cluster */
   .brand-v3-exact { gap: 0.5rem !important; }
-  .brand-text-exact { font-size: 1.15rem; }
-  .logo-circle-exact { width: 38px; height: 38px; }
-  .logo-circle-exact svg { width: 22px; height: 22px; }
 
-  /* Shrink the brand logo image so it frees room for the action cluster —
-     otherwise the wide 96px logo pushes the theme/language buttons off-screen. */
-  .brand-logo-img { height: 60px; margin-block: -6px; }
+  .brand-logo-img { height: 52px; margin-block: -6px; }
+
   :host-context([data-theme="light"]) .brand-logo-img.logo-theme-light {
-    height: 64px; margin-block: -8px;
-  }
-  .gympro-header-exact.is-sticky .brand-logo-img { height: 52px; margin-block: -4px; }
-  :host-context([data-theme="light"]) .gympro-header-exact.is-sticky .brand-logo-img.logo-theme-light {
-    height: 56px; margin-block: -6px;
+    height: 56px; margin-block: -8px;
   }
 
-  /* Tighten the spacing between the right-side controls so they all fit. */
   .gap-2.gap-lg-3 { gap: 0.3rem !important; }
 
-  /* Compact the theme + language controls (the named offenders) */
-  .theme-toggle-btn { width: 34px; height: 34px; }
-  .theme-icon { width: 16px; height: 16px; }
-  .btn-lang-exact { padding: 5px 9px; font-size: 0.7rem; }
-  .mobile-toggle { width: 36px; height: 36px; }
+  .theme-toggle-btn { width: 32px; height: 32px; }
+  .theme-icon { width: 15px; height: 15px; }
+  .btn-lang-exact { padding: 4px 8px; font-size: 0.65rem; }
+  .mobile-toggle { width: 34px; height: 34px; }
 
-  /* Keep the logged-in avatar + chevron in proportion with the smaller bar */
-  .user-avatar-circle { width: 36px; height: 36px; }
-  .user-avatar-initials { font-size: 0.9rem; }
-  .user-avatar-edit { width: 16px; height: 16px; bottom: -2px; inset-inline-end: -2px; }
+  .user-avatar-circle { width: 32px; height: 32px; }
+  .user-avatar-initials { font-size: 0.8rem; }
+  .user-avatar-edit { width: 14px; height: 14px; bottom: -2px; inset-inline-end: -2px; }
   .user-trigger-wrapper { gap: 4px; }
 
-  /* The action cluster must never push past the viewport edge */
   .max-header-width { min-width: 0; }
   .brand-v3-exact { min-width: 0; flex-shrink: 1; }
-  .brand-text-exact { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }
 
-/* Mid-range phones / phablets (576–767px): keep the same compact controls so
-   the theme + language buttons never crowd the avatar and hamburger. */
 @media (min-width: 576px) and (max-width: 767.98px) {
-  .gap-2.gap-lg-3 { gap: 0.45rem !important; }
-  .theme-toggle-btn { width: 38px; height: 38px; }
-  .btn-lang-exact { padding: 6px 12px; font-size: 0.75rem; }
+  .gap-2.gap-lg-3 { gap: 0.4rem !important; }
+  .theme-toggle-btn { width: 34px; height: 34px; }
+  .btn-lang-exact { padding: 5px 10px; font-size: 0.7rem; }
 }
 
-/* Below the lg breakpoint the account actions are merged into the hamburger
-   menu, so the avatar's dropdown chevron is hidden — the avatar itself stays
-   visible (and still opens the photo-upload control). */
 @media (max-width: 991.98px) {
   .nav-chevron { display: none; }
-}
-
-/* ==========================================================================
-   ELEVATION v2 — accent hairline, sticky glow, living brand mark
-   (bookends the footer's top accent line for page-wide cohesion)
-   ========================================================================== */
-
-/* Neon energy line along the header's bottom edge — breathes with a soft glow. */
-.gympro-header-exact::after {
-  content: '';
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, #C6EF2E 28%, #d8ff5e 50%, #C6EF2E 72%, transparent);
-  opacity: 0.55;
-  z-index: 2;
-  pointer-events: none;
-  filter: drop-shadow(0 0 5px rgba(198, 239, 46, 0.45));
-  transition: opacity 0.35s ease, filter 0.35s ease;
-}
-@media (prefers-reduced-motion: no-preference) {
-  .gympro-header-exact::after { animation: hairline-breathe 4.5s ease-in-out infinite; }
-}
-@keyframes hairline-breathe {
-  0%, 100% { opacity: 0.42; filter: drop-shadow(0 0 4px rgba(198, 239, 46, 0.35)); }
-  50%      { opacity: 0.75; filter: drop-shadow(0 0 10px rgba(198, 239, 46, 0.65)); }
-}
-/* Brighter, stronger glow once the header sticks. */
-.gympro-header-exact.is-sticky::after {
-  opacity: 0.95;
-  filter: drop-shadow(0 0 14px rgba(198, 239, 46, 0.7));
-}
-/* A touch deeper shadow on the sticky glass for a crisper condense. */
-.gympro-header-exact.is-sticky {
-  box-shadow: 0 6px 34px rgba(0, 0, 0, 0.22);
-}
-:host-context([data-theme="light"]) .gympro-header-exact.is-sticky {
-  box-shadow: 0 6px 30px rgba(12, 15, 23, 0.08);
-}
-
-/* Living brand mark — a soft lime halo that breathes behind the logo. */
-.brand-v3-exact { position: relative; }
-.brand-v3-exact::before {
-  content: '';
-  position: absolute;
-  inset: -6px -10px;
-  z-index: -1;
-  border-radius: 50%;
-  background: radial-gradient(circle at 32% 50%, rgba(198, 239, 46, 0.22), transparent 65%);
-  opacity: 0.2;
-  pointer-events: none;
-}
-@media (prefers-reduced-motion: no-preference) {
-  .brand-v3-exact::before { animation: brand-pulse 4.5s ease-in-out infinite; }
-}
-@keyframes brand-pulse {
-  0%, 100% { opacity: 0.16; transform: scale(0.95); }
-  50%      { opacity: 0.5;  transform: scale(1.05); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .gympro-header-exact::after { transition: none; }
-}
-
-/* ==========================================================================
-   ELEVATION v2 — light theme: clean & restrained (premium minimal)
-   The neon soul is reserved for DARK mode. On white the brand mark is navy, so
-   the light header stays navy/neutral — a thin static line, a soft lift, and
-   neutral pills. The only neon on light is the Sign-up CTA (unchanged).
-   ========================================================================== */
-
-/* Hairline → a thin, static navy line. No neon, no breathing, no glow. */
-:host-context([data-theme="light"]) .gympro-header-exact::after {
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(12, 15, 23, 0.16) 50%, transparent);
-  opacity: 1;
-  filter: none;
-  animation: none;
-}
-:host-context([data-theme="light"]) .gympro-header-exact.is-sticky::after {
-  background: linear-gradient(90deg, transparent, rgba(12, 15, 23, 0.26) 50%, transparent);
-  filter: none;
-}
-
-/* Soft lift so the white bar separates from the white page. */
-:host-context([data-theme="light"]) .gympro-header-exact {
-  box-shadow: 0 1px 0 rgba(12, 15, 23, 0.04), 0 8px 22px rgba(12, 15, 23, 0.05);
-}
-
-/* No glow halo behind the navy logo on white. */
-:host-context([data-theme="light"]) .brand-v3-exact::before { display: none; }
-
-/* Neutral navy pills, navy text, no glow. */
-:host-context([data-theme="light"]) .nav-item-exact:hover {
-  background: rgba(12, 15, 23, 0.05);
-  color: var(--nav-text);
-  box-shadow: none;
-}
-:host-context([data-theme="light"]) .text-lime-active,
-:host-context([data-theme="light"]) .nav-item-exact.text-lime-active {
-  background: rgba(12, 15, 23, 0.07);
-  color: var(--nav-text) !important;
-  box-shadow: inset 0 0 0 1px rgba(12, 15, 23, 0.12);
+  .theme-toggle-btn { display: none !important; }
+  .btn-lang-exact { display: none !important; }
 }
