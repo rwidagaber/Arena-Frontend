@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import QRCode from 'qrcode';
+import * as QRCode from 'qrcode';
 import { AuthService } from '../../../core/services/auth';
 import { BookingService } from '../../../core/services/booking.service';
 import { environment } from '../../../../environments/environment';
@@ -262,26 +262,31 @@ export class QrDisplayComponent implements OnInit, OnChanges, OnDestroy {
       String(nowShiftDate.getMonth() + 1).padStart(2, '0') + '-' + 
       String(nowShiftDate.getDate()).padStart(2, '0');
 
-    return bShiftDateStr === nowShiftDateStr;
+    // Get calendar date for "now" (current local time) without shift adjustment
+    const todayCalendarDateStr = now.getFullYear() + '-' + 
+      String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+      String(now.getDate()).padStart(2, '0');
+
+    return bShiftDateStr === nowShiftDateStr || bShiftDateStr === todayCalendarDateStr;
   }
 
   private sessionStartsAt(booking: BookingDto): Date {
-    const date = new Date(booking.bookingDate);
+    const dateStr = booking.bookingDate.split('T')[0];
+    const [year, month, day] = dateStr.split('-').map(Number);
     const [hours = 0, minutes = 0, seconds = 0] = booking.startTime.split(':').map(Number);
-    date.setHours(hours, minutes, seconds, 0);
-    return date;
+    return new Date(year, month - 1, day, hours, minutes, seconds, 0);
   }
 
   private sessionEndsAt(booking: BookingDto): Date {
-    const end = new Date(booking.bookingDate);
     const fallbackEnd = this.sessionStartsAt(booking);
     fallbackEnd.setHours(fallbackEnd.getHours() + 2);
 
     if (!booking.endTime) return fallbackEnd;
 
+    const dateStr = booking.bookingDate.split('T')[0];
+    const [year, month, day] = dateStr.split('-').map(Number);
     const [hours = 0, minutes = 0, seconds = 0] = booking.endTime.split(':').map(Number);
-    end.setHours(hours + 2, minutes, seconds, 0);
-    return end;
+    return new Date(year, month - 1, day, hours + 2, minutes, seconds, 0);
   }
 
   private formatTime(value: string): string {
