@@ -47,7 +47,10 @@ export class App implements OnInit {
   protected readonly currentUser$ = this.auth.currentUser$;
 
   ngOnInit(): void {
-
+this.router.events.subscribe(event => {
+  console.log('[ROUTER EVENT]', event.constructor.name, (event as any).url ?? '');
+});
+ 
     const storedLang = localStorage.getItem('arena_lang') || 'en';
     this.translate.use(storedLang);
 
