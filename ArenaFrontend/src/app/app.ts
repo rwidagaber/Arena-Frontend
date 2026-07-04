@@ -12,6 +12,21 @@ import { ThemeService } from '../app/core/services/themeservice';
 import { AuthService } from './core/services/auth';
 import { CustomAlertComponent } from './features/notifications/custom-alert/custom-alert';
 import { filter } from 'rxjs/operators';
+import { routes } from './app.routes';
+
+/**
+ * بيحسب هل الـ route الحالي (بناءً على الـ URL الفعلي في المتصفح وقت
+ * التحميل) عنده hideLayout/hideFooter في تعريف الـ routes — من غير ما
+ * ينتظر أي Router event. كده أول render للصفحة بيبقى بالقيمة الصح على
+ * طول، ومفيش ومضة في أي الاتجاهين (لا للصفحات اللي فيها Header/Footer
+ * ولا للصفحات اللي مخفيين فيها).
+ */
+function computeInitialLayoutFlags(): { hideLayout: boolean; hideFooter: boolean } {
+  const firstSegment = window.location.pathname.replace(/^\//, '').split('/')[0];
+  const matched = routes.find(r => r.path === firstSegment);
+  const data = (matched?.data ?? {}) as { hideLayout?: boolean; hideFooter?: boolean };
+  return { hideLayout: !!data.hideLayout, hideFooter: !!data.hideFooter };
+}
 
 @Component({
   selector: 'app-root',
@@ -37,8 +52,13 @@ export class App implements OnInit {
   private activatedRoute = inject(ActivatedRoute);
   private auth = inject(AuthService);
 
-  showLayout = false;
-  showFooter = false;
+  // ✅ بنحسب القيمة الصح من أول لحظة (sync)، بدل ما نفترض true أو false
+  // وننتظر Router event يصححها لاحقًا — وده اللي كان بيسبب الومضة
+  // (في أي الاتجاهين حسب القيمة الافتراضية المختارة).
+  private readonly _initialFlags = computeInitialLayoutFlags();
+  showLayout = !this._initialFlags.hideLayout;
+  showFooter = !this._initialFlags.hideFooter;
+
   /** True on the dashboard route, where the member-profile renders its OWN
    *  sidebar — so the global one is suppressed there to avoid duplicates. */
   isDashboard = false;
@@ -58,10 +78,10 @@ export class App implements OnInit {
       navigator.serviceWorker.register('/sw.js').catch(console.error);
     }
 
-    // ✅ بنمسك RoutesRecognized (بيطلق بدري جدًا فور ما الراوتر يحدد الـ route،
-    // قبل الـ Guards وقبل تحميل الـ lazy chunk) بالإضافة لـ NavigationEnd
-    // عشان نحدد إظهار/إخفاء الـ Header والـ Footer بأسرع وقت ممكن ونمنع
-    // ومضة ظهورهم الافتراضي قبل ما الصفحة تستقر.
+    // الحساب الأولي فوق بيغطي أول تحميل (Hard load) بس.
+    // لأي navigation تاني بعد كده (تنقل جوه الـ SPA زي login -> dashboard)
+    // لازم نفضل نحدّث القيم دي، فبنمسك RoutesRecognized (بيطلق بدري) +
+    // NavigationEnd كـ fallback.
     this.router.events
       .pipe(
         filter(event =>
@@ -70,9 +90,6 @@ export class App implements OnInit {
       )
       .subscribe(event => {
 
-        // RoutesRecognized بيوصل الـ state الجديد جوه الـ event نفسه
-        // (router.routerState.snapshot لسه مش متحدث في اللحظة دي).
-        // أما NavigationEnd فالـ router.routerState.snapshot بيبقى محدث فعلاً.
         const rootSnapshot = event instanceof RoutesRecognized
           ? event.state.root
           : this.router.routerState.snapshot.root;
