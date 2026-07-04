@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
-import { RouterOutlet, Router, NavigationEnd, ActivatedRoute } from '@angular/router';
+import { RouterOutlet, Router, NavigationEnd, RoutesRecognized, ActivatedRoute } from '@angular/router';
 import { HeaderComponent } from './shared/header/header';
 import { FooterComponent } from './shared/components/footer/footer';
 import { FloatingChatButtonComponent } from './shared/components/floating-chat-button/floating-chat-button';
@@ -37,8 +37,8 @@ export class App implements OnInit {
   private activatedRoute = inject(ActivatedRoute);
   private auth = inject(AuthService);
 
-  showLayout = true;
-  showFooter = true;
+  showLayout = false;
+  showFooter = false;
   /** True on the dashboard route, where the member-profile renders its OWN
    *  sidebar — so the global one is suppressed there to avoid duplicates. */
   isDashboard = false;
@@ -47,10 +47,7 @@ export class App implements OnInit {
   protected readonly currentUser$ = this.auth.currentUser$;
 
   ngOnInit(): void {
-this.router.events.subscribe(event => {
-  console.log('[ROUTER EVENT]', event.constructor.name, (event as any).url ?? '');
-});
- 
+
     const storedLang = localStorage.getItem('arena_lang') || 'en';
     this.translate.use(storedLang);
 
@@ -61,17 +58,32 @@ this.router.events.subscribe(event => {
       navigator.serviceWorker.register('/sw.js').catch(console.error);
     }
 
+    // ✅ بنمسك RoutesRecognized (بيطلق بدري جدًا فور ما الراوتر يحدد الـ route،
+    // قبل الـ Guards وقبل تحميل الـ lazy chunk) بالإضافة لـ NavigationEnd
+    // عشان نحدد إظهار/إخفاء الـ Header والـ Footer بأسرع وقت ممكن ونمنع
+    // ومضة ظهورهم الافتراضي قبل ما الصفحة تستقر.
     this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
-      .subscribe(() => {
+      .pipe(
+        filter(event =>
+          event instanceof RoutesRecognized || event instanceof NavigationEnd
+        )
+      )
+      .subscribe(event => {
 
-        let route = this.activatedRoute;
-        while (route.firstChild) {
-          route = route.firstChild;
+        // RoutesRecognized بيوصل الـ state الجديد جوه الـ event نفسه
+        // (router.routerState.snapshot لسه مش متحدث في اللحظة دي).
+        // أما NavigationEnd فالـ router.routerState.snapshot بيبقى محدث فعلاً.
+        const rootSnapshot = event instanceof RoutesRecognized
+          ? event.state.root
+          : this.router.routerState.snapshot.root;
+
+        let deepest = rootSnapshot;
+        while (deepest.firstChild) {
+          deepest = deepest.firstChild;
         }
 
-        this.showLayout = !route.snapshot.data['hideLayout'];
-        this.showFooter = !route.snapshot.data['hideFooter'];
+        this.showLayout = !deepest.data['hideLayout'];
+        this.showFooter = !deepest.data['hideFooter'];
         this.isDashboard = this.router.url.split('?')[0].startsWith('/dashboard');
       });
   }
