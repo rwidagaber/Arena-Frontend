@@ -747,6 +747,247 @@ export class MemberProfile implements OnInit {
     return this.attendanceDays();
   }
 
+  // ── Body-composition onboarding prompt ───────────────────────────────
+  // Nudge the member to fill in their body data (weight / height / body-fat /
+  // muscle) so the AI can tailor their workout & nutrition. Driven purely by
+  // whether that data is still missing — no persisted flag — and dismissable
+  // for the current visit.
+  bodyPromptDismissed = signal(false);
+
+  /** True while any AI-relevant field is still missing (body composition + goal). */
+  bodyCompositionIncomplete = computed(() => {
+    const p = this.profile();
+    if (!p) return false;
+    return p.weight == null || p.height == null
+        || this.currentBodyFat() == null || this.currentMuscleMass() == null
+        || !p.goal;
+  });
+
+  /** Show the popup once data has loaded, is still incomplete, hasn't been
+   *  dismissed, and no other modal (edit / celebration / achievement) is open. */
+  showBodyPrompt = computed(() =>
+    this.activeSection() === 'profile'
+    && !this.statsLoading()
+    && this.bodyCompositionIncomplete()
+    && !this.bodyPromptDismissed()
+    && !this.isEditing()
+    && !this.showCelebration()
+    && !this.achievementUnlock());
+
+  /** Primary action → open the edit form focused on the body-composition fields. */
+  openBodyEditFromPrompt(): void {
+    this.bodyPromptDismissed.set(true);
+    this.openEdit();
+  }
+
+  /** Parse a number input, keeping 0 (so it can be rejected) and blank -> null. */
+  parseEditNum(v: string): number | null {
+    const t = (v ?? '').trim();
+    if (t === '') return null;
+    const n = Number(t);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  /** "Later" → hide for this visit; it reappears next time while data is missing. */
+  dismissBodyPrompt(): void {
+    this.bodyPromptDismissed.set(true);
+  }
+
+  // ══════════ Account settings: personal info editor ══════════
+  showAccountEdit = signal(false);
+  savingAccount = signal(false);
+  acctError = signal<string | null>(null);
+  acctFirstName = signal('');
+  acctLastName = signal('');
+  acctPhone = signal('');
+  acctGender = signal('');
+  acctImage = signal<string | null>(null);
+
+  acctValid = computed(() => !!this.acctFirstName().trim() && !!this.acctLastName().trim());
+
+  openAccountEdit(): void {
+    const p = this.profile();
+    if (!p) return;
+    this.acctFirstName.set(p.firstName || '');
+    this.acctLastName.set(p.lastName || '');
+    this.acctPhone.set(p.phoneNumber || '');
+    this.acctGender.set(p.gender || '');
+    this.acctImage.set(p.profileImage ?? null);
+    this.acctError.set(null);
+    this.showAccountEdit.set(true);
+  }
+
+  closeAccountEdit(): void {
+    if (this.savingAccount()) return;
+    this.showAccountEdit.set(false);
+  }
+
+  onAccountImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { this.acctError.set('Please choose an image file.'); return; }
+    if (file.size > 2 * 1024 * 1024) { this.acctError.set('Image is too large (max 2MB).'); return; }
+    const reader = new FileReader();
+    reader.onload = () => { this.acctImage.set(reader.result as string); this.acctError.set(null); };
+    reader.readAsDataURL(file);
+  }
+
+  removeAccountImage(): void { this.acctImage.set(null); }
+
+  saveAccountEdit(): void {
+    const p = this.profile();
+    if (!p || this.savingAccount() || !this.acctValid()) return;
+    const dto: UpdateProfileDto = {
+      firstName: this.acctFirstName().trim(),
+      lastName: this.acctLastName().trim(),
+      phoneNumber: this.acctPhone().trim() || undefined,
+      gender: this.acctGender() || undefined,
+      profileImage: this.acctImage() ?? undefined,
+    };
+    this.savingAccount.set(true);
+    this.acctError.set(null);
+    this.memberService.updateProfile(dto).subscribe({
+      next: () => {
+        this.memberService.getProfile().pipe(catchError(() => of(null))).subscribe(prof => {
+          if (prof) {
+            this.profile.set(prof);
+          } else {
+            this.profile.set({
+              ...p,
+              firstName: dto.firstName ?? p.firstName,
+              lastName: dto.lastName ?? p.lastName,
+              phoneNumber: dto.phoneNumber ?? p.phoneNumber,
+              gender: dto.gender ?? p.gender,
+              profileImage: dto.profileImage ?? p.profileImage,
+            });
+          }
+          this.savingAccount.set(false);
+          this.showAccountEdit.set(false);
+        });
+      },
+      error: (err) => {
+        this.savingAccount.set(false);
+        const e = err?.error;
+        const msg = Array.isArray(e) ? e.join(', ') : typeof e === 'string' ? e : e?.message ?? e?.title ?? err?.message;
+        this.acctError.set(msg || this.translate.instant('memberProfile.dash.saveFailed'));
+      },
+    });
+  }
+
+  // ══════════ Account settings: change password ══════════
+  showChangePassword = signal(false);
+  cpCurrentPassword = signal('');
+  cpNewPassword = signal('');
+  cpConfirmPassword = signal('');
+  savingPassword = signal(false);
+  cpError = signal<string | null>(null);
+  cpSuccess = signal<string | null>(null);
+
+  cpValid = computed(() =>
+    !!this.cpCurrentPassword() && !!this.cpNewPassword() && !!this.cpConfirmPassword() &&
+    this.cpNewPassword().length >= 8
+  );
+
+  openChangePassword(): void {
+    this.cpCurrentPassword.set('');
+    this.cpNewPassword.set('');
+    this.cpConfirmPassword.set('');
+    this.cpError.set(null);
+    this.cpSuccess.set(null);
+    this.showChangePassword.set(true);
+  }
+
+  closeChangePassword(): void {
+    if (this.savingPassword()) return;
+    this.showChangePassword.set(false);
+  }
+
+  savePassword(): void {
+    if (this.savingPassword() || !this.cpValid()) return;
+    if (this.cpNewPassword() !== this.cpConfirmPassword()) {
+      this.cpError.set(this.translate.instant('auth.validation.passwordMismatch'));
+      return;
+    }
+    this.savingPassword.set(true);
+    this.cpError.set(null);
+    this.cpSuccess.set(null);
+    this.auth.changePassword({
+      oldPassword: this.cpCurrentPassword(),
+      newPassword: this.cpNewPassword(),
+      confirmNewPassword: this.cpConfirmPassword(),
+    }).subscribe({
+      next: () => {
+        this.cpSuccess.set(this.translate.instant('settings.passwordChanged'));
+        this.savingPassword.set(false);
+        this.cpCurrentPassword.set('');
+        this.cpNewPassword.set('');
+        this.cpConfirmPassword.set('');
+        setTimeout(() => this.closeChangePassword(), 2000);
+      },
+      error: (err) => {
+        this.cpError.set(err.message || 'Something went wrong');
+        this.savingPassword.set(false);
+      },
+    });
+  }
+
+  // ── Active Sessions ──
+  loggingOutAll = signal(false);
+
+  logoutAllSessions(): void {
+    if (this.loggingOutAll()) return;
+    this.loggingOutAll.set(true);
+    this.auth.logout().subscribe({
+      next: () => {
+        this.auth.clearSession();
+        this.router.navigate(['/']);
+      },
+      error: () => {
+        this.auth.clearSession();
+        this.router.navigate(['/']);
+      },
+    });
+  }
+
+  /** Empty-state CTA (no active plan) → the plans page. */
+  goToPlans(): void {
+    this.router.navigate(['/plans']);
+  }
+
+  // ══════════ Account settings: delete account ══════════
+  showDeleteAccount = signal(false);
+  deletingAccount = signal(false);
+  daPassword = signal('');
+  daError = signal<string | null>(null);
+
+  openDeleteAccount(): void {
+    this.daPassword.set('');
+    this.daError.set(null);
+    this.showDeleteAccount.set(true);
+  }
+
+  closeDeleteAccount(): void {
+    if (this.deletingAccount()) return;
+    this.showDeleteAccount.set(false);
+  }
+
+  confirmDeleteAccount(): void {
+    if (this.deletingAccount() || !this.daPassword()) return;
+    this.deletingAccount.set(true);
+    this.daError.set(null);
+    this.auth.deleteAccount({ password: this.daPassword() }).subscribe({
+      next: () => {
+        this.auth.clearSession();
+        this.router.navigate(['/']);
+      },
+      error: (err) => {
+        this.daError.set(err.message || 'Something went wrong');
+        this.deletingAccount.set(false);
+      },
+    });
+  }
+
   isEditing = signal(false);
   editFirstName = signal('');
   editLastName = signal('');
@@ -786,7 +1027,7 @@ export class MemberProfile implements OnInit {
     if (positive(this.editTargetWeight())) e['targetWeight'] = 'memberProfile.dash.valPositive';
     if (positive(this.editMuscle())) e['muscle'] = 'memberProfile.dash.valPositive';
     const bf = this.editBodyFat();
-    if (bf != null && (bf < 0 || bf > 100)) e['bodyFat'] = 'memberProfile.dash.valPercent';
+    if (bf != null && (bf <= 0 || bf > 100)) e['bodyFat'] = 'memberProfile.dash.valPercent';
     return e;
   });
 
@@ -939,7 +1180,20 @@ export class MemberProfile implements OnInit {
           progress: this.progressService.getProgress().pipe(catchError(() => of(null as ProgressSummaryDto | null))),
         }).subscribe(result => {
           if (result.profile) {
-            this.profile.set(result.profile);
+            // The canonical /profile read-back can omit fields (they're gated
+            // server-side), which would wipe values we just saved. Keep the
+            // freshly-saved data whenever the read-back returns null for it.
+            const fresh = result.profile;
+            this.profile.set({
+              ...fresh,
+              goal: fresh.goal ?? dto.goal ?? p.goal,
+              targetWeight: fresh.targetWeight ?? dto.targetWeight ?? p.targetWeight,
+              weight: fresh.weight ?? dto.weight ?? p.weight,
+              height: fresh.height ?? dto.height ?? p.height,
+              gender: fresh.gender ?? dto.gender ?? p.gender,
+              phoneNumber: fresh.phoneNumber ?? dto.phoneNumber ?? p.phoneNumber,
+              profileImage: fresh.profileImage ?? dto.profileImage ?? p.profileImage,
+            });
           } else {
             // Refresh failed — apply what we sent
             this.profile.set({
@@ -1090,7 +1344,15 @@ export class MemberProfile implements OnInit {
     { value: 'ar', labelKey: 'memberProfile.dash.langArabic' },
   ];
   currentLang = computed(() => this.i18n.currentLang());
-  switchLang(lang: Lang): void { this.i18n.switchLang(lang); }
+  switchLang(lang: Lang): void {
+    this.i18n.switchLang(lang);
+    // Persist the preference server-side so it follows the member across devices.
+    if (this.profile()) {
+      this.memberService.updateProfile({ preferredLanguage: lang })
+        .pipe(catchError(() => of(null)))
+        .subscribe();
+    }
+  }
 
   loggingOut = signal(false);
   logout(): void {

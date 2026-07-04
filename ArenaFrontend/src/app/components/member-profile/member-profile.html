@@ -781,7 +781,7 @@
 
               <!-- Appearance -->
               <section class="settings-card">
-                <h3 class="settings-card-title">{{ 'memberProfile.dash.setAppearance' | translate }}</h3>
+                <h3 class="settings-card-title"><span class="settings-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></span>{{ 'memberProfile.dash.setAppearance' | translate }}</h3>
                 <div class="settings-row">
                   <span class="settings-label">{{ 'memberProfile.dash.setTheme' | translate }}</span>
                   <div class="seg-control" role="group" [attr.aria-label]="'memberProfile.dash.setTheme' | translate">
@@ -797,7 +797,7 @@
 
               <!-- Language -->
               <section class="settings-card">
-                <h3 class="settings-card-title">{{ 'memberProfile.dash.setLanguage' | translate }}</h3>
+                <h3 class="settings-card-title"><span class="settings-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 0 20 15.3 15.3 0 0 1 0-20"/></svg></span>{{ 'memberProfile.dash.setLanguage' | translate }}</h3>
                 <div class="settings-row">
                   <span class="settings-label">{{ 'memberProfile.dash.setLanguage' | translate }}</span>
                   <div class="seg-control" role="group" [attr.aria-label]="'memberProfile.dash.setLanguage' | translate">
@@ -811,17 +811,88 @@
                 </div>
               </section>
 
+              <!-- Email & Security -->
+              <section class="settings-card">
+                <h3 class="settings-card-title"><span class="settings-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>{{ 'settings.emailSecurity' | translate }}</h3>
+                <div class="settings-row">
+                  <span class="settings-label">{{ 'settings.emailAddress' | translate }}</span>
+                  <span class="settings-value">{{ profile()?.email }}</span>
+                  <span class="settings-badge settings-badge-success">{{ 'settings.emailVerified' | translate }}</span>
+                </div>
+                <div class="settings-row">
+                  <span class="settings-label">{{ 'settings.password' | translate }}</span>
+                  <button type="button" class="settings-btn" (click)="openChangePassword()">{{ 'settings.changePassword' | translate }}</button>
+                </div>
+              </section>
+
               <!-- Account -->
               <section class="settings-card">
-                <h3 class="settings-card-title">{{ 'memberProfile.dash.setAccount' | translate }}</h3>
+                <h3 class="settings-card-title"><span class="settings-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg></span>{{ 'memberProfile.dash.setAccount' | translate }}</h3>
                 <div class="settings-row">
                   <span class="settings-label">{{ 'memberProfile.dash.setProfileHint' | translate }}</span>
-                  <button type="button" class="settings-btn" (click)="openEdit()">{{ 'profile.editProfile' | translate }}</button>
+                  <button type="button" class="settings-btn" (click)="openAccountEdit()">{{ 'profile.editProfile' | translate }}</button>
                 </div>
                 <div class="settings-row">
                   <span class="settings-label">{{ 'memberProfile.dash.setLogoutHint' | translate }}</span>
                   <button type="button" class="settings-btn settings-btn-danger" (click)="logout()" [disabled]="loggingOut()">
                     {{ 'sidebar.logout' | translate }}
+                  </button>
+                </div>
+                <div class="settings-row settings-row-danger">
+                  <span class="settings-label settings-label-danger">{{ 'settings.deleteAccount' | translate }}</span>
+                  <button type="button" class="settings-btn settings-btn-danger" (click)="openDeleteAccount()">
+                    {{ 'settings.deleteAccount' | translate }}
+                  </button>
+                </div>
+              </section>
+
+              <!-- Subscription & Billing -->
+              <section class="settings-card">
+                <h3 class="settings-card-title"><span class="settings-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></span>{{ 'settings.subscription' | translate }}</h3>
+                @if (profile()?.activeSubscription; as sub) {
+                  <div class="settings-row">
+                    <span class="settings-label">{{ 'settings.plan' | translate }}</span>
+                    <span class="settings-value">{{ sub.planNameEn }}</span>
+                  </div>
+                  <div class="settings-row">
+                    <span class="settings-label">{{ 'settings.status' | translate }}</span>
+                    <span class="settings-badge" [class.settings-badge-success]="sub.status === 'Active'" [class.settings-badge-warning]="sub.status !== 'Active'">{{ sub.status }}</span>
+                  </div>
+                  <div class="settings-row">
+                    <span class="settings-label">{{ 'profile.started' | translate }}</span>
+                    <span class="settings-value">{{ sub.startDate | date:'mediumDate' }}</span>
+                  </div>
+                  @if (sub.endDate) {
+                    <div class="settings-row">
+                      <span class="settings-label">{{ 'profile.ends' | translate }}</span>
+                      <span class="settings-value">{{ sub.endDate | date:'mediumDate' }}</span>
+                    </div>
+                  }
+                  @if (sub.remainingSessions != null) {
+                    <div class="settings-row">
+                      <span class="settings-label">{{ 'profile.sessionsLeft' | translate }}</span>
+                      <span class="settings-value">{{ sub.remainingSessions }} / {{ sub.totalSessions }}</span>
+                    </div>
+                  }
+                  <div class="settings-row">
+                    <span class="settings-label">{{ 'settings.paymentAmount' | translate }}</span>
+                    <span class="settings-value">{{ sub.paymentAmount | currency:'EGP':'symbol-narrow':'1.0-0' }}</span>
+                  </div>
+                } @else {
+                  <div class="settings-row">
+                    <span class="settings-label">{{ 'memberProfile.noActivePlan' | translate }}</span>
+                    <button type="button" class="settings-btn" (click)="goToPlans()">{{ 'memberProfile.getPlan' | translate }}</button>
+                  </div>
+                }
+              </section>
+
+              <!-- Active Sessions -->
+              <section class="settings-card">
+                <h3 class="settings-card-title"><span class="settings-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>{{ 'settings.activeSessions' | translate }}</h3>
+                <div class="settings-row">
+                  <span class="settings-label">{{ 'settings.sessionsInfo' | translate }}</span>
+                  <button type="button" class="settings-btn" (click)="logoutAllSessions()" [disabled]="loggingOutAll()">
+                    {{ 'settings.logoutAll' | translate }}
                   </button>
                 </div>
               </section>
@@ -845,80 +916,33 @@
     <div class="edit-modal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle"
          (keydown)="onEditKeydown($event)">
       <div class="edit-modal-hdr">
-        <h3 id="editModalTitle">{{ 'profile.editProfile' | translate }}</h3>
+        <h3 id="editModalTitle">{{ 'memberProfile.dash.grpBody' | translate }}</h3>
         <button type="button" class="edit-close" (click)="closeEdit()" [disabled]="savingEdit()"
                 [attr.aria-label]="'profile.cancel' | translate">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
-      <div class="edit-avatar">
-        <div class="edit-avatar-preview">
-          @if (editImage()) {
-            <img [src]="editImage()" alt="" />
-          } @else {
-            <span class="edit-avatar-ph" aria-hidden="true">{{ editFirstName()?.[0] }}{{ editLastName()?.[0] }}</span>
-          }
-        </div>
-        <div class="edit-avatar-actions">
-          <label class="edit-avatar-btn">
-            <input type="file" accept="image/*" (change)="onEditImageSelected($event)" hidden />
-            {{ (editImage() ? 'memberProfile.dash.changePhoto' : 'memberProfile.dash.uploadPhoto') | translate }}
-          </label>
-          @if (editImage()) {
-            <button type="button" class="edit-avatar-remove" (click)="removeEditImage()">{{ 'memberProfile.dash.remove' | translate }}</button>
-          }
-          <span class="edit-avatar-hint">{{ 'memberProfile.dash.photoHint' | translate }}</span>
-        </div>
-      </div>
-
-      <!-- ── Personal ── -->
-      <fieldset class="edit-group">
-        <legend>{{ 'memberProfile.dash.grpPersonal' | translate }}</legend>
-        <div class="edit-fields">
-          <label>{{ 'profile.firstName' | translate }}
-            <input type="text" [value]="editFirstName()" (input)="editFirstName.set($any($event.target).value)"
-                   [attr.aria-invalid]="!!editFieldErrors()['firstName']" />
-            @if (editFieldErrors()['firstName']; as err) { <span class="field-error">{{ err | translate }}</span> }
-          </label>
-          <label>{{ 'profile.lastName' | translate }}
-            <input type="text" [value]="editLastName()" (input)="editLastName.set($any($event.target).value)"
-                   [attr.aria-invalid]="!!editFieldErrors()['lastName']" />
-            @if (editFieldErrors()['lastName']; as err) { <span class="field-error">{{ err | translate }}</span> }
-          </label>
-          <label>{{ 'profile.phone' | translate }}
-            <input type="tel" [value]="editPhone()" (input)="editPhone.set($any($event.target).value)" />
-          </label>
-          <label>{{ 'profile.gender' | translate }}
-            <select [value]="editGender()" (change)="editGender.set($any($event.target).value)">
-              <option value="">{{ 'profile.notSet' | translate }}</option>
-              <option value="Male">{{ 'memberProfile.male' | translate }}</option>
-              <option value="Female">{{ 'memberProfile.female' | translate }}</option>
-            </select>
-          </label>
-        </div>
-      </fieldset>
-
       <!-- ── Body composition ── -->
       <fieldset class="edit-group">
         <legend>{{ 'memberProfile.dash.grpBody' | translate }}</legend>
         <div class="edit-fields">
           <label>{{ 'profile.weight' | translate }} (kg)
-            <input type="number" min="0" [value]="editWeight()" (input)="editWeight.set(+$any($event.target).value || null)"
+            <input type="number" min="1" [value]="editWeight()" (input)="editWeight.set(parseEditNum($any($event.target).value))"
                    [attr.aria-invalid]="!!editFieldErrors()['weight']" />
             @if (editFieldErrors()['weight']; as err) { <span class="field-error">{{ err | translate }}</span> }
           </label>
           <label>{{ 'profile.height' | translate }} (cm)
-            <input type="number" min="0" [value]="editHeight()" (input)="editHeight.set(+$any($event.target).value || null)"
+            <input type="number" min="1" [value]="editHeight()" (input)="editHeight.set(parseEditNum($any($event.target).value))"
                    [attr.aria-invalid]="!!editFieldErrors()['height']" />
             @if (editFieldErrors()['height']; as err) { <span class="field-error">{{ err | translate }}</span> }
           </label>
           <label>{{ 'memberProfile.dash.bodyFat' | translate }} (%)
-            <input type="number" step="0.1" min="0" max="100" [value]="editBodyFat()" (input)="editBodyFat.set(+$any($event.target).value || null)"
+            <input type="number" step="0.1" min="1" max="100" [value]="editBodyFat()" (input)="editBodyFat.set(parseEditNum($any($event.target).value))"
                    [attr.aria-invalid]="!!editFieldErrors()['bodyFat']" />
             @if (editFieldErrors()['bodyFat']; as err) { <span class="field-error">{{ err | translate }}</span> }
           </label>
           <label>{{ 'memberProfile.dash.muscle' | translate }} (kg)
-            <input type="number" step="0.1" min="0" [value]="editMuscle()" (input)="editMuscle.set(+$any($event.target).value || null)"
+            <input type="number" step="0.1" min="1" [value]="editMuscle()" (input)="editMuscle.set(parseEditNum($any($event.target).value))"
                    [attr.aria-invalid]="!!editFieldErrors()['muscle']" />
             @if (editFieldErrors()['muscle']; as err) { <span class="field-error">{{ err | translate }}</span> }
           </label>
@@ -938,7 +962,7 @@
             </select>
           </label>
           <label>{{ 'memberProfile.dash.targetWeightKg' | translate }}
-            <input type="number" step="0.1" min="0" [value]="editTargetWeight()" (input)="editTargetWeight.set(+$any($event.target).value || null)"
+            <input type="number" step="0.1" min="1" [value]="editTargetWeight()" (input)="editTargetWeight.set(parseEditNum($any($event.target).value))"
                    [attr.aria-invalid]="!!editFieldErrors()['targetWeight']" />
             @if (editFieldErrors()['targetWeight']; as err) { <span class="field-error">{{ err | translate }}</span> }
           </label>
@@ -1038,6 +1062,150 @@
       <h3 class="welcome-title" id="achUnlockTitle">{{ ach.labelKey | translate:{ n: ach.n } }}</h3>
       <p class="welcome-sub">{{ 'memberProfile.dash.achUnlockSub' | translate }}</p>
       <button type="button" class="welcome-cta" (click)="closeAchievement()">{{ 'memberProfile.dash.letsTrain' | translate }}</button>
+    </div>
+  </div>
+}
+
+<!-- ════ Body-composition onboarding prompt (shows until the AI has body data) ════ -->
+@if (showBodyPrompt()) {
+  <div class="welcome-overlay" (click)="dismissBodyPrompt()">
+    <div class="welcome-modal" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="bodyPromptTitle">
+      <button type="button" class="welcome-close" (click)="dismissBodyPrompt()" [attr.aria-label]="'profile.cancel' | translate">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="welcome-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="40" height="40"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M12 11v6"/><path d="M9 14h6"/></svg>
+      </div>
+      <span class="welcome-eyebrow">{{ 'memberProfile.bodyPrompt.eyebrow' | translate }}</span>
+      <h3 class="welcome-title" id="bodyPromptTitle">{{ 'memberProfile.bodyPrompt.title' | translate }}</h3>
+      <p class="welcome-sub">{{ 'memberProfile.bodyPrompt.sub' | translate }}</p>
+      <button type="button" class="welcome-cta" (click)="openBodyEditFromPrompt()">{{ 'memberProfile.bodyPrompt.cta' | translate }}</button>
+      <button type="button" class="welcome-later" (click)="dismissBodyPrompt()">{{ 'memberProfile.bodyPrompt.later' | translate }}</button>
+    </div>
+  </div>
+}
+
+<!-- ════ Account Info Edit Modal ════ -->
+@if (showAccountEdit()) {
+  <div class="edit-overlay">
+    <div class="edit-modal" role="dialog" aria-modal="true" aria-labelledby="acctModalTitle" (keydown)="onEditKeydown($event)">
+      <div class="edit-modal-hdr">
+        <h3 id="acctModalTitle">{{ 'memberProfile.dash.setAccount' | translate }}</h3>
+        <button type="button" class="edit-close" (click)="closeAccountEdit()" [disabled]="savingAccount()" [attr.aria-label]="'profile.cancel' | translate">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="edit-avatar">
+        <div class="edit-avatar-preview">
+          @if (acctImage()) {
+            <img [src]="acctImage()" alt="" />
+          } @else {
+            <span class="edit-avatar-ph" aria-hidden="true">{{ acctFirstName()?.[0] }}{{ acctLastName()?.[0] }}</span>
+          }
+        </div>
+        <div class="edit-avatar-actions">
+          <label class="edit-avatar-btn">
+            <input type="file" accept="image/*" (change)="onAccountImageSelected($event)" hidden />
+            {{ (acctImage() ? 'memberProfile.dash.changePhoto' : 'memberProfile.dash.uploadPhoto') | translate }}
+          </label>
+          @if (acctImage()) {
+            <button type="button" class="edit-avatar-remove" (click)="removeAccountImage()">{{ 'memberProfile.dash.remove' | translate }}</button>
+          }
+        </div>
+      </div>
+      <div class="edit-fields">
+        <label>{{ 'profile.firstName' | translate }}
+          <input type="text" [value]="acctFirstName()" (input)="acctFirstName.set($any($event.target).value)" [attr.aria-invalid]="!acctFirstName().trim()" />
+        </label>
+        <label>{{ 'profile.lastName' | translate }}
+          <input type="text" [value]="acctLastName()" (input)="acctLastName.set($any($event.target).value)" [attr.aria-invalid]="!acctLastName().trim()" />
+        </label>
+        <label>{{ 'profile.phone' | translate }}
+          <input type="tel" [value]="acctPhone()" (input)="acctPhone.set($any($event.target).value)" />
+        </label>
+        <label>{{ 'profile.gender' | translate }}
+          <select [value]="acctGender()" (change)="acctGender.set($any($event.target).value)">
+            <option value="">{{ 'profile.notSet' | translate }}</option>
+            <option value="Male">{{ 'memberProfile.male' | translate }}</option>
+            <option value="Female">{{ 'memberProfile.female' | translate }}</option>
+          </select>
+        </label>
+      </div>
+      @if (acctError(); as err) {
+        <p class="edit-error" role="alert">{{ err }}</p>
+      }
+      <div class="edit-actions">
+        <button class="edit-cancel" (click)="closeAccountEdit()" [disabled]="savingAccount()">{{ 'profile.cancel' | translate }}</button>
+        <button class="edit-save" (click)="saveAccountEdit()" [disabled]="savingAccount() || !acctValid()">
+          @if (savingAccount()) { <span class="edit-spinner" aria-hidden="true"></span> {{ 'memberProfile.dash.saving' | translate }} } @else { {{ 'profile.saveChanges' | translate }} }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ════ Change Password Modal ════ -->
+@if (showChangePassword()) {
+  <div class="edit-overlay">
+    <div class="edit-modal" role="dialog" aria-modal="true" aria-labelledby="cpModalTitle" (keydown)="onEditKeydown($event)">
+      <div class="edit-modal-hdr">
+        <h3 id="cpModalTitle">{{ 'settings.changePassword' | translate }}</h3>
+        <button type="button" class="edit-close" (click)="closeChangePassword()" [disabled]="savingPassword()" [attr.aria-label]="'profile.cancel' | translate">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="edit-fields">
+        <label>{{ 'settings.currentPassword' | translate }}
+          <input type="password" [value]="cpCurrentPassword()" (input)="cpCurrentPassword.set($any($event.target).value)" [attr.aria-invalid]="!!cpError()" />
+        </label>
+        <label>{{ 'settings.newPassword' | translate }}
+          <input type="password" [value]="cpNewPassword()" (input)="cpNewPassword.set($any($event.target).value)" [attr.aria-invalid]="!!cpError()" />
+        </label>
+        <label>{{ 'settings.confirmNewPassword' | translate }}
+          <input type="password" [value]="cpConfirmPassword()" (input)="cpConfirmPassword.set($any($event.target).value)" [attr.aria-invalid]="!!cpError()" />
+        </label>
+      </div>
+      @if (cpError(); as err) {
+        <p class="edit-error" role="alert">{{ err }}</p>
+      }
+      @if (cpSuccess()) {
+        <p class="edit-success" role="status">{{ cpSuccess() }}</p>
+      }
+      <div class="edit-actions">
+        <button class="edit-cancel" (click)="closeChangePassword()" [disabled]="savingPassword()">{{ 'profile.cancel' | translate }}</button>
+        <button class="edit-save" (click)="savePassword()" [disabled]="savingPassword() || !cpValid()">
+          @if (savingPassword()) { <span class="edit-spinner" aria-hidden="true"></span> {{ 'memberProfile.dash.saving' | translate }} } @else { {{ 'settings.changePassword' | translate }} }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ════ Delete Account Modal ════ -->
+@if (showDeleteAccount()) {
+  <div class="edit-overlay">
+    <div class="edit-modal" role="dialog" aria-modal="true" aria-labelledby="daModalTitle" (keydown)="onEditKeydown($event)">
+      <div class="edit-modal-hdr">
+        <h3 id="daModalTitle">{{ 'settings.deleteAccount' | translate }}</h3>
+        <button type="button" class="edit-close" (click)="closeDeleteAccount()" [disabled]="deletingAccount()" [attr.aria-label]="'profile.cancel' | translate">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <p class="da-warning">{{ 'settings.deleteAccountWarning' | translate }}</p>
+      <div class="edit-fields">
+        <label>{{ 'settings.passwordRequired' | translate }}
+          <input type="password" [value]="daPassword()" (input)="daPassword.set($any($event.target).value)" [attr.aria-invalid]="!!daError()" />
+        </label>
+      </div>
+      @if (daError(); as err) {
+        <p class="edit-error" role="alert">{{ err }}</p>
+      }
+      <div class="edit-actions">
+        <button class="edit-cancel" (click)="closeDeleteAccount()" [disabled]="deletingAccount()">{{ 'settings.deleteAccountCancel' | translate }}</button>
+        <button class="edit-save edit-save-danger" (click)="confirmDeleteAccount()" [disabled]="deletingAccount() || !daPassword()">
+          @if (deletingAccount()) { <span class="edit-spinner" aria-hidden="true"></span> {{ 'memberProfile.dash.saving' | translate }} } @else { {{ 'settings.deleteAccountConfirm' | translate }} }
+        </button>
+      </div>
     </div>
   </div>
 }
