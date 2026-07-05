@@ -1642,16 +1642,12 @@ app-footer {
   padding: 24px 26px;
   border: 1px solid var(--lux-line, rgba(20,20,20,0.10));
   border-inline-start: 4px solid var(--c-accent, #C6EF2E);
-  background:
-    radial-gradient(130% 170% at 0% 0%, rgba(198,239,46,0.13) 0%, transparent 55%),
-    var(--lux-surface, #fff);
+  background: var(--lux-surface, #fff);
 }
 [data-theme="dark"] .achievements-section.achievements-bold {
   border-color: var(--lux-line-dk, rgba(255,255,255,0.09));
   border-inline-start-color: var(--c-accent, #C6EF2E);
-  background:
-    radial-gradient(130% 170% at 0% 0%, rgba(198,239,46,0.12) 0%, transparent 55%),
-    var(--lux-graphite-2, #1c1c1c);
+  background: var(--lux-graphite-2, #1c1c1c);
 }
 .achievements-bold .ach-sec-hdr { gap: 12px; }
 .ach-sec-icon {
@@ -4111,6 +4107,7 @@ app-footer {
 .mhub {
   position: relative; border-radius: var(--r-xl, 20px); overflow: hidden;
   isolation: isolate; --mh: var(--c-accent, #C6EF2E);
+  display: flex; min-height: 420px;
   background:
     radial-gradient(120% 130% at 100% 0%, color-mix(in srgb, var(--mh) 24%, transparent) 0%, transparent 58%),
     linear-gradient(120deg, #232323 0%, #161616 100%);
@@ -4125,12 +4122,12 @@ app-footer {
 .mhub-photo { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
 .mhub-photo img {
   width: 100%; height: 100%; object-fit: cover; object-position: center 30%;
-  transform: scale(1.05); filter: saturate(0.82) brightness(0.6) contrast(1.04);
+  transform: scale(1.05); filter: saturate(0.9) brightness(0.82) contrast(1.04);
   animation: heroZoom 34s ease-in-out infinite alternate;
 }
 .mhub-overlay {
   position: absolute; inset: 0; z-index: 1;
-  background: linear-gradient(115deg, rgba(10,12,16,0.95) 0%, rgba(10,12,16,0.72) 46%, color-mix(in srgb, var(--mh) 14%, rgba(10,12,16,0.55)) 100%);
+  background: linear-gradient(115deg, rgba(10,12,16,0.82) 0%, rgba(10,12,16,0.46) 48%, color-mix(in srgb, var(--mh) 12%, rgba(10,12,16,0.18)) 100%);
 }
 .mhub-glow {
   position: absolute; z-index: 1; top: -40%; inset-inline-end: -8%;
@@ -4140,10 +4137,10 @@ app-footer {
 }
 .mhub .hero-grain { z-index: 1; opacity: 0.03; }
 
-.mhub-inner { position: relative; z-index: 2; display: flex; align-items: stretch; gap: 28px; padding: 28px 32px 22px; }
+.mhub-inner { position: relative; z-index: 2; flex: 1; display: flex; align-items: stretch; gap: 28px; padding: 28px 32px 22px; }
 
 /* ── Greeting, stat chips, coach line, actions ── */
-.mhub-lead { flex: 1; min-width: 0; max-width: 760px; display: flex; flex-direction: column; gap: 10px; }
+.mhub-lead { flex: 1; min-width: 0; max-width: 560px; display: flex; flex-direction: column; justify-content: center; gap: 10px; }
 .mhub-eyebrow {
   display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap;
   font-size: var(--fs-2xs, 10px); font-weight: 700; letter-spacing: 0.12em;
@@ -4260,6 +4257,7 @@ app-footer {
 .mhub-rail-xp { flex-shrink: 0; font-size: 11px; font-weight: 700; letter-spacing: 0.03em; color: rgba(255,255,255,0.6); }
 
 @media (max-width: 820px) {
+  .mhub { min-height: 0; }
   .mhub-inner { flex-direction: column; gap: 22px; padding: 24px 22px 20px; }
   .mhub-dial { width: 100%; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; gap: 14px; }
   .mhub-gauge { max-width: 200px; }
@@ -4488,7 +4486,7 @@ app-footer {
 /* ── Check-in heatmap ── */
 .hm-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 7px; }
 .hm-days span { text-align: center; font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--lux-ink-soft, #5f5f5c); opacity: 0.6; }
-[data-theme="dark"] .hm-days span { color: var(--lux-cream-soft, rgba(238,241,246,0.6)); }
+[data-theme="dark"] .hm-days span { color: var(--lux-cream, #eef1f6); opacity: 0.8; }
 /* Calendar cells — each trained day shows its workout label (e.g. "Leg Day").
    Named cin-* to avoid clashing with the legacy global .cal-* calendar styles. */
 .cin-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 7px; }
@@ -4502,7 +4500,7 @@ app-footer {
 }
 [data-theme="dark"] .cin-cell { background: rgba(255,255,255,0.05); }
 .cin-num { font-size: 10px; font-weight: 700; line-height: 1; color: var(--lux-ink-soft, #5f5f5c); }
-[data-theme="dark"] .cin-num { color: var(--lux-cream-soft, rgba(238,241,246,0.6)); }
+[data-theme="dark"] .cin-num { color: var(--lux-cream, #eef1f6); }
 .cin-label {
   font-size: 8.5px; font-weight: 800; line-height: 1.05; letter-spacing: 0.01em;
   text-transform: uppercase; opacity: 0.85;
@@ -4515,7 +4513,13 @@ app-footer {
   border-color: color-mix(in srgb, var(--c-accent, #C6EF2E) 70%, transparent);
   box-shadow: 0 4px 12px -4px rgba(198,239,46,0.55);
 }
-.cin-active .cin-num { color: #0a0a0a; opacity: 0.65; }
+/* Dark theme: the trained-day lime fill must beat the more-specific
+   [data-theme="dark"] .cin-cell background, otherwise the cell stays dark and
+   its dark ink number/label become unreadable black-on-dark. */
+[data-theme="dark"] .cin-active {
+  background: linear-gradient(150deg, var(--c-accent, #C6EF2E), var(--c-accent-strong, #aed81f));
+}
+.cin-active .cin-num { color: #0a0a0a; opacity: 1; font-weight: 800; }
 .cin-active .cin-label { color: #0a1400; opacity: 1; }
 .cin-cell:hover { transform: translateY(-2px); }
 .cin-today { outline: 2px solid var(--c-accent, #C6EF2E); outline-offset: 2px; }

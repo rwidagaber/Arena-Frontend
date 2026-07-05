@@ -635,12 +635,17 @@ export class MemberProfile implements OnInit {
   });
 
   sessionsThisMonth = computed(() => {
-    const cap = this.planMonthlyCap();
-    const rem = this.sessionsRemaining();
-    if (rem != null) return Math.max(0, cap - rem);
+    // Real check-ins logged this calendar month — the true "sessions this month".
     const dates = this.getDatesFromAttendance(this.attendances());
     const now = new Date();
-    return dates.filter(d => d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()).length;
+    const logged = dates.filter(d => d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()).length;
+    if (logged > 0) return logged;
+    // Fallback only when no attendance is available: derive from the subscription's
+    // remaining sessions. (remainingSessions is a plan total, not per-month, and a
+    // check-in doesn't decrement it, so it can't be the primary source.)
+    const rem = this.sessionsRemaining();
+    if (rem != null) return Math.max(0, this.planMonthlyCap() - rem);
+    return 0;
   });
 
   monthlyTarget = computed(() => this.planMonthlyCap());
