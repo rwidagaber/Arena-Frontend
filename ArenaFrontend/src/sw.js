@@ -10,7 +10,6 @@ self.addEventListener('push', (event) => {
         );
 
         if (isAppFocused) {
-          // اليوزر جوه الموقع — السيجنال آر هيتولى الإشعار، متعرضش Chrome notification
           return;
         }
 
@@ -19,7 +18,7 @@ self.addEventListener('push', (event) => {
           icon: '/assets/logo.png',
           badge: '/assets/badge.png',
           vibrate: [200, 100, 200],
-          silent: false, // ✅ المتصفح يشغل الـ default sound
+          silent: false, 
           data: { url: data.url ?? '/' }
         });
       })
