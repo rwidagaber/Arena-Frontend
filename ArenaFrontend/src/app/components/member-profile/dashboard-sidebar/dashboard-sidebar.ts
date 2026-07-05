@@ -124,6 +124,7 @@ export class DashboardSidebar {
     { key: 'diet',       icon: 'utensils',   label: 'sidebar.myDietPlan' },
     { key: 'membership', icon: 'shield',     label: 'sidebar.membershipBilling' },
     { key: 'progress',   icon: 'chart',      label: 'sidebar.progressReport' },
+    { key: 'settings',   icon: 'settings',   label: 'sidebar.settings' },
   ];
 
   select(section: DashboardSection, event?: MouseEvent): void {
