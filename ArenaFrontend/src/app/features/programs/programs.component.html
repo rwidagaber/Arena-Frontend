@@ -14,17 +14,19 @@
       <div class="program-card" appScrollReveal [revealDelay]="i * 150">
         <div class="card-header">
           <div class="icon-wrapper">
-            @if (program.icon === 'weight-loss') {
+            @if (program.icon === 'chat') {
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 4v16m0-16c-3 0-5 2.2-5 5s2 5 5 5 5 2.2 5 5-2 5-5 5"/>
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
               </svg>
-            } @else if (program.icon === 'strength') {
+            } @else if (program.icon === 'scan') {
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="m14 14 6 6"/><path d="m4 4 6 6"/><path d="m14 4 6 6"/><path d="m4 14 6 6"/>
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
               </svg>
-            } @else if (program.icon === 'cardio') {
+            } @else if (program.icon === 'body') {
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
               </svg>
             }
           </div>
@@ -35,7 +37,7 @@
         <div class="card-content">
           <h3 class="card-title">{{ program.title | translate }}</h3>
           <p class="card-description">{{ program.description | translate }}</p>
-          <a href="#" class="view-link">
+          <a [routerLink]="program.route" class="view-link">
             {{ 'PROGRAMS.VIEW_PROGRAM' | translate }}
             <span class="arrow-icon">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>

@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { RouterLink } from '@angular/router';
 import { ScrollRevealDirective } from '../../shared/directives/scroll-reveal.directive';
 
 @Component({
   selector: 'app-programs',
   standalone: true,
-  imports: [TranslateModule, ScrollRevealDirective],
+  imports: [TranslateModule, ScrollRevealDirective, RouterLink],
   templateUrl: './programs.component.html',
   styleUrl: './programs.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -15,19 +16,22 @@ export class ProgramsComponent {
     {
       title: 'PROGRAMS.PROGRAM_1_TITLE',
       description: 'PROGRAMS.PROGRAM_1_DESC',
-      icon: 'weight-loss',
+      icon: 'chat',
+      route: '/chat',
       image: 'https://demo.awaikenthemes.com/gympro/wp-content/uploads/2026/01/our-programs-image-1-gold.png'
     },
     {
       title: 'PROGRAMS.PROGRAM_2_TITLE',
       description: 'PROGRAMS.PROGRAM_2_DESC',
-      icon: 'strength',
+      icon: 'scan',
+      route: '/dashboard',
       image: 'https://demo.awaikenthemes.com/gympro/wp-content/uploads/2026/01/our-programs-image-2-gold.png'
     },
     {
       title: 'PROGRAMS.PROGRAM_3_TITLE',
       description: 'PROGRAMS.PROGRAM_3_DESC',
-      icon: 'cardio',
+      icon: 'body',
+      route: '/dashboard',
       image: 'https://demo.awaikenthemes.com/gympro/wp-content/uploads/2026/01/our-programs-image-3-gold.png'
     }
   ];
