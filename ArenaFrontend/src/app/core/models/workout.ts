@@ -11,6 +11,22 @@ export interface ExerciseDto {
   equipmentAr?: string;
   videoUrl?: string | null;
   imageUrl?: string | null;
+  primaryMuscles?: string | null;
+  primaryMusclesAr?: string | null;
+  secondaryMuscles?: string | null;
+  secondaryMusclesAr?: string | null;
+  instructions?: string | null;
+  instructionsAr?: string | null;
+  commonMistakes?: string | null;
+  commonMistakesAr?: string | null;
+  safetyTips?: string | null;
+  safetyTipsAr?: string | null;
+  breathing?: string | null;
+  breathingAr?: string | null;
+  difficulty?: string | null;
+  difficultyAr?: string | null;
+  category?: string | null;
+  categoryAr?: string | null;
   memberProfileId: string;
 }
 

@@ -1,173 +1,130 @@
-<section class="qr-page" [class.scan-mode]="scanCode">
-  @if (scanCode) {
-    <div class="scan-shell">
-      <div class="scan-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 7V5a2 2 0 0 1 2-2h2" />
-          <path d="M17 3h2a2 2 0 0 1 2 2v2" />
-          <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
-          <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
-          <path d="M7 12h10" />
-        </svg>
-      </div>
-      <span class="eyebrow">{{ 'qr.attendanceScan' | translate }}</span>
-      <h1>{{ 'qr.confirmCheckin' | translate }}</h1>
-      <p class="scan-copy">{{ 'qr.scanDescription' | translate }}</p>
-
-      <div class="scan-code">{{ scanCode }}</div>
-
-      @if (scanError) {
-        <div class="qr-alert danger">{{ scanError }}</div>
-      }
-
-      @if (scanResult) {
-        <div class="qr-alert" [class.warning]="scanResult.isAlreadyUsed || scanResult.isExpired">
-          <strong>{{ scanResult.message | translate }}</strong>
-          @if (scanResult.bookingId) {
-            <span>{{ 'qr.booking' | translate }}: {{ scanResult.bookingId }}</span>
-          }
-        </div>
-      }
-
-      <div class="scan-actions">
-        <button class="primary-action" type="button" (click)="confirmScan()" [disabled]="isScanning || !!scanResult">
-          @if (isScanning) {
-            {{ 'qr.saving' | translate }}
-          } @else {
-            {{ 'qr.saveAttendance' | translate }}
-          }
-        </button>
-        <a class="secondary-action" routerLink="/dashboard" [queryParams]="{ section: 'qr' }">{{ 'qr.backToQrCodes' | translate }}</a>
-      </div>
+<section class="qr-page">
+  <div class="qr-header">
+    <div>
+      <span class="eyebrow">{{ 'qr.sessionAccess' | translate }}</span>
+      <h1>{{ 'qr.todaySessionQrCodes' | translate }}</h1>
+      <p>{{ 'qr.chooseSession' | translate }}</p>
     </div>
-  } @else {
-    <div class="qr-header">
-      <div>
-        <span class="eyebrow">{{ 'qr.sessionAccess' | translate }}</span>
-        <h1>{{ 'qr.todaySessionQrCodes' | translate }}</h1>
-        <p>{{ 'qr.chooseSession' | translate }}</p>
-      </div>
-      <div class="qr-status-pill">
-        <span></span>
-        {{ 'qr.mobileScannable' | translate }}
-      </div>
+    <div class="qr-status-pill">
+      <span></span>
+      {{ 'qr.mobileScannable' | translate }}
     </div>
+  </div>
 
-    @if (error) {
-      <div class="qr-alert danger">{{ error }}</div>
-    }
-
-    <div class="qr-grid">
-      <aside class="session-panel">
-        <div class="panel-heading">
-          <h2>{{ 'qr.todaySessions' | translate }}</h2>
-          @if (isLoadingBookings) {
-            <span>{{ 'qr.loading' | translate }}</span>
-          } @else {
-            <span>{{ bookings.length }} {{ 'qr.ready' | translate }}</span>
-          }
-        </div>
-
-        @if (isLoadingBookings) {
-          <div class="session-skeleton"></div>
-          <div class="session-skeleton short"></div>
-        } @else if (!bookings.length) {
-          <div class="empty-state">
-            <div class="empty-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2" />
-                <path d="M16 2v4" />
-                <path d="M8 2v4" />
-                <path d="M3 10h18" />
-              </svg>
-            </div>
-            <h3>{{ 'qr.noQrCodesAvailable' | translate }}</h3>
-            <p>{{ 'qr.confirmedBookingsAppear' | translate }}</p>
-          </div>
-        } @else {
-          <div class="session-list">
-            @for (booking of bookings; track booking.id; let idx = $index) {
-              <button
-                class="session-item"
-                type="button"
-                [class.active]="selectedBooking?.id === booking.id"
-                [disabled]="idx > 0"
-                (click)="selectBooking(booking)"
-              >
-                <span class="session-date">{{ formatSessionDate(booking) }}</span>
-                <span class="session-time">{{ formatSessionTime(booking) }}</span>
-                <span class="session-tag" [class.locked]="idx > 0">
-                  {{ (idx > 0 ? 'qr.locked' : 'qr.confirmed') | translate }}
-                </span>
-              </button>
-            }
-          </div>
-        }
-      </aside>
-
-      <div class="qr-card">
-        @if (isLoading) {
-          <div class="loading-state">
-            <div class="spinner"></div>
-            <p>{{ 'qr.generatingQr' | translate }}</p>
-          </div>
-        } @else if (qrData) {
-          <div class="qr-card-head">
-            <div>
-              <span class="eyebrow">{{ 'qr.selectedSession' | translate }}</span>
-              <h2>{{ formatSessionDate(selectedBooking) }}</h2>
-              <p>{{ formatSessionTime(selectedBooking) }}</p>
-            </div>
-            <span class="use-state" [class.used]="qrData.isUsed">{{ (qrData.isUsed ? 'qr.used' : 'qr.active') | translate }}</span>
-          </div>
-
-          <div class="qr-image-shell" [class.expired]="isExpired || qrData.isUsed">
-            <img [src]="qrImageUrl" alt="Session attendance QR code" class="qr-image" />
-            @if (isExpired || qrData.isUsed) {
-              <div class="qr-overlay">
-                <strong>{{ (qrData.isUsed ? 'qr.alreadyUsed' : 'qr.expired') | translate }}</strong>
-              </div>
-            }
-          </div>
-
-          <div class="countdown" [class.expired]="isExpired">
-            @if (isExpired) {
-              {{ 'qr.qrExpired' | translate }}
-            } @else {
-              {{ 'qr.expiresIn' | translate }} {{ timeLeft || ('qr.calculating' | translate) }}
-            }
-          </div>
-
-          <div class="qr-details">
-            <div>
-              <span>{{ 'qr.generated' | translate }}</span>
-              <strong>{{ qrData.generatedAt | date:'medium' }}</strong>
-            </div>
-            <div>
-              <span>{{ 'qr.expires' | translate }}</span>
-              <strong>{{ qrData.expirationTime | date:'medium' }}</strong>
-            </div>
-          </div>
-
-          <button class="secondary-action refresh-action" type="button" (click)="generateQr(qrData.bookingId)">
-            {{ 'qr.refreshQr' | translate }}
-          </button>
-        } @else {
-          <div class="empty-state large">
-            <div class="empty-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="7" height="7" />
-                <rect x="14" y="3" width="7" height="7" />
-                <rect x="3" y="14" width="7" height="7" />
-                <path d="M14 14h3v3" />
-                <path d="M21 14v7h-7" />
-              </svg>
-            </div>
-            <h3>{{ 'qr.selectSession' | translate }}</h3>
-            <p>{{ 'qr.qrWillAppear' | translate }}</p>
-          </div>
-        }
-      </div>
-    </div>
+  @if (error) {
+    <div class="qr-alert danger">{{ error }}</div>
   }
+
+  <div class="qr-grid">
+    <aside class="session-panel">
+      <div class="panel-heading">
+        <h2>{{ 'qr.todaySessions' | translate }}</h2>
+        @if (isLoadingBookings) {
+          <span>{{ 'qr.loading' | translate }}</span>
+        } @else {
+          <span>{{ bookings.length }} {{ 'qr.ready' | translate }}</span>
+        }
+      </div>
+
+      @if (isLoadingBookings) {
+        <div class="session-skeleton"></div>
+        <div class="session-skeleton short"></div>
+      } @else if (!bookings.length) {
+        <div class="empty-state">
+          <div class="empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" />
+              <path d="M16 2v4" />
+              <path d="M8 2v4" />
+              <path d="M3 10h18" />
+            </svg>
+          </div>
+          <h3>{{ 'qr.noQrCodesAvailable' | translate }}</h3>
+          <p>{{ 'qr.confirmedBookingsAppear' | translate }}</p>
+        </div>
+      } @else {
+        <div class="session-list">
+          @for (booking of bookings; track booking.id; let idx = $index) {
+            <button
+              class="session-item"
+              type="button"
+              [class.active]="selectedBooking?.id === booking.id"
+              [disabled]="idx > 0"
+              (click)="selectBooking(booking)"
+            >
+              <span class="session-date">{{ formatSessionDate(booking) }}</span>
+              <span class="session-time">{{ formatSessionTime(booking) }}</span>
+              <span class="session-tag" [class.locked]="idx > 0">
+                {{ (idx > 0 ? 'qr.locked' : 'qr.confirmed') | translate }}
+              </span>
+            </button>
+          }
+        </div>
+      }
+    </aside>
+
+    <div class="qr-card">
+      @if (isLoading) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>{{ 'qr.generatingQr' | translate }}</p>
+        </div>
+      } @else if (qrData) {
+        <div class="qr-card-head">
+          <div>
+            <span class="eyebrow">{{ 'qr.selectedSession' | translate }}</span>
+            <h2>{{ formatSessionDate(selectedBooking) }}</h2>
+            <p>{{ formatSessionTime(selectedBooking) }}</p>
+          </div>
+          <span class="use-state" [class.used]="qrData.isUsed">{{ (qrData.isUsed ? 'qr.used' : 'qr.active') | translate }}</span>
+        </div>
+
+        <div class="qr-image-shell" [class.expired]="isExpired || qrData.isUsed">
+          <img [src]="qrImageUrl" alt="Session attendance QR code" class="qr-image" />
+          @if (isExpired || qrData.isUsed) {
+            <div class="qr-overlay">
+              <strong>{{ (qrData.isUsed ? 'qr.alreadyUsed' : 'qr.expired') | translate }}</strong>
+            </div>
+          }
+        </div>
+
+        <div class="countdown" [class.expired]="isExpired">
+          @if (isExpired) {
+            {{ 'qr.qrExpired' | translate }}
+          } @else {
+            {{ 'qr.expiresIn' | translate }} {{ timeLeft || ('qr.calculating' | translate) }}
+          }
+        </div>
+
+        <div class="qr-details">
+          <div>
+            <span>{{ 'qr.generated' | translate }}</span>
+            <strong>{{ qrData.generatedAt | date:'medium' }}</strong>
+          </div>
+          <div>
+            <span>{{ 'qr.expires' | translate }}</span>
+            <strong>{{ qrData.expirationTime | date:'medium' }}</strong>
+          </div>
+        </div>
+
+        <button class="secondary-action refresh-action" type="button" (click)="generateQr(qrData.bookingId)">
+          {{ 'qr.refreshQr' | translate }}
+        </button>
+      } @else {
+        <div class="empty-state large">
+          <div class="empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7" />
+              <rect x="14" y="3" width="7" height="7" />
+              <rect x="3" y="14" width="7" height="7" />
+              <path d="M14 14h3v3" />
+              <path d="M21 14v7h-7" />
+            </svg>
+          </div>
+          <h3>{{ 'qr.selectSession' | translate }}</h3>
+          <p>{{ 'qr.qrWillAppear' | translate }}</p>
+        </div>
+      }
+    </div>
+  </div>
 </section>
