@@ -41,6 +41,47 @@
         </div>
       }
 
+      @if (todayMealLogs().length > 0) {
+        <div class="today-meals-section">
+          <div class="today-meals-hdr">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+              <line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>
+            </svg>
+            <h3>{{ t.translate('nutrition.todayMeals') }}</h3>
+            <span class="today-meals-count">{{ dailyMealCount() }}</span>
+          </div>
+
+          <div class="today-meals-list">
+            @for (meal of todayMealLogs(); track meal.id; let i = $index) {
+              <div class="today-meal-item" [style.animation-delay]="i * 40 + 'ms'">
+                <div class="today-meal-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                    <path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+                  </svg>
+                </div>
+                <div class="today-meal-body">
+                  <span class="today-meal-name">{{ meal.foodItems || meal.aiComment || t.translate('nutrition.loggedMeal') }}</span>
+                  <span class="today-meal-time">{{ meal.logDate | date:'h:mm a' }}</span>
+                </div>
+                <div class="today-meal-macros">
+                  <span class="today-meal-cal">{{ meal.calories }} <small>{{ t.translate('nutrition.kcal') }}</small></span>
+                  <span class="today-meal-pcf">{{ meal.protein }}P · {{ meal.carbs }}C · {{ meal.fat }}F</span>
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="today-meals-foot">
+            <div class="today-macro-row">
+              <span class="today-macro-lbl">{{ t.translate('nutrition.calories') }}</span>
+              <span class="today-macro-bar"><span class="today-macro-fill" [style.width.%]="progressPercent()"></span></span>
+              <span class="today-macro-val">{{ consumedCalories() }} / {{ dailyCalorieTarget() }}</span>
+            </div>
+          </div>
+        </div>
+      }
+
       <div class="meal-image-analyzer">
         <div class="meal-image-copy">
           <span class="meal-image-kicker">{{ t.translate('nutrition.mealImageKicker') }}</span>
