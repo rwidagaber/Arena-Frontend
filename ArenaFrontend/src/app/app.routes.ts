@@ -107,11 +107,6 @@ export const routes: Routes = [
 
   // ─── QR ───
   {
-    path: 'qr/scan',
-    loadComponent: () => import('./features/QR/qr-display.component/qr-display.component').then(m => m.QrDisplayComponent),
-    canActivate: [authGuard]
-  },
-  {
     path: 'qr/:bookingId',
     loadComponent: () => import('./features/QR/qr-display.component/qr-display.component').then(m => m.QrDisplayComponent),
     canActivate: [authGuard, subGuard]

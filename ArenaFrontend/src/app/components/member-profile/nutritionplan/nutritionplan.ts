@@ -51,6 +51,11 @@ export class Nutritionplan implements OnInit, OnDestroy {
   activePlan         = computed(() => this.allPlans().find(p => p.isActive) ?? null);
   activePlanCount    = computed(() => this.allPlans().filter(p => p.isActive).length);
 
+  // Track meals logged during this session for the Today's Meals section
+  todayMealLogs = signal<MealLogResponseDto[]>([]);
+
+  dailyMealCount = computed(() => this.todayMealLogs().length);
+
   /** آخر plan في الـ array = أحدث plan اتضاف */
   latestPlanId = computed(() => {
     const plans = this.allPlans();
@@ -316,6 +321,9 @@ export class Nutritionplan implements OnInit, OnDestroy {
       next: (result) => {
         this.mealAnalysis.set(result.analysis);
         this.lastLoggedMeal.set(result.loggedMeal ?? null);
+        if (result.loggedMeal) {
+          this.todayMealLogs.update(logs => [...logs, result.loggedMeal!]);
+        }
         if (result.dailySummary) {
           this.dailySummary.set(result.dailySummary);
         } else {
@@ -342,6 +350,8 @@ export class Nutritionplan implements OnInit, OnDestroy {
     this.nutritionService.deleteMealLog(logged.id).subscribe({
       next: (summary) => {
         this.dailySummary.set(summary);
+        // Remove the undone meal from the today logs
+        this.todayMealLogs.update(logs => logs.filter(l => l.id !== logged.id));
         this.lastLoggedMeal.set(null);
         this.mealAnalysis.set(null);
         this.mealUndoLoading.set(false);

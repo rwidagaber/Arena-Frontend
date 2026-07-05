@@ -7,18 +7,6 @@ export interface QrDto {
   bookingId: string;
 }
 
-export interface QrScanResultDto {
-  isExpired: boolean;
-  isAlreadyUsed: boolean;
-  message: string;
-  bookingId?: string;
-  memberProfileId?: string;
-}
-
-export interface ScanQrRequestDto {
-  code: string;
-  scannedById: string;
-}
 
 export interface BookingDto {
   id: string;

@@ -18,11 +18,8 @@ import { RevealDirective } from '../progress-report/reveal.directive';
 import { Nutritionplan } from './nutritionplan/nutritionplan';
 import { ThemeService } from '../../core/services/themeservice';
 import { TranslationService, type Lang } from '../../core/services/translation.service';
-import { WebPushService } from '../../core/services/web-push.service';
 import { WorkoutComponent } from "./workoutplan/workout";
 import { WorkoutService } from '../../core/services/workout';
-import { NutritionService } from '../../core/services/nutrition';
-import type { NutritionPlanDto } from '../../core/models/nutrition';
 import type { WorkoutPlanDto } from '../../core/models/workout';
 import { BookingSection } from './booking-section/booking-section';
 import { BookingService } from '../../core/services/booking.service';
@@ -77,8 +74,6 @@ export class MemberProfile implements OnInit {
   private progressService = inject(ProgressReportService);
   private bookingService = inject(BookingService);
   private workoutSvc = inject(WorkoutService);
-  private nutritionSvc = inject(NutritionService);
-  private webPush = inject(WebPushService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private themeService = inject(ThemeService);
@@ -127,9 +122,6 @@ export class MemberProfile implements OnInit {
   workoutPlan = signal<WorkoutPlanDto | null>(null);
   loadingWorkoutPlan = signal(false);
 
-  /** Active nutrition plan — feeds the AI teaser's macro targets. */
-  nutritionPlan = signal<NutritionPlanDto | null>(null);
-
   /** Heaviest working weights from the active plan: dedupe by exercise, keep the
       heaviest set, sort desc, take the top 4. These are program working targets
       (trainer-prescribed weights), NOT logged personal records. */
@@ -174,24 +166,6 @@ export class MemberProfile implements OnInit {
     return { dayName: day.dayName, count: exercises.length, muscles, preview };
   });
 
-  /** Real workout snippet for the AI teaser: today's day from the active plan
-   *  (falling back to the first day that has exercises), with up to 3 exercises
-   *  and their prescribed sets × reps. Null when the member has no plan yet. */
-  teaserWorkout = computed(() => {
-    const plan = this.workoutPlan();
-    if (!plan?.days?.length) return null;
-    const todayIdx = new Date().getDay() % plan.days.length;
-    const ordered = [plan.days[todayIdx], ...plan.days];
-    for (const day of ordered) {
-      const exercises = (day.exercises ?? [])
-        .map(e => ({ name: (e.exercise?.name ?? e.name ?? '').trim(), sets: e.sets, reps: e.reps }))
-        .filter(e => e.name)
-        .slice(0, 3);
-      if (exercises.length) return { dayName: day.dayName, exercises };
-    }
-    return null;
-  });
-
   /** True when the member has already checked in today. */
   trainedToday = computed(() => this.daysSinceLastWorkout() === 0);
 
@@ -210,23 +184,6 @@ export class MemberProfile implements OnInit {
     if (!sub) return '';
     return sub.planNameEn || '';
   });
-
-  /** A subscription counts as active unless it's explicitly expired/cancelled or
-   *  its end date has passed. */
-  private isSubActive(s: UserSubscriptionDto): boolean {
-    const status = (s.status ?? '').toLowerCase();
-    if (status === 'expired' || status === 'cancelled' || status === 'canceled' || status === 'inactive') return false;
-    if (s.endDate) return new Date(s.endDate).getTime() >= Date.now();
-    return true;
-  }
-
-  /** True when the member has an ACTIVE subscription that includes AI features.
-   *  Checks the loaded subscription list first, then the profile's active sub.
-   *  Drives the AI card: unlocked (real plan) when true, locked teaser when false. */
-  hasAI = computed(() =>
-    this.userSubscriptions().some(s => s.hasAI && this.isSubActive(s)) ||
-    !!this.profile()?.activeSubscription?.hasAI
-  );
 
   planMonthlyCap = computed(() => {
     const level = this.planLevel();
@@ -267,6 +224,125 @@ export class MemberProfile implements OnInit {
     { count: 100, labelKey: 'memberProfile.dash.wmWorkouts', icon: '👑', unlocked: this.totalWorkouts() >= 100 },
   ]);
 
+  /** Live tally of unlocked milestones for the Achievements header. */
+  achievementsUnlocked = computed(() =>
+    this.streakMilestones().filter(m => m.unlocked).length
+    + this.workoutMilestones().filter(m => m.unlocked).length);
+  achievementsTotal = computed(() => this.streakMilestones().length + this.workoutMilestones().length);
+
+  /* ════════════════════════════════════════════════════════════════
+     ANALYTICS — all derived client-side from data already loaded.
+     ════════════════════════════════════════════════════════════════ */
+
+  /** Days since the most recent progress (weight) log; null if none yet. */
+  daysSinceWeightLog = computed<number | null>(() => {
+    const data = this.weightLogData();
+    if (!data.length) return null;
+    const last = data[data.length - 1].date;
+    return Math.floor((this.startOfDay(new Date()) - this.startOfDay(last)) / 86400000);
+  });
+
+  /** Sessions logged in the previous calendar month. */
+  lastMonthSessions = computed(() => {
+    const now = new Date();
+    const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    return this.attendanceDays().filter(d => d.getFullYear() === lm.getFullYear() && d.getMonth() === lm.getMonth()).length;
+  });
+  /** This month's sessions minus last month's (signed). */
+  monthOverMonth = computed(() => this.sessionsThisMonth() - this.lastMonthSessions());
+  /** Month completion vs the plan's monthly target (0–100). */
+  consistencyPct = computed(() => {
+    const t = this.monthlyTarget();
+    return t > 0 ? Math.min(100, Math.round((this.sessionsThisMonth() / t) * 100)) : 0;
+  });
+
+  /** Rule-based coaching insights, highest-priority first (top 3 shown). */
+  smartInsights = computed<{ icon: string; key: string; params?: Record<string, unknown> }[]>(() => {
+    const out: { icon: string; key: string; params?: Record<string, unknown> }[] = [];
+    const since = this.daysSinceLastWorkout();
+    if (since != null && since >= 3) out.push({ icon: 'bolt', key: 'memberProfile.dash.insightComeback', params: { n: since } });
+
+    const remain = Math.max(0, this.monthlyTarget() - this.sessionsThisMonth());
+    if (this.monthlyTarget() > 0) {
+      if (remain === 0) out.push({ icon: 'trophy', key: 'memberProfile.dash.insightMonthMet' });
+      else if (remain <= 3) out.push({ icon: 'trophy', key: 'memberProfile.dash.insightMonthGap', params: { n: remain } });
+    }
+    if (this.currentStreak() >= 3) out.push({ icon: 'fire', key: 'memberProfile.dash.insightStreak', params: { n: this.currentStreak() } });
+
+    const eta = this.goalEta();
+    const target = this.profile()?.targetWeight;
+    if (eta.date && target != null) {
+      const days = Math.max(1, Math.round((eta.date.getTime() - this.startOfDay(new Date())) / 86400000));
+      out.push({ icon: 'bolt', key: 'memberProfile.dash.insightGoalEta', params: { target, n: days } });
+    }
+    const wc = this.weekComparison().change;
+    if (wc > 0) out.push({ icon: 'star', key: 'memberProfile.dash.insightWeekUp', params: { n: wc } });
+
+    const dsl = this.daysSinceWeightLog();
+    if (dsl == null) out.push({ icon: 'calendar-check', key: 'memberProfile.dash.insightLogFirst' });
+    else if (dsl >= 10) out.push({ icon: 'calendar-check', key: 'memberProfile.dash.insightLogStale', params: { n: dsl } });
+
+    if (out.length === 0) out.push({ icon: 'bolt', key: 'memberProfile.dash.insightStart' });
+    return out.slice(0, 3);
+  });
+
+  /** Last 5 weeks (Mon-aligned) of check-in cells for the calendar. Each trained
+   *  day is labelled with the plan's workout for that weekday (e.g. "Leg Day"),
+   *  derived by rotating the plan's days across the week — same rule as
+   *  todaysWorkout so the calendar and the suggested session stay in sync. */
+  checkinCalendar = computed<{ dayNum: number; active: boolean; isToday: boolean; future: boolean; firstOfMonth: boolean; label: string }[]>(() => {
+    const active = new Set(this.attendanceDays().map(d => d.getTime()));
+    const planDays = this.workoutPlan()?.days ?? [];
+    const today = new Date(this.startOfDay(new Date()));
+    const dow = today.getDay();
+    const monThisWeek = new Date(today);
+    monThisWeek.setDate(today.getDate() - (dow === 0 ? 6 : dow - 1));
+    const start = new Date(monThisWeek);
+    start.setDate(monThisWeek.getDate() - 7 * 4);
+    const cells = [];
+    for (let i = 0; i < 35; i++) {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      const t = d.getTime();
+      const isActive = active.has(t);
+      let label = '';
+      if (isActive && planDays.length) {
+        label = (planDays[d.getDay() % planDays.length]?.dayName ?? '').trim();
+      }
+      cells.push({
+        dayNum: d.getDate(),
+        active: isActive,
+        isToday: t === today.getTime(),
+        future: t > today.getTime(),
+        firstOfMonth: d.getDate() === 1,
+        label,
+      });
+    }
+    return cells;
+  });
+
+  /** Number of days trained within the 5-week calendar window. */
+  heatmapActiveCount = computed(() => this.checkinCalendar().filter(c => c.active).length);
+
+  /** Muscle-group distribution across the active plan (top 5, with %). */
+  muscleGroupFocus = computed(() => {
+    const plan = this.workoutPlan();
+    if (!plan?.days?.length) return [] as { name: string; n: number; pct: number }[];
+    const counts = new Map<string, number>();
+    for (const day of plan.days) {
+      for (const ex of day.exercises ?? []) {
+        const mg = (ex.muscleGroup ?? ex.exercise?.muscleGroup ?? '').trim();
+        if (!mg) continue;
+        counts.set(mg, (counts.get(mg) ?? 0) + 1);
+      }
+    }
+    const total = [...counts.values()].reduce((a, b) => a + b, 0) || 1;
+    return [...counts.entries()]
+      .map(([name, n]) => ({ name, n, pct: Math.round((n / total) * 100) }))
+      .sort((a, b) => b.n - a.n)
+      .slice(0, 5);
+  });
+
   streakMessage = computed(() => {
     const s = this.currentStreak();
     if (s === 0) return { icon: 'bolt', titleKey: 'memberProfile.dash.streakReadyTitle', subKey: 'memberProfile.dash.streakReadySub', n: s };
@@ -279,6 +355,137 @@ export class MemberProfile implements OnInit {
     if (s >= 30) return { icon: 'crown', titleKey: 'memberProfile.dash.streakTitle', subKey: 'memberProfile.dash.streak30Sub', n: s };
     return { icon: 'fire', titleKey: 'memberProfile.dash.streakTitle', subKey: 'memberProfile.dash.streakKeepSub', n: s };
   });
+
+  /* ════════════════════════════════════════════════════════════════
+     ARENA MOMENTUM — command-center hero (blended score: gym
+     consistency + body-measurement progress). Mirrors the Progress
+     Report's momentum gauge, but driven by attendance data.
+     ════════════════════════════════════════════════════════════════ */
+
+  /** Length of the semicircular dial arc (r = 84) — matches the SVG path in the template. */
+  protected readonly momentumArc = Math.PI * 84;
+
+  /** The scored components, computed in one place so the gauge and the
+   *  tap-to-reveal breakdown can never drift out of sync. */
+  private momentumParts = computed<{ key: string; points: number; params?: Record<string, unknown> }[]>(() => {
+    const parts: { key: string; points: number; params?: Record<string, unknown> }[] = [];
+
+    // — Gym consistency —
+    parts.push({
+      key: 'memberProfile.dash.ccBdStreak',
+      points: Math.min(16, this.currentStreak() * 2),
+      params: { n: this.currentStreak() },
+    });
+    parts.push({
+      key: 'memberProfile.dash.ccBdMonth',
+      points: Math.round((this.monthlyProgressPercent() / 100) * 12),
+      params: { n: this.sessionsThisMonth(), t: this.monthlyTarget() },
+    });
+    const since = this.daysSinceLastWorkout();
+    let recency = 0;
+    if (since != null) recency = since === 0 ? 8 : since === 1 ? 4 : since >= 4 ? -8 : since >= 2 ? -3 : 0;
+    parts.push({ key: 'memberProfile.dash.ccBdRecency', points: recency });
+    parts.push({
+      key: 'memberProfile.dash.ccBdWeek',
+      points: Math.max(-6, Math.min(6, this.weekComparison().change * 3)),
+    });
+
+    // — Body-measurement progress —
+    const w = this.profile()?.weight;
+    const t = this.profile()?.targetWeight;
+    const wantLighter = w != null && t != null ? w > t : true;
+    let body = 0;
+    const wc = this.weightChange();
+    if (wc) body += (wc < 0) === wantLighter ? 6 : -4;
+    const bf = this.bodyFatChange();
+    if (bf) body += bf < 0 ? 5 : -3;
+    const mm = this.muscleMassChange();
+    if (mm) body += mm > 0 ? 5 : -3;
+    parts.push({ key: 'memberProfile.dash.ccBdBody', points: body });
+
+    return parts;
+  });
+
+  /** 0–100 blended momentum score. Base 50 + the scored parts, clamped. */
+  momentumScore = computed(() => {
+    const raw = 50 + this.momentumParts().reduce((sum, p) => sum + p.points, 0);
+    return Math.max(5, Math.min(100, Math.round(raw)));
+  });
+
+  momentumTier = computed(() => {
+    const sc = this.momentumScore();
+    if (sc >= 80) return { key: 'progressReport.tierUnstoppable', cls: 'tier-unstoppable' };
+    if (sc >= 60) return { key: 'progressReport.tierOnFire', cls: 'tier-onfire' };
+    if (sc >= 40) return { key: 'progressReport.tierBuilding', cls: 'tier-building' };
+    return { key: 'progressReport.tierIgniting', cls: 'tier-igniting' };
+  });
+
+  momentumTrend = computed<'up' | 'down' | 'stable'>(() => {
+    const c = this.weekComparison().change;
+    return c > 0 ? 'up' : c < 0 ? 'down' : 'stable';
+  });
+
+  trendIcon(t: 'up' | 'down' | 'stable'): string {
+    return t === 'up' ? '▲' : t === 'down' ? '▼' : '→';
+  }
+
+  momentumArcOffset = computed(() => this.momentumArc * (1 - this.momentumScore() / 100));
+
+  /** Live status shown next to the gauge — reuses the progress-report badges. */
+  momentumMessage = computed<{ type: 'positive' | 'warning' | 'push' }>(() => {
+    if (this.streakAtRisk()) return { type: 'warning' };
+    if (this.momentumScore() >= 60) return { type: 'positive' };
+    return { type: 'push' };
+  });
+
+  /** Tap-to-reveal breakdown (base row + the scored parts). */
+  momentumOpen = signal(false);
+  toggleMomentum(): void { this.momentumOpen.update(v => !v); }
+  momentumBreakdown = computed(() => [
+    { key: 'memberProfile.dash.ccBdBase', points: 50 },
+    ...this.momentumParts(),
+  ]);
+
+  /* ── XP / level: earned from real workouts, best streak & unlocked badges ── */
+  private readonly XP_PER_LEVEL = 400;
+  xp = computed(() => {
+    const badges = this.streakMilestones().filter(m => m.unlocked).length
+      + this.workoutMilestones().filter(m => m.unlocked).length;
+    return this.totalWorkouts() * 60 + this.bestStreak() * 20 + badges * 50;
+  });
+  level = computed(() => Math.floor(this.xp() / this.XP_PER_LEVEL) + 1);
+  xpIntoLevel = computed(() => this.xp() % this.XP_PER_LEVEL);
+  xpForLevel = computed(() => this.XP_PER_LEVEL);
+  xpPct = computed(() => Math.round((this.xpIntoLevel() / this.XP_PER_LEVEL) * 100));
+  levelTitle = computed(() => {
+    const lv = this.level();
+    if (lv >= 11) return 'progressReport.levelLegend';
+    if (lv >= 9) return 'progressReport.levelChampion';
+    if (lv >= 7) return 'progressReport.levelWarrior';
+    if (lv >= 5) return 'progressReport.levelContender';
+    if (lv >= 3) return 'progressReport.levelChallenger';
+    return 'progressReport.levelRookie';
+  });
+
+  /* ════════════════════════════════════════════════════════════════
+     AI COACH upsell card — shows the value the AI subscription unlocks.
+     Blurred / locked for members on a basic (no-AI) plan or whose
+     subscription is expired/absent; unlocked when the active plan hasAI.
+     ════════════════════════════════════════════════════════════════ */
+  subscriptionExpired = computed(() => {
+    const sub = this.profile()?.activeSubscription;
+    if (!sub) return true;
+    if (this.profile()?.isActive === false) return true;
+    if ((sub.status || '').toLowerCase().includes('expired')) return true;
+    const days = this.subscriptionDaysRemaining();
+    return days != null && days <= 0;
+  });
+  hasAiAccess = computed(() => {
+    const sub = this.profile()?.activeSubscription;
+    return !!sub && sub.hasAI === true && !this.subscriptionExpired();
+  });
+  /** Card is locked (blurred behind an unlock CTA) when AI access is missing. */
+  aiCardLocked = computed(() => !this.hasAiAccess());
 
   sessionsRemaining = computed(() => {
     const sub = this.profile()?.activeSubscription;
@@ -428,12 +635,17 @@ export class MemberProfile implements OnInit {
   });
 
   sessionsThisMonth = computed(() => {
-    const cap = this.planMonthlyCap();
-    const rem = this.sessionsRemaining();
-    if (rem != null) return Math.max(0, cap - rem);
+    // Real check-ins logged this calendar month — the true "sessions this month".
     const dates = this.getDatesFromAttendance(this.attendances());
     const now = new Date();
-    return dates.filter(d => d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()).length;
+    const logged = dates.filter(d => d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()).length;
+    if (logged > 0) return logged;
+    // Fallback only when no attendance is available: derive from the subscription's
+    // remaining sessions. (remainingSessions is a plan total, not per-month, and a
+    // check-in doesn't decrement it, so it can't be the primary source.)
+    const rem = this.sessionsRemaining();
+    if (rem != null) return Math.max(0, this.planMonthlyCap() - rem);
+    return 0;
   });
 
   monthlyTarget = computed(() => this.planMonthlyCap());
@@ -790,23 +1002,135 @@ export class MemberProfile implements OnInit {
     return this.attendanceDays();
   }
 
-  isEditing = signal(false);
-  editFirstName = signal('');
-  editLastName = signal('');
-  editWeight = signal<number | null>(null);
-  editHeight = signal<number | null>(null);
-  editPhone = signal('');
-  editGender = signal('');
-  savingEdit = signal(false);
-  editError = signal<string | null>(null);
-  editImage = signal<string | null>(null);
-  editGoal = signal('');
-  editTargetWeight = signal<number | null>(null);
-  editBodyFat = signal<number | null>(null);
-  editMuscle = signal<number | null>(null);
-  editDateOfBirth = signal('');
+  // ── Body-composition onboarding prompt ───────────────────────────────
+  // Nudge the member to fill in their body data (weight / height / body-fat /
+  // muscle) so the AI can tailor their workout & nutrition. Driven purely by
+  // whether that data is still missing — no persisted flag — and dismissable
+  // for the current visit.
+  bodyPromptDismissed = signal(false);
 
-  // ── Change Password ──
+  /** True while any AI-relevant field is still missing (body composition + goal). */
+  bodyCompositionIncomplete = computed(() => {
+    const p = this.profile();
+    if (!p) return false;
+    return p.weight == null || p.height == null
+        || this.currentBodyFat() == null || this.currentMuscleMass() == null
+        || !p.goal;
+  });
+
+  /** Show the popup once data has loaded, is still incomplete, hasn't been
+   *  dismissed, and no other modal (edit / celebration / achievement) is open. */
+  showBodyPrompt = computed(() =>
+    this.activeSection() === 'profile'
+    && !this.statsLoading()
+    && this.bodyCompositionIncomplete()
+    && !this.bodyPromptDismissed()
+    && !this.isEditing()
+    && !this.showCelebration()
+    && !this.achievementUnlock());
+
+  /** Primary action → open the edit form focused on the body-composition fields. */
+  openBodyEditFromPrompt(): void {
+    this.bodyPromptDismissed.set(true);
+    this.openEdit();
+  }
+
+  /** Parse a number input, keeping 0 (so it can be rejected) and blank -> null. */
+  parseEditNum(v: string): number | null {
+    const t = (v ?? '').trim();
+    if (t === '') return null;
+    const n = Number(t);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  /** "Later" → hide for this visit; it reappears next time while data is missing. */
+  dismissBodyPrompt(): void {
+    this.bodyPromptDismissed.set(true);
+  }
+
+  // ══════════ Account settings: personal info editor ══════════
+  showAccountEdit = signal(false);
+  savingAccount = signal(false);
+  acctError = signal<string | null>(null);
+  acctFirstName = signal('');
+  acctLastName = signal('');
+  acctPhone = signal('');
+  acctGender = signal('');
+  acctImage = signal<string | null>(null);
+
+  acctValid = computed(() => !!this.acctFirstName().trim() && !!this.acctLastName().trim());
+
+  openAccountEdit(): void {
+    const p = this.profile();
+    if (!p) return;
+    this.acctFirstName.set(p.firstName || '');
+    this.acctLastName.set(p.lastName || '');
+    this.acctPhone.set(p.phoneNumber || '');
+    this.acctGender.set(p.gender || '');
+    this.acctImage.set(p.profileImage ?? null);
+    this.acctError.set(null);
+    this.showAccountEdit.set(true);
+  }
+
+  closeAccountEdit(): void {
+    if (this.savingAccount()) return;
+    this.showAccountEdit.set(false);
+  }
+
+  onAccountImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { this.acctError.set('Please choose an image file.'); return; }
+    if (file.size > 2 * 1024 * 1024) { this.acctError.set('Image is too large (max 2MB).'); return; }
+    const reader = new FileReader();
+    reader.onload = () => { this.acctImage.set(reader.result as string); this.acctError.set(null); };
+    reader.readAsDataURL(file);
+  }
+
+  removeAccountImage(): void { this.acctImage.set(null); }
+
+  saveAccountEdit(): void {
+    const p = this.profile();
+    if (!p || this.savingAccount() || !this.acctValid()) return;
+    const dto: UpdateProfileDto = {
+      firstName: this.acctFirstName().trim(),
+      lastName: this.acctLastName().trim(),
+      phoneNumber: this.acctPhone().trim() || undefined,
+      gender: this.acctGender() || undefined,
+      profileImage: this.acctImage() ?? undefined,
+    };
+    this.savingAccount.set(true);
+    this.acctError.set(null);
+    this.memberService.updateProfile(dto).subscribe({
+      next: () => {
+        this.memberService.getProfile().pipe(catchError(() => of(null))).subscribe(prof => {
+          if (prof) {
+            this.profile.set(prof);
+          } else {
+            this.profile.set({
+              ...p,
+              firstName: dto.firstName ?? p.firstName,
+              lastName: dto.lastName ?? p.lastName,
+              phoneNumber: dto.phoneNumber ?? p.phoneNumber,
+              gender: dto.gender ?? p.gender,
+              profileImage: dto.profileImage ?? p.profileImage,
+            });
+          }
+          this.savingAccount.set(false);
+          this.showAccountEdit.set(false);
+        });
+      },
+      error: (err) => {
+        this.savingAccount.set(false);
+        const e = err?.error;
+        const msg = Array.isArray(e) ? e.join(', ') : typeof e === 'string' ? e : e?.message ?? e?.title ?? err?.message;
+        this.acctError.set(msg || this.translate.instant('memberProfile.dash.saveFailed'));
+      },
+    });
+  }
+
+  // ══════════ Account settings: change password ══════════
   showChangePassword = signal(false);
   cpCurrentPassword = signal('');
   cpNewPassword = signal('');
@@ -837,7 +1161,7 @@ export class MemberProfile implements OnInit {
   savePassword(): void {
     if (this.savingPassword() || !this.cpValid()) return;
     if (this.cpNewPassword() !== this.cpConfirmPassword()) {
-      this.cpError.set('auth.validation.passwordMismatch');
+      this.cpError.set(this.translate.instant('auth.validation.passwordMismatch'));
       return;
     }
     this.savingPassword.set(true);
@@ -863,22 +1187,6 @@ export class MemberProfile implements OnInit {
     });
   }
 
-  // ── Push Notifications ──
-  private readonly LS_PUSH = 'arena_push_enabled';
-
-  pushEnabled = signal(localStorage.getItem(this.LS_PUSH) !== 'false');
-
-  togglePush(event: Event): void {
-    const checked = (event.target as HTMLInputElement).checked;
-    this.pushEnabled.set(checked);
-    localStorage.setItem(this.LS_PUSH, String(checked));
-    if (checked) {
-      this.webPush.requestPermissionAndSubscribe();
-    } else {
-      this.webPush.unsubscribe();
-    }
-  }
-
   // ── Active Sessions ──
   loggingOutAll = signal(false);
 
@@ -897,7 +1205,12 @@ export class MemberProfile implements OnInit {
     });
   }
 
-  // ── Delete Account ──
+  /** Empty-state CTA (no active plan) → the plans page. */
+  goToPlans(): void {
+    this.router.navigate(['/plans']);
+  }
+
+  // ══════════ Account settings: delete account ══════════
   showDeleteAccount = signal(false);
   deletingAccount = signal(false);
   daPassword = signal('');
@@ -930,6 +1243,21 @@ export class MemberProfile implements OnInit {
     });
   }
 
+  isEditing = signal(false);
+  editFirstName = signal('');
+  editLastName = signal('');
+  editWeight = signal<number | null>(null);
+  editHeight = signal<number | null>(null);
+  editPhone = signal('');
+  editGender = signal('');
+  savingEdit = signal(false);
+  editError = signal<string | null>(null);
+  editImage = signal<string | null>(null);
+  editGoal = signal('');
+  editTargetWeight = signal<number | null>(null);
+  editBodyFat = signal<number | null>(null);
+  editMuscle = signal<number | null>(null);
+
   // Fitness goal options (values match the backend MemberProfile.Goal)
   readonly goalOptions = [
     { value: 'WeightLoss', labelKey: 'memberProfile.dash.goalWeightLoss' },
@@ -954,7 +1282,7 @@ export class MemberProfile implements OnInit {
     if (positive(this.editTargetWeight())) e['targetWeight'] = 'memberProfile.dash.valPositive';
     if (positive(this.editMuscle())) e['muscle'] = 'memberProfile.dash.valPositive';
     const bf = this.editBodyFat();
-    if (bf != null && (bf < 0 || bf > 100)) e['bodyFat'] = 'memberProfile.dash.valPercent';
+    if (bf != null && (bf <= 0 || bf > 100)) e['bodyFat'] = 'memberProfile.dash.valPercent';
     return e;
   });
 
@@ -1023,7 +1351,6 @@ export class MemberProfile implements OnInit {
     this.editTargetWeight.set(p.targetWeight ?? null);
     this.editBodyFat.set(this.currentBodyFat());
     this.editMuscle.set(this.currentMuscleMass());
-    this.editDateOfBirth.set(p.birthday || '');
     this.editError.set(null);
     this.isEditing.set(true);
     // Move focus into the dialog once it renders (a11y: focus management).
@@ -1069,13 +1396,11 @@ export class MemberProfile implements OnInit {
     const dto: UpdateProfileDto = {
       firstName: this.editFirstName().trim(),
       lastName: this.editLastName().trim(),
-      preferredLanguage: this.i18n.currentLang(),
       phoneNumber: this.editPhone().trim() || undefined,
       weight: this.editWeight() ?? undefined,
       height: this.editHeight() ?? undefined,
       gender: this.editGender() || undefined,
       profileImage: this.editImage() ?? undefined,
-      birthday: this.editDateOfBirth() || undefined,
       goal: this.editGoal() || undefined,
       targetWeight: this.editTargetWeight() ?? undefined,
     };
@@ -1110,7 +1435,20 @@ export class MemberProfile implements OnInit {
           progress: this.progressService.getProgress().pipe(catchError(() => of(null as ProgressSummaryDto | null))),
         }).subscribe(result => {
           if (result.profile) {
-            this.profile.set(result.profile);
+            // The canonical /profile read-back can omit fields (they're gated
+            // server-side), which would wipe values we just saved. Keep the
+            // freshly-saved data whenever the read-back returns null for it.
+            const fresh = result.profile;
+            this.profile.set({
+              ...fresh,
+              goal: fresh.goal ?? dto.goal ?? p.goal,
+              targetWeight: fresh.targetWeight ?? dto.targetWeight ?? p.targetWeight,
+              weight: fresh.weight ?? dto.weight ?? p.weight,
+              height: fresh.height ?? dto.height ?? p.height,
+              gender: fresh.gender ?? dto.gender ?? p.gender,
+              phoneNumber: fresh.phoneNumber ?? dto.phoneNumber ?? p.phoneNumber,
+              profileImage: fresh.profileImage ?? dto.profileImage ?? p.profileImage,
+            });
           } else {
             // Refresh failed — apply what we sent
             this.profile.set({
@@ -1234,8 +1572,6 @@ export class MemberProfile implements OnInit {
   onEscape(): void {
     if (this.achievementUnlock()) { this.closeAchievement(); return; }
     if (this.showCelebration()) { this.closeCelebration(); return; }
-    if (this.showChangePassword()) { this.closeChangePassword(); return; }
-    if (this.showDeleteAccount()) { this.closeDeleteAccount(); return; }
     if (this.isEditing()) { this.closeEdit(); return; }
   }
 
@@ -1265,11 +1601,12 @@ export class MemberProfile implements OnInit {
   currentLang = computed(() => this.i18n.currentLang());
   switchLang(lang: Lang): void {
     this.i18n.switchLang(lang);
-    // Persist the choice to the account so it survives across sessions/devices,
-    // not just in localStorage. Fire-and-forget — the UI already switched.
-    this.memberService.updateProfile({ preferredLanguage: lang }).pipe(
-      catchError(() => of(null))
-    ).subscribe();
+    // Persist the preference server-side so it follows the member across devices.
+    if (this.profile()) {
+      this.memberService.updateProfile({ preferredLanguage: lang })
+        .pipe(catchError(() => of(null)))
+        .subscribe();
+    }
   }
 
   loggingOut = signal(false);
@@ -1290,17 +1627,6 @@ export class MemberProfile implements OnInit {
       queryParamsHandling: 'merge',
     });
   }
-
-  /** CTA on the AI teaser → the plans page to upgrade to an AI subscription. */
-  goToPlans(): void {
-    this.router.navigate(['/plans']);
-  }
-
-  /** Empty-state CTA (subscribed, no plan yet) → the AI chatbot to generate one. */
-  goToChat(): void {
-    this.router.navigate(['/chat']);
-  }
-
 
   ngOnInit(): void {
     const cached = this.auth.currentUser$.subscribe(user => {
@@ -1328,9 +1654,6 @@ export class MemberProfile implements OnInit {
 
   userSubscriptions = signal<UserSubscriptionDto[]>([]);
   loadingSubscriptions = signal(false);
-  /** Flips true once the subscription check has finished — the AI card waits for
-   *  this so it never flashes the wrong (locked/unlocked) state first. */
-  subscriptionsLoaded = signal(false);
 
   loadData(): void {
     this.loading.set(true);
@@ -1359,7 +1682,6 @@ export class MemberProfile implements OnInit {
       this.loadSubscriptions(data.memberProfileId);
       this.loadBookings(data.memberProfileId || data.id || '');
       this.loadWorkoutPlan();
-      this.loadNutritionPlan();
       const memberProfileId = data.memberProfileId || data.id || '';
       if (!memberProfileId) {
         this.statsLoading.set(false);
@@ -1393,12 +1715,6 @@ export class MemberProfile implements OnInit {
     });
   }
 
-  loadNutritionPlan(): void {
-    this.nutritionSvc.getActivePlan().pipe(
-      catchError(() => of(null as NutritionPlanDto | null))
-    ).subscribe(plan => this.nutritionPlan.set(plan ?? null));
-  }
-
   loadBookings(memberProfileId: string): void {
     if (!memberProfileId) return;
     this.loadingBookings.set(true);
@@ -1420,7 +1736,6 @@ export class MemberProfile implements OnInit {
     ).subscribe(subs => {
       this.userSubscriptions.set(subs);
       this.loadingSubscriptions.set(false);
-      this.subscriptionsLoaded.set(true);
     });
   }
 }

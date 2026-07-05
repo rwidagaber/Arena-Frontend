@@ -2,10 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import * as QRCode from 'qrcode';
-import { AuthService } from '../../../core/services/auth';
 import { BookingService } from '../../../core/services/booking.service';
-import { environment } from '../../../../environments/environment';
-import { BookingDto, QrDto, QrScanResultDto } from '../qr.model';
+import { BookingDto, QrDto } from '../qr.model';
 import { QrService } from '../qr.service';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -23,23 +21,17 @@ export class QrDisplayComponent implements OnInit, OnChanges, OnDestroy {
   private route = inject(ActivatedRoute);
   private qrService = inject(QrService);
   private bookingService = inject(BookingService);
-  private auth = inject(AuthService);
   private translate = inject(TranslateService);
 
   bookingId = '';
-  scanCode = '';
-  scannerId = '';
 
   bookings: BookingDto[] = [];
   selectedBooking: BookingDto | null = null;
   qrData: QrDto | null = null;
-  scanResult: QrScanResultDto | null = null;
   qrImageUrl = '';
   isLoading = false;
   isLoadingBookings = false;
-  isScanning = false;
   error = '';
-  scanError = '';
   isExpired = false;
   timeLeft = '';
   private timer: ReturnType<typeof setInterval> | null = null;
@@ -47,17 +39,6 @@ export class QrDisplayComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnInit(): void {
     this.bookingId = this.route.snapshot.paramMap.get('bookingId') ?? '';
-    this.scanCode = this.route.snapshot.queryParamMap.get('code') ?? '';
-
-    const cached = this.auth.currentUser$.subscribe(user => {
-      this.scannerId = user?.id ?? user?.memberProfileId ?? '';
-    });
-    cached.unsubscribe();
-
-    if (this.scanCode) {
-      setTimeout(() => this.confirmScan());
-      return;
-    }
 
     if (this.bookingId) {
       this.generateQr(this.bookingId);
@@ -68,7 +49,7 @@ export class QrDisplayComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['memberProfileId'] && !this.bookingId && !this.scanCode) {
+    if (changes['memberProfileId'] && !this.bookingId) {
       this.bookings = [];
       this.selectedBooking = null;
       this.loadBookings();
@@ -125,10 +106,10 @@ export class QrDisplayComponent implements OnInit, OnChanges, OnDestroy {
         this.qrData = data;
         this.isLoading = false;
 
-        const scanUrl = `${environment.apiUrl}/qr/scan/${encodeURIComponent(data.code)}`;
+        // Encode the raw QR token (not a URL) — admin staff scan this with the MVC scanner
         const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
 
-        this.qrImageUrl = await QRCode.toDataURL(scanUrl, {
+        this.qrImageUrl = await QRCode.toDataURL(data.code, {
           width: 360,
           margin: 2,
           errorCorrectionLevel: 'M',
@@ -143,28 +124,6 @@ export class QrDisplayComponent implements OnInit, OnChanges, OnDestroy {
       error: err => {
         this.error = err.error?.message || err?.message || this.translate.instant('Failed to generate QR code');
         this.isLoading = false;
-      },
-    });
-  }
-
-  confirmScan(): void {
-    if (!this.scanCode) return;
-
-    this.isScanning = true;
-    this.scanError = '';
-    this.scanResult = null;
-
-    this.qrService.scan({
-      code: this.scanCode,
-      scannedById: this.scannerId || '00000000-0000-0000-0000-000000000000',
-    }).subscribe({
-      next: result => {
-        this.scanResult = result;
-        this.isScanning = false;
-      },
-      error: err => {
-        this.scanError = err.error?.message || err?.message || this.translate.instant('Scan failed. Please try again.');
-        this.isScanning = false;
       },
     });
   }

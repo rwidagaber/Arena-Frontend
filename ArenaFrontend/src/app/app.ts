@@ -6,7 +6,6 @@ import { FooterComponent } from './shared/components/footer/footer';
 import { FloatingChatButtonComponent } from './shared/components/floating-chat-button/floating-chat-button';
 import { BackToTopComponent } from './shared/components/back-to-top/back-to-top';
 import { DashboardSidebar, DashboardSection } from './components/member-profile/dashboard-sidebar/dashboard-sidebar';
-import { CursorGlowComponent } from './shared/components/cursor-glow/cursor-glow';
 import { TranslateService } from '@ngx-translate/core';
 import { ThemeService } from '../app/core/services/themeservice';
 import { AuthService } from './core/services/auth';
@@ -38,7 +37,6 @@ function computeInitialLayoutFlags(): { hideLayout: boolean; hideFooter: boolean
     FloatingChatButtonComponent,
     BackToTopComponent,
     DashboardSidebar,
-    CursorGlowComponent,
     CustomAlertComponent,
   ],
   templateUrl: './app.html',

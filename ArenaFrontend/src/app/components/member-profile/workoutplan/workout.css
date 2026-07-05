@@ -1021,3 +1021,244 @@
   object-fit: contain;      /* يحافظ على نسبة الصورة من غير تمطيط */
   display: block;
 }
+
+/* ==========================================================================
+   ── 15. Rich Exercise Details UI ──
+   ========================================================================== */
+.video-embed-container {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+  height: 0;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #000;
+  border: 1px solid var(--n-card-border);
+  box-shadow: 0 4px 14px var(--n-card-shadow);
+  margin-bottom: 20px;
+}
+
+.video-iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+}
+
+.video-fallback-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--n-card-border);
+  background: var(--n-surface);
+  box-shadow: 0 4px 14px var(--n-card-shadow);
+}
+
+.video-fallback-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(198, 239, 46, 0.14);
+  color: var(--accent, #c6ef2e);
+}
+
+.video-fallback-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.video-fallback-copy strong {
+  color: var(--n-text);
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.video-fallback-copy span {
+  color: var(--n-text-muted);
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+
+@media (max-width: 640px) {
+  .video-fallback-card {
+    grid-template-columns: auto 1fr;
+  }
+
+  .video-fallback-card .btn-video {
+    grid-column: 1 / -1;
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.exercise-preview-container {
+  width: 100%;
+  max-height: 350px;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--n-surface);
+  border: 1px solid var(--n-border);
+}
+
+.exercise-preview-img {
+  max-width: 100%;
+  max-height: 350px;
+  object-fit: contain;
+  display: block;
+}
+
+.how-to-perform-list {
+  list-style: decimal;
+  padding-left: 20px;
+  margin: 0;
+  line-height: 1.8;
+  color: var(--n-text-muted);
+}
+
+.how-to-perform-list li, .mistakes-list li, .safety-tips-list li {
+  margin-bottom: 8px;
+  font-size: 13.5px;
+}
+
+.mistakes-list, .safety-tips-list {
+  list-style: disc;
+  padding-left: 20px;
+  margin: 0;
+  line-height: 1.8;
+  color: var(--n-text-muted);
+}
+
+.ingredients-title.error-title {
+  color: #ef4444 !important;
+}
+
+.ingredients-title.warning-title {
+  color: #f59e0b !important;
+}
+
+.muscles-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.muscle-group-list {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.muscle-group-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--n-text);
+  min-width: 80px;
+}
+
+.muscle-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.muscle-tag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 100px;
+  border: 1px solid var(--n-border);
+}
+
+.muscle-tag.primary {
+  background: rgba(198, 239, 46, 0.1);
+  border-color: rgba(198, 239, 46, 0.25);
+  color: var(--accent);
+}
+
+.muscle-tag.secondary {
+  background: var(--n-surface);
+  color: var(--n-text-muted);
+}
+
+.difficulty-category-section {
+  display: flex;
+  gap: 16px;
+  border-top: 1px solid var(--n-border);
+  padding-top: 16px;
+}
+
+.diff-cat-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--n-surface);
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--n-border);
+}
+
+.diff-cat-title {
+  font-size: 10px;
+  color: var(--n-text-muted);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.diff-cat-val {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--n-text);
+}
+
+.badge-difficulty {
+  text-transform: capitalize;
+}
+
+.badge-difficulty.beginner {
+  color: #10b981;
+}
+
+.badge-difficulty.intermediate {
+  color: #f59e0b;
+}
+
+.badge-difficulty.advanced {
+  color: #ef4444;
+}
+
+.badge-category {
+  color: var(--accent);
+}
+
+/* RTL Styles */
+:host-context([dir="rtl"]) .how-to-perform-list,
+:host-context([dir="rtl"]) .mistakes-list,
+:host-context([dir="rtl"]) .safety-tips-list {
+  padding-left: 0 !important;
+  padding-right: 20px !important;
+  text-align: right !important;
+}
+
+:host-context([dir="rtl"]) .muscle-group-list {
+  flex-direction: row !important;
+}
+
+:host-context([dir="rtl"]) .difficulty-category-section {
+  flex-direction: row !important;
+}

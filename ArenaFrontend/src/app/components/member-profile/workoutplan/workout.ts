@@ -8,6 +8,7 @@ import { WorkoutService } from '../../../core/services/workout';
 import type { WorkoutPlanDto, WorkoutDayDto, WorkoutExerciseDto } from '../../../core/models/workout';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { ThemeService } from '../../../core/services/themeservice';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-workout',
@@ -22,6 +23,7 @@ export class WorkoutComponent implements OnInit {
   readonly t         = inject(TranslateService);
   private workoutSvc = inject(WorkoutService);
   private themeSvc   = inject(ThemeService);
+  private sanitizer  = inject(DomSanitizer);
 
   memberProfileId = input<string>('');
 
@@ -200,6 +202,77 @@ export class WorkoutComponent implements OnInit {
     return this.getTotalExercises(plan) * 50;
   }
 
+  isArabic(): boolean {
+    return this.t.currentLang === 'ar';
+  }
+
+  getLocalizedName(ex: WorkoutExerciseDto): string {
+    if (this.isArabic()) {
+      return ex.exercise?.nameAr || ex.name || ex.exercise?.name || '';
+    }
+    return ex.name || ex.exercise?.name || '';
+  }
+
+  getLocalizedDescription(ex: WorkoutExerciseDto): string {
+    if (this.isArabic()) {
+      return ex.exercise?.descriptionAr || ex.exercise?.description || '';
+    }
+    return ex.exercise?.description || '';
+  }
+
+  getLocalizedEquipment(ex: WorkoutExerciseDto): string {
+    if (this.isArabic()) {
+      return ex.exercise?.equipmentAr || ex.exercise?.equipment || '';
+    }
+    return ex.exercise?.equipment || '';
+  }
+
+  getLocalizedInstructions(ex: WorkoutExerciseDto): string[] {
+    const field = this.isArabic() ? (ex.exercise?.instructionsAr || ex.exercise?.instructions) : ex.exercise?.instructions;
+    return this.parseJsonArray(field);
+  }
+
+  getLocalizedBreathing(ex: WorkoutExerciseDto): string {
+    if (this.isArabic()) {
+      return ex.exercise?.breathingAr || ex.exercise?.breathing || '';
+    }
+    return ex.exercise?.breathing || '';
+  }
+
+  getLocalizedCommonMistakes(ex: WorkoutExerciseDto): string[] {
+    const field = this.isArabic() ? (ex.exercise?.commonMistakesAr || ex.exercise?.commonMistakes) : ex.exercise?.commonMistakes;
+    return this.parseJsonArray(field);
+  }
+
+  getLocalizedSafetyTips(ex: WorkoutExerciseDto): string[] {
+    const field = this.isArabic() ? (ex.exercise?.safetyTipsAr || ex.exercise?.safetyTips) : ex.exercise?.safetyTips;
+    return this.parseJsonArray(field);
+  }
+
+  getLocalizedDifficulty(ex: WorkoutExerciseDto): string {
+    if (this.isArabic()) {
+      return ex.exercise?.difficultyAr || ex.exercise?.difficulty || '';
+    }
+    return ex.exercise?.difficulty || '';
+  }
+
+  getLocalizedCategory(ex: WorkoutExerciseDto): string {
+    if (this.isArabic()) {
+      return ex.exercise?.categoryAr || ex.exercise?.category || '';
+    }
+    return ex.exercise?.category || '';
+  }
+
+  getLocalizedPrimaryMuscles(ex: WorkoutExerciseDto): string[] {
+    const field = this.isArabic() ? (ex.exercise?.primaryMusclesAr || ex.exercise?.primaryMuscles) : ex.exercise?.primaryMuscles;
+    return this.parseJsonArray(field);
+  }
+
+  getLocalizedSecondaryMuscles(ex: WorkoutExerciseDto): string[] {
+    const field = this.isArabic() ? (ex.exercise?.secondaryMusclesAr || ex.exercise?.secondaryMuscles) : ex.exercise?.secondaryMuscles;
+    return this.parseJsonArray(field);
+  }
+
   muscleGroupIcon(group: string): string {
     const g = (group ?? '').toLowerCase();
     if (g.includes('chest'))    return '/assets/images/body.png';
@@ -330,5 +403,54 @@ export class WorkoutComponent implements OnInit {
     return [...(plan.days ?? [])].sort(
       (a, b) => this.getDaySortKey(a.dayName) - this.getDaySortKey(b.dayName)
     );
+  }
+
+  getYouTubeEmbedUrl(url: string | null | undefined): string | null {
+    if (!url) return null;
+    if (this.isKnownUnavailableVideo(url)) return null;
+    if (url.includes('/results?') || url.includes('search_query=')) return null;
+
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    if (match && match[2].length === 11) {
+      return 'https://www.youtube.com/embed/' + match[2];
+    }
+    // Shorts support
+    const shortsRegExp = /\/shorts\/([a-zA-Z0-9_-]{11})/;
+    const shortsMatch = url.match(shortsRegExp);
+    if (shortsMatch) {
+      return 'https://www.youtube.com/embed/' + shortsMatch[1];
+    }
+    return null;
+  }
+
+  isKnownUnavailableVideo(url: string | null | undefined): boolean {
+    if (!url) return false;
+    return /UYCea886PPA/i.test(url);
+  }
+
+  canEmbedVideo(url: string | null | undefined): boolean {
+    return !!this.getYouTubeEmbedUrl(url);
+  }
+
+  getSafeEmbedUrl(url: string | null | undefined): SafeResourceUrl | null {
+    const embedUrl = this.getYouTubeEmbedUrl(url);
+    if (embedUrl) {
+      return this.sanitizer.bypassSecurityTrustResourceUrl(embedUrl);
+    }
+    return null;
+  }
+
+  parseJsonArray(val: string | null | undefined): string[] {
+    if (!val) return [];
+    try {
+      const trimmed = val.trim();
+      if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+        return JSON.parse(trimmed);
+      }
+      return val.split(',').map(s => s.trim()).filter(Boolean);
+    } catch {
+      return [val];
+    }
   }
 }
