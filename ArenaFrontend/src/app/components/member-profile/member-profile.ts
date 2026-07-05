@@ -224,6 +224,125 @@ export class MemberProfile implements OnInit {
     { count: 100, labelKey: 'memberProfile.dash.wmWorkouts', icon: '👑', unlocked: this.totalWorkouts() >= 100 },
   ]);
 
+  /** Live tally of unlocked milestones for the Achievements header. */
+  achievementsUnlocked = computed(() =>
+    this.streakMilestones().filter(m => m.unlocked).length
+    + this.workoutMilestones().filter(m => m.unlocked).length);
+  achievementsTotal = computed(() => this.streakMilestones().length + this.workoutMilestones().length);
+
+  /* ════════════════════════════════════════════════════════════════
+     ANALYTICS — all derived client-side from data already loaded.
+     ════════════════════════════════════════════════════════════════ */
+
+  /** Days since the most recent progress (weight) log; null if none yet. */
+  daysSinceWeightLog = computed<number | null>(() => {
+    const data = this.weightLogData();
+    if (!data.length) return null;
+    const last = data[data.length - 1].date;
+    return Math.floor((this.startOfDay(new Date()) - this.startOfDay(last)) / 86400000);
+  });
+
+  /** Sessions logged in the previous calendar month. */
+  lastMonthSessions = computed(() => {
+    const now = new Date();
+    const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    return this.attendanceDays().filter(d => d.getFullYear() === lm.getFullYear() && d.getMonth() === lm.getMonth()).length;
+  });
+  /** This month's sessions minus last month's (signed). */
+  monthOverMonth = computed(() => this.sessionsThisMonth() - this.lastMonthSessions());
+  /** Month completion vs the plan's monthly target (0–100). */
+  consistencyPct = computed(() => {
+    const t = this.monthlyTarget();
+    return t > 0 ? Math.min(100, Math.round((this.sessionsThisMonth() / t) * 100)) : 0;
+  });
+
+  /** Rule-based coaching insights, highest-priority first (top 3 shown). */
+  smartInsights = computed<{ icon: string; key: string; params?: Record<string, unknown> }[]>(() => {
+    const out: { icon: string; key: string; params?: Record<string, unknown> }[] = [];
+    const since = this.daysSinceLastWorkout();
+    if (since != null && since >= 3) out.push({ icon: 'bolt', key: 'memberProfile.dash.insightComeback', params: { n: since } });
+
+    const remain = Math.max(0, this.monthlyTarget() - this.sessionsThisMonth());
+    if (this.monthlyTarget() > 0) {
+      if (remain === 0) out.push({ icon: 'trophy', key: 'memberProfile.dash.insightMonthMet' });
+      else if (remain <= 3) out.push({ icon: 'trophy', key: 'memberProfile.dash.insightMonthGap', params: { n: remain } });
+    }
+    if (this.currentStreak() >= 3) out.push({ icon: 'fire', key: 'memberProfile.dash.insightStreak', params: { n: this.currentStreak() } });
+
+    const eta = this.goalEta();
+    const target = this.profile()?.targetWeight;
+    if (eta.date && target != null) {
+      const days = Math.max(1, Math.round((eta.date.getTime() - this.startOfDay(new Date())) / 86400000));
+      out.push({ icon: 'bolt', key: 'memberProfile.dash.insightGoalEta', params: { target, n: days } });
+    }
+    const wc = this.weekComparison().change;
+    if (wc > 0) out.push({ icon: 'star', key: 'memberProfile.dash.insightWeekUp', params: { n: wc } });
+
+    const dsl = this.daysSinceWeightLog();
+    if (dsl == null) out.push({ icon: 'calendar-check', key: 'memberProfile.dash.insightLogFirst' });
+    else if (dsl >= 10) out.push({ icon: 'calendar-check', key: 'memberProfile.dash.insightLogStale', params: { n: dsl } });
+
+    if (out.length === 0) out.push({ icon: 'bolt', key: 'memberProfile.dash.insightStart' });
+    return out.slice(0, 3);
+  });
+
+  /** Last 5 weeks (Mon-aligned) of check-in cells for the calendar. Each trained
+   *  day is labelled with the plan's workout for that weekday (e.g. "Leg Day"),
+   *  derived by rotating the plan's days across the week — same rule as
+   *  todaysWorkout so the calendar and the suggested session stay in sync. */
+  checkinCalendar = computed<{ dayNum: number; active: boolean; isToday: boolean; future: boolean; firstOfMonth: boolean; label: string }[]>(() => {
+    const active = new Set(this.attendanceDays().map(d => d.getTime()));
+    const planDays = this.workoutPlan()?.days ?? [];
+    const today = new Date(this.startOfDay(new Date()));
+    const dow = today.getDay();
+    const monThisWeek = new Date(today);
+    monThisWeek.setDate(today.getDate() - (dow === 0 ? 6 : dow - 1));
+    const start = new Date(monThisWeek);
+    start.setDate(monThisWeek.getDate() - 7 * 4);
+    const cells = [];
+    for (let i = 0; i < 35; i++) {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      const t = d.getTime();
+      const isActive = active.has(t);
+      let label = '';
+      if (isActive && planDays.length) {
+        label = (planDays[d.getDay() % planDays.length]?.dayName ?? '').trim();
+      }
+      cells.push({
+        dayNum: d.getDate(),
+        active: isActive,
+        isToday: t === today.getTime(),
+        future: t > today.getTime(),
+        firstOfMonth: d.getDate() === 1,
+        label,
+      });
+    }
+    return cells;
+  });
+
+  /** Number of days trained within the 5-week calendar window. */
+  heatmapActiveCount = computed(() => this.checkinCalendar().filter(c => c.active).length);
+
+  /** Muscle-group distribution across the active plan (top 5, with %). */
+  muscleGroupFocus = computed(() => {
+    const plan = this.workoutPlan();
+    if (!plan?.days?.length) return [] as { name: string; n: number; pct: number }[];
+    const counts = new Map<string, number>();
+    for (const day of plan.days) {
+      for (const ex of day.exercises ?? []) {
+        const mg = (ex.muscleGroup ?? ex.exercise?.muscleGroup ?? '').trim();
+        if (!mg) continue;
+        counts.set(mg, (counts.get(mg) ?? 0) + 1);
+      }
+    }
+    const total = [...counts.values()].reduce((a, b) => a + b, 0) || 1;
+    return [...counts.entries()]
+      .map(([name, n]) => ({ name, n, pct: Math.round((n / total) * 100) }))
+      .sort((a, b) => b.n - a.n)
+      .slice(0, 5);
+  });
+
   streakMessage = computed(() => {
     const s = this.currentStreak();
     if (s === 0) return { icon: 'bolt', titleKey: 'memberProfile.dash.streakReadyTitle', subKey: 'memberProfile.dash.streakReadySub', n: s };
@@ -236,6 +355,137 @@ export class MemberProfile implements OnInit {
     if (s >= 30) return { icon: 'crown', titleKey: 'memberProfile.dash.streakTitle', subKey: 'memberProfile.dash.streak30Sub', n: s };
     return { icon: 'fire', titleKey: 'memberProfile.dash.streakTitle', subKey: 'memberProfile.dash.streakKeepSub', n: s };
   });
+
+  /* ════════════════════════════════════════════════════════════════
+     ARENA MOMENTUM — command-center hero (blended score: gym
+     consistency + body-measurement progress). Mirrors the Progress
+     Report's momentum gauge, but driven by attendance data.
+     ════════════════════════════════════════════════════════════════ */
+
+  /** Length of the semicircular dial arc (r = 84) — matches the SVG path in the template. */
+  protected readonly momentumArc = Math.PI * 84;
+
+  /** The scored components, computed in one place so the gauge and the
+   *  tap-to-reveal breakdown can never drift out of sync. */
+  private momentumParts = computed<{ key: string; points: number; params?: Record<string, unknown> }[]>(() => {
+    const parts: { key: string; points: number; params?: Record<string, unknown> }[] = [];
+
+    // — Gym consistency —
+    parts.push({
+      key: 'memberProfile.dash.ccBdStreak',
+      points: Math.min(16, this.currentStreak() * 2),
+      params: { n: this.currentStreak() },
+    });
+    parts.push({
+      key: 'memberProfile.dash.ccBdMonth',
+      points: Math.round((this.monthlyProgressPercent() / 100) * 12),
+      params: { n: this.sessionsThisMonth(), t: this.monthlyTarget() },
+    });
+    const since = this.daysSinceLastWorkout();
+    let recency = 0;
+    if (since != null) recency = since === 0 ? 8 : since === 1 ? 4 : since >= 4 ? -8 : since >= 2 ? -3 : 0;
+    parts.push({ key: 'memberProfile.dash.ccBdRecency', points: recency });
+    parts.push({
+      key: 'memberProfile.dash.ccBdWeek',
+      points: Math.max(-6, Math.min(6, this.weekComparison().change * 3)),
+    });
+
+    // — Body-measurement progress —
+    const w = this.profile()?.weight;
+    const t = this.profile()?.targetWeight;
+    const wantLighter = w != null && t != null ? w > t : true;
+    let body = 0;
+    const wc = this.weightChange();
+    if (wc) body += (wc < 0) === wantLighter ? 6 : -4;
+    const bf = this.bodyFatChange();
+    if (bf) body += bf < 0 ? 5 : -3;
+    const mm = this.muscleMassChange();
+    if (mm) body += mm > 0 ? 5 : -3;
+    parts.push({ key: 'memberProfile.dash.ccBdBody', points: body });
+
+    return parts;
+  });
+
+  /** 0–100 blended momentum score. Base 50 + the scored parts, clamped. */
+  momentumScore = computed(() => {
+    const raw = 50 + this.momentumParts().reduce((sum, p) => sum + p.points, 0);
+    return Math.max(5, Math.min(100, Math.round(raw)));
+  });
+
+  momentumTier = computed(() => {
+    const sc = this.momentumScore();
+    if (sc >= 80) return { key: 'progressReport.tierUnstoppable', cls: 'tier-unstoppable' };
+    if (sc >= 60) return { key: 'progressReport.tierOnFire', cls: 'tier-onfire' };
+    if (sc >= 40) return { key: 'progressReport.tierBuilding', cls: 'tier-building' };
+    return { key: 'progressReport.tierIgniting', cls: 'tier-igniting' };
+  });
+
+  momentumTrend = computed<'up' | 'down' | 'stable'>(() => {
+    const c = this.weekComparison().change;
+    return c > 0 ? 'up' : c < 0 ? 'down' : 'stable';
+  });
+
+  trendIcon(t: 'up' | 'down' | 'stable'): string {
+    return t === 'up' ? '▲' : t === 'down' ? '▼' : '→';
+  }
+
+  momentumArcOffset = computed(() => this.momentumArc * (1 - this.momentumScore() / 100));
+
+  /** Live status shown next to the gauge — reuses the progress-report badges. */
+  momentumMessage = computed<{ type: 'positive' | 'warning' | 'push' }>(() => {
+    if (this.streakAtRisk()) return { type: 'warning' };
+    if (this.momentumScore() >= 60) return { type: 'positive' };
+    return { type: 'push' };
+  });
+
+  /** Tap-to-reveal breakdown (base row + the scored parts). */
+  momentumOpen = signal(false);
+  toggleMomentum(): void { this.momentumOpen.update(v => !v); }
+  momentumBreakdown = computed(() => [
+    { key: 'memberProfile.dash.ccBdBase', points: 50 },
+    ...this.momentumParts(),
+  ]);
+
+  /* ── XP / level: earned from real workouts, best streak & unlocked badges ── */
+  private readonly XP_PER_LEVEL = 400;
+  xp = computed(() => {
+    const badges = this.streakMilestones().filter(m => m.unlocked).length
+      + this.workoutMilestones().filter(m => m.unlocked).length;
+    return this.totalWorkouts() * 60 + this.bestStreak() * 20 + badges * 50;
+  });
+  level = computed(() => Math.floor(this.xp() / this.XP_PER_LEVEL) + 1);
+  xpIntoLevel = computed(() => this.xp() % this.XP_PER_LEVEL);
+  xpForLevel = computed(() => this.XP_PER_LEVEL);
+  xpPct = computed(() => Math.round((this.xpIntoLevel() / this.XP_PER_LEVEL) * 100));
+  levelTitle = computed(() => {
+    const lv = this.level();
+    if (lv >= 11) return 'progressReport.levelLegend';
+    if (lv >= 9) return 'progressReport.levelChampion';
+    if (lv >= 7) return 'progressReport.levelWarrior';
+    if (lv >= 5) return 'progressReport.levelContender';
+    if (lv >= 3) return 'progressReport.levelChallenger';
+    return 'progressReport.levelRookie';
+  });
+
+  /* ════════════════════════════════════════════════════════════════
+     AI COACH upsell card — shows the value the AI subscription unlocks.
+     Blurred / locked for members on a basic (no-AI) plan or whose
+     subscription is expired/absent; unlocked when the active plan hasAI.
+     ════════════════════════════════════════════════════════════════ */
+  subscriptionExpired = computed(() => {
+    const sub = this.profile()?.activeSubscription;
+    if (!sub) return true;
+    if (this.profile()?.isActive === false) return true;
+    if ((sub.status || '').toLowerCase().includes('expired')) return true;
+    const days = this.subscriptionDaysRemaining();
+    return days != null && days <= 0;
+  });
+  hasAiAccess = computed(() => {
+    const sub = this.profile()?.activeSubscription;
+    return !!sub && sub.hasAI === true && !this.subscriptionExpired();
+  });
+  /** Card is locked (blurred behind an unlock CTA) when AI access is missing. */
+  aiCardLocked = computed(() => !this.hasAiAccess());
 
   sessionsRemaining = computed(() => {
     const sub = this.profile()?.activeSubscription;
