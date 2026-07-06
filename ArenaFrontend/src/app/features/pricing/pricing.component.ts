@@ -115,4 +115,21 @@ export class PricingComponent implements OnInit {
   closeUpgradeModal(): void {
     this.showUpgradeModal = false;
   }
+
+  isDiscountActive(plan: SubscriptionPlan): boolean {
+    if (!plan.discountPercentage || plan.discountPercentage <= 0) {
+      return false;
+    }
+    if (plan.discountEndDate) {
+      return new Date(plan.discountEndDate) > new Date();
+    }
+    return true;
+  }
+
+  getDiscountedPrice(plan: SubscriptionPlan): number {
+    if (this.isDiscountActive(plan)) {
+      return plan.price * (1 - (plan.discountPercentage || 0) / 100);
+    }
+    return plan.price;
+  }
 }

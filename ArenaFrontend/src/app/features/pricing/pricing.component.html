@@ -55,10 +55,20 @@
         </div>
 
         <div class="price-container">
-          <span class="amount">{{ plan.price | number:'1.0-0' }}</span>
+          <div class="price-amount-wrapper">
+            <span class="amount" [class.discounted-price-active]="isDiscountActive(plan)">
+              {{ getDiscountedPrice(plan) | number:'1.0-0' }}
+            </span>
+            <span class="original-price" *ngIf="isDiscountActive(plan)">
+              {{ plan.price | number:'1.0-0' }}
+            </span>
+          </div>
           <div class="price-meta">
             <span class="currency">{{ 'PRICING.CURRENCY' | translate }}</span>
             <span class="period">{{ 'PRICING.PERIOD' | translate }}</span>
+          </div>
+          <div class="discount-badge" *ngIf="isDiscountActive(plan)">
+            {{ 'PRICING.PERCENT_OFF' | translate:{value: plan.discountPercentage} }}
           </div>
         </div>
 
@@ -123,10 +133,20 @@
         </div>
 
         <div class="price-container">
-          <span class="amount">{{ plan.price | number:'1.0-0' }}</span>
+          <div class="price-amount-wrapper">
+            <span class="amount" [class.discounted-price-active]="isDiscountActive(plan)">
+              {{ getDiscountedPrice(plan) | number:'1.0-0' }}
+            </span>
+            <span class="original-price" *ngIf="isDiscountActive(plan)">
+              {{ plan.price | number:'1.0-0' }}
+            </span>
+          </div>
           <div class="price-meta">
             <span class="currency">{{ 'PRICING.CURRENCY' | translate }}</span>
             <span class="period">{{ 'PRICING.PERIOD' | translate }}</span>
+          </div>
+          <div class="discount-badge" *ngIf="isDiscountActive(plan)">
+            {{ 'PRICING.PERCENT_OFF' | translate:{value: plan.discountPercentage} }}
           </div>
         </div>
 
