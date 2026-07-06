@@ -28,7 +28,7 @@ import { TranslateModule } from '@ngx-translate/core';
     .back-to-top {
       position: fixed;
       bottom: 24px;
-      inset-inline-end: 35px;
+      inset-inline-end: 28px;
       width: 46px; height: 46px;
       border-radius: 50%;
       border: none;
@@ -45,16 +45,6 @@ import { TranslateModule } from '@ngx-translate/core';
       pointer-events: none;
       box-shadow: 0 8px 24px color-mix(in srgb, var(--fb-accent) 35%, transparent);
       transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s ease;
-    }
-    @media (max-width: 768px) {
-      .back-to-top {
-        inset-inline-end: 23px;
-      }
-    }
-    @media (max-width: 380px) {
-      .back-to-top {
-        inset-inline-end: 17px;
-      }
     }
     .back-to-top.visible {
       opacity: 1;
