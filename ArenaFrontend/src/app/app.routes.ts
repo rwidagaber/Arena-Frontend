@@ -118,6 +118,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: ''                     // ✅ أي route غلط → home
+    redirectTo: ''                    
   }
 ];
