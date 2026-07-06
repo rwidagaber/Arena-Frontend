@@ -4,51 +4,49 @@
   <section class="chat-shell" [class.sidebar-hidden]="!sidebarOpen" aria-label="Arena chat assistant">
     <aside class="chat-sidebar" [class.drawer-open]="sidebarOpen" aria-label="Chat history">
       <div class="sidebar-header">
-        <div>
-          <span class="panel-kicker">
-            <span></span>
-            AI coach
+        <div class="assistant-brand">
+          <span class="assistant-avatar" aria-hidden="true">
+            <i class="bi bi-stars"></i>
           </span>
-          <h1>Arena Chat</h1>
+          <span class="assistant-meta">
+            <h1>{{ 'CHAT.TITLE' | translate }}</h1>
+            <span class="assistant-status">
+              <span class="assistant-status-dot"></span>
+              {{ 'CHAT.SUBTITLE' | translate }}
+            </span>
+          </span>
         </div>
-        <div class="sidebar-header-actions">
-          <button
-            type="button"
-            class="sidebar-close-btn"
-            (click)="forceCloseSidebar()"
-            aria-label="Close sidebar"
-            title="Close sidebar"
-          >
-            <i class="bi bi-x-lg"></i>
-          </button>
-          <button
-            type="button"
-            class="new-chat-btn"
-            (click)="newChat()"
-            [disabled]="creatingChat || !memberProfileId"
-            aria-label="Start new chat"
-          >
-            <i class="bi bi-plus-lg"></i>
-          </button>
-        </div>
-      </div>
-
-      <div class="prompt-list" aria-label="Quick prompts">
-        <button type="button" *ngFor="let prompt of quickPrompts" (click)="usePrompt(prompt)">
-          <i class="bi bi-lightning-charge"></i>
-          <span>{{ prompt }}</span>
+        <button
+          type="button"
+          class="sidebar-close-btn"
+          (click)="forceCloseSidebar()"
+          [attr.aria-label]="'CHAT.ARIA_CLOSE_SIDEBAR' | translate"
+          [title]="'CHAT.ARIA_CLOSE_SIDEBAR' | translate"
+        >
+          <i class="bi bi-x-lg"></i>
         </button>
       </div>
 
+      <button
+        type="button"
+        class="new-chat-btn"
+        (click)="newChat()"
+        [disabled]="creatingChat || !memberProfileId"
+        [attr.aria-label]="'CHAT.ARIA_NEW_CHAT' | translate"
+      >
+        <i class="bi bi-plus-lg"></i>
+        <span>{{ 'CHAT.NEW_CHAT_TITLE' | translate }}</span>
+      </button>
+
       <div class="history-block">
         <div class="history-title">
-          <span>Chats</span>
+          <span>{{ 'CHAT.CHATS' | translate }}</span>
           <span *ngIf="conversations.length">{{ conversations.length }}</span>
         </div>
 
         <div *ngIf="loadingConversations" class="loading-row compact">
           <span class="spinner"></span>
-          Loading chats...
+          {{ 'CHAT.LOADING_CHATS' | translate }}
         </div>
 
         <div
@@ -62,8 +60,8 @@
           tabindex="0"
         >
           <div class="history-item-main">
-            <span class="history-item-title">{{ conversation.title || 'New Chat' }}</span>
-            <span class="history-item-preview">{{ conversation.lastMessage || 'No messages yet' }}</span>
+            <span class="history-item-title">{{ conversation.title || ('CHAT.NEW_CHAT_TITLE' | translate) }}</span>
+            <span class="history-item-preview">{{ conversation.lastMessage || ('CHAT.NO_MESSAGES' | translate) }}</span>
             <time>{{ conversation.startedAt | date: 'MMM d' }}</time>
           </div>
           <button
@@ -71,15 +69,15 @@
             class="delete-chat-btn"
             (click)="deleteConversation(conversation, $event)"
             [disabled]="deletingConversationId === conversation.id"
-            aria-label="Delete chat"
-            title="Delete chat"
+            [attr.aria-label]="'CHAT.ARIA_DELETE_CHAT' | translate"
+            [title]="'CHAT.ARIA_DELETE_CHAT' | translate"
           >
             <i class="bi bi-trash3"></i>
           </button>
         </div>
 
         <p *ngIf="!loadingConversations && !conversations.length" class="empty-history">
-          Start your first chat with Arena.
+          {{ 'CHAT.EMPTY_HISTORY' | translate }}
         </p>
       </div>
     </aside>
@@ -93,23 +91,23 @@
             type="button"
             class="sidebar-toggle-btn"
             (click)="toggleSidebar()"
-            aria-label="Toggle chat history"
-            title="Toggle chat history"
+            [attr.aria-label]="'CHAT.ARIA_TOGGLE_HISTORY' | translate"
+            [title]="'CHAT.ARIA_TOGGLE_HISTORY' | translate"
           >
             <i class="bi bi-clock-history"></i>
           </button>
           <span class="status-dot"></span>
-          <span class="status-text">Active subscription verified</span>
+          <span class="status-text">{{ 'CHAT.STATUS_VERIFIED' | translate }}</span>
         </div>
-        <a routerLink="/" aria-label="Back to home">
+        <a routerLink="/" [attr.aria-label]="'CHAT.ARIA_BACK_HOME' | translate">
           <i class="bi bi-house"></i>
         </a>
       </div>
 
-      <div #messagesViewport class="messages">
+      <div #messagesViewport class="messages" (scroll)="onMessagesScroll()">
         <div *ngIf="loadingHistory" class="loading-row">
           <span class="spinner"></span>
-          Loading conversation...
+          {{ 'CHAT.LOADING_CONVERSATION' | translate }}
         </div>
 
         <article
@@ -123,7 +121,7 @@
           <div class="bubble" [class.rich-response]="message.sender !== 'user'">
             <ng-container *ngIf="message.sender === 'user'; else assistantResponse">
               <span *ngIf="message.isVoice" class="voice-tag">
-                <i class="bi bi-mic-fill"></i> Voice
+                <i class="bi bi-mic-fill"></i> {{ 'CHAT.VOICE' | translate }}
               </span>
               <p>{{ message.content }}</p>
 
@@ -132,7 +130,7 @@
                   type="button"
                   class="vn-play"
                   (click)="toggleClip(clipAudio, message)"
-                  [attr.aria-label]="isClipPlaying(message) ? 'Pause voice note' : 'Play voice note'"
+                  [attr.aria-label]="(isClipPlaying(message) ? 'CHAT.ARIA_PAUSE_VOICE' : 'CHAT.ARIA_PLAY_VOICE') | translate"
                 >
                   <i [class]="isClipPlaying(message) ? 'bi bi-pause-fill' : 'bi bi-play-fill'"></i>
                 </button>
@@ -172,6 +170,13 @@
           </div>
         </article>
 
+        <div class="chat-suggestions" *ngIf="showQuickPrompts" aria-label="Quick prompts">
+          <button type="button" *ngFor="let prompt of quickPrompts" (click)="startWithPrompt(prompt)">
+            <i class="bi bi-lightning-charge"></i>
+            <span>{{ prompt | translate }}</span>
+          </button>
+        </div>
+
         <article *ngIf="sending || transcribing" class="message-row">
           <div class="avatar" aria-hidden="true">
             <i class="bi bi-stars"></i>
@@ -181,7 +186,7 @@
               <div class="transcribe-eq" aria-hidden="true">
                 <span></span><span></span><span></span><span></span><span></span>
               </div>
-              <span class="typing-label">Transcribing your voice…</span>
+              <span class="typing-label">{{ 'CHAT.TRANSCRIBING' | translate }}</span>
             </ng-container>
             <ng-template #typingDots>
               <span></span>
@@ -192,6 +197,17 @@
         </article>
       </div>
 
+      <button
+        type="button"
+        class="scroll-down-btn"
+        *ngIf="showScrollDown"
+        (click)="scrollToLatest()"
+        [attr.aria-label]="'CHAT.ARIA_SCROLL_LATEST' | translate"
+        [title]="'CHAT.ARIA_SCROLL_LATEST' | translate"
+      >
+        <i class="bi bi-arrow-down"></i>
+      </button>
+
       <div *ngIf="error" class="chat-error">
         <span class="chat-error-text">{{ error }}</span>
         <span *ngIf="voiceRetry" class="chat-error-actions">
@@ -201,14 +217,14 @@
             (click)="retryVoice()"
             [disabled]="transcribing || sending"
           >
-            <i class="bi bi-arrow-clockwise"></i> Retry
+            <i class="bi bi-arrow-clockwise"></i> {{ 'CHAT.RETRY' | translate }}
           </button>
           <button
             type="button"
             class="voice-dismiss-btn"
             (click)="dismissVoiceRetry()"
-            aria-label="Dismiss"
-            title="Dismiss"
+            [attr.aria-label]="'CHAT.ARIA_DISMISS' | translate"
+            [title]="'CHAT.ARIA_DISMISS' | translate"
           >
             <i class="bi bi-x-lg"></i>
           </button>
@@ -216,13 +232,14 @@
       </div>
 
       <form class="composer" [class.is-recording]="recording" (ngSubmit)="send()">
+        <div class="composer-inner">
         <textarea
           *ngIf="!recording"
           name="message"
           [(ngModel)]="draft"
           rows="1"
-          placeholder="Message Arena assistant..."
-          aria-label="Message Arena assistant"
+          [placeholder]="'CHAT.PLACEHOLDER' | translate"
+          [attr.aria-label]="'CHAT.INPUT_ARIA' | translate"
           [disabled]="sending || transcribing || !memberProfileId"
           (keydown)="onKeyDown($event)"
         ></textarea>
@@ -238,8 +255,8 @@
           </div>
           <span class="rec-hint">
             {{ recordingSeconds >= maxRecordingSeconds - 10
-              ? 'Max ' + formatDuration(maxRecordingSeconds)
-              : 'Listening…' }}
+              ? ('CHAT.MAX_DURATION' | translate: { time: formatDuration(maxRecordingSeconds) })
+              : ('CHAT.LISTENING' | translate) }}
           </span>
         </div>
 
@@ -248,8 +265,8 @@
           type="button"
           class="cancel-btn"
           (click)="cancelRecording()"
-          aria-label="Discard recording"
-          title="Discard recording"
+          [attr.aria-label]="'CHAT.ARIA_DISCARD' | translate"
+          [title]="'CHAT.ARIA_DISCARD' | translate"
         >
           <i class="bi bi-x-lg"></i>
         </button>
@@ -260,8 +277,8 @@
           [class.recording]="recording"
           (click)="toggleRecording()"
           [disabled]="sending || transcribing || !memberProfileId"
-          [attr.aria-label]="recording ? 'Stop recording and send' : 'Record voice command'"
-          [title]="recording ? 'Stop & send' : 'Record voice command'"
+          [attr.aria-label]="(recording ? 'CHAT.ARIA_STOP_SEND' : 'CHAT.ARIA_RECORD') | translate"
+          [title]="(recording ? 'CHAT.ARIA_STOP_SEND' : 'CHAT.ARIA_RECORD') | translate"
         >
           <i [class]="recording ? 'bi bi-stop-fill' : 'bi bi-mic-fill'"></i>
         </button>
@@ -270,10 +287,11 @@
           *ngIf="!recording"
           type="submit"
           [disabled]="!draft.trim() || sending || transcribing || !memberProfileId"
-          aria-label="Send message"
+          [attr.aria-label]="'CHAT.ARIA_SEND' | translate"
         >
-          <i class="bi bi-send-fill"></i>
+          <i class="bi bi-arrow-up"></i>
         </button>
+        </div>
       </form>
     </section>
   </section>
@@ -309,4 +327,3 @@
     </div>
   </div>
 </main>
-

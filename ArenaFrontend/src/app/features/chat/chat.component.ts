@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { AfterViewChecked, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { finalize } from 'rxjs';
 import { AuthService } from '../../core/services/auth';
 import { BookingEventsService } from '../../core/services/booking-events.service';
@@ -25,6 +25,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private readonly router = inject(Router);
   private readonly bookingEvents = inject(BookingEventsService);
   private readonly notificationService = inject(NotificationService);
+  private readonly translate = inject(TranslateService);
+
+  private t(key: string, params?: Record<string, unknown>): string {
+    return this.translate.instant(key, params);
+  }
 
   messages: ChatMessage[] = [];
   conversations: ChatConversation[] = [];
@@ -40,6 +45,14 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   conversationId?: string;
   memberProfileId = '';
   sidebarOpen = false;
+
+  // Auto-scroll state: we only stick to the bottom when the user is already there,
+  // otherwise reading older messages would be impossible (the viewport kept getting
+  // yanked down on every change-detection pass). `showScrollDown` drives the
+  // "jump to latest" button that appears when the user has scrolled up.
+  showScrollDown = false;
+  private autoScrollPinned = true;
+  private lastRenderSignature = '';
 
   // Voice recording UX state
   recordingSeconds = 0;
@@ -80,11 +93,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private recordingStartedAt = 0;
   private lastRecordingDuration = 0;
 
-  readonly quickPrompts = [
-    'Build me a balanced workout plan',
-    'What should I eat before training?',
-    'How can I recover faster?',
-  ];
+  readonly quickPrompts = ['CHAT.PROMPT_1', 'CHAT.PROMPT_2', 'CHAT.PROMPT_3'];
 
   showSubscriptionModal = false;
 
@@ -112,7 +121,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
           this.loadConversations();
         },
         error: () => {
-          this.error = 'We could not verify your subscription. Please sign in again.';
+          this.error = this.t('CHAT.ERR_SUBSCRIPTION');
           this.loadingConversations = false;
         },
       });
@@ -129,11 +138,57 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   ngAfterViewChecked(): void {
-    this.scrollToBottom();
+    // Only scroll when the rendered content actually changed (new message, or the
+    // typing/transcribing indicator toggled) AND the user is pinned to the bottom.
+    // This is what fixes the scroll malfunction: previously every CD pass forced
+    // the viewport down, so manual scroll-up was impossible.
+    const signature = `${this.messages.length}|${this.sending}|${this.transcribing}`;
+    if (signature !== this.lastRenderSignature) {
+      this.lastRenderSignature = signature;
+      if (this.autoScrollPinned) {
+        this.scrollToBottom();
+      }
+    }
   }
 
-  usePrompt(prompt: string): void {
-    this.draft = prompt;
+  /** Track whether the user is at (or near) the bottom of the message list. */
+  onMessagesScroll(): void {
+    const element = this.messagesViewport?.nativeElement;
+    if (!element) {
+      return;
+    }
+    const distanceFromBottom = element.scrollHeight - element.scrollTop - element.clientHeight;
+    this.autoScrollPinned = distanceFromBottom < 120;
+    this.showScrollDown = !this.autoScrollPinned;
+  }
+
+  /** "Jump to latest" button — re-pins the view and scrolls to the newest message. */
+  scrollToLatest(): void {
+    this.autoScrollPinned = true;
+    this.showScrollDown = false;
+    this.scrollToBottom(true);
+  }
+
+  usePrompt(promptKey: string): void {
+    // quickPrompts hold i18n keys; drop the resolved text into the composer.
+    this.draft = this.t(promptKey);
+  }
+
+  /** Suggestion chips are shown in the empty new-chat state only — they vanish
+   *  as soon as the conversation has a user message (or one is being sent). */
+  get showQuickPrompts(): boolean {
+    return (
+      !this.loadingHistory &&
+      !this.sending &&
+      !this.transcribing &&
+      !this.messages.some((message) => message.sender === 'user')
+    );
+  }
+
+  /** Click a suggestion in the empty state → fill and send it immediately. */
+  startWithPrompt(promptKey: string): void {
+    this.draft = this.t(promptKey);
+    this.send();
   }
 
   toggleSidebar(): void {
@@ -160,7 +215,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.error = '';
 
     this.chatService
-      .createConversation({ memberProfileId: this.memberProfileId, title: 'New Chat' })
+      .createConversation({ memberProfileId: this.memberProfileId, title: this.t('CHAT.NEW_CHAT_TITLE') })
       .pipe(finalize(() => (this.creatingChat = false)))
       .subscribe({
         next: (conversation) => {
@@ -168,10 +223,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
           this.conversationId = conversation.id;
           this.messages = [this.createAssistantWelcome()];
           this.draft = '';
+          this.autoScrollPinned = true;
           this.closeSidebar();
         },
         error: (err: Error) => {
-          this.error = err.message || 'Could not create a new chat right now.';
+          this.error = err.message || this.t('CHAT.ERR_CREATE');
         },
       });
   }
@@ -184,6 +240,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.conversationId = conversation.id;
     this.error = '';
     this.loadingHistory = true;
+    this.autoScrollPinned = true;
     this.closeSidebar();
 
     this.chatService
@@ -195,7 +252,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         },
         error: () => {
           this.messages = [this.createAssistantWelcome()];
-          this.error = 'Could not load this conversation.';
+          this.error = this.t('CHAT.ERR_LOAD');
         },
       });
   }
@@ -207,15 +264,15 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       return;
     }
 
-    const title = conversation.title || 'this chat';
-    
+    const title = conversation.title || this.t('CHAT.THIS_CHAT');
+
     // Show premium confirmation dialog instead of browser confirm
     const confirmed = await this.notificationService.confirm(
-      'Delete Chat',
-      `Are you sure you want to delete "${title}"? This cannot be undone.`,
-      'Delete',
-      'Cancel',
-      'Confirm Action'
+      this.t('CHAT.DELETE_TITLE'),
+      this.t('CHAT.DELETE_CONFIRM', { title }),
+      this.t('CHAT.DELETE_ACTION'),
+      this.t('CHAT.CANCEL'),
+      this.t('CHAT.CONFIRM_ACTION')
     );
 
     if (!confirmed) {
@@ -245,7 +302,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
           }
         },
         error: (err: Error) => {
-          this.error = err.message || 'Could not delete this chat right now.';
+          this.error = err.message || this.t('CHAT.ERR_DELETE');
         },
       });
   }
@@ -258,13 +315,14 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     if (!this.memberProfileId) {
-      this.error = 'Please complete your profile before using chat.';
+      this.error = this.t('CHAT.ERR_PROFILE');
       return;
     }
 
     this.error = '';
     this.draft = '';
     this.sending = true;
+    this.autoScrollPinned = true;
     this.messages = [...this.messages, this.createMessage('user', message)];
 
     this.chatService
@@ -273,7 +331,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       .subscribe({
         next: (response) => this.handleResponse(response),
         error: (err: Error) => {
-          this.error = err.message || 'The chat service is not available right now.';
+          this.error = err.message || this.t('CHAT.ERR_SERVICE');
         },
       });
   }
@@ -301,12 +359,12 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     if (!this.memberProfileId) {
-      this.error = 'Please complete your profile before using chat.';
+      this.error = this.t('CHAT.ERR_PROFILE');
       return;
     }
 
     if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
-      this.error = 'Voice recording is not supported in this browser.';
+      this.error = this.t('CHAT.ERR_VOICE_UNSUPPORTED');
       return;
     }
 
@@ -356,7 +414,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.startTimer();
       this.startLevelMeter(stream);
     } catch {
-      this.error = 'Microphone access was blocked. Please allow it and try again.';
+      this.error = this.t('CHAT.ERR_MIC_BLOCKED');
     }
   }
 
@@ -554,12 +612,13 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
           // backend's "couldn't understand" reply — surface a clear retry instead.
           if (!transcript) {
             URL.revokeObjectURL(audioUrl);
-            this.error = "I couldn't understand that voice note. Please speak clearly and try again.";
+            this.error = this.t('CHAT.ERR_VOICE_UNCLEAR');
             this.voiceRetry = true;
             return;
           }
 
           this.objectUrls.push(audioUrl);
+          this.autoScrollPinned = true;
           const voiceMessage = this.createMessage('user', transcript,  { isVoice: true, audioUrl });
           // Seed the duration we measured while recording so the player shows the real
           // length immediately, even before <audio> metadata resolves (or if it never does).
@@ -573,7 +632,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         error: (err: Error) => {
           // Upload/network failure (#8): keep the clip, offer a retry.
           URL.revokeObjectURL(audioUrl);
-          this.error = err.message || 'Could not send your voice note. Please try again.';
+          this.error = err.message || this.t('CHAT.ERR_VOICE_SEND');
           this.voiceRetry = true;
         },
       });
@@ -685,16 +744,13 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     this.messages = [
       ...this.messages,
-      this.createMessage('assistant', reply || 'I received your message.'),
+      this.createMessage('assistant', reply || this.t('CHAT.DEFAULT_REPLY')),
     ];
     this.loadConversations(false);
   }
 
   private createAssistantWelcome(): ChatMessage {
-    return this.createMessage(
-      'assistant',
-      'Hey, I am your Arena assistant. Ask me about training, nutrition, recovery, or your next step in the gym.'
-    );
+    return this.createMessage('assistant', this.t('CHAT.WELCOME'));
   }
 
   private createMessage(
@@ -719,14 +775,19 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
 
-  private scrollToBottom(): void {
+  private scrollToBottom(smooth = false): void {
     const element = this.messagesViewport?.nativeElement;
 
     if (!element) {
       return;
     }
 
-    element.scrollTop = element.scrollHeight;
+    // Defer to the next frame so the freshly-rendered content is measured before we
+    // scroll — otherwise scrollHeight can lag one message behind.
+    requestAnimationFrame(() => {
+      element.scrollTo({ top: element.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
+      this.showScrollDown = false;
+    });
   }
 
   private loadConversations(showLoading = true): void {
@@ -744,10 +805,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       .pipe(finalize(() => (this.loadingConversations = false)))
       .subscribe((conversations) => {
         this.conversations = conversations;
-
-        if (!this.conversationId && conversations.length) {
-          this.openConversation(conversations[0]);
-        }
+        // Do NOT auto-open the last conversation: Arena always opens on a fresh
+        // new chat (welcome + suggestions). Past chats stay available in history.
       });
   }
 }

@@ -61,6 +61,10 @@ export class App implements OnInit {
    *  sidebar — so the global one is suppressed there to avoid duplicates. */
   isDashboard = false;
 
+  /** True on the chat route, which owns the full width with its own history
+   *  sidebar — so the global subscriber sidebar is suppressed there too. */
+  isChat = false;
+
   /** Drives the global subscriber sidebar (shown on every page when subscribed). */
   protected readonly currentUser$ = this.auth.currentUser$;
 
@@ -100,6 +104,7 @@ export class App implements OnInit {
         this.showLayout = !deepest.data['hideLayout'];
         this.showFooter = !deepest.data['hideFooter'];
         this.isDashboard = this.router.url.split('?')[0].startsWith('/dashboard');
+        this.isChat = this.router.url.split('?')[0].startsWith('/chat');
       });
   }
 

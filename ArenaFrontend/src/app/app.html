@@ -10,7 +10,7 @@
 <app-dashboard-sidebar (sectionChange)="goToSection($event)"></app-dashboard-sidebar>
 }
 
-@if(showLayout){
+@if(showLayout && !isChat){
 <app-floating-chat-button></app-floating-chat-button>
 }
 
@@ -18,7 +18,7 @@
 <app-back-to-top></app-back-to-top>
 }
 
-@if(showLayout && showFooter){
+@if(showLayout && showFooter && !isChat){
 <app-footer></app-footer>
 }
 
