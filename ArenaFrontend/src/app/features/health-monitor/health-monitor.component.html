@@ -1,0 +1,269 @@
+<div class="health-monitor-page" [class.dark-only]="true">
+  <!-- Container wrapper to simulate premium mobile viewport but responsive on larger screens -->
+  <div class="mobile-container-sim" style="position: relative;">
+    @if (isLoading) {
+      <div class="monitor-loading-overlay">
+        <div class="spinner-glow"></div>
+        <p class="loading-text">Updating vitals...</p>
+      </div>
+    }
+    
+    <!-- 1. HEADER -->
+    <header class="monitor-header">
+      <button class="btn-back" (click)="goBack()" aria-label="Go Back">
+        <i class="bi bi-arrow-left"></i>
+      </button>
+      <h1 class="header-title">Health Monitor</h1>
+      <div class="live-indicator-wrapper">
+        <span class="pulsing-dot"></span>
+        <span class="live-label">LIVE</span>
+      </div>
+    </header>
+
+    <!-- Interactive Simulator Controls for User Testing (Aesthetic Floating Pill) -->
+    <div class="demo-controls-bar">
+      <span class="demo-label">Simulate:</span>
+      <button class="demo-btn good" [class.active]="healthStatus === 'Good'" (click)="setStatus('Good')">Good</button>
+      <button class="demo-btn warning" [class.active]="healthStatus === 'Warning'" (click)="setStatus('Warning')">Warning</button>
+      <button class="demo-btn critical" [class.active]="healthStatus === 'Critical'" (click)="setStatus('Critical')">Critical</button>
+      <button class="demo-btn simulate-real" [disabled]="isSimulating" (click)="triggerSimulation()" style="background: linear-gradient(135deg, #00A8FF, #0055ff); border-color: #00A8FF; color: white; margin-left: auto; font-weight: bold; border-radius: 20px; font-size: 0.75rem; padding: 4px 12px; cursor: pointer; transition: all 0.2s;">
+        {{ isSimulating ? 'Syncing...' : '🔄 Sync Watch' }}
+      </button>
+    </div>
+
+    <!-- 2. OVERALL STATUS CARD -->
+    <section class="overall-status-card" [ngClass]="healthStatus.toLowerCase()">
+      <div class="glass-bg"></div>
+      
+      <div class="card-content">
+        <div class="score-ring-container">
+          <!-- SVG Circular Progress Arc -->
+          <svg class="progress-ring" viewBox="0 0 100 100">
+            <circle class="progress-ring-bg" cx="50" cy="50" r="44" />
+            <circle 
+              class="progress-ring-indicator" 
+              cx="50" 
+              cy="50" 
+              r="44" 
+              [attr.stroke-dasharray]="276.4"
+              [attr.stroke-dashoffset]="276.4 - (overallScore / 100) * 276.4"
+            />
+          </svg>
+          <div class="score-center-info">
+            <span class="score-number">{{ overallScore }}</span>
+            <span class="score-label">{{ healthStatus }}</span>
+          </div>
+        </div>
+
+        <div class="score-meta">
+          <div class="smartwatch-source">
+            <i class="bi bi-smartwatch watch-icon"></i>
+            <span>Simulated from SmartWatch</span>
+          </div>
+          <p class="score-description">
+            @if (healthStatus === 'Good') {
+              Your vitals are in optimal ranges. Excellent workout capability.
+            } @else if (healthStatus === 'Warning') {
+              Sub-optimal sleep and hydration. Train with caution.
+            } @else {
+              Critical cardiovascular strain and fatigue detected. Rest advised.
+            }
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. ACTIVITY TYPE BADGE (Placed here or below metrics - looks great under Status) -->
+    <div class="activity-badge-container">
+      <div class="activity-badge">
+        <span class="activity-pulse"></span>
+        <span class="activity-text">Currently: {{ getActivityEmoji(currentActivityType) }} {{ currentActivityType }}</span>
+      </div>
+    </div>
+
+    <!-- 3. METRICS GRID (2x3 Grid) -->
+    <section class="metrics-grid">
+      @for (m of metrics; track m.name) {
+        <div class="metric-card" [ngClass]="m.status" [style.--glow-color]="m.color">
+          <div class="card-glow"></div>
+          <div class="metric-card-header">
+            <span class="metric-icon">{{ m.icon }}</span>
+            <span class="metric-name">{{ m.name }}</span>
+          </div>
+          <div class="metric-card-body">
+            <span class="metric-value">{{ m.value }}</span>
+            <span class="metric-unit" *ngIf="m.unit !== 'index'">{{ m.unit }}</span>
+          </div>
+          <div class="metric-card-footer">
+            <div class="trend-indicator" [ngClass]="m.trend">
+              <i class="bi" [ngClass]="{
+                'bi-arrow-up-right': m.trend === 'up',
+                'bi-arrow-down-right': m.trend === 'down',
+                'bi-dash-lg': m.trend === 'neutral'
+              }"></i>
+              <span class="trend-text">{{ m.trend | titlecase }}</span>
+            </div>
+          </div>
+        </div>
+      }
+    </section>
+
+    <!-- 4. ALERTS SECTION -->
+    <section class="alerts-section" *ngIf="alerts.length > 0">
+      <h2 class="section-title">⚠️ Active Alerts</h2>
+      <div class="alerts-container">
+        @for (alert of alerts; track alert.id) {
+          <div class="alert-card" [ngClass]="alert.type">
+            <div class="alert-border"></div>
+            <div class="alert-content-wrapper">
+              <div class="alert-header">
+                <i class="bi alert-category-icon" [ngClass]="alert.icon"></i>
+                <span class="alert-category">{{ alert.category }}</span>
+                <button class="btn-dismiss" (click)="dismissAlert(alert.id)" aria-label="Dismiss Alert">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
+              <div class="alert-body">
+                <h3 class="alert-message">{{ alert.message }}</h3>
+                <p class="alert-advice">{{ alert.advice }}</p>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- 6. AI INSIGHTS BUTTON -->
+    <div class="ai-cta-container">
+      <button class="ai-insights-btn" (click)="triggerAIInsights()">
+        <span class="btn-shine"></span>
+        <i class="bi bi-robot font-robot-icon"></i>
+        <span>Get AI Health Insights</span>
+      </button>
+    </div>
+
+    <!-- 7. HISTORY CHART -->
+    <section class="history-chart-card">
+      <h2 class="chart-title">Heart Rate History (7 Days)</h2>
+      <div class="chart-subtitle">Simulated peaks and recovery values</div>
+      
+      <div class="svg-chart-container">
+        <svg class="history-svg" [attr.viewBox]="'0 0 ' + svgWidth + ' ' + svgHeight" preserveAspectRatio="xMidYMid meet">
+          <!-- SVG Glow Filter Definition -->
+          <defs>
+            <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#00A8FF" stop-opacity="0.4"/>
+              <stop offset="100%" stop-color="#00A8FF" stop-opacity="0.0"/>
+            </linearGradient>
+            <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="4" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+
+          <!-- Y-Axis Grid Lines -->
+          <line x1="40" y1="20" x2="460" y2="20" stroke="rgba(255,255,255,0.05)" stroke-dasharray="4" />
+          <line x1="40" y1="65" x2="460" y2="65" stroke="rgba(255,255,255,0.05)" stroke-dasharray="4" />
+          <line x1="40" y1="110" x2="460" y2="110" stroke="rgba(255,255,255,0.05)" stroke-dasharray="4" />
+          <line x1="40" y1="130" x2="460" y2="130" stroke="rgba(255,255,255,0.1)" />
+
+          <!-- Gradient Area Under Curve -->
+          <!-- We append close points to form a polygon -->
+          <polygon 
+            [attr.points]="'40,130 ' + svgPoints + ' 460,130'" 
+            fill="url(#chartGradient)" 
+          />
+
+          <!-- Glowing Line -->
+          <polyline 
+            [attr.points]="svgPoints" 
+            fill="none" 
+            stroke="#00A8FF" 
+            stroke-width="3.5" 
+            filter="url(#glow)"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+
+          <!-- Data Point Circles with hover properties -->
+          <g *ngFor="let point of getChartPoints()">
+            <circle 
+              [attr.cx]="point.x" 
+              [attr.cy]="point.y" 
+              r="7" 
+              fill="#0D1117" 
+              stroke="#00A8FF" 
+              stroke-width="2.5" 
+              class="chart-dot-pulse"
+            />
+            <circle 
+              [attr.cx]="point.x" 
+              [attr.cy]="point.y" 
+              r="4" 
+              fill="#00FF87" 
+            />
+            <!-- Value Labels on top of dots -->
+            <text 
+              [attr.x]="point.x" 
+              [attr.y]="point.y - 12" 
+              text-anchor="middle" 
+              fill="#ffffff" 
+              font-size="10" 
+              font-weight="bold"
+              class="chart-val-text"
+            >
+              {{ point.val }}
+            </text>
+          </g>
+        </svg>
+
+        <!-- X-Axis Labels -->
+        <div class="x-axis-labels">
+          <span *ngFor="let day of historyDays">{{ day }}</span>
+        </div>
+      </div>
+      <div class="chart-y-legend">
+        <span>High: 160 BPM</span>
+        <span>Avg Recovery: 72 BPM</span>
+      </div>
+    </section>
+
+    <!-- AI INSIGHTS MODAL OVERLAY -->
+    @if (showAIInsights) {
+      <div class="ai-modal-backdrop" (click)="closeAIModal()">
+        <div class="ai-modal-card" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <div class="modal-title-wrapper">
+              <i class="bi bi-robot robot-glow"></i>
+              <h2>Arena AI Vitals Report</h2>
+            </div>
+            <button class="modal-close" (click)="closeAIModal()">&times;</button>
+          </div>
+
+          <div class="modal-body">
+            @if (aiLoading) {
+              <div class="ai-loading-state">
+                <div class="spinner-glow"></div>
+                <div class="pulse-avatar">🤖</div>
+                <p class="loading-text">Analyzing smartwatch telemetry signals...</p>
+                <p class="loading-sub">Gemini 3.5 Engine running medical validation loops</p>
+              </div>
+            } @else {
+              <div class="ai-response-content">
+                <div class="response-inner" [innerHTML]="formatAIResponse(aiResponseText)"></div>
+              </div>
+            }
+          </div>
+
+          <div class="modal-footer">
+            <button class="btn-modal-close" (click)="closeAIModal()">Acknowledge & Close</button>
+          </div>
+        </div>
+      </div>
+    }
+
+  </div>
+</div>

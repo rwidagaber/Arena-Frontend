@@ -123,6 +123,9 @@
               <div class="dropdown-divider"></div>
 
               <!-- Account actions only — section navigation lives in the sidebar -->
+              <button class="dropdown-item" style="color: #00A8FF; font-weight: 600;" (click)="router.navigate(['/health-monitor']); dropdownOpen = false; $event.stopPropagation()">
+                ❤️ Health Monitor
+              </button>
               <button class="dropdown-item" (click)="navigateToSection('settings', $event)">
                 {{ 'header.accountSettings' | translate }}
               </button>
@@ -191,6 +194,9 @@
     <!-- Account actions, merged in from the avatar dropdown (small screens only) -->
     <ng-container *ngIf="currentUser$ | async">
       <div class="mobile-menu-gap"></div>
+      <a routerLink="/health-monitor" class="mobile-link mobile-account-item" style="color: #00A8FF; font-weight: 600;" (click)="closeMobileMenu()">
+        ❤️ Health Monitor
+      </a>
       <button type="button" class="mobile-link mobile-account-item" (click)="navigateToSection('settings', $event); closeMobileMenu()">
         {{ 'header.accountSettings' | translate }}
       </button>

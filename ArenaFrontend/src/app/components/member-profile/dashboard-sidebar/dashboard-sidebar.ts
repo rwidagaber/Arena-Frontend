@@ -116,18 +116,26 @@ export class DashboardSidebar {
     });
   }
 
-  readonly items: { key: DashboardSection; icon: string; label: string }[] = [
-    { key: 'profile',    icon: 'grid',       label: 'My Profile' },
-    { key: 'mybookings', icon: 'calendar',   label: 'myBookings' },
-    { key: 'qr',         icon: 'qr',         label: 'QR Codes' },
-    { key: 'workout',    icon: 'dumbbell',   label: 'sidebar.myWorkouts' },
-    { key: 'diet',       icon: 'utensils',   label: 'sidebar.myDietPlan' },
-    { key: 'membership', icon: 'shield',     label: 'sidebar.membershipBilling' },
-    { key: 'progress',   icon: 'chart',      label: 'sidebar.progressReport' },
+  readonly items: { key: DashboardSection | 'healthmonitor'; icon: string; label: string }[] = [
+    { key: 'profile',       icon: 'grid',       label: 'My Profile' },
+    { key: 'mybookings',    icon: 'calendar',   label: 'myBookings' },
+    { key: 'qr',            icon: 'qr',         label: 'QR Codes' },
+    { key: 'workout',       icon: 'dumbbell',   label: 'sidebar.myWorkouts' },
+    { key: 'diet',          icon: 'utensils',   label: 'sidebar.myDietPlan' },
+    { key: 'membership',    icon: 'shield',     label: 'sidebar.membershipBilling' },
+    { key: 'progress',      icon: 'chart',      label: 'sidebar.progressReport' },
+    { key: 'healthmonitor', icon: 'heart',      label: 'sidebar.healthMonitor' },
   ];
 
-  select(section: DashboardSection, event?: MouseEvent): void {
-    this.sectionChange.emit(section);
+  select(section: DashboardSection | 'healthmonitor', event?: MouseEvent): void {
+    if (section === 'healthmonitor') {
+      this.router.navigate(['/health-monitor']);
+      if (event && event.detail !== 0) {
+        (event.currentTarget as HTMLElement | null)?.blur();
+      }
+      return;
+    }
+    this.sectionChange.emit(section as DashboardSection);
     // On the desktop hover-drawer, a mouse click leaves focus on the button,
     // which keeps :focus-within (and the drawer) open until you click away.
     // Release focus for pointer activation so it closes on mouse-leave; keep

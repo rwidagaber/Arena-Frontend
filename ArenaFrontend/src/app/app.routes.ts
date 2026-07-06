@@ -67,6 +67,11 @@ export const routes: Routes = [
     canActivate: [authGuard, subGuard]
   },
   {
+    path: 'health-monitor',
+    loadComponent: () => import('./features/health-monitor/health-monitor.component').then(m => m.HealthMonitorComponent),
+    canActivate: [authGuard, subGuard]
+  },
+  {
     path: 'profile',
     loadComponent: () => import('./components/member-profile/member-profile').then(m => m.ProfileComponent),
     canActivate: [authGuard, subGuard]
