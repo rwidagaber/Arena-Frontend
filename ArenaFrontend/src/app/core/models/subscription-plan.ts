@@ -7,4 +7,6 @@ export interface SubscriptionPlan {
   sessionLimit: number | null;
   isActive: boolean;
   hasAI: boolean;
+  discountPercentage?: number;
+  discountEndDate?: string;
 }
