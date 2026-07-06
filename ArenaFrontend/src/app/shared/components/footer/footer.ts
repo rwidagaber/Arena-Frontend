@@ -136,7 +136,7 @@ export class FooterComponent implements OnInit, OnDestroy {
   /* ── Credibility stats strip (label keys live in footer.* i18n) ── */
   readonly stats: { value: string; key: string }[] = [
     { value: '10+',    key: 'statYears' },
-    { value: '2,000+', key: 'statMembers' },
+    { value: '200',    key: 'statMembers' },
     { value: '30+',    key: 'statTrainers' },
     { value: '120+',   key: 'statClasses' },
   ];
