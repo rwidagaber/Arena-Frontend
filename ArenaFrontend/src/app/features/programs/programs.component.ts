@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { RouterLink } from '@angular/router';
 import { ScrollRevealDirective } from '../../shared/directives/scroll-reveal.directive';
 
 @Component({
   selector: 'app-programs',
   standalone: true,
-  imports: [TranslateModule, ScrollRevealDirective],
+  imports: [TranslateModule, ScrollRevealDirective, RouterLink],
   templateUrl: './programs.component.html',
   styleUrl: './programs.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -15,20 +16,44 @@ export class ProgramsComponent {
     {
       title: 'PROGRAMS.PROGRAM_1_TITLE',
       description: 'PROGRAMS.PROGRAM_1_DESC',
-      icon: 'weight-loss',
-      image: 'https://demo.awaikenthemes.com/gympro/wp-content/uploads/2026/01/our-programs-image-1-gold.png'
+      icon: 'chat',
+      route: '/chat',
+      image: 'assets/images/program_ai_coach.png'
     },
     {
       title: 'PROGRAMS.PROGRAM_2_TITLE',
       description: 'PROGRAMS.PROGRAM_2_DESC',
-      icon: 'strength',
-      image: 'https://demo.awaikenthemes.com/gympro/wp-content/uploads/2026/01/our-programs-image-2-gold.png'
+      icon: 'scan',
+      route: '/dashboard',
+      image: 'assets/images/program_meal_scanner.png'
     },
     {
       title: 'PROGRAMS.PROGRAM_3_TITLE',
       description: 'PROGRAMS.PROGRAM_3_DESC',
-      icon: 'cardio',
-      image: 'https://demo.awaikenthemes.com/gympro/wp-content/uploads/2026/01/our-programs-image-3-gold.png'
+      icon: 'body',
+      route: '/dashboard',
+      image: 'assets/images/program_body_model.png'
+    },
+    {
+      title: 'PROGRAMS.PROGRAM_4_TITLE',
+      description: 'PROGRAMS.PROGRAM_4_DESC',
+      icon: 'plan',
+      route: '/dashboard',
+      image: 'assets/images/program_custom_plans.png'
+    },
+    {
+      title: 'PROGRAMS.PROGRAM_5_TITLE',
+      description: 'PROGRAMS.PROGRAM_5_DESC',
+      icon: 'calendar',
+      route: '/working-hours',
+      image: 'assets/images/program_occupancy_peaks.png'
+    },
+    {
+      title: 'PROGRAMS.PROGRAM_6_TITLE',
+      description: 'PROGRAMS.PROGRAM_6_DESC',
+      icon: 'qr',
+      route: '/dashboard',
+      image: 'assets/images/program_qr_entry.png'
     }
   ];
 }
