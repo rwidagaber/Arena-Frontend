@@ -2,7 +2,7 @@
 <app-header></app-header>
 }
 
-<router-outlet></router-outlet>
+<router-outlet (activate)="onOutletActivate()"></router-outlet>
 
 <!-- Global subscriber sidebar: on every page (except the dashboard, which has
      its own) when the signed-in user has an active subscription. -->
@@ -18,7 +18,7 @@
 <app-back-to-top></app-back-to-top>
 }
 
-@if(showLayout && showFooter && !isChat){
+@if(showLayout && showFooter && !isChat && contentReady){
 <app-footer></app-footer>
 }
 
