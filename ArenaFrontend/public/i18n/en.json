@@ -409,15 +409,21 @@
     "IMG_ALT": "Weightlifter showcasing fitness results"
   },
   "PROGRAMS": {
-    "BADGE": "Our Programs & Training",
-    "TITLE": "Personalized programs and training for stronger you",
-    "VIEW_PROGRAM": "View Program",
-    "PROGRAM_1_TITLE": "Weight Loss Program",
-    "PROGRAM_1_DESC": "Our Weight Loss Program is designed to help you burn fat, boost metabolism, and build a healthier lifestyle",
-    "PROGRAM_2_TITLE": "Strength Training",
-    "PROGRAM_2_DESC": "Our Strength Training program is designed to help you build muscle, increase power, and improve overall",
-    "PROGRAM_3_TITLE": "Cardio & Endurance Training",
-    "PROGRAM_3_DESC": "Our Cardio & Endurance Training program is designed to improve heart health, boost stamina, and enhance"
+    "BADGE": "Our Advantages",
+    "TITLE": "Everything you need to succeed, all in one place",
+    "VIEW_PROGRAM": "Start Training",
+    "PROGRAM_1_TITLE": "Train with our AI",
+    "PROGRAM_1_DESC": "Train with our Agentic AI coach that guides you through every exercise, provides real-time workout advice, and automatically tracks your progress over time.",
+    "PROGRAM_2_TITLE": "Eat Smarter, Effortlessly",
+    "PROGRAM_2_DESC": "Take the guesswork out of nutrition. Take a photo of your plate to instantly estimate your macros and stay on track with your nutrition every day.",
+    "PROGRAM_3_TITLE": "See Your Progress",
+    "PROGRAM_3_DESC": "Watch your hard work pay off. Visualize your transformation with an interactive 3D body model generated from your real weight and measurements.",
+    "PROGRAM_4_TITLE": "Custom Workout & Meal Plans",
+    "PROGRAM_4_DESC": "Get tailor-made training splits and nutrition plans designed specifically for your goals, preferences, and body stats.",
+    "PROGRAM_5_TITLE": "Train Without Crowds",
+    "PROGRAM_5_DESC": "Check live gym occupancy peaks and schedule your training sessions during quieter hours for a distraction-free workout.",
+    "PROGRAM_6_TITLE": "Instant QR Entry",
+    "PROGRAM_6_DESC": "Skip the front desk queue. Scan your personal QR code at the gates for instant entrance and automatic check-in."
   },
   "WHAT_WE_DO": {
     "IMG_ALT": "Man working out with dumbbells",
@@ -458,6 +464,7 @@
     "BADGE": "Our Pricing Plans",
     "TITLE": "Choose the plan that fits your goals",
     "LOADING": "Loading plans...",
+    "PERCENT_OFF": "{{value}}% OFF",
     "CURRENCY": "EGP",
     "PERIOD": "/plan",
     "MONTHS": "Months",
