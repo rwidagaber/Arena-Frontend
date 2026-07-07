@@ -1541,12 +1541,27 @@
   color: var(--n-text-muted);
 }
 
+/* ── Target-muscles block: titled group, kept apart from attribute tags ── */
+.ex-muscles-block {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--n-border);
+}
+.ex-muscles-block .ex-section-head { margin-bottom: 12px; }
+.ex-muscles-block .ex-meta-bar { margin-top: 0; }
+
 /* ── Meta bar (muscles + difficulty + category + equipment as tags) ── */
 .ex-meta-bar {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 18px;
+}
+/* Attribute tags sit in their own row, visually separated from the muscles. */
+.ex-meta-bar-attrs {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--n-border);
 }
 .ex-mbar-tag {
   font-size: 11.5px;

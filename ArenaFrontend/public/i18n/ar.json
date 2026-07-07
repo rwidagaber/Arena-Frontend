@@ -1245,7 +1245,8 @@
       "fullBody": "الجسم بالكامل",
       "cardio": "كارديو",
       "arms": "الاذرع",
-      "obliques": "العضلات الجانبية"
+      "obliques": "العضلات الجانبية",
+      "lowerAbs": "أسفل البطن"
     },
     "dayFocus": {
       "upperBody": "الجزء العلوي",
@@ -1257,6 +1258,11 @@
       "legs": "الأرجل",
       "core": "الجذع",
       "cardio": "كارديو"
+    },
+    "difficultyLevels": {
+      "beginner": "مبتدئ",
+      "intermediate": "متوسط",
+      "advanced": "متقدم"
     }
   },
   "myBookings": "حجوزاتي",

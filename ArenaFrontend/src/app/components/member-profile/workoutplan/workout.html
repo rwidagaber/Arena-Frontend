@@ -364,17 +364,25 @@
             }
           </div>
 
-          <!-- ════════ Meta Bar: target muscles + difficulty + category + equipment as tags ════════ -->
-          @if (getLocalizedPrimaryMuscles(ex).length > 0 || getLocalizedSecondaryMuscles(ex).length > 0 || getLocalizedDifficulty(ex) || getLocalizedCategory(ex) || (getLocalizedEquipment(ex) && getLocalizedEquipment(ex).trim().toLowerCase() !== 'none')) {
-            <div class="ex-meta-bar">
-              @if (getLocalizedPrimaryMuscles(ex).length > 0) {
+          <!-- ════════ Target Muscles: titled group, separated from attribute tags ════════ -->
+          @if (getLocalizedPrimaryMuscles(ex).length > 0 || getLocalizedSecondaryMuscles(ex).length > 0) {
+            <div class="ex-muscles-block">
+              <div class="ex-section-head">
+                <svg class="ex-section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                <h3 class="ex-section-title">{{ t.instant('workout.targetMuscles') }}</h3>
+              </div>
+              <div class="ex-meta-bar">
                 @for (m of getLocalizedPrimaryMuscles(ex); track m) { <span class="ex-mbar-tag primary">{{ m }}</span> }
-              }
-              @if (getLocalizedSecondaryMuscles(ex).length > 0) {
                 @for (m of getLocalizedSecondaryMuscles(ex); track m) { <span class="ex-mbar-tag secondary">{{ m }}</span> }
-              }
+              </div>
+            </div>
+          }
+
+          <!-- ════════ Attribute tags: difficulty + category + equipment ════════ -->
+          @if (getLocalizedDifficulty(ex) || getLocalizedCategory(ex) || (getLocalizedEquipment(ex) && getLocalizedEquipment(ex).trim().toLowerCase() !== 'none')) {
+            <div class="ex-meta-bar ex-meta-bar-attrs">
               @if (getLocalizedDifficulty(ex)) {
-                <span class="ex-mbar-tag difficulty" [class]="getLocalizedDifficulty(ex).toLowerCase()">{{ getLocalizedDifficulty(ex) }}</span>
+                <span class="ex-mbar-tag difficulty" [class]="difficultyClass(ex)">{{ translateDifficulty(ex) }}</span>
               }
               @if (getLocalizedCategory(ex)) {
                 <span class="ex-mbar-tag category">{{ getLocalizedCategory(ex) }}</span>

@@ -1248,17 +1248,24 @@
       "fullBody": "Full Body",
       "cardio": "Cardio",
       "arms": "arms",
-      "dayFocus": {
-        "upperBody": "Upper Body",
-        "lowerBodyCore": "Lower Body & Core",
-        "lowerBody": "Lower Body",
-        "fullBody": "Full Body",
-        "push": "Push",
-        "pull": "Pull",
-        "legs": "Legs",
-        "core": "Core",
-        "cardio": "Cardio"
-      }
+      "obliques": "Obliques",
+      "lowerAbs": "Lower Abs"
+    },
+    "dayFocus": {
+      "upperBody": "Upper Body",
+      "lowerBodyCore": "Lower Body & Core",
+      "lowerBody": "Lower Body",
+      "fullBody": "Full Body",
+      "push": "Push",
+      "pull": "Pull",
+      "legs": "Legs",
+      "core": "Core",
+      "cardio": "Cardio"
+    },
+    "difficultyLevels": {
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced"
     }
   },
   "myBookings": "My Bookings",
