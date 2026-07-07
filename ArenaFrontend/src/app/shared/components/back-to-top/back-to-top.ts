@@ -28,7 +28,9 @@ import { TranslateModule } from '@ngx-translate/core';
     .back-to-top {
       position: fixed;
       bottom: 24px;
-      inset-inline-end: 33px;
+      /* Center-aligned under the 60px floating chat button (right: 28px), whose
+         centre sits 58px from the edge → 58 - 46/2 = 35px. */
+      inset-inline-end: 35px;
       width: 46px; height: 46px;
       border-radius: 50%;
       border: none;
