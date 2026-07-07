@@ -1524,7 +1524,7 @@
 }
 /* Dark-mode polish: lift the surface off the page with a subtle gradient,
    a brighter hairline border and a deeper shadow so the card reads as elevated. */
-[data-theme="dark"] .welcome-modal {
+:host-context([data-theme="dark"]) .welcome-modal {
   background: linear-gradient(180deg, #262E44 0%, var(--card-bg, #20273A) 100%);
   border-color: rgba(255, 255, 255, 0.14);
   box-shadow: 0 30px 90px rgba(0, 0, 0, 0.55);
@@ -1568,7 +1568,7 @@
   color: #4d7c0f;
   margin-bottom: 6px;
 }
-[data-theme="dark"] .welcome-eyebrow { color: var(--accent, #C6EF2E); }
+:host-context([data-theme="dark"]) .welcome-eyebrow { color: var(--accent, #C6EF2E); }
 .welcome-title {
   font-size: 26px; font-weight: 700; line-height: 1.1;
   color: var(--text-primary, #181818);
@@ -1653,13 +1653,13 @@
 }
 /* Dark-mode fields: the global --input-bg is nearly invisible on the dark card,
    so give them a readable fill and a brighter border. */
-[data-theme="dark"] .body-fields input,
-[data-theme="dark"] .body-fields select {
+:host-context([data-theme="dark"]) .body-fields input,
+:host-context([data-theme="dark"]) .body-fields select {
   background: rgba(255, 255, 255, 0.06);
   border-color: rgba(255, 255, 255, 0.16);
   color: #f1f1ef;
 }
-[data-theme="dark"] .body-fields select option {
+:host-context([data-theme="dark"]) .body-fields select option {
   background: #20273A;
   color: #f1f1ef;
 }
