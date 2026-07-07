@@ -503,7 +503,10 @@
     "FEATURE_1": "Priority Support & Premium Locker",
     "FEATURE_2": "High-energy group fitness classes",
     "FEATURE_3": "Motivating & supportive environment",
-    "FEATURE_4": "Fitness assessment & progress"
+    "FEATURE_4": "Fitness assessment & progress",
+    "SALE": "SALE",
+    "DISCOUNT_ENDS": "Offer ends in",
+    "DISCOUNT_DAYS": "days"
   },
   "Basic": "Basic",
   "Basic AI": "Basic AI",
