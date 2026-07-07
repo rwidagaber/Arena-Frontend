@@ -55,7 +55,7 @@
         </div>
 
         <div
-          *ngFor="let conversation of conversations; trackBy: trackConversation"
+          *ngFor="let conversation of visibleConversations; trackBy: trackConversation"
           class="history-item"
           [class.active]="conversation.id === conversationId"
           (click)="openConversation(conversation)"
@@ -80,6 +80,19 @@
             <i class="bi bi-trash3"></i>
           </button>
         </div>
+
+        <button
+          *ngIf="conversations.length"
+          type="button"
+          class="history-toggle"
+          [class.expanded]="historyExpanded"
+          (click)="toggleHistoryExpanded()"
+          [attr.aria-expanded]="historyExpanded"
+          [attr.aria-label]="(historyExpanded ? 'CHAT.SHOW_LESS' : 'CHAT.SHOW_MORE') | translate"
+          [title]="(historyExpanded ? 'CHAT.SHOW_LESS' : 'CHAT.SHOW_MORE') | translate"
+        >
+          <i class="bi bi-chevron-down"></i>
+        </button>
 
         <p *ngIf="!loadingConversations && !conversations.length" class="empty-history">
           {{ 'CHAT.EMPTY_HISTORY' | translate }}

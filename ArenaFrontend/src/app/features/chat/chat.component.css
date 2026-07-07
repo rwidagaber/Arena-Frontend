@@ -545,6 +545,32 @@
   line-height: 1.5;
 }
 
+/* Expand/collapse the history list — a chevron that flips when expanded */
+.history-toggle {
+  display: grid;
+  place-items: center;
+  width: calc(100% - 8px);
+  height: 30px;
+  margin: 4px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.16s ease, color 0.16s ease;
+}
+
+.history-toggle i {
+  display: block;
+  font-size: 1rem;
+  line-height: 1;
+  transition: transform 0.25s ease;
+}
+
+.history-toggle:hover { background: var(--surface-hover); color: var(--text); }
+
+.history-toggle.expanded i { transform: rotate(180deg); }
+
 /* ═══════════════════════════════════════════ */
 /*               CONVERSATION                    */
 /* ═══════════════════════════════════════════ */

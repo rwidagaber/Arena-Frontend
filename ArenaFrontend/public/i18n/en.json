@@ -1352,6 +1352,8 @@
     "STATUS_ONLINE": "Online",
     "CHATS": "Chats",
     "NEW_CHAT_TITLE": "New Chat",
+    "SHOW_MORE": "Show more chats",
+    "SHOW_LESS": "Show fewer chats",
     "NO_MESSAGES": "No messages yet",
     "EMPTY_HISTORY": "Start your first chat with Arena.",
     "LOADING_CHATS": "Loading chats...",
