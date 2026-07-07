@@ -367,18 +367,41 @@
             }
           </div>
 
-          <!-- 2. Embedded Video -->
+          <!-- 2. Video Section -->
           @if (ex.exercise?.videoUrl) {
-            <div class="ingredients-section video-section">
+            <div class="video-section">
               @if (canEmbedVideo(ex.exercise!.videoUrl)) {
                 <div class="video-embed-container">
-                  <iframe
-                    [src]="getSafeEmbedUrl(ex.exercise!.videoUrl)"
-                    frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowfullscreen
-                    class="video-iframe"
-                  ></iframe>
+                  @if (!playVideo()) {
+                    <div class="video-thumbnail-wrapper" (click)="onVideoPlay()" role="button" tabindex="0" (keydown.enter)="onVideoPlay()" [attr.aria-label]="'workout.playVideo' | translate">
+                      <img
+                        [src]="getYouTubeThumbnailUrl(ex.exercise!.videoUrl)!"
+                        alt="{{ getLocalizedName(ex) }}"
+                        class="video-thumbnail-img"
+                        loading="lazy"
+                      />
+                      <div class="video-play-button">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+                          <polygon points="5 3 19 12 5 21 5 3"/>
+                        </svg>
+                      </div>
+                    </div>
+                  } @else {
+                    @if (videoLoading()) {
+                      <div class="video-loading-overlay">
+                        <div class="video-loading-spinner"></div>
+                      </div>
+                    }
+                    <iframe
+                      [src]="getSafeEmbedUrl(ex.exercise!.videoUrl)"
+                      frameborder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowfullscreen
+                      class="video-iframe"
+                      title="{{ getLocalizedName(ex) }}"
+                      (load)="onVideoIframeLoad()"
+                    ></iframe>
+                  }
                 </div>
               } @else {
                 <div class="video-fallback-card">
@@ -389,7 +412,7 @@
                   </div>
                   <div class="video-fallback-copy">
                     <strong>{{ t.instant('workout.watchVideo') }}</strong>
-                    <span>Open YouTube to find a technique tutorial for this exercise.</span>
+                    <span>{{ t.instant('workout.videoNotAvailable') || 'This video is not available for embedding. Open YouTube to watch.' }}</span>
                   </div>
                   <a [href]="ex.exercise!.videoUrl" target="_blank" rel="noopener" class="btn-video">
                     {{ t.instant('workout.watchVideo') }}
@@ -399,10 +422,10 @@
             </div>
           }
 
-          <!-- 3. Description (with loop preview GIF) -->
+          <!-- 3. Description -->
           @if (getLocalizedDescription(ex)) {
-            <div class="ingredients-section">
-              <h3 class="ingredients-title">
+            <div class="exercise-section">
+              <h3 class="exercise-section-title">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                   <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
                   <rect x="9" y="3" width="6" height="4" rx="2"/>
@@ -420,8 +443,8 @@
 
           <!-- 4. How to Perform (Instructions) -->
           @if (getLocalizedInstructions(ex).length > 0) {
-            <div class="ingredients-section">
-              <h3 class="ingredients-title">
+            <div class="exercise-section">
+              <h3 class="exercise-section-title">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                   <polyline points="9 11 12 14 22 4"/>
                   <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
@@ -438,8 +461,8 @@
 
           <!-- 5. Breathing -->
           @if (getLocalizedBreathing(ex)) {
-            <div class="ingredients-section">
-              <h3 class="ingredients-title">
+            <div class="exercise-section">
+              <h3 class="exercise-section-title">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                   <circle cx="12" cy="12" r="10"/>
                   <path d="M12 8v8"/>
@@ -453,8 +476,8 @@
 
           <!-- 6. Common Mistakes -->
           @if (getLocalizedCommonMistakes(ex).length > 0) {
-            <div class="ingredients-section">
-              <h3 class="ingredients-title error-title">
+            <div class="exercise-section">
+              <h3 class="exercise-section-title error-title">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                   <circle cx="12" cy="12" r="10"/>
                   <line x1="15" y1="9" x2="9" y2="15"/>
@@ -472,8 +495,8 @@
 
           <!-- 7. Safety Tips -->
           @if (getLocalizedSafetyTips(ex).length > 0) {
-            <div class="ingredients-section">
-              <h3 class="ingredients-title warning-title">
+            <div class="exercise-section">
+              <h3 class="exercise-section-title warning-title">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                   <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
                   <line x1="12" y1="9" x2="12" y2="13"/>
@@ -489,10 +512,10 @@
             </div>
           }
 
-          <!-- 8. Target Muscles (Primary & Secondary) -->
+          <!-- 8. Target Muscles -->
           @if (getLocalizedPrimaryMuscles(ex).length > 0 || getLocalizedSecondaryMuscles(ex).length > 0) {
-            <div class="ingredients-section">
-              <h3 class="ingredients-title">
+            <div class="exercise-section">
+              <h3 class="exercise-section-title">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                   <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                 </svg>
@@ -525,17 +548,17 @@
 
           <!-- 9. Equipment -->
           @if (getLocalizedEquipment(ex) && getLocalizedEquipment(ex).trim().toLowerCase() !== 'none') {
-            <div class="ingredients-section">
-              <h3 class="ingredients-title">
+            <div class="exercise-section">
+              <h3 class="exercise-section-title">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                   <path d="M6 4v16M18 4v16M6 12h12M2 7h4M2 17h4M18 7h4M18 17h4"/>
                 </svg>
                 {{ t.instant('workout.equipment') }}
               </h3>
-              <div class="ingredients-list">
+              <div class="equipment-tags-list">
                 @for (eq of getLocalizedEquipment(ex).split(','); track eq) {
                   @if (eq.trim().toLowerCase() !== 'none') {
-                    <span class="ingredient-tag">{{ eq.trim() }}</span>
+                    <span class="equipment-tag-item">{{ eq.trim() }}</span>
                   }
                 }
               </div>
@@ -544,7 +567,7 @@
 
           <!-- 10. Difficulty & Category -->
           @if (getLocalizedDifficulty(ex) || getLocalizedCategory(ex)) {
-            <div class="ingredients-section difficulty-category-section">
+            <div class="exercise-section difficulty-category-section">
               @if (getLocalizedDifficulty(ex)) {
                 <div class="diff-cat-card">
                   <span class="diff-cat-title">{{ t.instant('workout.difficulty') }}</span>
@@ -564,10 +587,10 @@
             </div>
           }
 
-          <!-- Notes -->
+          <!-- 11. Trainer Notes -->
           @if (ex.notes) {
-            <div class="ingredients-section">
-              <h3 class="ingredients-title">
+            <div class="exercise-section">
+              <h3 class="exercise-section-title">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                   <polyline points="14 2 14 8 20 8"/>

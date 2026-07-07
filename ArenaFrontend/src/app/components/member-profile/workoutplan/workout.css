@@ -90,22 +90,26 @@
 .workout-page-header {
   position: relative;
   width: 100%;
-  height: 180px;
+  height: 250px;
   margin: 0; padding: 0;
-  line-height: 0;
   background: var(--n-header-bg);
-  border-top-left-radius: 24px;
-  border-top-right-radius: 24px;
+  border-radius: 16px;
   overflow: hidden;
-  margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
 }
 
 .header-bg-img {
-  width: 100%; height: 100%;
-  object-fit: fill;
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
   display: block;
-  border-top-left-radius: 24px;
-  border-top-right-radius: 24px;
+  z-index: 1;
 }
 
 .workout-content { padding: 24px 32px; }
@@ -392,11 +396,13 @@
 
 .btn-back {
   display: flex; align-items: center; gap: 6px;
-  background: var(--w-card); border: 1px solid var(--w-card-border);
-  color: var(--w-text); border-radius: 100px; padding: 8px 16px;
-  font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s ease;
+  background: var(--n-card); border: 1px solid var(--n-card-border);
+  color: var(--n-text); border-radius: 100px; padding: 9px 18px;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease, transform 0.15s ease;
 }
-.btn-back:hover { border-color: var(--accent); color: var(--accent); }
+.btn-back:hover { border-color: var(--accent); color: var(--accent); background: rgba(198, 239, 46, 0.06); }
+.btn-back:active { transform: translateY(1px); }
 
 /* ==========================================================================
    ── 7. Plan Detail - Top Summary & Tabs Styling ──
@@ -496,7 +502,7 @@
 }
 
 /* ربط الهيكل بالـ HTML المتواجد بالملف */
-.ingredients-list, .days-tabs-row {
+.days-tabs-row {
   display: flex;
   gap: 12px;
   margin-bottom: 24px;
@@ -505,16 +511,40 @@
   width: 100%;
 }
 
-.ingredients-list::-webkit-scrollbar, .days-tabs-row::-webkit-scrollbar { 
+.days-tabs-row::-webkit-scrollbar { 
   height: 4px; 
 }
-.ingredients-list::-webkit-scrollbar-thumb, .days-tabs-row::-webkit-scrollbar-thumb {
+.days-tabs-row::-webkit-scrollbar-thumb {
   background: var(--n-border);
   border-radius: 100px;
 }
 
-/* استايل الأزرار الكبسولية المتطورة لربط الـ HTML القديم بالجديد */
-.ingredient-tag, .day-tab {
+/* Equipment tags */
+.equipment-tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.equipment-tag-item {
+  background: var(--n-ing-bg);
+  border: 1px solid var(--n-border);
+  color: var(--n-ing-text);
+  padding: 6px 14px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+.equipment-tag-item:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Day tabs */
+.day-tab {
   background: var(--n-tab-bg);
   border: 1px solid var(--n-tab-border);
   color: var(--n-tab-text);
@@ -531,14 +561,13 @@
   box-shadow: 0 2px 6px var(--n-card-shadow);
 }
 
-.ingredient-tag:hover, .day-tab:hover {
+.day-tab:hover {
   color: var(--accent);
   border-color: var(--accent);
   background: rgba(77, 163, 82, 0.04);
 }
 
-/* تفعيل حالة الـ Active للاستفادة الكاملة من الألوان الرياضية */
-.ingredient-tag.active, .day-tab.active {
+.day-tab.active {
   background: var(--accent) !important;
   color: #ffffff !important;
   border-color: var(--accent) !important;
@@ -676,6 +705,9 @@
 
 .ex-description-text, .ex-notes-text { font-size: 14px; color: var(--n-text-muted); line-height: 1.7; margin: 0; }
 
+/* Description / breathing copy in the exercise-detail sections (was unstyled). */
+.ex-description { font-size: 14px; color: var(--n-text-muted); line-height: 1.7; margin: 0; }
+
 .equipment-tag {
   display: inline-block;
   padding: 6px 14px;
@@ -752,7 +784,6 @@
 .modern-meal-card-enhanced { background: var(--n-card); border: 1px solid var(--n-card-border); border-radius: 20px; padding: 16px; cursor: pointer; box-shadow: 0 4px 14px var(--n-card-shadow); transition: transform 0.25s ease, border-color 0.25s ease; }
 .modern-meal-card-enhanced:hover { transform: translateY(-4px); border-color: var(--accent); }
 .meal-card-header-accent { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.meal-avatar-icon-box { width: 36px; height: 36px; background: var(--n-surface2); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
 .meal-badge-tag-type { font-size: 11px; font-weight: 700; background: var(--n-surface2); padding: 4px 10px; border-radius: 100px; color: var(--n-text-muted); }
 .meal-badge-tag-type.accent { background: rgba(77, 163, 82, 0.1); color: var(--accent); }
 .text-meal-name-updated { font-size: 16px; font-weight: 700; color: var(--n-text); margin: 0 0 8px 0; }
@@ -768,17 +799,62 @@
 .meal-ingredients-tags-flex { display: flex; flex-wrap: wrap; gap: 6px; }
 .meal-ingredient-tag-item { font-size: 11px; background: var(--n-surface2); color: var(--n-text-muted); padding: 2px 8px; border-radius: 6px; }
 
-.meal-detail-card { background: var(--n-card); border: 1px solid var(--n-card-border); border-radius: 24px; padding: 24px; box-shadow: 0 8px 24px var(--n-card-shadow); }
-.meal-detail-top { margin-bottom: 16px; }
-.meal-detail-name { font-size: 22px; font-weight: 800; color: var(--n-text); margin: 0; }
+.meal-detail-card { background: var(--n-card); border: 1px solid var(--n-card-border); border-radius: 24px; padding: 28px; box-shadow: 0 10px 30px var(--n-card-shadow); }
+.meal-detail-top { margin-bottom: 22px; }
+.meal-detail-name { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; color: var(--n-text); margin: 12px 0 0; }
 .meal-cal-hero { display: flex; flex-direction: column; align-items: center; margin: 20px 0; padding: 16px; background: var(--n-surface); border-radius: 16px; }
 .meal-cal-num { font-size: 28px; font-weight: 800; color: var(--accent); }
 .meal-cal-label { font-size: 12px; color: var(--n-text-muted); }
-.meal-macro-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
-.meal-macro-card { display: flex; flex-direction: column; align-items: center; padding: 12px; background: var(--n-surface); border: 1px solid var(--n-border); border-radius: 12px; }
-.meal-macro-val { font-size: 18px; font-weight: 800; color: var(--n-text); }
-.meal-macro-lbl { font-size: 11px; color: var(--n-text-muted); }
-.ingredients-section { border-top: 1px solid var(--n-border); padding-top: 16px; margin-bottom: 16px; }
+.meal-macro-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 8px; }
+.meal-macro-card {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 15px 12px;
+  background: var(--n-surface);
+  border: 1px solid var(--n-border);
+  border-radius: 16px;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.meal-macro-card:hover { transform: translateY(-2px); border-color: rgba(198, 239, 46, 0.4); box-shadow: 0 8px 20px var(--n-card-shadow); }
+.meal-macro-val { font-size: 22px; font-weight: 800; color: var(--n-text); line-height: 1; }
+.meal-macro-val small { font-size: 12px; font-weight: 700; color: var(--n-text-muted); margin-left: 2px; }
+.meal-macro-lbl { font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--n-text-muted); }
+.exercise-section { border-top: 1px solid var(--n-border); padding-top: 24px; margin-bottom: 24px; }
+
+.ingredients-title, .exercise-section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--n-text);
+  margin: 0 0 16px;
+}
+/* Icon sits in a soft accent chip for a more premium, consistent section header. */
+.ingredients-title svg, .exercise-section-title svg {
+  flex-shrink: 0;
+  box-sizing: content-box;
+  width: 16px; height: 16px;
+  padding: 7px;
+  border-radius: 10px;
+  background: rgba(198, 239, 46, 0.14);
+  color: var(--accent);
+}
+.ingredients-title.error-title svg, .exercise-section-title.error-title svg {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+.ingredients-title.warning-title svg, .exercise-section-title.warning-title svg {
+  background: rgba(245, 158, 11, 0.14);
+  color: #f59e0b;
+}
+
+.ingredients-title.error-title, .exercise-section-title.error-title {
+  color: #ef4444 !important;
+}
+.ingredients-title.warning-title, .exercise-section-title.warning-title {
+  color: #f59e0b !important;
+}
 
 /* ==========================================================================
    ── 13. التغييرات الخاصة باللغة العربية [dir="rtl"] ──
@@ -852,41 +928,10 @@
 }
 
 /* فرض الاتجاه التتابعي للأزرار والكبسولات في العربي */
-:host-context([dir="rtl"]) .ingredients-list, 
 :host-context([dir="rtl"]) .days-tabs-row {
   flex-direction: row !important; 
 }
 
-
-/* الحاوية الأساسية للهيدر */
-.workout-page-header {
-  position: relative;
-  width: 100%; /* العرض الكامل */
-  height: 250px; /* الارتفاع الذي تريده - يمكنك تغييره حسب الرغبة */
-  border-radius: 16px;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 24px;
-}
-
-/* ضبط الصورة لتأخذ العرض بالكامل وتتجاوب تلقائياً دون تمطيط */
-.header-bg-img {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  
-  /* سر الحل: تملأ الصورة المساحة مع الحفاظ على الأبعاد وقص الزوائد */
-  object-fit: cover; 
-  
-  /* التحكم في الجزء الظاهر: يمكنك الاختيار بين center, top, bottom */
-  object-position: center; 
-  
-  z-index: 1;
-}
 
 /* طبقة الـ Blur والنصوص (تبقى كما هي لتغطية المساحة بالكامل) */
 .header-overlay-content {
@@ -1023,29 +1068,109 @@
 }
 
 /* ==========================================================================
-   ── 15. Rich Exercise Details UI ──
+   ── 15. Video Section — Thumbnail + Click-to-Play + Embed ──
    ========================================================================== */
+.video-section {
+  margin-bottom: 24px;
+}
+
 .video-embed-container {
   position: relative;
-  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+  padding-bottom: 56.25%;
   height: 0;
   overflow: hidden;
   border-radius: 16px;
   background: #000;
   border: 1px solid var(--n-card-border);
   box-shadow: 0 4px 14px var(--n-card-shadow);
-  margin-bottom: 20px;
 }
 
+/* ── Thumbnail Preview (pre-roll) ── */
+.video-thumbnail-wrapper {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+  z-index: 2;
+}
+.video-thumbnail-wrapper:hover { transform: scale(1.03); }
+.video-thumbnail-wrapper:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: -6px;
+  border-radius: 16px;
+}
+
+.video-thumbnail-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.video-play-button {
+  position: relative;
+  z-index: 2;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+.video-thumbnail-wrapper:hover .video-play-button {
+  transform: scale(1.12);
+  background: rgba(198, 239, 46, 0.9);
+  color: #0b0c0c;
+  box-shadow: 0 6px 30px rgba(198, 239, 46, 0.4);
+}
+
+/* ── Loading overlay (between click & iframe load) ── */
+.video-loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 16px;
+}
+
+.video-loading-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: videoSpin 0.7s linear infinite;
+}
+
+@keyframes videoSpin { to { transform: rotate(360deg); } }
+
+/* ── Iframe ──
+   Always visible once rendered — do NOT gate visibility on the JS `load` event,
+   which cross-origin YouTube frames fire unreliably (that left the video hidden
+   over a black box). The loading spinner overlays it briefly instead. */
 .video-iframe {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+  border: 0;
   border-radius: 16px;
 }
 
+/* ── Fallback (non-embeddable link) ── */
 .video-fallback-card {
   display: grid;
   grid-template-columns: auto 1fr auto;
@@ -1088,11 +1213,28 @@
   line-height: 1.35;
 }
 
+.btn-video {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--accent);
+  color: #0b0c0c;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+}
+.btn-video:hover { opacity: 0.85; }
+
 @media (max-width: 640px) {
   .video-fallback-card {
     grid-template-columns: auto 1fr;
   }
-
   .video-fallback-card .btn-video {
     grid-column: 1 / -1;
     width: 100%;
@@ -1122,32 +1264,28 @@
 
 .how-to-perform-list {
   list-style: decimal;
-  padding-left: 20px;
+  padding-left: 22px;
   margin: 0;
-  line-height: 1.8;
+  line-height: 1.65;
   color: var(--n-text-muted);
 }
+.how-to-perform-list li::marker { color: var(--accent); font-weight: 800; }
 
 .how-to-perform-list li, .mistakes-list li, .safety-tips-list li {
-  margin-bottom: 8px;
-  font-size: 13.5px;
+  margin-bottom: 10px;
+  padding-left: 4px;
+  font-size: 14px;
 }
 
 .mistakes-list, .safety-tips-list {
   list-style: disc;
-  padding-left: 20px;
+  padding-left: 22px;
   margin: 0;
-  line-height: 1.8;
+  line-height: 1.65;
   color: var(--n-text-muted);
 }
-
-.ingredients-title.error-title {
-  color: #ef4444 !important;
-}
-
-.ingredients-title.warning-title {
-  color: #f59e0b !important;
-}
+.mistakes-list li::marker { color: #ef4444; }
+.safety-tips-list li::marker { color: #f59e0b; }
 
 .muscles-container {
   display: flex;

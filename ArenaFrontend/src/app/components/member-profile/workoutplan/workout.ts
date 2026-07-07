@@ -38,6 +38,10 @@ export class WorkoutComponent implements OnInit {
   loading          = signal(true);
   error            = signal<string | null>(null);
 
+  // ── Video state ────────────────────────────────────────────────────────────────
+  playVideo = signal(false);
+  videoLoading = signal(false);
+
   // ── Animated counter ──────────────────────────────────────────────────────────
   animatedCount = signal<number>(0);
 
@@ -162,6 +166,9 @@ export class WorkoutComponent implements OnInit {
   openExercise(ex: WorkoutExerciseDto): void {
     this.selectedExercise.set(ex);
     this.view.set('exercise-detail');
+    this.playVideo.set(false);
+    this.videoLoading.set(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   goBack(): void {
@@ -170,6 +177,7 @@ export class WorkoutComponent implements OnInit {
       this.view.set('plans');
     } else if (this.view() === 'exercise-detail') {
       this.selectedExercise.set(null);
+      this.playVideo.set(false);
       this.view.set('plan-detail');
     }
   }
@@ -405,23 +413,26 @@ export class WorkoutComponent implements OnInit {
     );
   }
 
+  getYouTubeVideoId(url: string | null | undefined): string | null {
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    if (match && match[2].length === 11) return match[2];
+    const shortsRegExp = /\/shorts\/([a-zA-Z0-9_-]{11})/;
+    const shortsMatch = url.match(shortsRegExp);
+    if (shortsMatch) return shortsMatch[1];
+    return null;
+  }
+
   getYouTubeEmbedUrl(url: string | null | undefined): string | null {
     if (!url) return null;
     if (this.isKnownUnavailableVideo(url)) return null;
     if (url.includes('/results?') || url.includes('search_query=')) return null;
-
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const match = url.match(regExp);
-    if (match && match[2].length === 11) {
-      return 'https://www.youtube.com/embed/' + match[2];
-    }
-    // Shorts support
-    const shortsRegExp = /\/shorts\/([a-zA-Z0-9_-]{11})/;
-    const shortsMatch = url.match(shortsRegExp);
-    if (shortsMatch) {
-      return 'https://www.youtube.com/embed/' + shortsMatch[1];
-    }
-    return null;
+    const id = this.getYouTubeVideoId(url);
+    // autoplay=1 → plays immediately after the user clicks the thumbnail (a user
+    // gesture, so browsers allow it); rel=0/modestbranding=1 keep it clean;
+    // playsinline=1 avoids iOS forcing fullscreen.
+    return id ? `https://www.youtube.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&playsinline=1` : null;
   }
 
   isKnownUnavailableVideo(url: string | null | undefined): boolean {
@@ -429,8 +440,26 @@ export class WorkoutComponent implements OnInit {
     return /UYCea886PPA/i.test(url);
   }
 
+  getYouTubeThumbnailUrl(url: string | null | undefined): string | null {
+    const id = this.getYouTubeVideoId(url);
+    return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : null;
+  }
+
   canEmbedVideo(url: string | null | undefined): boolean {
     return !!this.getYouTubeEmbedUrl(url);
+  }
+
+  onVideoPlay(): void {
+    this.playVideo.set(true);
+    this.videoLoading.set(true);
+    // Safety net: cross-origin YouTube iframes don't always fire a `load` event,
+    // which would otherwise leave the spinner stuck over a playing video. Clear
+    // the loading state after a short delay regardless.
+    setTimeout(() => this.videoLoading.set(false), 2500);
+  }
+
+  onVideoIframeLoad(): void {
+    this.videoLoading.set(false);
   }
 
   getSafeEmbedUrl(url: string | null | undefined): SafeResourceUrl | null {
