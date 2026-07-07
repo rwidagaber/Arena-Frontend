@@ -980,10 +980,10 @@
         <legend>{{ 'memberProfile.dash.grpGoal' | translate }}</legend>
         <div class="edit-fields">
           <label>{{ 'memberProfile.dash.fitnessGoal' | translate }}
-            <select [value]="editGoal()" (change)="editGoal.set($any($event.target).value)">
-              <option value="">{{ 'profile.notSet' | translate }}</option>
+            <select (change)="editGoal.set($any($event.target).value)">
+              <option value="" [selected]="!editGoal()">{{ 'profile.notSet' | translate }}</option>
               @for (g of goalOptions; track g.value) {
-                <option [value]="g.value">{{ g.labelKey | translate }}</option>
+                <option [value]="g.value" [selected]="g.value === editGoal()">{{ g.labelKey | translate }}</option>
               }
             </select>
           </label>

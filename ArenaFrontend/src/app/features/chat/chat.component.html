@@ -398,9 +398,9 @@
             <input type="number" step="0.1" min="1" [value]="editMuscle ?? ''" (input)="editMuscle = parseEditNum($any($event.target).value)" />
           </label>
           <label class="full">{{ 'memberProfile.dash.fitnessGoal' | translate }}
-            <select [value]="editGoal" (change)="editGoal = $any($event.target).value">
-              <option value="">{{ 'profile.notSet' | translate }}</option>
-              <option *ngFor="let g of goalOptions" [value]="g.value">{{ g.labelKey | translate }}</option>
+            <select (change)="editGoal = $any($event.target).value">
+              <option value="" [selected]="!editGoal">{{ 'profile.notSet' | translate }}</option>
+              <option *ngFor="let g of goalOptions" [value]="g.value" [selected]="g.value === editGoal">{{ g.labelKey | translate }}</option>
             </select>
           </label>
         </div>
