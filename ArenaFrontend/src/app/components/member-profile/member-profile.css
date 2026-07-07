@@ -4796,3 +4796,130 @@ app-footer {
 .ai-lock-cta .svg-icon-wrap svg { width: 14px; height: 14px; }
 .ai-lock-cta:hover { transform: translateY(-2px); filter: brightness(1.05); }
 @media (prefers-reduced-motion: reduce) { .ai-card { animation: none !important; } }
+
+/* ── Access Denied Modal (AI Features Guard) ── */
+.fab-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(11, 14, 20, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease-out;
+}
+[data-theme="light"] .fab-modal-overlay {
+  background: rgba(180, 181, 176, 0.75);
+}
+
+.fab-modal-card {
+  background: #20273a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 44px 36px 36px;
+  max-width: 460px;
+  width: 90%;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(198, 239, 46, 0.15);
+  animation: scaleUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+[data-theme="light"] .fab-modal-card {
+  background: #FEFFFF;
+  border-color: rgba(0, 0, 0, 0.09);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 40px rgba(198, 239, 46, 0.08);
+}
+
+.fab-modal-icon {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.fab-modal-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 14px;
+}
+[data-theme="light"] .fab-modal-title {
+  color: #111318;
+}
+
+.fab-modal-desc {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14.5px;
+  color: #a0a0a0;
+  line-height: 1.7;
+  margin: 0 0 30px;
+}
+[data-theme="light"] .fab-modal-desc {
+  color: rgba(17, 19, 24, 0.6);
+}
+
+.fab-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fab-modal-btn {
+  border: none;
+  border-radius: 14px;
+  padding: 14px 24px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  width: 100%;
+}
+
+.fab-modal-btn-primary {
+  background: linear-gradient(135deg, var(--c-accent, #C6EF2E) 0%, #b8e636 100%);
+  color: #0a0a0a;
+}
+
+.fab-modal-btn-primary:hover {
+  background: linear-gradient(135deg, #c0df4a 0%, #a5d32a 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(198, 239, 46, 0.2);
+}
+
+.fab-modal-btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  color: #a0a0a0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+[data-theme="light"] .fab-modal-btn-secondary {
+  background: rgba(0, 0, 0, 0.04);
+  color: rgba(17, 19, 24, 0.6);
+  border-color: rgba(0, 0, 0, 0.09);
+}
+
+.fab-modal-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+[data-theme="light"] .fab-modal-btn-secondary:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: #111318;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+

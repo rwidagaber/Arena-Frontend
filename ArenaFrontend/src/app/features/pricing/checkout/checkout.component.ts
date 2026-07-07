@@ -13,8 +13,8 @@ import { AuthService } from '../../../core/services/auth';
 })
 export class CheckoutComponent implements OnInit {
   iframeUrl: SafeResourceUrl | null = null;
-
   paymentStatus: 'pending' | 'success' | 'failed' = 'pending';
+  hasAi = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -37,14 +37,36 @@ export class CheckoutComponent implements OnInit {
         this.paymentStatus = params['success'] === 'true' ? 'success' : 'failed';
         this.iframeUrl = null; // hide iframe
 
+        // Retrieve saved hasAI status from local storage
+        const savedHasAi = localStorage.getItem('checkout_plan_has_ai');
+        if (savedHasAi !== null) {
+          this.hasAi = savedHasAi === 'true';
+        }
+
         // Add a delay before refreshing to allow the Paymob webhook to process in the backend!
         if (this.paymentStatus === 'success') {
           setTimeout(() => {
             this.authService.refresh().subscribe({
-              next: () => console.log('Auth token refreshed after payment webhook delay'),
-              error: err => console.error('Failed to refresh token after payment', err)
+              next: () => {
+                console.log('Auth token refreshed after payment webhook delay');
+                this.authService.getMe().subscribe({
+                  next: (profile) => {
+                    if (profile?.activeSubscription) {
+                      this.hasAi = !!profile.activeSubscription.hasAI;
+                    }
+                    localStorage.removeItem('checkout_plan_has_ai');
+                  },
+                  error: () => localStorage.removeItem('checkout_plan_has_ai')
+                });
+              },
+              error: err => {
+                console.error('Failed to refresh token after payment', err);
+                localStorage.removeItem('checkout_plan_has_ai');
+              }
             });
           }, 3000); // 3-second delay prevents the race condition
+        } else {
+          localStorage.removeItem('checkout_plan_has_ai');
         }
         return;
       }

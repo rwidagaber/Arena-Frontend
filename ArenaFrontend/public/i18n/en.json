@@ -1319,6 +1319,7 @@
     "MODAL_TITLE": "AI Coach Access",
     "MODAL_DESC": "You can explore our AI Coach with limited access. Subscribe to a plan with AI features for the full experience!",
     "BTN_STAY": "Stay in Home",
+    "BTN_STAY_HERE": "Stay here",
     "BTN_SUBSCRIBE": "Go to Subscription Plans"
   },
   "booking": {

@@ -104,6 +104,7 @@ export class MemberProfile implements OnInit {
   error = signal<string | null>(null);
 
   activeSection = signal<DashboardSection>('profile');
+  showSubscriptionModal = signal(false);
 
   timeOfDay = computed(() => {
     const h = new Date().getHours();
@@ -1619,7 +1620,33 @@ export class MemberProfile implements OnInit {
     });
   }
 
+  goToSubscription(): void {
+    this.showSubscriptionModal.set(false);
+    this.router.navigate(['/'], { fragment: 'membership' });
+  }
+
+  goToHome(): void {
+    this.showSubscriptionModal.set(false);
+  }
+
+  checkSectionAccess(): void {
+    const currentSection = this.activeSection();
+    if (['workout', 'diet', 'progress'].includes(currentSection) && !this.hasAiAccess()) {
+      this.activeSection.set('profile');
+      this.showSubscriptionModal.set(true);
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { section: 'profile' },
+        queryParamsHandling: 'merge',
+      });
+    }
+  }
+
   onSectionChange(section: DashboardSection): void {
+    if (['workout', 'diet', 'progress'].includes(section) && !this.hasAiAccess()) {
+      this.showSubscriptionModal.set(true);
+      return;
+    }
     this.activeSection.set(section);
     this.router.navigate([], {
       relativeTo: this.route,
@@ -1639,6 +1666,18 @@ export class MemberProfile implements OnInit {
     this.route.queryParams.subscribe(params => {
       const section = params['section'] as DashboardSection | undefined;
       if (section && this.isValidSection(section)) {
+        if (!this.loading()) {
+          if (['workout', 'diet', 'progress'].includes(section) && !this.hasAiAccess()) {
+            this.activeSection.set('profile');
+            this.showSubscriptionModal.set(true);
+            this.router.navigate([], {
+              relativeTo: this.route,
+              queryParams: { section: 'profile' },
+              queryParamsHandling: 'merge',
+            });
+            return;
+          }
+        }
         this.activeSection.set(section);
       } else {
         this.activeSection.set('profile');
@@ -1678,6 +1717,8 @@ export class MemberProfile implements OnInit {
       // Profile is ready → render the dashboard shell immediately; the
       // secondary data below streams in without blocking the whole page.
       this.loading.set(false);
+
+      this.checkSectionAccess();
 
       this.loadSubscriptions(data.memberProfileId);
       this.loadBookings(data.memberProfileId || data.id || '');
