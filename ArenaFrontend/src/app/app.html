@@ -7,7 +7,7 @@
 <!-- Global subscriber sidebar: on every page (except the dashboard, which has
      its own) when the signed-in user has an active subscription. -->
 @if (showLayout && !isDashboard && (currentUser$ | async)?.isSubscribed) {
-<app-dashboard-sidebar (sectionChange)="goToSection($event)"></app-dashboard-sidebar>
+<app-dashboard-sidebar [activeSection]="null" (sectionChange)="goToSection($event)"></app-dashboard-sidebar>
 }
 
 @if(showLayout){
