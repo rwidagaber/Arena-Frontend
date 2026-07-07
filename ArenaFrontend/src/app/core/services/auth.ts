@@ -88,7 +88,7 @@ export class AuthService {
 
   login(dto: UserLoginDto, rememberMe = false): Observable<GetProfileDto> {
     return this.http.post<AuthResponseDto>(`${BASE}/login`, dto).pipe(
-      tap(res => this._persist(res, rememberMe)),
+      tap(res => { this._persist(res, rememberMe); this._resetDashboardWelcome(); }),
       switchMap(() => this.getMe()),
       catchError(this._handleError)
     );
@@ -114,9 +114,14 @@ export class AuthService {
 
   googleLogin(idToken: string): Observable<AuthResponseDto> {
     return this.http.post<AuthResponseDto>(`${BASE}/google-login`, { idToken }).pipe(
-      tap(res => this._persist(res, true)),
+      tap(res => { this._persist(res, true); this._resetDashboardWelcome(); }),
       catchError(this._handleError)
     );
+  }
+
+  /** Clear the "once per login" flag so the dashboard welcome pops again after a fresh sign-in. */
+  private _resetDashboardWelcome(): void {
+    try { sessionStorage.removeItem('arena_dash_welcome'); } catch { /* ignore */ }
   }
 
   logout(): Observable<void> {
