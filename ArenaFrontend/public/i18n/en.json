@@ -719,7 +719,8 @@
       "title": "Add your body composition",
       "sub": "Enter your weight, height, body fat and muscle mass in \"Your Body\" so our AI can build a workout and nutrition plan tailored to you.",
       "cta": "Add my data",
-      "later": "Maybe later"
+      "later": "Maybe later",
+      "cantClear": "Body fat and muscle mass can't be reset to zero once recorded — enter your latest values."
     },
     "dashboardLabel": "MEMBER DASHBOARD",
     "greeting": {
@@ -1350,6 +1351,8 @@
     "TITLE": "Arena Assistant",
     "SUBTITLE": "Your AI training partner",
     "STATUS_ONLINE": "Online",
+    "INJURY_NOTICE": "If you have any injuries, let the AI know so it can adapt your plan.",
+    "AI_DISCLAIMER": "Arena AI can make mistakes. Double-check important information.",
     "CHATS": "Chats",
     "NEW_CHAT_TITLE": "New Chat",
     "SHOW_MORE": "Show more chats",

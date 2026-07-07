@@ -431,16 +431,33 @@
 }
 
 /* History list */
+/* History column: a fixed head (title + expand toggle) over a scrollable list. */
 .history-block {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0 4px;
+}
+
+.history-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 4px;
+}
+
+/* Only the conversation list scrolls — the head stays pinned at the top. */
+.history-list {
+  flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
-  padding: 0 4px;
+  overscroll-behavior: contain;
 }
 
 .history-title {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 10px;
   margin: 4px 8px 8px;
   color: var(--text-faint);
@@ -545,15 +562,16 @@
   line-height: 1.5;
 }
 
-/* Expand/collapse the history list — a chevron that flips when expanded */
+/* Expand/collapse the history list — a compact chevron in the head that flips. */
 .history-toggle {
   display: grid;
   place-items: center;
-  width: calc(100% - 8px);
-  height: 30px;
-  margin: 4px;
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  margin: 0 4px 6px;
   border: none;
-  border-radius: 8px;
+  border-radius: 7px;
   background: transparent;
   color: var(--text-muted);
   cursor: pointer;
@@ -562,7 +580,7 @@
 
 .history-toggle i {
   display: block;
-  font-size: 1rem;
+  font-size: 0.95rem;
   line-height: 1;
   transition: transform 0.25s ease;
 }
@@ -1086,6 +1104,38 @@
 .composer {
   padding: 8px 32px 14px;
   background: var(--bg);
+}
+
+/* Injury reminder just above the input — a soft accent-tinted notice. */
+.chat-injury-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--accent-soft);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.chat-injury-note i {
+  flex: 0 0 auto;
+  color: var(--accent);
+  font-size: 0.95rem;
+}
+
+/* "AI can make mistakes" footnote below the composer. */
+.chat-ai-disclaimer {
+  margin: 0;
+  padding: 0 32px 12px;
+  color: var(--text-faint);
+  font-size: 0.72rem;
+  line-height: 1.4;
+  text-align: center;
 }
 
 /* Claude-style rounded input box wrapping textarea + actions. */

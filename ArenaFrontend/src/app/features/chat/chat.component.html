@@ -44,59 +44,63 @@
       </button>
 
       <div class="history-block">
-        <div class="history-title">
-          <span>{{ 'CHAT.CHATS' | translate }}</span>
-          <span *ngIf="conversations.length">{{ conversations.length }}</span>
-        </div>
-
-        <div *ngIf="loadingConversations" class="loading-row compact">
-          <span class="spinner"></span>
-          {{ 'CHAT.LOADING_CHATS' | translate }}
-        </div>
-
-        <div
-          *ngFor="let conversation of visibleConversations; trackBy: trackConversation"
-          class="history-item"
-          [class.active]="conversation.id === conversationId"
-          (click)="openConversation(conversation)"
-          (keydown.enter)="openConversation(conversation)"
-          (keydown.space)="openConversation(conversation); $event.preventDefault()"
-          role="button"
-          tabindex="0"
-        >
-          <div class="history-item-main">
-            <span class="history-item-title">{{ conversation.title || ('CHAT.NEW_CHAT_TITLE' | translate) }}</span>
-            <span class="history-item-preview">{{ conversation.lastMessage || ('CHAT.NO_MESSAGES' | translate) }}</span>
-            <time>{{ conversation.startedAt | date: 'MMM d' }}</time>
+        <div class="history-head">
+          <div class="history-title">
+            <span>{{ 'CHAT.CHATS' | translate }}</span>
+            <span *ngIf="conversations.length">{{ conversations.length }}</span>
           </div>
           <button
+            *ngIf="conversations.length"
             type="button"
-            class="delete-chat-btn"
-            (click)="deleteConversation(conversation, $event)"
-            [disabled]="deletingConversationId === conversation.id"
-            [attr.aria-label]="'CHAT.ARIA_DELETE_CHAT' | translate"
-            [title]="'CHAT.ARIA_DELETE_CHAT' | translate"
+            class="history-toggle"
+            [class.expanded]="historyExpanded()"
+            (click)="toggleHistoryExpanded()"
+            [attr.aria-expanded]="historyExpanded()"
+            [attr.aria-label]="(historyExpanded() ? 'CHAT.SHOW_LESS' : 'CHAT.SHOW_MORE') | translate"
+            [title]="(historyExpanded() ? 'CHAT.SHOW_LESS' : 'CHAT.SHOW_MORE') | translate"
           >
-            <i class="bi bi-trash3"></i>
+            <i class="bi bi-chevron-down"></i>
           </button>
         </div>
 
-        <button
-          *ngIf="conversations.length"
-          type="button"
-          class="history-toggle"
-          [class.expanded]="historyExpanded"
-          (click)="toggleHistoryExpanded()"
-          [attr.aria-expanded]="historyExpanded"
-          [attr.aria-label]="(historyExpanded ? 'CHAT.SHOW_LESS' : 'CHAT.SHOW_MORE') | translate"
-          [title]="(historyExpanded ? 'CHAT.SHOW_LESS' : 'CHAT.SHOW_MORE') | translate"
-        >
-          <i class="bi bi-chevron-down"></i>
-        </button>
+        <div class="history-list">
+          <div *ngIf="loadingConversations" class="loading-row compact">
+            <span class="spinner"></span>
+            {{ 'CHAT.LOADING_CHATS' | translate }}
+          </div>
 
-        <p *ngIf="!loadingConversations && !conversations.length" class="empty-history">
-          {{ 'CHAT.EMPTY_HISTORY' | translate }}
-        </p>
+          @for (conversation of visibleConversations(); track conversation.id) {
+          <div
+            class="history-item"
+            [class.active]="conversation.id === conversationId"
+            (click)="openConversation(conversation)"
+            (keydown.enter)="openConversation(conversation)"
+            (keydown.space)="openConversation(conversation); $event.preventDefault()"
+            role="button"
+            tabindex="0"
+          >
+            <div class="history-item-main">
+              <span class="history-item-title">{{ conversation.title || ('CHAT.NEW_CHAT_TITLE' | translate) }}</span>
+              <span class="history-item-preview">{{ conversation.lastMessage || ('CHAT.NO_MESSAGES' | translate) }}</span>
+              <time>{{ conversation.startedAt | date: 'MMM d' }}</time>
+            </div>
+            <button
+              type="button"
+              class="delete-chat-btn"
+              (click)="deleteConversation(conversation, $event)"
+              [disabled]="deletingConversationId === conversation.id"
+              [attr.aria-label]="'CHAT.ARIA_DELETE_CHAT' | translate"
+              [title]="'CHAT.ARIA_DELETE_CHAT' | translate"
+            >
+              <i class="bi bi-trash3"></i>
+            </button>
+          </div>
+          }
+
+          <p *ngIf="!loadingConversations && !conversations.length" class="empty-history">
+            {{ 'CHAT.EMPTY_HISTORY' | translate }}
+          </p>
+        </div>
       </div>
     </aside>
 
@@ -263,6 +267,11 @@
         </span>
       </div>
 
+      <p class="chat-injury-note" role="note">
+        <i class="bi bi-heart-pulse" aria-hidden="true"></i>
+        <span>{{ 'CHAT.INJURY_NOTICE' | translate }}</span>
+      </p>
+
       <form class="composer" [class.is-recording]="recording" (ngSubmit)="send()">
         <div class="composer-inner">
         <textarea
@@ -325,6 +334,8 @@
         </button>
         </div>
       </form>
+
+      <p class="chat-ai-disclaimer">{{ 'CHAT.AI_DISCLAIMER' | translate }}</p>
     </section>
   </section>
 
@@ -405,6 +416,7 @@
           </label>
         </div>
 
+        <p class="body-edit-error" *ngIf="bodyMeasurementCleared" role="alert">{{ 'memberProfile.bodyPrompt.cantClear' | translate }}</p>
         <p class="body-edit-error" *ngIf="bodyEditError" role="alert">{{ bodyEditError }}</p>
 
         <button type="button" class="welcome-cta" (click)="saveBodyEdit()" [disabled]="savingBody || !bodyEditValid">
