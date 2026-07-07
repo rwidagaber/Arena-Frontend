@@ -6,7 +6,9 @@
       <div class="sidebar-header">
         <div class="assistant-brand">
           <span class="assistant-avatar" aria-hidden="true">
-            <i class="bi bi-person-badge"></i>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z"/>
+            </svg>
           </span>
           <span class="assistant-meta">
             <h1>{{ 'CHAT.TITLE' | translate }}</h1>
@@ -34,7 +36,10 @@
         [disabled]="creatingChat || !memberProfileId"
         [attr.aria-label]="'CHAT.ARIA_NEW_CHAT' | translate"
       >
-        <i class="bi bi-plus-lg"></i>
+        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <line x1="8" y1="3" x2="8" y2="13"/>
+          <line x1="3" y1="8" x2="13" y2="8"/>
+        </svg>
         <span>{{ 'CHAT.NEW_CHAT_TITLE' | translate }}</span>
       </button>
 
@@ -111,7 +116,17 @@
           [class.from-user]="message.sender === 'user'"
         >
           <div class="avatar" aria-hidden="true">
-            <i [class]="message.sender === 'user' ? 'bi bi-person' : 'bi bi-person-badge'"></i>
+            <ng-container *ngIf="message.sender === 'user'; else assistantAvatarIcon">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="8" r="4"/>
+                <path d="M4 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"/>
+              </svg>
+            </ng-container>
+            <ng-template #assistantAvatarIcon>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z"/>
+              </svg>
+            </ng-template>
           </div>
           <div class="bubble" [class.rich-response]="message.sender !== 'user'">
             <ng-container *ngIf="message.sender === 'user'; else assistantResponse">
@@ -150,16 +165,21 @@
               </div>
             </ng-container>
             <ng-template #assistantResponse>
-              <ng-container *ngFor="let block of formatMessage(message.content)">
-                <h3 *ngIf="block.type === 'heading'">{{ block.text }}</h3>
-                <p *ngIf="block.type === 'paragraph'">{{ block.text }}</p>
-                <ul *ngIf="block.type === 'list'">
-                  <li *ngFor="let item of block.items ?? []">{{ item }}</li>
-                </ul>
-                <ol *ngIf="block.type === 'ordered-list'">
-                  <li *ngFor="let item of block.items ?? []">{{ item }}</li>
-                </ol>
+              <ng-container *ngIf="message.i18nKey; else richContent">
+                <p>{{ message.i18nKey | translate }}</p>
               </ng-container>
+              <ng-template #richContent>
+                <ng-container *ngFor="let block of formatMessage(message.content)">
+                  <h3 *ngIf="block.type === 'heading'">{{ block.text }}</h3>
+                  <p *ngIf="block.type === 'paragraph'">{{ block.text }}</p>
+                  <ul *ngIf="block.type === 'list'">
+                    <li *ngFor="let item of block.items ?? []">{{ item }}</li>
+                  </ul>
+                  <ol *ngIf="block.type === 'ordered-list'">
+                    <li *ngFor="let item of block.items ?? []">{{ item }}</li>
+                  </ol>
+                </ng-container>
+              </ng-template>
             </ng-template>
             <time>{{ message.createdAt | date: 'shortTime' }}</time>
           </div>
@@ -167,14 +187,18 @@
 
         <div class="chat-suggestions" *ngIf="showQuickPrompts" aria-label="Quick prompts">
           <button type="button" *ngFor="let prompt of quickPrompts" (click)="startWithPrompt(prompt)">
-            <i class="bi bi-lightning-charge"></i>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>
             <span>{{ prompt | translate }}</span>
           </button>
         </div>
 
         <article *ngIf="sending || transcribing" class="message-row">
           <div class="avatar" aria-hidden="true">
-            <i class="bi bi-person-badge"></i>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z"/>
+            </svg>
           </div>
           <div class="bubble typing" [class.transcribing]="transcribing">
             <ng-container *ngIf="transcribing; else typingDots">

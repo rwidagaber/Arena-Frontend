@@ -926,7 +926,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   private createAssistantWelcome(): ChatMessage {
-    return this.createMessage('assistant', this.t('CHAT.WELCOME'));
+    return this.createMessage('assistant', '', { i18nKey: 'CHAT.WELCOME' });
   }
 
   private createMessage(

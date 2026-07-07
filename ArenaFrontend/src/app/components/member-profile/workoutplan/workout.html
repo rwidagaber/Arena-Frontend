@@ -177,41 +177,30 @@
           }
         </div>
 
-        <div class="modern-macro-summary-card">
-          <div class="modern-cal-hero-box">
-            <div class="workout-ring-chart">
-              <div class="ring-center-content">
-                <span class="modern-daily-cal-num">{{ plan.durationWeeks }}</span>
-                <span class="modern-daily-cal-label">{{ t.instant('workout.weeks') }}</span>
-              </div>
+        <div class="plan-hero-card">
+          <div class="plan-hero-top">
+            <div class="plan-hero-titles">
+              <span class="plan-hero-eyebrow">{{ t.instant('workout.plan') }}</span>
+              <h2 class="plan-hero-name">{{ plan.name }}</h2>
             </div>
           </div>
 
-          <div class="modern-macro-details-side">
-            <div class="macro-table-header">
-              <span class="col-left">{{ t.instant('workout.detail') }}</span>
-              <span>{{ t.instant('workout.value') }}</span>
+          <div class="plan-hero-stats">
+            <div class="phs-tile phs-weeks">
+              <span class="phs-num">{{ plan.durationWeeks }}</span>
+              <span class="phs-lbl">{{ t.instant('workout.weeks') }}</span>
             </div>
-            <div class="macro-table-row w-row">
-              <div class="macro-name-with-dot">
-                <span class="macro-badge-dot"></span>
-                <span class="macro-name-text">{{ t.instant('workout.trainingDays') }}</span>
-              </div>
-              <span class="macro-value-text">{{ plan.days?.length ?? 0 }}</span>
+            <div class="phs-tile phs-days">
+              <span class="phs-num">{{ plan.days?.length ?? 0 }}</span>
+              <span class="phs-lbl">{{ t.instant('workout.trainingDays') }}</span>
             </div>
-            <div class="macro-table-row e-row">
-              <div class="macro-name-with-dot">
-                <span class="macro-badge-dot"></span>
-                <span class="macro-name-text">{{ t.instant('workout.totalExercises') }}</span>
-              </div>
-              <span class="macro-value-text">{{ getTotalExercises(plan) }}</span>
+            <div class="phs-tile phs-ex">
+              <span class="phs-num">{{ getTotalExercises(plan) }}</span>
+              <span class="phs-lbl">{{ t.instant('workout.totalExercises') }}</span>
             </div>
-            <div class="macro-table-row k-row">
-              <div class="macro-name-with-dot">
-                <span class="macro-badge-dot"></span>
-                <span class="macro-name-text">{{ t.instant('workout.estKcal') }}</span>
-              </div>
-              <span class="macro-value-text">~{{ getEstimatedKcal(plan) }}</span>
+            <div class="phs-tile phs-kcal">
+              <span class="phs-num">~{{ getEstimatedKcal(plan) }}</span>
+              <span class="phs-lbl">{{ t.instant('workout.estKcal') }}</span>
             </div>
           </div>
         </div>
@@ -224,7 +213,10 @@
                 [class.active]="selectedDay()?.id === day.id"
                 (click)="selectDay(day.id)"
               >
-                {{ translateDayName(day.dayName) }}
+                <span class="day-tab-name">{{ translateDayName(day.dayName) }}</span>
+                @if (day.exercises?.length) {
+                  <span class="day-tab-count">{{ day.exercises.length }}</span>
+                }
               </button>
             }
           </div>
@@ -232,7 +224,12 @@
           <div class="modern-meals-grid">
             @if (!selectedDay() || selectedDay()!.exercises.length === 0) {
               <div class="meals-empty">
-                <p>{{ t.instant('workout.restDay') }}</p>
+                <div class="meals-empty-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="30" height="30">
+                    <path d="M3 12h4l3 8 4-16 3 8h4" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <h4 class="meals-empty-title">{{ t.instant('workout.restDay') }}</h4>
               </div>
             }
 
@@ -326,280 +323,195 @@
             {{ t.instant('workout.backToPlan') }}
           </button>
         </div>
-        <div class="meal-detail-card">
-          <!-- 1. Exercise Name & Muscle Group Badge -->
-          <div class="meal-detail-top">
+        <div class="ex-detail-card">
+          <!-- ════════ Header: Name + Badge (full width) ════════ -->
+          <div class="ex-header-group">
             @if (ex.exercise?.muscleGroup) {
               <div class="meal-type-badge lg" [class]="getMuscleGroupColor(ex.exercise!.muscleGroup)">
                 <span>{{ translateMuscleGroup(ex.exercise!.muscleGroup) }}</span>
               </div>
             }
-            <h2 class="meal-detail-name">{{ getLocalizedName(ex) }}</h2>
+            <h2 class="ex-detail-title">{{ getLocalizedName(ex) }}</h2>
           </div>
 
-          <!-- Dynamic plan-specific stats -->
-          <div class="meal-macro-grid">
-            <div class="meal-macro-card sets-card">
-              <span class="meal-macro-val">{{ ex.sets }}</span>
-              <span class="meal-macro-lbl">{{ t.instant('workout.sets') }}</span>
+          <!-- ════════ Stats Row (full width) ════════ -->
+          <div class="ex-stats-grid">
+            <div class="ex-stat-card">
+              <span class="ex-stat-val">{{ ex.sets }}</span>
+              <span class="ex-stat-lbl">{{ t.instant('workout.sets') }}</span>
             </div>
-            <div class="meal-macro-card reps-card">
-              <span class="meal-macro-val">{{ ex.reps }}</span>
-              <span class="meal-macro-lbl">{{ t.instant('workout.reps') }}</span>
+            <div class="ex-stat-card">
+              <span class="ex-stat-val">{{ ex.reps }}</span>
+              <span class="ex-stat-lbl">{{ t.instant('workout.reps') }}</span>
             </div>
             @if (ex.weight) {
-              <div class="meal-macro-card weight-card">
-                <span class="meal-macro-val">{{ ex.weight }}<small>kg</small></span>
-                <span class="meal-macro-lbl">{{ t.instant('workout.weight') }}</span>
+              <div class="ex-stat-card">
+                <span class="ex-stat-val">{{ ex.weight }}<small>kg</small></span>
+                <span class="ex-stat-lbl">{{ t.instant('workout.weight') }}</span>
               </div>
             }
             @if (ex.durationMinutes) {
-              <div class="meal-macro-card dur-card">
-                <span class="meal-macro-val">{{ ex.durationMinutes }}<small>min</small></span>
-                <span class="meal-macro-lbl">{{ t.instant('workout.duration') }}</span>
+              <div class="ex-stat-card">
+                <span class="ex-stat-val">{{ ex.durationMinutes }}<small>min</small></span>
+                <span class="ex-stat-lbl">{{ t.instant('workout.duration') }}</span>
               </div>
             }
             @if (ex.restSeconds) {
-              <div class="meal-macro-card rest-card">
-                <span class="meal-macro-val">{{ ex.restSeconds }}<small>s</small></span>
-                <span class="meal-macro-lbl">{{ t.instant('workout.rest') }}</span>
+              <div class="ex-stat-card">
+                <span class="ex-stat-val">{{ ex.restSeconds }}<small>s</small></span>
+                <span class="ex-stat-lbl">{{ t.instant('workout.rest') }}</span>
               </div>
             }
           </div>
 
-          <!-- 2. Video Section -->
-          @if (ex.exercise?.videoUrl) {
-            <div class="video-section">
-              @if (canEmbedVideo(ex.exercise!.videoUrl)) {
-                <div class="video-embed-container">
-                  @if (!playVideo()) {
-                    <div class="video-thumbnail-wrapper" (click)="onVideoPlay()" role="button" tabindex="0" (keydown.enter)="onVideoPlay()" [attr.aria-label]="'workout.playVideo' | translate">
-                      <img
-                        [src]="getYouTubeThumbnailUrl(ex.exercise!.videoUrl)!"
-                        alt="{{ getLocalizedName(ex) }}"
-                        class="video-thumbnail-img"
-                        loading="lazy"
-                      />
-                      <div class="video-play-button">
-                        <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
-                          <polygon points="5 3 19 12 5 21 5 3"/>
-                        </svg>
-                      </div>
-                    </div>
-                  } @else {
-                    @if (videoLoading()) {
-                      <div class="video-loading-overlay">
-                        <div class="video-loading-spinner"></div>
-                      </div>
-                    }
-                    <iframe
-                      [src]="getSafeEmbedUrl(ex.exercise!.videoUrl)"
-                      frameborder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      allowfullscreen
-                      class="video-iframe"
-                      title="{{ getLocalizedName(ex) }}"
-                      (load)="onVideoIframeLoad()"
-                    ></iframe>
-                  }
-                </div>
-              } @else {
-                <div class="video-fallback-card">
-                  <div class="video-fallback-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
-                      <polygon points="5 3 19 12 5 21 5 3"/>
-                    </svg>
-                  </div>
-                  <div class="video-fallback-copy">
-                    <strong>{{ t.instant('workout.watchVideo') }}</strong>
-                    <span>{{ t.instant('workout.videoNotAvailable') || 'This video is not available for embedding. Open YouTube to watch.' }}</span>
-                  </div>
-                  <a [href]="ex.exercise!.videoUrl" target="_blank" rel="noopener" class="btn-video">
-                    {{ t.instant('workout.watchVideo') }}
-                  </a>
-                </div>
+          <!-- ════════ Meta Bar: target muscles + difficulty + category + equipment as tags ════════ -->
+          @if (getLocalizedPrimaryMuscles(ex).length > 0 || getLocalizedSecondaryMuscles(ex).length > 0 || getLocalizedDifficulty(ex) || getLocalizedCategory(ex) || (getLocalizedEquipment(ex) && getLocalizedEquipment(ex).trim().toLowerCase() !== 'none')) {
+            <div class="ex-meta-bar">
+              @if (getLocalizedPrimaryMuscles(ex).length > 0) {
+                @for (m of getLocalizedPrimaryMuscles(ex); track m) { <span class="ex-mbar-tag primary">{{ m }}</span> }
               }
-            </div>
-          }
-
-          <!-- 3. Description -->
-          @if (getLocalizedDescription(ex)) {
-            <div class="exercise-section">
-              <h3 class="exercise-section-title">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                  <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
-                  <rect x="9" y="3" width="6" height="4" rx="2"/>
-                </svg>
-                {{ t.instant('workout.description') }}
-              </h3>
-              @if (ex.exercise?.imageUrl) {
-                <div class="exercise-preview-container">
-                  <img [src]="ex.exercise!.imageUrl" alt="Exercise Preview" class="exercise-preview-img" loading="lazy" />
-                </div>
+              @if (getLocalizedSecondaryMuscles(ex).length > 0) {
+                @for (m of getLocalizedSecondaryMuscles(ex); track m) { <span class="ex-mbar-tag secondary">{{ m }}</span> }
               }
-              <p class="ex-description">{{ getLocalizedDescription(ex) }}</p>
-            </div>
-          }
-
-          <!-- 4. How to Perform (Instructions) -->
-          @if (getLocalizedInstructions(ex).length > 0) {
-            <div class="exercise-section">
-              <h3 class="exercise-section-title">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                  <polyline points="9 11 12 14 22 4"/>
-                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-                </svg>
-                {{ t.instant('workout.instructions') }}
-              </h3>
-              <ol class="how-to-perform-list">
-                @for (step of getLocalizedInstructions(ex); track step) {
-                  <li>{{ step }}</li>
-                }
-              </ol>
-            </div>
-          }
-
-          <!-- 5. Breathing -->
-          @if (getLocalizedBreathing(ex)) {
-            <div class="exercise-section">
-              <h3 class="exercise-section-title">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                  <circle cx="12" cy="12" r="10"/>
-                  <path d="M12 8v8"/>
-                  <path d="M8 12h8"/>
-                </svg>
-                {{ t.instant('workout.breathing') }}
-              </h3>
-              <p class="ex-description">{{ getLocalizedBreathing(ex) }}</p>
-            </div>
-          }
-
-          <!-- 6. Common Mistakes -->
-          @if (getLocalizedCommonMistakes(ex).length > 0) {
-            <div class="exercise-section">
-              <h3 class="exercise-section-title error-title">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                  <circle cx="12" cy="12" r="10"/>
-                  <line x1="15" y1="9" x2="9" y2="15"/>
-                  <line x1="9" y1="9" x2="15" y2="15"/>
-                </svg>
-                {{ t.instant('workout.commonMistakes') }}
-              </h3>
-              <ul class="mistakes-list">
-                @for (mistake of getLocalizedCommonMistakes(ex); track mistake) {
-                  <li>{{ mistake }}</li>
-                }
-              </ul>
-            </div>
-          }
-
-          <!-- 7. Safety Tips -->
-          @if (getLocalizedSafetyTips(ex).length > 0) {
-            <div class="exercise-section">
-              <h3 class="exercise-section-title warning-title">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                  <line x1="12" y1="9" x2="12" y2="13"/>
-                  <line x1="12" y1="17" x2="12.01" y2="17"/>
-                </svg>
-                {{ t.instant('workout.safetyTips') }}
-              </h3>
-              <ul class="safety-tips-list">
-                @for (tip of getLocalizedSafetyTips(ex); track tip) {
-                  <li>{{ tip }}</li>
-                }
-              </ul>
-            </div>
-          }
-
-          <!-- 8. Target Muscles -->
-          @if (getLocalizedPrimaryMuscles(ex).length > 0 || getLocalizedSecondaryMuscles(ex).length > 0) {
-            <div class="exercise-section">
-              <h3 class="exercise-section-title">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                </svg>
-                {{ t.instant('workout.targetMuscles') }}
-              </h3>
-              <div class="muscles-container">
-                @if (getLocalizedPrimaryMuscles(ex).length > 0) {
-                  <div class="muscle-group-list">
-                    <span class="muscle-group-label">{{ t.instant('workout.primaryMuscles') }}:</span>
-                    <div class="muscle-tags">
-                      @for (m of getLocalizedPrimaryMuscles(ex); track m) {
-                        <span class="muscle-tag primary">{{ m }}</span>
-                      }
-                    </div>
-                  </div>
-                }
-                @if (getLocalizedSecondaryMuscles(ex).length > 0) {
-                  <div class="muscle-group-list">
-                    <span class="muscle-group-label">{{ t.instant('workout.secondaryMuscles') }}:</span>
-                    <div class="muscle-tags">
-                      @for (m of getLocalizedSecondaryMuscles(ex); track m) {
-                        <span class="muscle-tag secondary">{{ m }}</span>
-                      }
-                    </div>
-                  </div>
-                }
-              </div>
-            </div>
-          }
-
-          <!-- 9. Equipment -->
-          @if (getLocalizedEquipment(ex) && getLocalizedEquipment(ex).trim().toLowerCase() !== 'none') {
-            <div class="exercise-section">
-              <h3 class="exercise-section-title">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                  <path d="M6 4v16M18 4v16M6 12h12M2 7h4M2 17h4M18 7h4M18 17h4"/>
-                </svg>
-                {{ t.instant('workout.equipment') }}
-              </h3>
-              <div class="equipment-tags-list">
-                @for (eq of getLocalizedEquipment(ex).split(','); track eq) {
-                  @if (eq.trim().toLowerCase() !== 'none') {
-                    <span class="equipment-tag-item">{{ eq.trim() }}</span>
-                  }
-                }
-              </div>
-            </div>
-          }
-
-          <!-- 10. Difficulty & Category -->
-          @if (getLocalizedDifficulty(ex) || getLocalizedCategory(ex)) {
-            <div class="exercise-section difficulty-category-section">
               @if (getLocalizedDifficulty(ex)) {
-                <div class="diff-cat-card">
-                  <span class="diff-cat-title">{{ t.instant('workout.difficulty') }}</span>
-                  <span class="diff-cat-val badge-difficulty" [class]="getLocalizedDifficulty(ex).toLowerCase()">
-                    {{ getLocalizedDifficulty(ex) }}
-                  </span>
-                </div>
+                <span class="ex-mbar-tag difficulty" [class]="getLocalizedDifficulty(ex).toLowerCase()">{{ getLocalizedDifficulty(ex) }}</span>
               }
               @if (getLocalizedCategory(ex)) {
-                <div class="diff-cat-card">
-                  <span class="diff-cat-title">{{ t.instant('workout.category') }}</span>
-                  <span class="diff-cat-val badge-category">
-                    {{ getLocalizedCategory(ex) }}
-                  </span>
+                <span class="ex-mbar-tag category">{{ getLocalizedCategory(ex) }}</span>
+              }
+              @if (getLocalizedEquipment(ex) && getLocalizedEquipment(ex).trim().toLowerCase() !== 'none') {
+                @for (eq of getLocalizedEquipment(ex).split(','); track eq) {
+                  @if (eq.trim().toLowerCase() !== 'none') { <span class="ex-mbar-tag equipment">{{ eq.trim() }}</span> }
+                }
+              }
+            </div>
+          }
+
+          <!-- ════════ Description ════════ -->
+          @if (getLocalizedDescription(ex)) {
+            <div class="ex-desc-block">
+              <div class="ex-section-head">
+                <svg class="ex-section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/></svg>
+                <h3 class="ex-section-title">{{ t.instant('workout.description') }}</h3>
+              </div>
+              @if (ex.exercise?.imageUrl) {
+                <div class="ex-image-wrap">
+                  <img [src]="ex.exercise!.imageUrl" alt="" class="ex-preview-img" loading="lazy" />
+                </div>
+              }
+              <p class="ex-text">{{ getLocalizedDescription(ex) }}</p>
+            </div>
+          }
+
+          <!-- ════════ Media Row: Video + Instructions side by side ════════ -->
+          @if (ex.exercise?.videoUrl || getLocalizedInstructions(ex).length > 0) {
+            <div class="ex-media-row">
+              <!-- Video column -->
+              @if (ex.exercise?.videoUrl) {
+                <div class="ex-video-col">
+                  @if (canEmbedVideo(ex.exercise!.videoUrl)) {
+                    <div class="video-embed-container">
+                      @if (!playVideo()) {
+                        <div class="video-thumbnail-wrapper" (click)="onVideoPlay()" role="button" tabindex="0" (keydown.enter)="onVideoPlay()" [attr.aria-label]="'workout.playVideo' | translate">
+                          <img [src]="getYouTubeThumbnailUrl(ex.exercise!.videoUrl)!" alt="{{ getLocalizedName(ex) }}" class="video-thumbnail-img" loading="lazy" />
+                          <div class="video-play-button">
+                            <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                          </div>
+                        </div>
+                      } @else {
+                        @if (videoLoading()) {
+                          <div class="video-loading-overlay"><div class="video-loading-spinner"></div></div>
+                        }
+                        <iframe [src]="getSafeEmbedUrl(ex.exercise!.videoUrl)" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen class="video-iframe" title="{{ getLocalizedName(ex) }}" (load)="onVideoIframeLoad()"></iframe>
+                      }
+                    </div>
+                    @if (ex.exercise?.videoUrl) {
+                        <a [href]="ex.exercise!.videoUrl" target="_blank" rel="noopener" class="ex-video-direct-link">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                          {{ t.instant('workout.watchOnYouTube') }}
+                        </a>
+                    }
+                  } @else {
+                    <div class="video-fallback-card">
+                      <div class="video-fallback-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                      </div>
+                      <div class="video-fallback-copy">
+                        <strong>{{ t.instant('workout.watchVideo') }}</strong>
+                        <span>{{ t.instant('workout.videoNotAvailable') }}</span>
+                      </div>
+                      <a [href]="ex.exercise!.videoUrl" target="_blank" rel="noopener" class="btn-video">{{ t.instant('workout.watchVideo') }}</a>
+                    </div>
+                  }
+                </div>
+              }
+              <!-- Instructions column + breathing -->
+              @if (getLocalizedInstructions(ex).length > 0 || getLocalizedBreathing(ex)) {
+                <div class="ex-instr-col">
+                  @if (getLocalizedInstructions(ex).length > 0) {
+                    <div class="ex-section-head">
+                      <svg class="ex-section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                      <h3 class="ex-section-title">{{ t.instant('workout.instructions') }}</h3>
+                    </div>
+                    <ol class="ex-list-numbered">
+                      @for (step of getLocalizedInstructions(ex); track step) { <li>{{ step }}</li> }
+                    </ol>
+                  }
+                  @if (getLocalizedBreathing(ex)) {
+                    <div class="ex-instr-breathing">
+                      <div class="ex-section-head">
+                        <svg class="ex-section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+                        <h3 class="ex-section-title">{{ t.instant('workout.breathing') }}</h3>
+                      </div>
+                      <p class="ex-text">{{ getLocalizedBreathing(ex) }}</p>
+                    </div>
+                  }
                 </div>
               }
             </div>
           }
 
-          <!-- 11. Trainer Notes -->
-          @if (ex.notes) {
-            <div class="exercise-section">
-              <h3 class="exercise-section-title">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                  <polyline points="14 2 14 8 20 8"/>
-                </svg>
-                {{ t.instant('workout.notes') }}
-              </h3>
-              <p class="ex-description">{{ ex.notes }}</p>
+          <!-- ════════ Safety + Mistakes row ════════ -->
+          @if (getLocalizedSafetyTips(ex).length > 0 || getLocalizedCommonMistakes(ex).length > 0) {
+            <div class="ex-misc-row">
+              @if (getLocalizedSafetyTips(ex).length > 0) {
+                <div class="ex-misc-card warning">
+                  <div class="ex-section-head">
+                    <svg class="ex-section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <h3 class="ex-section-title">{{ t.instant('workout.safetyTips') }}</h3>
+                  </div>
+                  <ul class="ex-list-bullet safety">
+                    @for (tip of getLocalizedSafetyTips(ex); track tip) { <li>{{ tip }}</li> }
+                  </ul>
+                </div>
+              }
+              @if (getLocalizedCommonMistakes(ex).length > 0) {
+                <div class="ex-misc-card mistake">
+                  <div class="ex-section-head">
+                    <svg class="ex-section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                    <h3 class="ex-section-title">{{ t.instant('workout.commonMistakes') }}</h3>
+                  </div>
+                  <ul class="ex-list-bullet mistake">
+                    @for (mistake of getLocalizedCommonMistakes(ex); track mistake) { <li>{{ mistake }}</li> }
+                  </ul>
+                </div>
+              }
             </div>
           }
+
+          <!-- ════════ Content: flowing single-column layout ════════ -->
+          <div class="ex-body">
+            <!-- Trainer Notes -->
+            @if (ex.notes) {
+              <section class="ex-section">
+                <div class="ex-section-head">
+                  <svg class="ex-section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  <h3 class="ex-section-title">{{ t.instant('workout.notes') }}</h3>
+                </div>
+                <p class="ex-text">{{ ex.notes }}</p>
+              </section>
+            }
+          </div>
         </div>
       }
     }

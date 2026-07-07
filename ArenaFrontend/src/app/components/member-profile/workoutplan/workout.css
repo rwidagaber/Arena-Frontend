@@ -1115,22 +1115,33 @@
 .video-play-button {
   position: relative;
   z-index: 2;
-  width: 60px;
-  height: 60px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.7);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+.video-play-button::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.15);
 }
 .video-thumbnail-wrapper:hover .video-play-button {
-  transform: scale(1.12);
-  background: rgba(198, 239, 46, 0.9);
-  color: #0b0c0c;
-  box-shadow: 0 6px 30px rgba(198, 239, 46, 0.4);
+  transform: scale(1.1);
+  background: var(--accent);
+  color: var(--accent-contrast);
+  box-shadow: 0 8px 40px rgba(198, 239, 46, 0.45);
+}
+.video-thumbnail-wrapper:hover .video-play-button::after {
+  border-color: var(--accent);
 }
 
 /* ── Loading overlay (between click & iframe load) ── */
@@ -1364,39 +1375,613 @@
   color: var(--n-text);
 }
 
-.badge-difficulty {
-  text-transform: capitalize;
+/* ── Misc row: Safety Tips + Common Mistakes side by side ── */
+.ex-misc-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 22px;
+  margin-bottom: 6px;
 }
-
-.badge-difficulty.beginner {
-  color: #10b981;
+.ex-misc-card {
+  padding: 20px 22px;
+  border-radius: 14px;
+  position: relative;
 }
-
-.badge-difficulty.intermediate {
-  color: #f59e0b;
+.ex-misc-card.warning {
+  background: rgba(245, 158, 11, 0.04);
+  border: 1px solid rgba(245, 158, 11, 0.12);
+  border-inline-start: 3px solid #f59e0b;
 }
-
-.badge-difficulty.advanced {
-  color: #ef4444;
+.ex-misc-card.warning .ex-section-head { margin-bottom: 12px; }
+.ex-misc-card.warning .ex-section-icon { color: #f59e0b; }
+.ex-misc-card.mistake {
+  background: rgba(239, 68, 68, 0.03);
+  border: 1px solid rgba(239, 68, 68, 0.08);
+  border-inline-start: 3px solid #ef4444;
 }
+.ex-misc-card.mistake .ex-section-head { margin-bottom: 12px; }
+.ex-misc-card.mistake .ex-section-icon { color: #ef4444; }
 
-.badge-category {
-  color: var(--accent);
-}
-
-/* RTL Styles */
-:host-context([dir="rtl"]) .how-to-perform-list,
-:host-context([dir="rtl"]) .mistakes-list,
-:host-context([dir="rtl"]) .safety-tips-list {
-  padding-left: 0 !important;
-  padding-right: 20px !important;
-  text-align: right !important;
-}
-
-:host-context([dir="rtl"]) .muscle-group-list {
-  flex-direction: row !important;
+/* ── Breathing inside instructions column ── */
+.ex-instr-breathing {
+  border-top: 1px solid var(--n-border);
+  padding-top: 16px;
+  margin-top: 4px;
 }
 
 :host-context([dir="rtl"]) .difficulty-category-section {
   flex-direction: row !important;
+}
+
+/* ==========================================================================
+   ── 17. Exercise Detail — Premium Design ──
+   ========================================================================== */
+
+/* ── Card ── */
+.ex-detail-card {
+  background: var(--n-card);
+  border: 1px solid var(--n-card-border);
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 12px 40px var(--n-card-shadow);
+  transition: box-shadow 0.3s ease;
+}
+
+/* ── Header group (name + badge, full width) ── */
+.ex-header-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+/* ── Description block (standalone, above media row) ── */
+.ex-desc-block {
+  margin-top: 20px;
+  padding-bottom: 4px;
+}
+.ex-desc-block .ex-section-head { margin-bottom: 12px; }
+.ex-desc-block .ex-text { font-size: 14px; line-height: 1.75; }
+
+/* ── Media row: Video + Instructions side by side ── */
+.ex-media-row {
+  display: flex;
+  gap: 28px;
+  margin-top: 24px;
+  margin-bottom: 6px;
+}
+
+.ex-video-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ex-instr-col {
+  width: 340px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ex-video-direct-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--n-text-muted);
+  text-decoration: none;
+  transition: color 0.2s ease;
+  align-self: flex-start;
+}
+.ex-video-direct-link:hover { color: var(--accent); }
+.ex-video-direct-link svg { transition: transform 0.2s ease; }
+.ex-video-direct-link:hover svg { transform: scale(1.15); }
+
+.ex-detail-title {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  color: var(--n-text);
+  margin: 0;
+}
+
+/* ── Stats grid ── */
+.ex-stats-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ex-stats-grid .ex-stat-card { flex: 1; min-width: 90px; } 
+
+.ex-stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 10px 14px;
+  background: var(--n-surface);
+  border: 1px solid var(--n-border);
+  border-radius: 16px;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.ex-stat-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(198, 239, 46, 0.35);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+}
+
+.ex-stat-val {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--n-text);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.ex-stat-val small {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--n-text-muted);
+  margin-inline-start: 2px;
+}
+
+.ex-stat-lbl {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--n-text-muted);
+}
+
+/* ── Meta bar (muscles + difficulty + category + equipment as tags) ── */
+.ex-meta-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+.ex-mbar-tag {
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 100px;
+  background: var(--n-surface);
+  border: 1px solid var(--n-border);
+  color: var(--n-text-muted);
+  white-space: nowrap;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.ex-mbar-tag.primary {
+  background: rgba(198, 239, 46, 0.08);
+  border-color: rgba(198, 239, 46, 0.2);
+  color: var(--accent);
+}
+.ex-mbar-tag.primary:hover { border-color: rgba(198, 239, 46, 0.4); }
+.ex-mbar-tag.secondary {
+  background: var(--n-surface2);
+  border-color: var(--n-border);
+  color: var(--n-text-muted);
+}
+.ex-mbar-tag.difficulty { text-transform: capitalize; }
+.ex-mbar-tag.difficulty.beginner  { color: #10b981; background: rgba(16, 185, 129, 0.08); border-color: rgba(16, 185, 129, 0.2); }
+.ex-mbar-tag.difficulty.intermediate { color: #f59e0b; background: rgba(245, 158, 11, 0.08); border-color: rgba(245, 158, 11, 0.2); }
+.ex-mbar-tag.difficulty.advanced  { color: #ef4444; background: rgba(239, 68, 68, 0.08); border-color: rgba(239, 68, 68, 0.2); }
+.ex-mbar-tag.category { color: var(--accent); border-color: rgba(198, 239, 46, 0.2); }
+.ex-mbar-tag.equipment {
+  background: var(--n-border);
+  border-color: transparent;
+  color: var(--n-text-muted);
+}
+
+/* ── Body: flowing sections ── */
+.ex-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--n-border);
+}
+
+/* ── Individual section ── */
+.ex-section {
+  padding: 18px 0;
+}
+.ex-section:first-child { padding-top: 0; }
+
+.ex-section-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.ex-section-icon {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  color: var(--accent);
+}
+
+.ex-section-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--n-text);
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+/* ── Text ── */
+.ex-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--n-text-muted);
+}
+
+/* ── Numbered list (instructions) ── */
+.ex-list-numbered {
+  list-style: none;
+  counter-reset: step;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ex-list-numbered li {
+  counter-increment: step;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--n-text-muted);
+}
+.ex-list-numbered li::before {
+  content: counter(step);
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-size: 10px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 3px;
+}
+
+/* ── Bullet lists (mistakes / safety) ── */
+.ex-list-bullet {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ex-list-bullet li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--n-text-muted);
+}
+.ex-list-bullet li::before {
+  content: '';
+  flex: 0 0 auto;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  margin-top: 0.55em;
+}
+.ex-list-bullet.safety li::before {
+  background: #f59e0b;
+}
+.ex-list-bullet.mistake li::before {
+  background: #ef4444;
+}
+
+/* ── Preview image ── */
+.ex-image-wrap {
+  width: 100%;
+  max-height: 320px;
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--n-surface);
+  border: 1px solid var(--n-border);
+}
+.ex-preview-img {
+  max-width: 100%;
+  max-height: 320px;
+  object-fit: contain;
+  display: block;
+}
+
+/* ── RTL overrides ── */
+:host-context([dir="rtl"]) .ex-list-numbered li { gap: 10px; }
+:host-context([dir="rtl"]) .ex-list-bullet li { gap: 8px; }
+
+/* ==========================================================================
+   ── 18. Responsive — Exercise Detail ──
+   ========================================================================== */
+@media (max-width: 1100px) {
+  .ex-media-row { flex-direction: column; }
+  .ex-instr-col { width: 100%; }
+}
+
+@media (max-width: 1024px) {
+  .ex-stats-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }
+}
+
+@media (max-width: 900px) {
+  .ex-detail-title { font-size: 22px; }
+  .ex-detail-card { padding: 24px; }
+  .ex-stat-val { font-size: 20px; }
+  .ex-misc-row { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .ex-detail-card { padding: 18px; border-radius: 20px; }
+  .ex-stats-grid .ex-stat-card { min-width: 70px; }
+  .ex-stat-card { padding: 12px 8px; }
+  .ex-stat-val { font-size: 17px; }
+  .ex-stat-lbl { font-size: 9px; letter-spacing: 0.04em; }
+  .ex-detail-title { font-size: 18px; }
+  .ex-section { padding: 14px 0; }
+  .ex-section-title { font-size: 13px; }
+  .ex-section-icon { width: 16px; height: 16px; }
+  .ex-text, .ex-list-numbered li { font-size: 13px; }
+  .ex-list-bullet li { font-size: 12.5px; }
+  .ex-mbar-tag { font-size: 10.5px; padding: 4px 11px; }
+  .ex-misc-card { padding: 16px 18px; }
+  .video-fallback-card { grid-template-columns: 1fr; text-align: center; justify-items: center; }
+  .video-fallback-card .btn-video { grid-column: 1 / -1; width: 100%; justify-content: center; }
+}
+
+@media (max-width: 480px) {
+  .ex-detail-card { padding: 14px; border-radius: 16px; }
+  .ex-stats-grid .ex-stat-card { min-width: calc(50% - 4px); }
+  .ex-stat-card { padding: 10px 6px; border-radius: 14px; }
+  .ex-stat-val { font-size: 16px; }
+  .ex-detail-title { font-size: 16px; }
+  .ex-header-group { gap: 6px; }
+  .ex-video-direct-link { font-size: 12px; }
+  .video-embed-container { border-radius: 12px; }
+  .video-play-button { width: 50px; height: 50px; }
+  .video-play-button svg { width: 22px; height: 22px; }
+  .ex-misc-row { grid-template-columns: 1fr; }
+  .ex-list-numbered li { gap: 8px; font-size: 12.5px; }
+  .ex-list-numbered li::before { width: 18px; height: 18px; font-size: 9px; margin-top: 2px; }
+}
+
+/* ==========================================================================
+   ── 19. Plan Detail — Redesigned Hero + Days + Exercises (modern) ──
+   A single, scannable "command center": the plan name is finally visible,
+   the four key stats read at a glance, and every exercise card guides the
+   eye with a coloured accent, tinted stat pills, and a clear hover cue.
+   ========================================================================== */
+
+/* ── Hero card: name + eyebrow + stat tiles ── */
+.plan-hero-card {
+  position: relative;
+  overflow: hidden;
+  background: var(--n-card);
+  border: 1px solid var(--n-card-border);
+  border-radius: 24px;
+  padding: 26px 28px;
+  margin-bottom: 28px;
+  box-shadow: 0 8px 30px var(--n-card-shadow);
+}
+/* soft accent bloom in the trailing corner */
+.plan-hero-card::before {
+  content: '';
+  position: absolute;
+  top: -70px; inset-inline-end: -50px;
+  width: 240px; height: 240px;
+  background: radial-gradient(circle, rgba(198, 239, 46, 0.20), transparent 70%);
+  pointer-events: none;
+}
+/* thin accent hairline along the top edge */
+.plan-hero-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0.7;
+}
+
+.plan-hero-top {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+.plan-hero-eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+.plan-hero-name {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--n-text);
+  margin: 0;
+}
+
+.plan-hero-stats {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.phs-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 16px 16px 15px;
+  border-radius: 16px;
+  background: var(--n-surface);
+  border: 1px solid var(--n-border);
+  overflow: hidden;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease, box-shadow 0.2s ease;
+}
+/* coloured accent rail keyed to each stat */
+.phs-tile::before {
+  content: '';
+  position: absolute;
+  top: 0; inset-inline-start: 0;
+  width: 3px; height: 100%;
+  background: var(--phs-color, var(--accent));
+}
+.phs-tile:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--phs-color, var(--accent)) 45%, transparent);
+  box-shadow: 0 12px 26px var(--n-card-shadow);
+}
+.phs-num {
+  font-size: 25px;
+  font-weight: 800;
+  color: var(--n-text);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.phs-lbl {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--n-text-muted);
+}
+.phs-weeks { --phs-color: #C6EF2E; }
+.phs-days  { --phs-color: #6366f1; }
+.phs-ex    { --phs-color: #38bdf8; }
+.phs-kcal  { --phs-color: #f59e0b; }
+
+/* ── Day tabs: name + per-day exercise count ── */
+.day-tab { gap: 8px; }
+.day-tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 100px;
+  background: var(--n-surface2);
+  color: var(--n-text-muted);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.day-tab:hover .day-tab-count { color: var(--accent); }
+.day-tab.active .day-tab-count {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+/* ── Exercise cards: accent reveal, coloured icon chip, tinted pills ── */
+.modern-meal-card-enhanced {
+  position: relative;
+  overflow: hidden;
+}
+.modern-meal-card-enhanced::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), #38bdf8);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.modern-meal-card-enhanced:hover::before { transform: scaleX(1); }
+.modern-meal-card-enhanced:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+  box-shadow: 0 16px 34px var(--n-card-shadow), 0 0 0 1px rgba(198, 239, 46, 0.15);
+}
+.modern-meal-card-enhanced .meal-avatar-icon-box {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(198, 239, 46, 0.12);
+  border: 1px solid rgba(198, 239, 46, 0.18);
+  padding: 7px;
+  transition: transform 0.25s ease;
+}
+.modern-meal-card-enhanced:hover .meal-avatar-icon-box { transform: scale(1.06); }
+
+/* Tint each stat pill so sets / reps / weight / rest are distinguishable */
+.macro-pill-item.sets-pill   { background: rgba(99, 102, 241, 0.09);  border-color: rgba(99, 102, 241, 0.2); }
+.macro-pill-item.reps-pill   { background: rgba(56, 189, 248, 0.09);  border-color: rgba(56, 189, 248, 0.2); }
+.macro-pill-item.weight-pill { background: rgba(245, 158, 11, 0.09);  border-color: rgba(245, 158, 11, 0.2); }
+.macro-pill-item.rest-pill   { background: rgba(16, 185, 129, 0.09);  border-color: rgba(16, 185, 129, 0.2); }
+
+/* ── Rest-day / empty-day state ── */
+.meals-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 20px;
+  text-align: center;
+  background: var(--n-surface);
+  border: 1px dashed var(--n-border);
+  border-radius: 20px;
+}
+.meals-empty-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(198, 239, 46, 0.12);
+  color: var(--accent);
+}
+.meals-empty-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--n-text);
+}
+.meals-empty p { margin: 0; font-size: 13px; color: var(--n-text-muted); }
+
+/* ── RTL + responsive ── */
+:host-context([dir="rtl"]) .modern-meal-card-enhanced::before { transform-origin: right; }
+
+@media (max-width: 640px) {
+  .plan-hero-card { padding: 20px; border-radius: 20px; }
+  .plan-hero-name { font-size: 21px; }
+  .plan-hero-stats { grid-template-columns: repeat(2, 1fr); }
+  .phs-num { font-size: 22px; }
 }

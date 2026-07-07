@@ -812,6 +812,16 @@
   opacity: 0.95;
   filter: drop-shadow(0 0 14px rgba(198, 239, 46, 0.7));
 }
+/* Dark mode: drop the neon lime hairline entirely. It shares the header's
+   bottom edge with the .scroll-progress indicator, and its lime glow washed
+   out the scroll bar's own lighting. The scroll indicator is left untouched. */
+:host-context([data-theme="dark"]) .gympro-header-exact::after,
+:host-context([data-theme="dark"]) .gympro-header-exact.is-sticky::after {
+  background: transparent;
+  opacity: 0;
+  filter: none;
+  animation: none;
+}
 /* A touch deeper shadow on the sticky glass for a crisper condense. */
 .gympro-header-exact.is-sticky {
   box-shadow: 0 6px 34px rgba(0, 0, 0, 0.22);
