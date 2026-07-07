@@ -43,7 +43,7 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   /* ── Contact details (same in both languages, so kept as data) ── */
   readonly phone = '+20 100 123 4567';
-  readonly email = 'hello@arenagym.com';
+  readonly email = 'arenagymofficial1@gmail.com';
 
   /** True when the user prefers reduced motion — gates all decorative motion. */
   private readonly reduceMotion =
