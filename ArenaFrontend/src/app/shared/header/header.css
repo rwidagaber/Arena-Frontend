@@ -78,6 +78,9 @@
      decorative ::before/::after layers and the scroll-progress bar anchor to it. */
   position: relative;
   width: 100%;
+  height: 62px;
+  display: flex;
+  align-items: center;
   z-index: 999;
   border-bottom: 1px solid var(--header-border);
   transition: background-color 0.35s ease, box-shadow 0.35s ease, border-color 0.3s ease;
@@ -159,11 +162,11 @@
    rather than sitting on a badge: neon mark on the dark header, navy mark on the
    light header. Negative margin keeps the bar height unchanged. */
 .brand-logo-img {
-  height: 76px;
+  height: 44px;
   width: auto;
   display: block;
   flex-shrink: 0;
-  margin-block: -10px;
+  margin-block: 0;
   transition: transform 0.3s ease;
 }
 
@@ -178,8 +181,8 @@
    brand-green glow. Margin compensates so the header bar height is unchanged. */
 :host-context([data-theme="light"]) .brand-logo-img.logo-theme-light {
   display: block;
-  height: 84px;
-  margin-block: -12px;
+  height: 46px;
+  margin-block: 0;
   filter: drop-shadow(0 4px 10px rgba(12, 15, 23, 0.25));
 }
 
@@ -808,6 +811,16 @@
 .gympro-header-exact.is-sticky::after {
   opacity: 0.95;
   filter: drop-shadow(0 0 14px rgba(198, 239, 46, 0.7));
+}
+/* Dark mode: drop the neon lime hairline entirely. It shares the header's
+   bottom edge with the .scroll-progress indicator, and its lime glow washed
+   out the scroll bar's own lighting. The scroll indicator is left untouched. */
+:host-context([data-theme="dark"]) .gympro-header-exact::after,
+:host-context([data-theme="dark"]) .gympro-header-exact.is-sticky::after {
+  background: transparent;
+  opacity: 0;
+  filter: none;
+  animation: none;
 }
 /* A touch deeper shadow on the sticky glass for a crisper condense. */
 .gympro-header-exact.is-sticky {

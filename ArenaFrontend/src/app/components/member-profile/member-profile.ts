@@ -1002,50 +1002,12 @@ export class MemberProfile implements OnInit {
     return this.attendanceDays();
   }
 
-  // ── Body-composition onboarding prompt ───────────────────────────────
-  // Nudge the member to fill in their body data (weight / height / body-fat /
-  // muscle) so the AI can tailor their workout & nutrition. Driven purely by
-  // whether that data is still missing — no persisted flag — and dismissable
-  // for the current visit.
-  bodyPromptDismissed = signal(false);
-
-  /** True while any AI-relevant field is still missing (body composition + goal). */
-  bodyCompositionIncomplete = computed(() => {
-    const p = this.profile();
-    if (!p) return false;
-    return p.weight == null || p.height == null
-        || this.currentBodyFat() == null || this.currentMuscleMass() == null
-        || !p.goal;
-  });
-
-  /** Show the popup once data has loaded, is still incomplete, hasn't been
-   *  dismissed, and no other modal (edit / celebration / achievement) is open. */
-  showBodyPrompt = computed(() =>
-    this.activeSection() === 'profile'
-    && !this.statsLoading()
-    && this.bodyCompositionIncomplete()
-    && !this.bodyPromptDismissed()
-    && !this.isEditing()
-    && !this.showCelebration()
-    && !this.achievementUnlock());
-
-  /** Primary action → open the edit form focused on the body-composition fields. */
-  openBodyEditFromPrompt(): void {
-    this.bodyPromptDismissed.set(true);
-    this.openEdit();
-  }
-
   /** Parse a number input, keeping 0 (so it can be rejected) and blank -> null. */
   parseEditNum(v: string): number | null {
     const t = (v ?? '').trim();
     if (t === '') return null;
     const n = Number(t);
     return Number.isFinite(n) ? n : null;
-  }
-
-  /** "Later" → hide for this visit; it reappears next time while data is missing. */
-  dismissBodyPrompt(): void {
-    this.bodyPromptDismissed.set(true);
   }
 
   // ══════════ Account settings: personal info editor ══════════

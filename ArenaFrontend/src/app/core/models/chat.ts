@@ -5,6 +5,8 @@ export interface ChatMessage {
   sender: ChatSender;
   content: string;
   createdAt: string;
+  /** Translation key to render via | translate pipe instead of content. */
+  i18nKey?: string;
   /** True when this user message came from a transcribed voice note. */
   isVoice?: boolean;
   /** Object URL of the recorded clip, for in-bubble playback. */

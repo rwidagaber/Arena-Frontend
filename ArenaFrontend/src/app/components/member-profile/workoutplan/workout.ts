@@ -38,6 +38,15 @@ export class WorkoutComponent implements OnInit {
   loading          = signal(true);
   error            = signal<string | null>(null);
 
+  // ── Video state ────────────────────────────────────────────────────────────────
+  playVideo = signal(false);
+  videoLoading = signal(false);
+  // Cache the sanitized embed URL per source URL. `bypassSecurityTrustResourceUrl`
+  // returns a NEW object each call, so calling it straight from the template
+  // binding makes Angular re-set the iframe `src` on every change-detection pass —
+  // reloading the player constantly so the video never actually plays.
+  private safeEmbedUrlCache = new Map<string, SafeResourceUrl>();
+
   // ── Animated counter ──────────────────────────────────────────────────────────
   animatedCount = signal<number>(0);
 
@@ -162,6 +171,9 @@ export class WorkoutComponent implements OnInit {
   openExercise(ex: WorkoutExerciseDto): void {
     this.selectedExercise.set(ex);
     this.view.set('exercise-detail');
+    this.playVideo.set(false);
+    this.videoLoading.set(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   goBack(): void {
@@ -170,6 +182,7 @@ export class WorkoutComponent implements OnInit {
       this.view.set('plans');
     } else if (this.view() === 'exercise-detail') {
       this.selectedExercise.set(null);
+      this.playVideo.set(false);
       this.view.set('plan-detail');
     }
   }
@@ -273,56 +286,107 @@ export class WorkoutComponent implements OnInit {
     return this.parseJsonArray(field);
   }
 
+  /**
+   * Canonical muscle-group token from a raw value the AI may have stored in
+   * EITHER English or Arabic — it writes each plan in whatever language the
+   * member spoke. Label, colour, and icon all key off this token so the page
+   * renders in the current UI language regardless of how it was saved.
+   */
+  private normalizeMuscleGroup(group: string): string | null {
+    const g = (group ?? '').toLowerCase().trim();
+    if (!g) return null;
+    const has = (...terms: string[]) => terms.some(term => g.includes(term));
+    if (has('chest', 'صدر'))                              return 'chest';
+    if (has('lat', 'back', 'ظهر'))                        return 'back';
+    if (has('shoulder', 'delt', 'كتف', 'اكتاف', 'أكتاف')) return 'shoulders';
+    if (has('bicep', 'بايسبس', 'ذات الرأسين'))            return 'biceps';
+    if (has('tricep', 'ترايسبس', 'ثلاثية الرؤوس'))        return 'triceps';
+    if (has('forearm', 'ساعد'))                           return 'forearms';
+    if (has('quad', 'الفخذ الأمامي', 'فخذ أمامي'))        return 'quadriceps';
+    if (has('hamstring', 'الفخذ الخلفي', 'فخذ خلفي'))     return 'hamstrings';
+    if (has('glute', 'أرداف', 'ارداف', 'مؤخرة'))          return 'glutes';
+    if (has('calve', 'calf', 'سمانة', 'بطة الساق'))       return 'calves';
+    if (has('leg', 'أرجل', 'ارجل', 'رجل', 'الساق'))       return 'legs';
+    if (has('lower ab', 'أسفل البطن', 'بطن سفلي'))        return 'lowerAbs';
+    if (has('oblique', 'جانبية', 'الخصر'))                return 'obliques';
+    if (has('ab', 'بطن', 'معدة'))                         return 'abs';
+    if (has('core', 'جذع', 'وسط الجسم'))                  return 'core';
+    if (has('arm', 'ذراع', 'اذرع', 'أذرع'))               return 'arms';
+    if (has('cardio', 'كارديو', 'هوائي'))                 return 'cardio';
+    if (has('full', 'كامل', 'كل الجسم'))                  return 'fullBody';
+    return null;
+  }
+
   muscleGroupIcon(group: string): string {
-    const g = (group ?? '').toLowerCase();
-    if (g.includes('chest'))    return '/assets/images/body.png';
-    if (g.includes('back'))     return '/assets/images/back.png';
-    if (g.includes('leg') || g.includes('quad') || g.includes('hamstring')) return '/assets/images/leg.png';
-    if (g.includes('shoulder')) return '/assets/images/shoulders.png';
-    if (g.includes('arm') || g.includes('bicep') || g.includes('tricep'))   return '/assets/images/arm.png';
-    if (g.includes('core') || g.includes('ab'))   return '/assets/images/upper-body.png';
-    if (g.includes('cardio'))   return '/assets/images/heart.png';
-    if (g.includes('glute'))    return '/assets/images/back.png';
-    return '/assets/images/human-body.png';
+    switch (this.normalizeMuscleGroup(group)) {
+      case 'chest':                                 return '/assets/images/body.png';
+      case 'back':
+      case 'glutes':                                return '/assets/images/back.png';
+      case 'legs':
+      case 'quadriceps':
+      case 'hamstrings':
+      case 'calves':                                return '/assets/images/leg.png';
+      case 'shoulders':                             return '/assets/images/shoulders.png';
+      case 'arms':
+      case 'biceps':
+      case 'triceps':
+      case 'forearms':                              return '/assets/images/arm.png';
+      case 'core':
+      case 'abs':
+      case 'obliques':
+      case 'lowerAbs':                              return '/assets/images/upper-body.png';
+      case 'cardio':                                return '/assets/images/heart.png';
+      default:                                      return '/assets/images/human-body.png';
+    }
   }
 
   translateMuscleGroup(group: string): string {
-    const g = (group ?? '').toLowerCase();
-    const key = (() => {
-      if (g.includes('chest'))         return 'workout.muscleGroups.chest';
-      if (g.includes('back'))          return 'workout.muscleGroups.back';
-      if (g.includes('shoulder'))      return 'workout.muscleGroups.shoulders';
-      if (g.includes('bicep'))         return 'workout.muscleGroups.biceps';
-      if (g.includes('tricep'))        return 'workout.muscleGroups.triceps';
-      if (g.includes('leg'))           return 'workout.muscleGroups.legs';
-      if (g.includes('quad'))          return 'workout.muscleGroups.quadriceps';
-      if (g.includes('hamstring'))     return 'workout.muscleGroups.hamstrings';
-      if (g.includes('glute'))         return 'workout.muscleGroups.glutes';
-      if (g.includes('calve'))         return 'workout.muscleGroups.calves';
-      if (g.includes('lower abdomin')) return 'workout.muscleGroups.lowerAbs';
-      if (g.includes('abdomin'))       return 'workout.muscleGroups.abs';
-      if (g.includes('oblique'))       return 'workout.muscleGroups.obliques';
-      if (g.includes('abs'))           return 'workout.muscleGroups.abs';
-      if (g.includes('core'))          return 'workout.muscleGroups.core';
-      if (g.includes('forearm'))       return 'workout.muscleGroups.forearms';
-      if (g.includes('arm'))           return 'workout.muscleGroups.arms';
-      if (g.includes('full'))          return 'workout.muscleGroups.fullBody';
-      if (g.includes('cardio'))        return 'workout.muscleGroups.cardio';
-      return null;
-    })();
-    return key ? this.t.instant(key) : group;
+    const token = this.normalizeMuscleGroup(group);
+    return token ? this.t.instant('workout.muscleGroups.' + token) : group;
   }
 
   getMuscleGroupColor(group: string): string {
-    const g = (group ?? '').toLowerCase();
-    if (g.includes('chest'))    return 'mg-chest';
-    if (g.includes('back'))     return 'mg-back';
-    if (g.includes('leg') || g.includes('quad') || g.includes('hamstring')) return 'mg-legs';
-    if (g.includes('shoulder')) return 'mg-shoulder';
-    if (g.includes('arm') || g.includes('bicep') || g.includes('tricep'))   return 'mg-arms';
-    if (g.includes('core') || g.includes('ab'))   return 'mg-core';
-    if (g.includes('cardio'))   return 'mg-cardio';
-    return 'mg-default';
+    switch (this.normalizeMuscleGroup(group)) {
+      case 'chest':                                 return 'mg-chest';
+      case 'back':                                  return 'mg-back';
+      case 'legs':
+      case 'quadriceps':
+      case 'hamstrings':
+      case 'glutes':
+      case 'calves':                                return 'mg-legs';
+      case 'shoulders':                             return 'mg-shoulder';
+      case 'arms':
+      case 'biceps':
+      case 'triceps':
+      case 'forearms':                              return 'mg-arms';
+      case 'abs':
+      case 'core':
+      case 'obliques':
+      case 'lowerAbs':                              return 'mg-core';
+      case 'cardio':                                return 'mg-cardio';
+      default:                                      return 'mg-default';
+    }
+  }
+
+  /** Canonical difficulty token from an English- or Arabic-stored value. */
+  private normalizeDifficulty(raw: string): string {
+    const d = (raw ?? '').toLowerCase().trim();
+    if (!d) return '';
+    if (d.includes('beginner') || d.includes('مبتدئ') || d.includes('سهل'))   return 'beginner';
+    if (d.includes('intermediate') || d.includes('متوسط'))                    return 'intermediate';
+    if (d.includes('advanced') || d.includes('متقدم') || d.includes('صعب'))    return 'advanced';
+    return '';
+  }
+
+  /** CSS modifier for the difficulty tag (beginner / intermediate / advanced). */
+  difficultyClass(ex: WorkoutExerciseDto): string {
+    return this.normalizeDifficulty(this.getLocalizedDifficulty(ex));
+  }
+
+  /** Difficulty label in the current UI language, whatever language it was saved in. */
+  translateDifficulty(ex: WorkoutExerciseDto): string {
+    const token = this.normalizeDifficulty(this.getLocalizedDifficulty(ex));
+    return token ? this.t.instant('workout.difficultyLevels.' + token) : this.getLocalizedDifficulty(ex);
   }
 
   trackByPlan(_: number, p: WorkoutPlanDto)         { return p.id; }
@@ -405,23 +469,32 @@ export class WorkoutComponent implements OnInit {
     );
   }
 
+  getYouTubeVideoId(url: string | null | undefined): string | null {
+    if (!url) return null;
+    const patterns = [
+      /\/shorts\/([a-zA-Z0-9_-]{11})/,
+      /\/live\/([a-zA-Z0-9_-]{11})/,
+      /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/,
+    ];
+    for (const re of patterns) {
+      const m = url.match(re);
+      if (m) {
+        const id = m[1]?.length === 11 ? m[1] : (m[2]?.length === 11 ? m[2] : null);
+        if (id) return id;
+      }
+    }
+    return null;
+  }
+
   getYouTubeEmbedUrl(url: string | null | undefined): string | null {
     if (!url) return null;
     if (this.isKnownUnavailableVideo(url)) return null;
     if (url.includes('/results?') || url.includes('search_query=')) return null;
-
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const match = url.match(regExp);
-    if (match && match[2].length === 11) {
-      return 'https://www.youtube.com/embed/' + match[2];
-    }
-    // Shorts support
-    const shortsRegExp = /\/shorts\/([a-zA-Z0-9_-]{11})/;
-    const shortsMatch = url.match(shortsRegExp);
-    if (shortsMatch) {
-      return 'https://www.youtube.com/embed/' + shortsMatch[1];
-    }
-    return null;
+    const id = this.getYouTubeVideoId(url);
+    if (!id) return null;
+    // Use youtube-nocookie.com — privacy-enhanced domain that sometimes works
+    // when the regular youtube.com embed shows "Video unavailable".
+    return `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
   }
 
   isKnownUnavailableVideo(url: string | null | undefined): boolean {
@@ -429,16 +502,37 @@ export class WorkoutComponent implements OnInit {
     return /UYCea886PPA/i.test(url);
   }
 
+  getYouTubeThumbnailUrl(url: string | null | undefined): string | null {
+    const id = this.getYouTubeVideoId(url);
+    return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : null;
+  }
+
   canEmbedVideo(url: string | null | undefined): boolean {
     return !!this.getYouTubeEmbedUrl(url);
   }
 
+  onVideoPlay(): void {
+    this.playVideo.set(true);
+    this.videoLoading.set(true);
+    // Safety net: cross-origin YouTube iframes don't always fire a `load` event,
+    // which would otherwise leave the spinner stuck over a playing video. Clear
+    // the loading state after a short delay regardless.
+    setTimeout(() => this.videoLoading.set(false), 2500);
+  }
+
+  onVideoIframeLoad(): void {
+    this.videoLoading.set(false);
+  }
+
   getSafeEmbedUrl(url: string | null | undefined): SafeResourceUrl | null {
     const embedUrl = this.getYouTubeEmbedUrl(url);
-    if (embedUrl) {
-      return this.sanitizer.bypassSecurityTrustResourceUrl(embedUrl);
+    if (!embedUrl) return null;
+    let safe = this.safeEmbedUrlCache.get(embedUrl);
+    if (!safe) {
+      safe = this.sanitizer.bypassSecurityTrustResourceUrl(embedUrl);
+      this.safeEmbedUrlCache.set(embedUrl, safe);
     }
-    return null;
+    return safe;
   }
 
   parseJsonArray(val: string | null | undefined): string[] {

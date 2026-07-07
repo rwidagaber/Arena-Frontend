@@ -1,8 +1,9 @@
 /* ── Apply the same background as dash-layout ───────────────────────── */
 :host {
   display: block;
-  min-height: calc(100vh - 80px);
-  margin-top: 80px;
+  /* Header is in normal flow (sticky) and reserves its own height, so the page
+     no longer needs a top offset — a hardcoded one just leaves a gap. */
+  min-height: calc(100vh - var(--header-h));
   background:
     radial-gradient(1100px 620px at 100% -12%, rgba(198,239,46,0.14) 0%, transparent 52%),
     radial-gradient(820px 520px at -6% 106%, rgba(16,19,27,0.06) 0%, transparent 52%),

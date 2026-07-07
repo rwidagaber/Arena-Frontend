@@ -28,7 +28,7 @@ import { TranslateModule } from '@ngx-translate/core';
     .back-to-top {
       position: fixed;
       bottom: 24px;
-      inset-inline-end: 28px;
+      inset-inline-end: 33px;
       width: 46px; height: 46px;
       border-radius: 50%;
       border: none;
@@ -56,6 +56,13 @@ import { TranslateModule } from '@ngx-translate/core';
       transform: translateY(-3px) scale(1.05);
     }
     .back-to-top i { position: relative; z-index: 1; }
+
+    @media (max-width: 768px) {
+      .back-to-top { inset-inline-end: 21px; }
+    }
+    @media (max-width: 380px) {
+      .back-to-top { inset-inline-end: 15px; }
+    }
   `]
 })
 export class BackToTopComponent {
