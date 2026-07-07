@@ -159,7 +159,9 @@
     "heroLine1": "Train like you",
     "heroLine2": "mean it.",
     "heroSub": "No shortcuts. No excuses. Just you, the work, and the results you came for.",
-    "join": "Start training"
+    "join": "Start training",
+    "phoneNumber": "+(20)1001234567"
+
   },
   "auth": {
     "login": {
@@ -1432,7 +1434,7 @@
     "markRead": "Mark as read",
     "newBadge": "New",
     "dismiss": "Dismiss",
-    "filterAll": "All",
+    "filterAll": "Today",
     "filterUnread": "Unread",
     "tabToday": "Today",
     "tabWeek": "This Week",

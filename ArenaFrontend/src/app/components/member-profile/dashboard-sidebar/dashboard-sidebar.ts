@@ -21,7 +21,7 @@ export class DashboardSidebar {
   private router = inject(Router);
   private member = inject(MemberService);
 
-  readonly activeSection = input<DashboardSection>('profile');
+  readonly activeSection = input<DashboardSection | null>('profile');
   readonly sectionChange = output<DashboardSection>();
 
   readonly planName = input<string | null>(null);
