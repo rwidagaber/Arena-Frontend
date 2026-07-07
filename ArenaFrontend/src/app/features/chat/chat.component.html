@@ -6,7 +6,7 @@
       <div class="sidebar-header">
         <div class="assistant-brand">
           <span class="assistant-avatar" aria-hidden="true">
-            <i class="bi bi-stars"></i>
+            <i class="bi bi-person-badge"></i>
           </span>
           <span class="assistant-meta">
             <h1>{{ 'CHAT.TITLE' | translate }}</h1>
@@ -85,24 +85,19 @@
     <div class="sidebar-backdrop" *ngIf="sidebarOpen" (click)="toggleSidebar()"></div>
 
     <section class="conversation" aria-label="Conversation">
-      <div class="conversation-header">
-        <div class="header-status-group">
-          <button
-            type="button"
-            class="sidebar-toggle-btn"
-            (click)="toggleSidebar()"
-            [attr.aria-label]="'CHAT.ARIA_TOGGLE_HISTORY' | translate"
-            [title]="'CHAT.ARIA_TOGGLE_HISTORY' | translate"
-          >
-            <i class="bi bi-clock-history"></i>
-          </button>
-          <span class="status-dot"></span>
-          <span class="status-text">{{ 'CHAT.STATUS_VERIFIED' | translate }}</span>
-        </div>
-        <a routerLink="/" [attr.aria-label]="'CHAT.ARIA_BACK_HOME' | translate">
-          <i class="bi bi-house"></i>
-        </a>
-      </div>
+      <!-- The chat's own header bar was removed (the site's global header covers
+           navigation). A compact floating toggle keeps the history sidebar
+           reachable when it's collapsed. -->
+      <button
+        *ngIf="!sidebarOpen"
+        type="button"
+        class="history-fab"
+        (click)="toggleSidebar()"
+        [attr.aria-label]="'CHAT.ARIA_TOGGLE_HISTORY' | translate"
+        [title]="'CHAT.ARIA_TOGGLE_HISTORY' | translate"
+      >
+        <i class="bi bi-clock-history"></i>
+      </button>
 
       <div #messagesViewport class="messages" (scroll)="onMessagesScroll()">
         <div *ngIf="loadingHistory" class="loading-row">
@@ -116,7 +111,7 @@
           [class.from-user]="message.sender === 'user'"
         >
           <div class="avatar" aria-hidden="true">
-            <i [class]="message.sender === 'user' ? 'bi bi-person' : 'bi bi-stars'"></i>
+            <i [class]="message.sender === 'user' ? 'bi bi-person' : 'bi bi-person-badge'"></i>
           </div>
           <div class="bubble" [class.rich-response]="message.sender !== 'user'">
             <ng-container *ngIf="message.sender === 'user'; else assistantResponse">
@@ -179,7 +174,7 @@
 
         <article *ngIf="sending || transcribing" class="message-row">
           <div class="avatar" aria-hidden="true">
-            <i class="bi bi-stars"></i>
+            <i class="bi bi-person-badge"></i>
           </div>
           <div class="bubble typing" [class.transcribing]="transcribing">
             <ng-container *ngIf="transcribing; else typingDots">
@@ -324,6 +319,63 @@
           {{ 'FLOATING_CHAT.BTN_STAY' | translate }}
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- ════ Body-composition onboarding prompt (shows until the AI has body data) ════ -->
+  <div class="welcome-overlay" *ngIf="showBodyPrompt" (click)="dismissBodyPrompt()">
+    <div class="welcome-modal" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="bodyPromptTitle">
+      <button type="button" class="welcome-close" (click)="dismissBodyPrompt()" [disabled]="savingBody" [attr.aria-label]="'profile.cancel' | translate">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+
+      <div class="welcome-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="40" height="40"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M12 11v6"/><path d="M9 14h6"/></svg>
+      </div>
+
+      <!-- Intro / nudge state -->
+      <ng-container *ngIf="!bodyEditOpen; else bodyForm">
+        <span class="welcome-eyebrow">{{ 'memberProfile.bodyPrompt.eyebrow' | translate }}</span>
+        <h3 class="welcome-title" id="bodyPromptTitle">{{ 'memberProfile.bodyPrompt.title' | translate }}</h3>
+        <p class="welcome-sub">{{ 'memberProfile.bodyPrompt.sub' | translate }}</p>
+        <button type="button" class="welcome-cta" (click)="openBodyEditFromPrompt()">{{ 'memberProfile.bodyPrompt.cta' | translate }}</button>
+        <button type="button" class="welcome-later" (click)="dismissBodyPrompt()">{{ 'memberProfile.bodyPrompt.later' | translate }}</button>
+      </ng-container>
+
+      <!-- Inline editor state -->
+      <ng-template #bodyForm>
+        <h3 class="welcome-title" id="bodyPromptTitle">{{ 'memberProfile.bodyPrompt.title' | translate }}</h3>
+        <p class="welcome-sub">{{ 'memberProfile.dash.grpBody' | translate }}</p>
+
+        <div class="body-fields">
+          <label>{{ 'profile.weight' | translate }} (kg)
+            <input type="number" min="1" [value]="editWeight ?? ''" (input)="editWeight = parseEditNum($any($event.target).value)" />
+          </label>
+          <label>{{ 'profile.height' | translate }} (cm)
+            <input type="number" min="1" [value]="editHeight ?? ''" (input)="editHeight = parseEditNum($any($event.target).value)" />
+          </label>
+          <label>{{ 'memberProfile.dash.bodyFat' | translate }} (%)
+            <input type="number" step="0.1" min="1" max="100" [value]="editBodyFat ?? ''" (input)="editBodyFat = parseEditNum($any($event.target).value)" />
+          </label>
+          <label>{{ 'memberProfile.dash.muscle' | translate }} (kg)
+            <input type="number" step="0.1" min="1" [value]="editMuscle ?? ''" (input)="editMuscle = parseEditNum($any($event.target).value)" />
+          </label>
+          <label class="full">{{ 'memberProfile.dash.fitnessGoal' | translate }}
+            <select [value]="editGoal" (change)="editGoal = $any($event.target).value">
+              <option value="">{{ 'profile.notSet' | translate }}</option>
+              <option *ngFor="let g of goalOptions" [value]="g.value">{{ g.labelKey | translate }}</option>
+            </select>
+          </label>
+        </div>
+
+        <p class="body-edit-error" *ngIf="bodyEditError" role="alert">{{ bodyEditError }}</p>
+
+        <button type="button" class="welcome-cta" (click)="saveBodyEdit()" [disabled]="savingBody || !bodyEditValid">
+          <span *ngIf="savingBody" class="edit-spinner" aria-hidden="true"></span>
+          {{ (savingBody ? 'memberProfile.dash.saving' : 'profile.saveChanges') | translate }}
+        </button>
+        <button type="button" class="welcome-later" (click)="closeBodyEdit()" [disabled]="savingBody">{{ 'profile.cancel' | translate }}</button>
+      </ng-template>
     </div>
   </div>
 </main>

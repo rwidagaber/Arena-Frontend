@@ -510,69 +510,43 @@
 .conversation {
   position: relative;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  /* Header row removed — messages fill, error + composer sit below. */
+  grid-template-rows: minmax(0, 1fr) auto auto;
   min-width: 0;
   background: var(--bg);
   overflow: hidden;
 }
 
-.conversation-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 18px;
-  border-bottom: 1px solid var(--border);
-  background: var(--bg);
-}
-
-.header-status-group {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--text-muted);
-  font-size: 0.78rem;
-  font-weight: 600;
-}
-
-.status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 10px var(--accent-soft);
-}
-
-.status-text { color: var(--text-muted); }
-
-.sidebar-toggle-btn {
+/* Floating history toggle (replaces the removed chat header bar). Shown only
+   when the sidebar is collapsed, so history stays one tap away. */
+.history-fab {
+  position: absolute;
+  top: 14px;
+  inset-inline-start: 14px;
+  z-index: 5;
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
-  border: none;
-  border-radius: 8px;
-  background: transparent;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
   color: var(--text-muted);
+  font-size: 1.15rem;
   cursor: pointer;
-  margin-inline-end: 8px;
-  font-size: 1.1rem;
-  transition: background 0.18s ease, color 0.18s ease;
+  box-shadow: var(--shadow-soft);
+  transition: background 0.18s ease, color 0.18s ease, transform 0.15s ease, border-color 0.18s ease;
 }
 
-.sidebar-toggle-btn:hover { background: var(--surface-hover); color: var(--text); }
-
-.conversation-header a {
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  color: var(--text-muted);
-  text-decoration: none;
-  transition: background 0.18s ease, color 0.18s ease;
+.history-fab:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
 }
 
-.conversation-header a:hover { background: var(--surface-hover); color: var(--text); }
+/* Give messages room for the floating toggle only when it's actually shown. */
+.conversation:has(.history-fab) .messages { padding-top: 66px; }
 
 /* ── Messages ── */
 .messages {
@@ -1375,3 +1349,201 @@
   .status-text { display: none; }
   .bubble p, .rich-response li { font-size: 1rem; }
 }
+
+/* ════ Body-composition onboarding prompt (moved from the profile dashboard) ════
+   Styling is driven by the app's global theme tokens (--card-bg, --text-*,
+   --border-color, --input-bg, --accent) so light AND dark track the same source
+   the rest of the chat page uses. */
+.welcome-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  backdrop-filter: blur(5px);
+  animation: welcomeOverlayFadeIn 0.22s ease;
+  padding: 20px;
+}
+@keyframes welcomeOverlayFadeIn { from { opacity: 0; } to { opacity: 1; } }
+.welcome-modal {
+  position: relative;
+  width: 420px;
+  max-width: 94vw;
+  background: var(--card-bg, #ffffff);
+  border: 1px solid var(--border-color, rgba(20, 20, 20, 0.09));
+  border-radius: 26px;
+  padding: 34px 30px 30px;
+  text-align: center;
+  color: var(--text-primary, #181818);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.32);
+  animation: welcomePop 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  overflow: hidden;
+}
+.welcome-modal::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, var(--accent, #C6EF2E) 30%, var(--accent, #C6EF2E) 70%, transparent);
+}
+/* Dark-mode polish: lift the surface off the page with a subtle gradient,
+   a brighter hairline border and a deeper shadow so the card reads as elevated. */
+[data-theme="dark"] .welcome-modal {
+  background: linear-gradient(180deg, #262E44 0%, var(--card-bg, #20273A) 100%);
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.55);
+}
+@keyframes welcomePop {
+  from { opacity: 0; transform: translateY(16px) scale(0.94); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.welcome-close {
+  position: absolute;
+  top: 14px; inset-inline-end: 14px;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  color: var(--text-secondary, #5f5f5c);
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.welcome-close:hover { background: color-mix(in srgb, currentColor 22%, transparent); color: var(--text-primary, #181818); }
+.welcome-close:disabled { opacity: 0.5; cursor: default; }
+.welcome-icon {
+  width: 76px; height: 76px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  background: var(--accent, #C6EF2E);
+  color: #15240a;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 0 8px color-mix(in srgb, var(--accent, #C6EF2E) 16%, transparent);
+  animation: welcomeIconPop 0.5s cubic-bezier(0.22, 1.4, 0.42, 1) 0.1s both;
+}
+.welcome-icon svg { width: 38px; height: 38px; }
+@keyframes welcomeIconPop {
+  from { transform: scale(0); }
+  to   { transform: scale(1); }
+}
+.welcome-eyebrow {
+  display: block;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  color: #4d7c0f;
+  margin-bottom: 6px;
+}
+[data-theme="dark"] .welcome-eyebrow { color: var(--accent, #C6EF2E); }
+.welcome-title {
+  font-size: 26px; font-weight: 700; line-height: 1.1;
+  color: var(--text-primary, #181818);
+  margin: 0 0 6px;
+}
+.welcome-sub {
+  font-size: 14px; line-height: 1.5;
+  color: var(--text-secondary, #5f5f5c);
+  margin: 0 0 20px;
+}
+.welcome-cta {
+  width: 100%;
+  padding: 13px 20px;
+  border: none;
+  border-radius: 14px;
+  background: var(--accent, #C6EF2E);
+  color: #15240a;
+  font-size: 14px; font-weight: 800; letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.welcome-cta:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px -10px color-mix(in srgb, var(--accent, #C6EF2E) 80%, transparent);
+}
+.welcome-cta:disabled { opacity: 0.6; cursor: default; }
+.welcome-later {
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--text-secondary, #8a8f98);
+  font-size: 13px; font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+.welcome-later:hover:not(:disabled) {
+  color: var(--text-primary, #e8eaed);
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+.welcome-later:disabled { opacity: 0.5; cursor: default; }
+@media (prefers-reduced-motion: reduce) {
+  .welcome-overlay, .welcome-modal, .welcome-icon { animation: none; }
+}
+
+/* Inline body-composition editor inside the prompt */
+.body-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 4px 0 18px;
+  text-align: start;
+}
+.body-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary, #5f5f5c);
+}
+.body-fields label.full { grid-column: 1 / -1; }
+.body-fields input,
+.body-fields select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color, rgba(20, 20, 20, 0.14));
+  background: var(--input-bg, #f6f6f4);
+  color: var(--text-primary, #181818);
+  font-size: 14px;
+  font-weight: 600;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.body-fields input:focus,
+.body-fields select:focus {
+  border-color: var(--accent, #C6EF2E);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent, #C6EF2E) 22%, transparent);
+}
+/* Dark-mode fields: the global --input-bg is nearly invisible on the dark card,
+   so give them a readable fill and a brighter border. */
+[data-theme="dark"] .body-fields input,
+[data-theme="dark"] .body-fields select {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: #f1f1ef;
+}
+[data-theme="dark"] .body-fields select option {
+  background: #20273A;
+  color: #f1f1ef;
+}
+.body-edit-error {
+  margin: 0 0 12px;
+  color: #e5484d;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: center;
+}
+.edit-spinner {
+  display: inline-block;
+  width: 14px; height: 14px;
+  margin-inline-end: 6px;
+  border: 2px solid rgba(0, 0, 0, 0.25);
+  border-top-color: #15240a;
+  border-radius: 50%;
+  vertical-align: -2px;
+  animation: bodyEditSpin 0.7s linear infinite;
+}
+@keyframes bodyEditSpin { to { transform: rotate(360deg); } }

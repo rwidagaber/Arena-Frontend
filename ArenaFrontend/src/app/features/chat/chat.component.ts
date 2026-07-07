@@ -3,12 +3,15 @@ import { AfterViewChecked, Component, ElementRef, OnDestroy, OnInit, ViewChild, 
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { finalize } from 'rxjs';
+import { catchError, finalize, of, switchMap } from 'rxjs';
 import { AuthService } from '../../core/services/auth';
 import { BookingEventsService } from '../../core/services/booking-events.service';
 import { ChatService } from '../../core/services/chat.service';
 import { ChatConversation, ChatMessage, ChatMessageBlock, ChatResponse } from '../../core/models/chat';
 import { NotificationService } from '../../core/services/notification.service';
+import { CreateProgressLogDto, ProgressReportService, ProgressSummaryDto } from '../../core/services/progress-report.service';
+import { MemberService } from '../../core/services/member.service';
+import { UpdateProfileDto } from '../../core/models/member';
 
 @Component({
   selector: 'app-chat',
@@ -26,6 +29,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private readonly bookingEvents = inject(BookingEventsService);
   private readonly notificationService = inject(NotificationService);
   private readonly translate = inject(TranslateService);
+  private readonly progressService = inject(ProgressReportService);
+  private readonly memberService = inject(MemberService);
 
   private t(key: string, params?: Record<string, unknown>): string {
     return this.translate.instant(key, params);
@@ -97,6 +102,175 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   showSubscriptionModal = false;
 
+  // ── Body-composition onboarding prompt ───────────────────────────────
+  // Nudge the member to fill in their body data (weight / height / body-fat /
+  // muscle + goal) so the AI can tailor their workout & nutrition. Moved here
+  // from the profile dashboard so it prompts right where the AI is used.
+  // Driven purely by whether that data is still missing — no persisted flag —
+  // and dismissable for the current visit.
+  bodyPromptDismissed = false;
+  private bodyStatsLoaded = false;
+  private bodyProfile: { weight?: number | null; height?: number | null; goal?: string | null } | null = null;
+  private bodyProgress: ProgressSummaryDto | null = null;
+
+  /** True while any AI-relevant field is still missing (body composition + goal). */
+  private bodyCompositionIncomplete(): boolean {
+    const p = this.bodyProfile;
+    if (!p) return false;
+    return p.weight == null || p.height == null
+        || (this.bodyProgress?.currentBodyFat ?? null) == null
+        || (this.bodyProgress?.currentMuscleMass ?? null) == null
+        || !p.goal;
+  }
+
+  /** Show the popup once data has loaded, is still incomplete, hasn't been
+   *  dismissed, and the subscription modal isn't already taking over. */
+  get showBodyPrompt(): boolean {
+    return this.bodyStatsLoaded
+      && !this.bodyPromptDismissed
+      && !this.showSubscriptionModal
+      && this.bodyCompositionIncomplete();
+  }
+
+  // ── Inline body-composition editor (opens in-place from the prompt CTA) ──
+  // Keeps the member on the chat page: the same fields the profile dashboard's
+  // editor uses, saved through the same services.
+  bodyEditOpen = false;
+  savingBody = false;
+  bodyEditError = '';
+  editWeight: number | null = null;
+  editHeight: number | null = null;
+  editBodyFat: number | null = null;
+  editMuscle: number | null = null;
+  editGoal = '';
+
+  readonly goalOptions = [
+    { value: 'WeightLoss', labelKey: 'memberProfile.dash.goalWeightLoss' },
+    { value: 'MuscleGain', labelKey: 'memberProfile.dash.goalMuscleGain' },
+    { value: 'Endurance', labelKey: 'memberProfile.dash.goalEndurance' },
+    { value: 'GeneralFitness', labelKey: 'memberProfile.dash.goalGeneralFitness' },
+  ];
+
+  /** Parse a number input, keeping blank -> null (so it can stay unset). */
+  parseEditNum(v: string): number | null {
+    const t = (v ?? '').trim();
+    if (t === '') return null;
+    const n = Number(t);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  /** Mirror of the dashboard editor's positivity/percent validation. */
+  get bodyEditValid(): boolean {
+    const positive = (v: number | null) => v == null || v > 0;
+    const bf = this.editBodyFat;
+    return positive(this.editWeight) && positive(this.editHeight) && positive(this.editMuscle)
+      && (bf == null || (bf > 0 && bf <= 100));
+  }
+
+  /** Primary action → open the inline editor prefilled with what we know. */
+  openBodyEditFromPrompt(): void {
+    this.editWeight = this.bodyProfile?.weight ?? null;
+    this.editHeight = this.bodyProfile?.height ?? null;
+    this.editBodyFat = this.bodyProgress?.currentBodyFat ?? null;
+    this.editMuscle = this.bodyProgress?.currentMuscleMass ?? null;
+    this.editGoal = this.bodyProfile?.goal ?? '';
+    this.bodyEditError = '';
+    this.bodyEditOpen = true;
+  }
+
+  /** Cancel → back to the intro state (keeps the prompt open). */
+  closeBodyEdit(): void {
+    if (this.savingBody) return;
+    this.bodyEditOpen = false;
+    this.bodyEditError = '';
+  }
+
+  /** Persist the body composition + goal, then close the prompt. Mirrors the
+   *  dashboard editor: profile fields via updateProfile, measurements via a
+   *  new progress log. */
+  saveBodyEdit(): void {
+    if (this.savingBody || !this.bodyEditValid || !this.memberProfileId) return;
+
+    const dto: UpdateProfileDto = {
+      weight: this.editWeight ?? undefined,
+      height: this.editHeight ?? undefined,
+      goal: this.editGoal || undefined,
+    };
+
+    const prevWeight = this.bodyProfile?.weight ?? null;
+    const bodyCompChanged =
+      (this.editWeight != null && this.editWeight !== prevWeight) ||
+      this.editBodyFat !== (this.bodyProgress?.currentBodyFat ?? null) ||
+      this.editMuscle !== (this.bodyProgress?.currentMuscleMass ?? null);
+    const logWeight = this.editWeight ?? prevWeight;
+    const progressDto: CreateProgressLogDto | null =
+      bodyCompChanged && logWeight != null
+        ? { weight: logWeight, bodyFat: this.editBodyFat, muscleMass: this.editMuscle }
+        : null;
+
+    this.savingBody = true;
+    this.bodyEditError = '';
+
+    this.memberService
+      .updateProfile(dto)
+      .pipe(
+        switchMap(() => (progressDto ? this.progressService.createProgressEntry(progressDto) : of(null))),
+        finalize(() => (this.savingBody = false))
+      )
+      .subscribe({
+        next: () => {
+          // Reflect saved values locally so the prompt's incomplete-check clears.
+          this.bodyProfile = {
+            weight: this.editWeight ?? this.bodyProfile?.weight ?? null,
+            height: this.editHeight ?? this.bodyProfile?.height ?? null,
+            goal: this.editGoal || this.bodyProfile?.goal || null,
+          };
+          this.bodyProgress = {
+            currentWeight: logWeight ?? this.bodyProgress?.currentWeight ?? 0,
+            currentBodyFat: this.editBodyFat ?? this.bodyProgress?.currentBodyFat ?? null,
+            currentMuscleMass: this.editMuscle ?? this.bodyProgress?.currentMuscleMass ?? null,
+            weightChange: this.bodyProgress?.weightChange ?? null,
+            bodyFatChange: this.bodyProgress?.bodyFatChange ?? null,
+            muscleMassChange: this.bodyProgress?.muscleMassChange ?? null,
+            logs: this.bodyProgress?.logs ?? [],
+          };
+          this.bodyEditOpen = false;
+          this.bodyPromptDismissed = true;
+        },
+        error: (err: { error?: unknown; message?: string }) => {
+          const e = err?.error;
+          const msg = Array.isArray(e)
+            ? e.join(', ')
+            : typeof e === 'string'
+              ? e
+              : (e as { message?: string; title?: string })?.message ??
+                (e as { title?: string })?.title ??
+                err?.message;
+          this.bodyEditError = msg || this.t('memberProfile.dash.saveFailed');
+        },
+      });
+  }
+
+  /** "Later" / close / backdrop → hide for this visit; reappears next time
+   *  while data is still missing. */
+  dismissBodyPrompt(): void {
+    if (this.savingBody) return;
+    this.bodyPromptDismissed = true;
+    this.bodyEditOpen = false;
+  }
+
+  /** Load progress-derived body-fat/muscle so the incomplete check matches the
+   *  profile dashboard's original logic. */
+  private loadBodyStats(): void {
+    this.progressService
+      .getProgress()
+      .pipe(
+        catchError(() => of(null as ProgressSummaryDto | null)),
+        finalize(() => (this.bodyStatsLoaded = true))
+      )
+      .subscribe((progress) => (this.bodyProgress = progress));
+  }
+
   ngOnInit(): void {
     if (!this.auth.isLoggedIn) {
       this.router.navigate(['/login'], { queryParams: { returnUrl: '/chat' } });
@@ -118,6 +292,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
             return;
           }
 
+          this.bodyProfile = { weight: profile.weight, height: profile.height, goal: profile.goal };
+          this.loadBodyStats();
           this.loadConversations();
         },
         error: () => {
