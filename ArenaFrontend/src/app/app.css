@@ -1,0 +1,5 @@
+/* Reserve a viewport of height for the routed page so the footer always
+   starts below the fold while content is still loading (see app.html). */
+.route-shell {
+  min-height: calc(100dvh - var(--header-h, 62px));
+}
