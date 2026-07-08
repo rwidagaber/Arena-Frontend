@@ -547,6 +547,15 @@ export class WorkoutComponent implements OnInit {
     return safe;
   }
 
+  hasMuscles(ex: WorkoutExerciseDto): boolean {
+    return this.getLocalizedPrimaryMuscles(ex).length > 0 || this.getLocalizedSecondaryMuscles(ex).length > 0;
+  }
+
+  hasEquipment(ex: WorkoutExerciseDto): boolean {
+    const eq = this.getLocalizedEquipment(ex);
+    return !!eq && eq.trim().toLowerCase() !== 'none';
+  }
+
   parseJsonArray(val: string | null | undefined): string[] {
     if (!val) return [];
     try {

@@ -1404,11 +1404,15 @@
 .ex-misc-card.mistake .ex-section-icon { color: #ef4444; }
 
 /* ── Breathing inside instructions column ── */
-.ex-instr-breathing {
+.ex-instr-breathing,
+.ex-instr-extra {
   border-top: 1px solid var(--n-border);
   padding-top: 16px;
   margin-top: 4px;
 }
+
+/* Equipment sits above the video player in the media row's left column. */
+.ex-video-equipment { margin-bottom: 16px; }
 
 :host-context([dir="rtl"]) .difficulty-category-section {
   flex-direction: row !important;
@@ -1430,10 +1434,19 @@
   transition: box-shadow 0.3s ease;
 }
 
-/* ── Header group (name + badge, full width) ── */
+/* The dashboard section wrapper (.section-placeholder) centers its content
+   and caps every <p> at 360px — that's for empty-state teasers, not the
+   long-form detail card. Start-align the card and lift the paragraph cap
+   (scoped + specific so it wins regardless of stylesheet order). */
+.workout-content .ex-detail-card { text-align: start; }
+.workout-content .ex-detail-card p { max-width: none; }
+
+/* ── Header group (name + badge) — stays centered as the card's hero ── */
 .ex-header-group {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
   gap: 10px;
   margin-bottom: 18px;
 }
@@ -1444,7 +1457,8 @@
   padding-bottom: 4px;
 }
 .ex-desc-block .ex-section-head { margin-bottom: 12px; }
-.ex-desc-block .ex-text { font-size: 14px; line-height: 1.75; }
+/* Cap the reading measure so full-width lines stay comfortable to read. */
+.ex-desc-block .ex-text { font-size: 14px; line-height: 1.75; max-width: 72ch; }
 
 /* ── Media row: Video + Instructions side by side ── */
 .ex-media-row {
@@ -1467,6 +1481,12 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+/* No video → instructions take the full row instead of a cramped 340px rail. */
+.ex-instr-col:only-child {
+  width: auto;
+  flex: 1;
 }
 
 .ex-video-direct-link {
@@ -1549,6 +1569,38 @@
 }
 .ex-muscles-block .ex-section-head { margin-bottom: 12px; }
 .ex-muscles-block .ex-meta-bar { margin-top: 0; }
+
+/* ── Titled bullet lists (target muscles, equipment) ── */
+.ex-bullet-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ex-bullet-list li {
+  position: relative;
+  padding-inline-start: 18px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.ex-bullet-list li::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 2px;
+  top: 0.62em;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.ex-bullet-label {
+  font-weight: 700;
+  color: var(--n-text);
+  margin-inline-end: 6px;
+}
+.ex-bullet-value { color: var(--n-text-muted); }
 
 /* ── Meta bar (muscles + difficulty + category + equipment as tags) ── */
 .ex-meta-bar {

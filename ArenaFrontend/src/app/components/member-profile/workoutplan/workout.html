@@ -364,33 +364,15 @@
             }
           </div>
 
-          <!-- ════════ Target Muscles: titled group, separated from attribute tags ════════ -->
-          @if (getLocalizedPrimaryMuscles(ex).length > 0 || getLocalizedSecondaryMuscles(ex).length > 0) {
-            <div class="ex-muscles-block">
-              <div class="ex-section-head">
-                <svg class="ex-section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-                <h3 class="ex-section-title">{{ t.instant('workout.targetMuscles') }}</h3>
-              </div>
-              <div class="ex-meta-bar">
-                @for (m of getLocalizedPrimaryMuscles(ex); track m) { <span class="ex-mbar-tag primary">{{ m }}</span> }
-                @for (m of getLocalizedSecondaryMuscles(ex); track m) { <span class="ex-mbar-tag secondary">{{ m }}</span> }
-              </div>
-            </div>
-          }
-
-          <!-- ════════ Attribute tags: difficulty + category + equipment ════════ -->
-          @if (getLocalizedDifficulty(ex) || getLocalizedCategory(ex) || (getLocalizedEquipment(ex) && getLocalizedEquipment(ex).trim().toLowerCase() !== 'none')) {
+          <!-- ════════ Attribute tags: difficulty + category ════════ -->
+          <!-- (Target muscles + equipment live in the media row, under Breathing.) -->
+          @if (getLocalizedDifficulty(ex) || getLocalizedCategory(ex)) {
             <div class="ex-meta-bar ex-meta-bar-attrs">
               @if (getLocalizedDifficulty(ex)) {
                 <span class="ex-mbar-tag difficulty" [class]="difficultyClass(ex)">{{ translateDifficulty(ex) }}</span>
               }
               @if (getLocalizedCategory(ex)) {
                 <span class="ex-mbar-tag category">{{ getLocalizedCategory(ex) }}</span>
-              }
-              @if (getLocalizedEquipment(ex) && getLocalizedEquipment(ex).trim().toLowerCase() !== 'none') {
-                @for (eq of getLocalizedEquipment(ex).split(','); track eq) {
-                  @if (eq.trim().toLowerCase() !== 'none') { <span class="ex-mbar-tag equipment">{{ eq.trim() }}</span> }
-                }
               }
             </div>
           }
@@ -412,11 +394,25 @@
           }
 
           <!-- ════════ Media Row: Video + Instructions side by side ════════ -->
-          @if (ex.exercise?.videoUrl || getLocalizedInstructions(ex).length > 0) {
+          @if (ex.exercise?.videoUrl || getLocalizedInstructions(ex).length > 0 || getLocalizedBreathing(ex) || hasMuscles(ex) || hasEquipment(ex)) {
             <div class="ex-media-row">
-              <!-- Video column -->
-              @if (ex.exercise?.videoUrl) {
+              <!-- Video column (equipment sits above the player) -->
+              @if (ex.exercise?.videoUrl || hasEquipment(ex)) {
                 <div class="ex-video-col">
+                  @if (hasEquipment(ex)) {
+                    <div class="ex-video-equipment">
+                      <div class="ex-section-head">
+                        <svg class="ex-section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4v16M18 4v16M6 12h12M2 7h4M2 17h4M18 7h4M18 17h4"/></svg>
+                        <h3 class="ex-section-title">{{ t.instant('workout.equipment') }}</h3>
+                      </div>
+                      <ul class="ex-bullet-list">
+                        @for (eq of getLocalizedEquipment(ex).split(','); track eq) {
+                          @if (eq.trim().toLowerCase() !== 'none') { <li><span class="ex-bullet-value">{{ eq.trim() }}</span></li> }
+                        }
+                      </ul>
+                    </div>
+                  }
+                  @if (ex.exercise?.videoUrl) {
                   @if (canEmbedVideo(ex.exercise!.videoUrl)) {
                     <div class="video-embed-container">
                       @if (!playVideo()) {
@@ -451,10 +447,11 @@
                       <a [href]="ex.exercise!.videoUrl" target="_blank" rel="noopener" class="btn-video">{{ t.instant('workout.watchVideo') }}</a>
                     </div>
                   }
+                  }
                 </div>
               }
-              <!-- Instructions column + breathing -->
-              @if (getLocalizedInstructions(ex).length > 0 || getLocalizedBreathing(ex)) {
+              <!-- Instructions column + breathing + muscles -->
+              @if (getLocalizedInstructions(ex).length > 0 || getLocalizedBreathing(ex) || hasMuscles(ex)) {
                 <div class="ex-instr-col">
                   @if (getLocalizedInstructions(ex).length > 0) {
                     <div class="ex-section-head">
@@ -472,6 +469,28 @@
                         <h3 class="ex-section-title">{{ t.instant('workout.breathing') }}</h3>
                       </div>
                       <p class="ex-text">{{ getLocalizedBreathing(ex) }}</p>
+                    </div>
+                  }
+                  @if (hasMuscles(ex)) {
+                    <div class="ex-instr-extra">
+                      <div class="ex-section-head">
+                        <svg class="ex-section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                        <h3 class="ex-section-title">{{ t.instant('workout.targetMuscles') }}</h3>
+                      </div>
+                      <ul class="ex-bullet-list">
+                        @if (getLocalizedPrimaryMuscles(ex).length > 0) {
+                          <li>
+                            <span class="ex-bullet-label">{{ t.instant('workout.primaryMuscles') }}:</span>
+                            <span class="ex-bullet-value">{{ getLocalizedPrimaryMuscles(ex).join(', ') }}</span>
+                          </li>
+                        }
+                        @if (getLocalizedSecondaryMuscles(ex).length > 0) {
+                          <li>
+                            <span class="ex-bullet-label">{{ t.instant('workout.secondaryMuscles') }}:</span>
+                            <span class="ex-bullet-value">{{ getLocalizedSecondaryMuscles(ex).join(', ') }}</span>
+                          </li>
+                        }
+                      </ul>
                     </div>
                   }
                 </div>
