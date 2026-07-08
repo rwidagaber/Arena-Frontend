@@ -12,6 +12,7 @@ import { NotificationService } from '../../core/services/notification.service';
 import { CreateProgressLogDto, ProgressReportService, ProgressSummaryDto } from '../../core/services/progress-report.service';
 import { MemberService } from '../../core/services/member.service';
 import { UpdateProfileDto } from '../../core/models/member';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-chat',
