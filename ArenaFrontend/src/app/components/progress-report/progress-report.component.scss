@@ -1463,14 +1463,27 @@
 .goal-eta {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  margin-top: 6px;
+  padding: 9px 14px;
+  border-radius: 10px;
   font-size: 12px;
   font-weight: 700;
   color: var(--c-accent);
+  background: rgba(198, 239, 46, 0.07);
+  border: 1px solid rgba(198, 239, 46, 0.18);
 }
 .goal-eta i { font-size: 11px; }
-.goal-eta.off { color: var(--c-warn); }
+.goal-eta.reached {
+  color: #eab308;
+  background: rgba(234, 179, 8, 0.08);
+  border-color: rgba(234, 179, 8, 0.22);
+}
+.goal-eta.off {
+  color: var(--c-warn);
+  background: rgba(245, 158, 11, 0.07);
+  border-color: rgba(245, 158, 11, 0.2);
+}
 
 /* ── Timeline show-all toggle ── */
 .tl-toggle {
@@ -1507,17 +1520,20 @@
 /* ── Goal card ── */
 .goal-card {
   display: flex;
-  gap: 20px;
-  padding: 20px 24px;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 24px 24px;
   background: var(--card-bg, #242424);
   border: 1px solid var(--card-border, rgba(255,255,255,0.06));
   border-radius: 16px;
-  align-items: center;
   animation: slideUpFade 0.5s ease-out backwards;
   animation-delay: 0.15s;
 }
 
 .goal-card-empty {
+  flex-direction: row;
+  align-items: center;
+  gap: 20px;
   cursor: pointer;
   transition: border-color 0.2s ease, background 0.2s ease;
 }
@@ -1527,12 +1543,36 @@
   background: rgba(198,239,46,0.02);
 }
 
+/* Cross layout: the progress ring holds the centre, the stat cards orbit it
+   (current above, start/target either side, pace below). */
+.goal-body {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  grid-template-areas:
+    '.     top    .'
+    'start center end'
+    '.     bottom .';
+  align-items: center;
+  justify-items: center;
+  row-gap: 14px;
+  column-gap: 16px;
+  flex: 1;
+}
+
+.goal-pos-top    { grid-area: top; }
+.goal-pos-start  { grid-area: start; justify-self: end; }
+.goal-pos-center { grid-area: center; }
+.goal-pos-end    { grid-area: end; justify-self: start; }
+.goal-pos-bottom { grid-area: bottom; }
+
 .goal-ring-wrap {
   position: relative;
-  width: 90px;
-  height: 90px;
+  width: 116px;
+  height: 116px;
   flex-shrink: 0;
 }
+
+.goal-card-empty .goal-ring-wrap { width: 90px; height: 90px; }
 
 .goal-ring-svg {
   width: 100%;
@@ -1540,9 +1580,8 @@
 }
 
 .goal-ring-fill {
-  stroke: var(--c-accent);
   transition: stroke-dashoffset 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-  filter: drop-shadow(0 0 6px rgba(198,239,46,0.3));
+  filter: drop-shadow(0 0 6px rgba(198,239,46,0.35));
 }
 
 .goal-ring-text {
@@ -1552,67 +1591,111 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1px;
+  gap: 2px;
 }
 
 .goal-ring-pct {
-  font-size: 20px;
+  font-size: 27px;
   font-weight: 800;
+  letter-spacing: -0.02em;
   color: var(--text-primary, #f1f5f9);
   line-height: 1;
 }
 
+.goal-ring-pct small {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-tertiary, #64748b);
+  margin-inline-start: 1px;
+}
+
 .goal-ring-lbl {
-  font-size: 8.5px;
-  font-weight: 600;
+  font-size: 9px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.07em;
   color: var(--text-tertiary, #64748b);
 }
 
-.goal-info {
+/* Orbiting stat cards. */
+.goal-stat {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  flex: 1;
-}
-
-.goal-info-row {
-  display: flex;
   align-items: center;
-  justify-content: space-between;
-  font-size: 13px;
+  text-align: center;
+  gap: 5px;
+  min-width: 108px;
+  padding: 13px 16px 11px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.06));
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
-.goal-info-lbl {
-  font-weight: 500;
+.goal-stat:hover { transform: translateY(-2px); border-color: rgba(198, 239, 46, 0.25); }
+
+.goal-stat-ico {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 9px;
+  font-size: 11px;
+  color: #1a2e05;
+  background: #C6EF2E;
+  margin-bottom: 2px;
+}
+
+.goal-stat-val {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--text-primary, #f1f5f9);
+  white-space: nowrap;
+}
+
+.goal-stat-val small {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-tertiary, #64748b);
+  margin-inline-start: 3px;
+}
+
+.goal-stat-lbl {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: var(--text-tertiary, #64748b);
 }
 
-.goal-info-val {
-  font-weight: 700;
-  color: var(--text-primary, #f1f5f9);
+.goal-stat-current {
+  border-color: rgba(198, 239, 46, 0.25);
+  background: rgba(198, 239, 46, 0.05);
 }
 
-.goal-info-target {
-  color: var(--c-accent);
-}
+.goal-stat-target .goal-stat-val { color: var(--c-accent); }
+.goal-stat-target .goal-stat-val small { color: var(--c-accent); opacity: 0.75; }
 
 .goal-clear {
-  margin-top: 4px;
-  align-self: flex-start;
   background: none;
-  border: none;
-  padding: 2px 0;
+  border: 1px solid var(--card-border, rgba(255,255,255,0.08));
+  border-radius: 100px;
+  padding: 5px 13px;
   font-size: 11px;
   font-weight: 600;
   color: var(--text-tertiary, #64748b);
   cursor: pointer;
-  transition: color 0.15s ease;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
 }
 
 .goal-clear:hover {
   color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.06);
 }
 
 .goal-prompt {
@@ -2170,8 +2253,12 @@
   .progress-report { padding: 0 0 48px; gap: 16px; }
   .metrics-title { font-size: 17px; }
   .metrics-sub { font-size: 11px; }
-  .goal-card { padding: 16px 18px; gap: 14px; }
-  .goal-ring-wrap { width: 72px; height: 72px; }
+  .goal-card { padding: 16px 14px; gap: 14px; }
+  .goal-body { column-gap: 8px; row-gap: 10px; }
+  .goal-stat { min-width: 88px; padding: 10px 10px 9px; }
+  .goal-stat-val { font-size: 16px; }
+  .goal-ring-wrap { width: 96px; height: 96px; }
+  .goal-ring-pct { font-size: 22px; }
   .goal-ring-pct { font-size: 16px; }
   .goal-prompt { font-size: 13px; }
   .weekly-bars { gap: 14px; }

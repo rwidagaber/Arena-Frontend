@@ -636,6 +636,7 @@
     "unitDays": "يوم",
     "checkinVisits": "{{count}} زيارات",
     "milestone": "لقد سجّلت {{count}} قياسات — كل نقطة بيانات تقرّبك أكثر من هدفك. واصل التقدم!",
+    "goalCardTitle": "هدف الوزن",
     "goalToGoal": "نحو الهدف",
     "goalStart": "البداية",
     "goalCurrent": "الحالي",

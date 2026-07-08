@@ -639,6 +639,7 @@
     "unitDays": "days",
     "checkinVisits": "{{count}} visits",
     "milestone": "You've logged {{count}} measurements — every data point brings you closer to your goal. Keep going!",
+    "goalCardTitle": "Weight Goal",
     "goalToGoal": "to goal",
     "goalStart": "Start",
     "goalCurrent": "Current",
