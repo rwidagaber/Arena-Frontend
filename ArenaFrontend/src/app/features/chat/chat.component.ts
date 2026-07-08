@@ -38,10 +38,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   messages: ChatMessage[] = [];
   conversations: ChatConversation[] = [];
-  // History list is collapsed to the most recent few by default; an arrow toggle
-  // reveals the rest so a long history doesn't dominate the sidebar.
-  readonly historyCollapsedCount = 5;
-  readonly historyExpanded = signal(false);
   readonly visibleConversations = signal<ChatConversation[]>([]);
   draft = '';
   loadingHistory = true;
@@ -510,18 +506,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       });
   }
 
-  /** The slice of conversations actually rendered — capped until the user expands. */
   private syncConversations(): void {
-    this.visibleConversations.set(
-      this.historyExpanded()
-        ? this.conversations
-        : this.conversations.slice(0, this.historyCollapsedCount)
-    );
-  }
-
-  toggleHistoryExpanded(): void {
-    this.historyExpanded.update(v => !v);
-    this.syncConversations();
+    this.visibleConversations.set(this.conversations);
   }
 
   send(): void {

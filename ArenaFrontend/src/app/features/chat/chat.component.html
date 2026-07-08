@@ -25,7 +25,7 @@
           [attr.aria-label]="'CHAT.ARIA_CLOSE_SIDEBAR' | translate"
           [title]="'CHAT.ARIA_CLOSE_SIDEBAR' | translate"
         >
-          <i class="bi bi-x-lg"></i>
+          <i class="bi bi-arrow-bar-left"></i>
         </button>
       </div>
 
@@ -49,18 +49,6 @@
             <span>{{ 'CHAT.CHATS' | translate }}</span>
             <span *ngIf="conversations.length">{{ conversations.length }}</span>
           </div>
-          <button
-            *ngIf="conversations.length"
-            type="button"
-            class="history-toggle"
-            [class.expanded]="historyExpanded()"
-            (click)="toggleHistoryExpanded()"
-            [attr.aria-expanded]="historyExpanded()"
-            [attr.aria-label]="(historyExpanded() ? 'CHAT.SHOW_LESS' : 'CHAT.SHOW_MORE') | translate"
-            [title]="(historyExpanded() ? 'CHAT.SHOW_LESS' : 'CHAT.SHOW_MORE') | translate"
-          >
-            <i class="bi bi-chevron-down"></i>
-          </button>
         </div>
 
         <div class="history-list">
@@ -111,14 +99,13 @@
            navigation). A compact floating toggle keeps the history sidebar
            reachable when it's collapsed. -->
       <button
-        *ngIf="!sidebarOpen"
         type="button"
         class="history-fab"
         (click)="toggleSidebar()"
         [attr.aria-label]="'CHAT.ARIA_TOGGLE_HISTORY' | translate"
         [title]="'CHAT.ARIA_TOGGLE_HISTORY' | translate"
       >
-        <i class="bi bi-clock-history"></i>
+        <i class="bi" [ngClass]="sidebarOpen ? 'bi-arrow-bar-left' : 'bi-arrow-bar-right'"></i>
       </button>
 
       <div #messagesViewport class="messages" (scroll)="onMessagesScroll()">
