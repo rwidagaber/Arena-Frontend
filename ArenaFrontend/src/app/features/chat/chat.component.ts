@@ -28,6 +28,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private readonly router = inject(Router);
   private readonly bookingEvents = inject(BookingEventsService);
   private readonly notificationService = inject(NotificationService);
+  private readonly location = inject(Location);
   private readonly translate = inject(TranslateService);
   private readonly progressService = inject(ProgressReportService);
   private readonly memberService = inject(MemberService);
@@ -331,7 +332,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   goToHome(): void {
     this.showSubscriptionModal = false;
-    this.router.navigate(['/']);
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      this.location.back();
+    } else {
+      this.router.navigate(['/']);
+    }
   }
 
   ngAfterViewChecked(): void {

@@ -22,7 +22,7 @@
     <h2>Payment Successful!</h2>
     <p>Thank you for joining. Your plan is now active.</p>
     <div class="btn-group">
-      <button class="success-btn" (click)="goToChat()">Go To Chat</button>
+      <button *ngIf="hasAi" class="success-btn" (click)="goToChat()">Go To Chat</button>
       <button class="gray-btn" (click)="goToPaymentHistory()">View Payment History</button>
     </div>
   </div>
