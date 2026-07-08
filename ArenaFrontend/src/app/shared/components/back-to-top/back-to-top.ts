@@ -60,7 +60,12 @@ import { TranslateModule } from '@ngx-translate/core';
     .back-to-top i { position: relative; z-index: 1; }
 
     @media (max-width: 768px) {
-      .back-to-top { inset-inline-end: 21px; }
+      /* Clear the fixed bottom nav bar (subscriber sidebar) so the button
+         never covers its logout item. */
+      .back-to-top {
+        inset-inline-end: 21px;
+        bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+      }
     }
     @media (max-width: 380px) {
       .back-to-top { inset-inline-end: 15px; }
