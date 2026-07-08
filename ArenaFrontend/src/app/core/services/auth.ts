@@ -144,11 +144,15 @@ export class AuthService {
         const currentUser = this._user$.value;
 
         const updatedUser = {
+          // ✅ merge بدل الاستبدال: أي حقل مش راجع في /me (زي الصورة)
+          // يتحافظ عليه من اليوزر الحالي بدل ما يتمسح ويرمش في الـ UI.
+          ...(currentUser ?? {}),
           ...profile,
           role: frontendRole,
           isSubscribed,
-          firstName: profile.firstName,
-          lastName: profile.lastName,
+          firstName: profile.firstName ?? currentUser?.firstName ?? '',
+          lastName: profile.lastName ?? currentUser?.lastName ?? '',
+          profileImage: (profile as Record<string, unknown>)['profileImage'] ?? currentUser?.profileImage ?? null,
           // ✅ حافظ على الـ flags من الـ persist
           isGoogleUser: currentUser?.isGoogleUser ?? false,
         };
@@ -220,20 +224,27 @@ export class AuthService {
   private _persist(res: AuthResponseDto, rememberMe = false): void {
     const storage = rememberMe ? localStorage : sessionStorage;
 
+    // ✅ الـ refresh-token response بيرجّع tokens بس (من غير الاسم/الصورة)،
+    // فلازم نعمل merge مع اليوزر الحالي بدل ما نستبدله — الاستبدال كان
+    // بيمسح الاسم والصورة لحد ما getMe يرجّع تاني، فالـ avatar في الهيدر
+    // والسايدبار كان بيرمش لـ "Member"/الحروف الأولى أثناء التنقل والسكرول.
+    const current = (this._user$.value ?? {}) as Record<string, unknown>;
+    const isSubscribed = res.isSubscribed ?? (current['isSubscribed'] as boolean | undefined) ?? false;
+
     storage.setItem(KEYS.access, res.accessToken);
     storage.setItem(KEYS.refresh, res.refreshToken);
-    storage.setItem(KEYS.subscribed, String(res.isSubscribed ?? false));
-
-    const frontendRole = res.isSubscribed ? 'Member' : 'User';
+    storage.setItem(KEYS.subscribed, String(isSubscribed));
 
     const user = {
+      ...current,
       ...res,
-      role: frontendRole,
-      isSubscribed: res.isSubscribed ?? false,
-      isGoogleUser: res.isGoogleUser ?? false,
-      memberProfileId: res.memberProfileId,
-      firstName: res.firstName ?? '',
-      lastName: res.lastName ?? ''
+      role: isSubscribed ? 'Member' : 'User',
+      isSubscribed,
+      isGoogleUser: res.isGoogleUser ?? current['isGoogleUser'] ?? false,
+      memberProfileId: res.memberProfileId ?? current['memberProfileId'],
+      firstName: res.firstName ?? current['firstName'] ?? '',
+      lastName: res.lastName ?? current['lastName'] ?? '',
+      profileImage: (res as Record<string, unknown>)['profileImage'] ?? current['profileImage'] ?? null,
     };
 
     storage.setItem(KEYS.user, JSON.stringify(user));

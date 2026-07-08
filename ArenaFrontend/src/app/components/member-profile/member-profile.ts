@@ -103,6 +103,13 @@ export class MemberProfile implements OnInit {
   loading = signal(true);
   error = signal<string | null>(null);
 
+  /** First name for greeting interpolations. Falls back to the cached auth
+   *  user while the profile request is in flight — never `undefined`, which
+   *  ngx-translate would otherwise print literally into the greeting. */
+  greetName(): string {
+    return this.profile()?.firstName || this.auth.displayName || '';
+  }
+
   activeSection = signal<DashboardSection>('profile');
 
   timeOfDay = computed(() => {
