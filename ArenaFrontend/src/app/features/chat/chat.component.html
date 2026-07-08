@@ -25,7 +25,7 @@
           [attr.aria-label]="'CHAT.ARIA_CLOSE_SIDEBAR' | translate"
           [title]="'CHAT.ARIA_CLOSE_SIDEBAR' | translate"
         >
-          <i class="bi bi-x-lg"></i>
+          <i class="bi bi-arrow-bar-left"></i>
         </button>
       </div>
 
@@ -44,46 +44,51 @@
       </button>
 
       <div class="history-block">
-        <div class="history-title">
-          <span>{{ 'CHAT.CHATS' | translate }}</span>
-          <span *ngIf="conversations.length">{{ conversations.length }}</span>
-        </div>
-
-        <div *ngIf="loadingConversations" class="loading-row compact">
-          <span class="spinner"></span>
-          {{ 'CHAT.LOADING_CHATS' | translate }}
-        </div>
-
-        <div
-          *ngFor="let conversation of conversations; trackBy: trackConversation"
-          class="history-item"
-          [class.active]="conversation.id === conversationId"
-          (click)="openConversation(conversation)"
-          (keydown.enter)="openConversation(conversation)"
-          (keydown.space)="openConversation(conversation); $event.preventDefault()"
-          role="button"
-          tabindex="0"
-        >
-          <div class="history-item-main">
-            <span class="history-item-title">{{ conversation.title || ('CHAT.NEW_CHAT_TITLE' | translate) }}</span>
-            <span class="history-item-preview">{{ conversation.lastMessage || ('CHAT.NO_MESSAGES' | translate) }}</span>
-            <time>{{ conversation.startedAt | date: 'MMM d' }}</time>
+        <div class="history-head">
+          <div class="history-title">
+            <span>{{ 'CHAT.CHATS' | translate }}</span>
+            <span *ngIf="conversations.length">{{ conversations.length }}</span>
           </div>
-          <button
-            type="button"
-            class="delete-chat-btn"
-            (click)="deleteConversation(conversation, $event)"
-            [disabled]="deletingConversationId === conversation.id"
-            [attr.aria-label]="'CHAT.ARIA_DELETE_CHAT' | translate"
-            [title]="'CHAT.ARIA_DELETE_CHAT' | translate"
-          >
-            <i class="bi bi-trash3"></i>
-          </button>
         </div>
 
-        <p *ngIf="!loadingConversations && !conversations.length" class="empty-history">
-          {{ 'CHAT.EMPTY_HISTORY' | translate }}
-        </p>
+        <div class="history-list">
+          <div *ngIf="loadingConversations" class="loading-row compact">
+            <span class="spinner"></span>
+            {{ 'CHAT.LOADING_CHATS' | translate }}
+          </div>
+
+          @for (conversation of visibleConversations(); track conversation.id) {
+          <div
+            class="history-item"
+            [class.active]="conversation.id === conversationId"
+            (click)="openConversation(conversation)"
+            (keydown.enter)="openConversation(conversation)"
+            (keydown.space)="openConversation(conversation); $event.preventDefault()"
+            role="button"
+            tabindex="0"
+          >
+            <div class="history-item-main">
+              <span class="history-item-title">{{ conversation.title || ('CHAT.NEW_CHAT_TITLE' | translate) }}</span>
+              <span class="history-item-preview">{{ conversation.lastMessage || ('CHAT.NO_MESSAGES' | translate) }}</span>
+              <time>{{ conversation.startedAt | date: 'MMM d' }}</time>
+            </div>
+            <button
+              type="button"
+              class="delete-chat-btn"
+              (click)="deleteConversation(conversation, $event)"
+              [disabled]="deletingConversationId === conversation.id"
+              [attr.aria-label]="'CHAT.ARIA_DELETE_CHAT' | translate"
+              [title]="'CHAT.ARIA_DELETE_CHAT' | translate"
+            >
+              <i class="bi bi-trash3"></i>
+            </button>
+          </div>
+          }
+
+          <p *ngIf="!loadingConversations && !conversations.length" class="empty-history">
+            {{ 'CHAT.EMPTY_HISTORY' | translate }}
+          </p>
+        </div>
       </div>
     </aside>
 
@@ -94,14 +99,13 @@
            navigation). A compact floating toggle keeps the history sidebar
            reachable when it's collapsed. -->
       <button
-        *ngIf="!sidebarOpen"
         type="button"
         class="history-fab"
         (click)="toggleSidebar()"
         [attr.aria-label]="'CHAT.ARIA_TOGGLE_HISTORY' | translate"
         [title]="'CHAT.ARIA_TOGGLE_HISTORY' | translate"
       >
-        <i class="bi bi-clock-history"></i>
+        <i class="bi" [ngClass]="sidebarOpen ? 'bi-arrow-bar-left' : 'bi-arrow-bar-right'"></i>
       </button>
 
       <div #messagesViewport class="messages" (scroll)="onMessagesScroll()">
@@ -250,6 +254,11 @@
         </span>
       </div>
 
+      <p class="chat-injury-note" role="note">
+        <i class="bi bi-heart-pulse" aria-hidden="true"></i>
+        <span>{{ 'CHAT.INJURY_NOTICE' | translate }}</span>
+      </p>
+
       <form class="composer" [class.is-recording]="recording" (ngSubmit)="send()">
         <div class="composer-inner">
         <textarea
@@ -312,6 +321,8 @@
         </button>
         </div>
       </form>
+
+      <p class="chat-ai-disclaimer">{{ 'CHAT.AI_DISCLAIMER' | translate }}</p>
     </section>
   </section>
 
@@ -385,13 +396,14 @@
             <input type="number" step="0.1" min="1" [value]="editMuscle ?? ''" (input)="editMuscle = parseEditNum($any($event.target).value)" />
           </label>
           <label class="full">{{ 'memberProfile.dash.fitnessGoal' | translate }}
-            <select [value]="editGoal" (change)="editGoal = $any($event.target).value">
-              <option value="">{{ 'profile.notSet' | translate }}</option>
-              <option *ngFor="let g of goalOptions" [value]="g.value">{{ g.labelKey | translate }}</option>
+            <select (change)="editGoal = $any($event.target).value">
+              <option value="" [selected]="!editGoal">{{ 'profile.notSet' | translate }}</option>
+              <option *ngFor="let g of goalOptions" [value]="g.value" [selected]="g.value === editGoal">{{ g.labelKey | translate }}</option>
             </select>
           </label>
         </div>
 
+        <p class="body-edit-error" *ngIf="bodyMeasurementCleared" role="alert">{{ 'memberProfile.bodyPrompt.cantClear' | translate }}</p>
         <p class="body-edit-error" *ngIf="bodyEditError" role="alert">{{ bodyEditError }}</p>
 
         <button type="button" class="welcome-cta" (click)="saveBodyEdit()" [disabled]="savingBody || !bodyEditValid">

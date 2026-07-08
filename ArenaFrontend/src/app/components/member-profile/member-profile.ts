@@ -103,6 +103,13 @@ export class MemberProfile implements OnInit {
   loading = signal(true);
   error = signal<string | null>(null);
 
+  /** First name for greeting interpolations. Falls back to the cached auth
+   *  user while the profile request is in flight — never `undefined`, which
+   *  ngx-translate would otherwise print literally into the greeting. */
+  greetName(): string {
+    return this.profile()?.firstName || this.auth.displayName || '';
+  }
+
   activeSection = signal<DashboardSection>('profile');
 
   timeOfDay = computed(() => {
@@ -1474,9 +1481,12 @@ export class MemberProfile implements OnInit {
   // After the dashboard data loads (so streak/workout counts are real), run the
   // post-load popups once. A newly-earned achievement takes priority over the
   // generic welcome, so the member never sees two overlays stacked.
+  // The welcome only belongs on the member-profile dashboard view, so we hold
+  // off until the 'profile' section is active — never on QR/workout/diet/etc.
   private postLoadHandled = false;
   private postLoadEffect = effect(() => {
     if (this.loading()) return;
+    if (this.activeSection() !== 'profile') return;
     if (this.postLoadHandled) return;
     this.postLoadHandled = true;
     if (this.checkNewAchievements()) return;

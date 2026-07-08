@@ -272,12 +272,29 @@ export class Nutritionplan implements OnInit, OnDestroy {
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────────
+  /**
+   * Canonical meal-type token from a value the AI may have stored in English or
+   * Arabic (plans are written in whatever language the member spoke). Colour and
+   * label both key off this so the page renders in the current UI language.
+   */
+  private normalizeMealType(type: string): string | null {
+    const t = (type ?? '').toLowerCase().trim();
+    if (!t) return null;
+    const has = (...terms: string[]) => terms.some(term => t.includes(term));
+    if (has('breakfast', 'فطار', 'فطور', 'إفطار', 'افطار', 'ريوق')) return 'breakfast';
+    if (has('lunch', 'غداء', 'غدا'))                                return 'lunch';
+    if (has('dinner', 'عشاء', 'عشا'))                               return 'dinner';
+    if (has('snack', 'سناك', 'وجبة خفيفة', 'خفيفة'))               return 'snack';
+    return null;
+  }
+
   getMealTypeColor(type: string): string {
-    const t = type?.toLowerCase();
-    if (t === 'breakfast') return 'meal-breakfast';
-    if (t === 'lunch')     return 'meal-lunch';
-    if (t === 'dinner')    return 'meal-dinner';
-    return 'meal-snack';
+    switch (this.normalizeMealType(type)) {
+      case 'breakfast': return 'meal-breakfast';
+      case 'lunch':     return 'meal-lunch';
+      case 'dinner':    return 'meal-dinner';
+      default:          return 'meal-snack';
+    }
   }
 
   private readonly mealTypeKeyMap: Record<string, string> = {
@@ -289,8 +306,8 @@ export class Nutritionplan implements OnInit, OnDestroy {
 
   translateMealType(type: string): string {
     if (!type) return type;
-    const key = this.mealTypeKeyMap[type.toLowerCase()];
-    return key ? this.t.translate(key) : type;
+    const token = this.normalizeMealType(type);
+    return token ? this.t.translate(this.mealTypeKeyMap[token]) : type;
   }
 
   // ── AI Meal Analysis ──────────────────────────────────────────────────────────

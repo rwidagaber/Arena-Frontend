@@ -639,6 +639,7 @@
     "unitDays": "days",
     "checkinVisits": "{{count}} visits",
     "milestone": "You've logged {{count}} measurements — every data point brings you closer to your goal. Keep going!",
+    "goalCardTitle": "Weight Goal",
     "goalToGoal": "to goal",
     "goalStart": "Start",
     "goalCurrent": "Current",
@@ -719,7 +720,8 @@
       "title": "Add your body composition",
       "sub": "Enter your weight, height, body fat and muscle mass in \"Your Body\" so our AI can build a workout and nutrition plan tailored to you.",
       "cta": "Add my data",
-      "later": "Maybe later"
+      "later": "Maybe later",
+      "cantClear": "Body fat and muscle mass can't be reset to zero once recorded — enter your latest values."
     },
     "dashboardLabel": "MEMBER DASHBOARD",
     "greeting": {
@@ -1251,17 +1253,24 @@
       "fullBody": "Full Body",
       "cardio": "Cardio",
       "arms": "arms",
-      "dayFocus": {
-        "upperBody": "Upper Body",
-        "lowerBodyCore": "Lower Body & Core",
-        "lowerBody": "Lower Body",
-        "fullBody": "Full Body",
-        "push": "Push",
-        "pull": "Pull",
-        "legs": "Legs",
-        "core": "Core",
-        "cardio": "Cardio"
-      }
+      "obliques": "Obliques",
+      "lowerAbs": "Lower Abs"
+    },
+    "dayFocus": {
+      "upperBody": "Upper Body",
+      "lowerBodyCore": "Lower Body & Core",
+      "lowerBody": "Lower Body",
+      "fullBody": "Full Body",
+      "push": "Push",
+      "pull": "Pull",
+      "legs": "Legs",
+      "core": "Core",
+      "cardio": "Cardio"
+    },
+    "difficultyLevels": {
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced"
     }
   },
   "myBookings": "My Bookings",
@@ -1343,8 +1352,12 @@
     "TITLE": "Arena Assistant",
     "SUBTITLE": "Your AI training partner",
     "STATUS_ONLINE": "Online",
+    "INJURY_NOTICE": "If you have any injuries or diseases, let the AI know so it can adapt your plan.",
+    "AI_DISCLAIMER": "Arena AI can make mistakes. Double-check important information.",
     "CHATS": "Chats",
     "NEW_CHAT_TITLE": "New Chat",
+    "SHOW_MORE": "Show more chats",
+    "SHOW_LESS": "Show fewer chats",
     "NO_MESSAGES": "No messages yet",
     "EMPTY_HISTORY": "Start your first chat with Arena.",
     "LOADING_CHATS": "Loading chats...",

@@ -394,26 +394,35 @@ export class WorkoutComponent implements OnInit {
   trackByExercise(_: number, e: WorkoutExerciseDto) { return e.id; }
 
   private weekdayMap: Record<string, string> = {
-    'sunday':    'workout.sunday',
-    'monday':    'workout.monday',
-    'tuesday':   'workout.tuesday',
-    'wednesday': 'workout.wednesday',
-    'thursday':  'workout.thursday',
-    'friday':    'workout.friday',
-    'saturday':  'workout.saturday',
+    'sunday':    'workout.sunday',    'الأحد':    'workout.sunday',    'الاحد':    'workout.sunday',
+    'monday':    'workout.monday',    'الاثنين':  'workout.monday',    'الإثنين':  'workout.monday',   'الأثنين': 'workout.monday',
+    'tuesday':   'workout.tuesday',   'الثلاثاء': 'workout.tuesday',
+    'wednesday': 'workout.wednesday', 'الأربعاء': 'workout.wednesday', 'الاربعاء': 'workout.wednesday',
+    'thursday':  'workout.thursday',  'الخميس':   'workout.thursday',
+    'friday':    'workout.friday',    'الجمعة':   'workout.friday',
+    'saturday':  'workout.saturday',  'السبت':    'workout.saturday',
   };
 
-  private dayFocusMap: Record<string, string> = {
-    'upper body':          'workout.dayFocus.upperBody',
-    'lower body and core': 'workout.dayFocus.lowerBodyCore',
-    'lower body':          'workout.dayFocus.lowerBody',
-    'full body':           'workout.dayFocus.fullBody',
-    'push':                'workout.dayFocus.push',
-    'pull':                'workout.dayFocus.pull',
-    'legs':                'workout.dayFocus.legs',
-    'core':                'workout.dayFocus.core',
-    'cardio':              'workout.dayFocus.cardio',
-  };
+  /**
+   * Resolve a day's "focus" (the part after "Day N -") to a translation key,
+   * accepting the AI's English or Arabic wording so it shows in the current UI
+   * language either way.
+   */
+  private resolveDayFocusKey(focus: string): string | null {
+    const f = (focus ?? '').toLowerCase().trim();
+    if (!f) return null;
+    const has = (...terms: string[]) => terms.some(term => f.includes(term));
+    if (has('lower body and core', 'lower body & core', 'السفلي والجذع', 'سفلي والجذع')) return 'workout.dayFocus.lowerBodyCore';
+    if (has('upper', 'الجزء العلوي', 'علوي'))  return 'workout.dayFocus.upperBody';
+    if (has('lower', 'الجزء السفلي', 'سفلي'))  return 'workout.dayFocus.lowerBody';
+    if (has('full', 'الجسم بالكامل', 'كامل'))  return 'workout.dayFocus.fullBody';
+    if (has('push', 'دفع'))                     return 'workout.dayFocus.push';
+    if (has('pull', 'سحب'))                     return 'workout.dayFocus.pull';
+    if (has('leg', 'أرجل', 'ارجل', 'رجل'))     return 'workout.dayFocus.legs';
+    if (has('core', 'الجذع', 'جذع'))           return 'workout.dayFocus.core';
+    if (has('cardio', 'كارديو'))                return 'workout.dayFocus.cardio';
+    return null;
+  }
 
   translateDayName(dayName: string): string {
     if (!dayName) return dayName;
@@ -425,26 +434,29 @@ export class WorkoutComponent implements OnInit {
       return this.t.instant(this.weekdayMap[lower]);
     }
 
-    const match = trimmed.match(/^Day\s+(\d+)\s*-\s*(.+)$/i);
+    // "Day 3 - Upper Body" / "اليوم 3 - الجزء العلوي" / "يوم 3"
+    const match = trimmed.match(/^(?:day|اليوم|يوم)\s*(\d+)\s*[-:–—]?\s*(.*)$/i);
     if (match) {
       const dayNumber = match[1];
-      const focusText = match[2].trim().toLowerCase();
-      const key = this.dayFocusMap[focusText];
-      const translatedFocus = key ? this.t.instant(key) : match[2].trim();
-      return `${this.t.instant('workout.day')} ${dayNumber} - ${translatedFocus}`;
+      const dayWord = this.t.instant('workout.day');
+      const focusRaw = (match[2] ?? '').trim();
+      if (!focusRaw) return `${dayWord} ${dayNumber}`;
+      const key = this.resolveDayFocusKey(focusRaw);
+      const translatedFocus = key ? this.t.instant(key) : focusRaw;
+      return `${dayWord} ${dayNumber} - ${translatedFocus}`;
     }
 
     return dayName;
   }
 
   private weekdayOrder: Record<string, number> = {
-    'saturday':  0,
-    'sunday':    1,
-    'monday':    2,
-    'tuesday':   3,
-    'wednesday': 4,
-    'thursday':  5,
-    'friday':    6,
+    'saturday':  0, 'السبت':    0,
+    'sunday':    1, 'الأحد':    1, 'الاحد':    1,
+    'monday':    2, 'الاثنين':  2, 'الإثنين':  2, 'الأثنين': 2,
+    'tuesday':   3, 'الثلاثاء': 3,
+    'wednesday': 4, 'الأربعاء': 4, 'الاربعاء': 4,
+    'thursday':  5, 'الخميس':   5,
+    'friday':    6, 'الجمعة':   6,
   };
 
   private getDaySortKey(dayName: string): number {
@@ -455,7 +467,7 @@ export class WorkoutComponent implements OnInit {
       return this.weekdayOrder[trimmed];
     }
 
-    const match = trimmed.match(/^day\s+(\d+)/);
+    const match = trimmed.match(/^(?:day|اليوم|يوم)\s*(\d+)/);
     if (match) {
       return parseInt(match[1], 10);
     }
@@ -533,6 +545,15 @@ export class WorkoutComponent implements OnInit {
       this.safeEmbedUrlCache.set(embedUrl, safe);
     }
     return safe;
+  }
+
+  hasMuscles(ex: WorkoutExerciseDto): boolean {
+    return this.getLocalizedPrimaryMuscles(ex).length > 0 || this.getLocalizedSecondaryMuscles(ex).length > 0;
+  }
+
+  hasEquipment(ex: WorkoutExerciseDto): boolean {
+    const eq = this.getLocalizedEquipment(ex);
+    return !!eq && eq.trim().toLowerCase() !== 'none';
   }
 
   parseJsonArray(val: string | null | undefined): string[] {

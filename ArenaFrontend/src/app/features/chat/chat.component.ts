@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewChecked, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { AfterViewChecked, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -38,6 +38,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   messages: ChatMessage[] = [];
   conversations: ChatConversation[] = [];
+  readonly visibleConversations = signal<ChatConversation[]>([]);
   draft = '';
   loadingHistory = true;
   loadingConversations = true;
@@ -113,14 +114,14 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private bodyProfile: { weight?: number | null; height?: number | null; goal?: string | null } | null = null;
   private bodyProgress: ProgressSummaryDto | null = null;
 
-  /** True while any AI-relevant field is still missing (body composition + goal). */
+  /** True while the member's body-fat % or muscle mass is still missing (null/0) —
+   *  the two measurements the AI needs and that a member can't self-report elsewhere.
+   *  Other fields (weight/height/goal) don't trigger this onboarding nudge. */
   private bodyCompositionIncomplete(): boolean {
-    const p = this.bodyProfile;
-    if (!p) return false;
-    return p.weight == null || p.height == null
-        || (this.bodyProgress?.currentBodyFat ?? null) == null
-        || (this.bodyProgress?.currentMuscleMass ?? null) == null
-        || !p.goal;
+    if (!this.bodyProfile) return false;
+    const bodyFat = this.bodyProgress?.currentBodyFat ?? null;
+    const muscle = this.bodyProgress?.currentMuscleMass ?? null;
+    return bodyFat == null || bodyFat === 0 || muscle == null || muscle === 0;
   }
 
   /** Show the popup once data has loaded, is still incomplete, hasn't been
@@ -159,12 +160,32 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     return Number.isFinite(n) ? n : null;
   }
 
-  /** Mirror of the dashboard editor's positivity/percent validation. */
+  /** Body fat / muscle mass, once recorded, are real measurements — they can't
+   *  be cleared or reset to 0 afterwards (only updated to another real value). */
+  private get bodyFatLocked(): boolean {
+    const orig = this.bodyProgress?.currentBodyFat ?? null;
+    return orig != null && orig > 0;
+  }
+  private get muscleLocked(): boolean {
+    const orig = this.bodyProgress?.currentMuscleMass ?? null;
+    return orig != null && orig > 0;
+  }
+
+  /** True when the member tried to wipe a previously-set body-fat/muscle value. */
+  get bodyMeasurementCleared(): boolean {
+    const bfCleared = this.bodyFatLocked && (this.editBodyFat == null || this.editBodyFat <= 0);
+    const mmCleared = this.muscleLocked && (this.editMuscle == null || this.editMuscle <= 0);
+    return bfCleared || mmCleared;
+  }
+
+  /** Mirror of the dashboard editor's positivity/percent validation, plus the
+   *  rule that recorded body-fat/muscle can't be zeroed out again. */
   get bodyEditValid(): boolean {
     const positive = (v: number | null) => v == null || v > 0;
     const bf = this.editBodyFat;
-    return positive(this.editWeight) && positive(this.editHeight) && positive(this.editMuscle)
+    const baseValid = positive(this.editWeight) && positive(this.editHeight) && positive(this.editMuscle)
       && (bf == null || (bf > 0 && bf <= 100));
+    return baseValid && !this.bodyMeasurementCleared;
   }
 
   /** Primary action → open the inline editor prefilled with what we know. */
@@ -396,6 +417,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       .subscribe({
         next: (conversation) => {
           this.conversations = [conversation, ...this.conversations];
+          this.syncConversations();
           this.conversationId = conversation.id;
           this.messages = [this.createAssistantWelcome()];
           this.draft = '';
@@ -465,6 +487,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         next: () => {
           const wasActive = this.conversationId === conversation.id;
           this.conversations = this.conversations.filter((item) => item.id !== conversation.id);
+          this.syncConversations();
 
           if (!wasActive) {
             return;
@@ -481,6 +504,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
           this.error = err.message || this.t('CHAT.ERR_DELETE');
         },
       });
+  }
+
+  private syncConversations(): void {
+    this.visibleConversations.set(this.conversations);
   }
 
   send(): void {
@@ -981,6 +1008,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       .pipe(finalize(() => (this.loadingConversations = false)))
       .subscribe((conversations) => {
         this.conversations = conversations;
+        this.syncConversations();
         // Do NOT auto-open the last conversation: Arena always opens on a fresh
         // new chat (welcome + suggestions). Past chats stay available in history.
       });

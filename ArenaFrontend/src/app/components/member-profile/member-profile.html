@@ -38,7 +38,7 @@
               <div class="mhub-inner">
                 <div class="mhub-lead">
                   <span class="mhub-eyebrow">{{ 'memberProfile.dash.athleteDashboard' | translate }}</span>
-                  <h1 class="mhub-hi">{{ 'memberProfile.greeting.' + timeOfDay() | translate:{ firstName: profile()?.firstName } }}</h1>
+                  <h1 class="mhub-hi">{{ 'memberProfile.greeting.' + timeOfDay() | translate:{ firstName: greetName() } }}</h1>
                   <p class="mhub-sub">{{ sessionsCompleted().key | translate:{ n: sessionsCompleted().n } }}</p>
 
                   <div class="mhub-chips">
@@ -980,10 +980,10 @@
         <legend>{{ 'memberProfile.dash.grpGoal' | translate }}</legend>
         <div class="edit-fields">
           <label>{{ 'memberProfile.dash.fitnessGoal' | translate }}
-            <select [value]="editGoal()" (change)="editGoal.set($any($event.target).value)">
-              <option value="">{{ 'profile.notSet' | translate }}</option>
+            <select (change)="editGoal.set($any($event.target).value)">
+              <option value="" [selected]="!editGoal()">{{ 'profile.notSet' | translate }}</option>
               @for (g of goalOptions; track g.value) {
-                <option [value]="g.value">{{ g.labelKey | translate }}</option>
+                <option [value]="g.value" [selected]="g.value === editGoal()">{{ g.labelKey | translate }}</option>
               }
             </select>
           </label>
@@ -1030,7 +1030,7 @@
         <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
       <div class="welcome-icon" aria-hidden="true" [innerHTML]="getSvgIcon(streakMessage().icon)"></div>
-      <span class="welcome-eyebrow">{{ 'memberProfile.dash.welcomeBack' | translate:{ firstName: profile()?.firstName } }}</span>
+      <span class="welcome-eyebrow">{{ 'memberProfile.dash.welcomeBack' | translate:{ firstName: greetName() } }}</span>
       <h3 class="welcome-title">{{ streakMessage().titleKey | translate:{ n: streakMessage().n } }}</h3>
       <p class="welcome-sub">{{ streakMessage().subKey | translate:{ n: streakMessage().n } }}</p>
 

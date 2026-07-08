@@ -2,7 +2,14 @@
 <app-header></app-header>
 }
 
-<router-outlet></router-outlet>
+<!-- The routed component renders inside this shell (Angular inserts it as the
+     outlet's DOM sibling). The min-height floor guarantees the footer starts
+     below the fold even while a lazy route/its data is still loading, so it
+     can never flash at the top of the viewport on refresh — and its scroll
+     reveal can't be consumed early by that flash. -->
+<div class="route-shell">
+  <router-outlet (activate)="onOutletActivate()"></router-outlet>
+</div>
 
 <!-- Global subscriber sidebar: on every page (except the dashboard, which has
      its own) when the signed-in user has an active subscription. -->
@@ -18,7 +25,7 @@
 <app-back-to-top></app-back-to-top>
 }
 
-@if(showLayout && showFooter && !isChat){
+@if(showLayout && showFooter && !isChat && contentReady){
 <app-footer></app-footer>
 }
 
