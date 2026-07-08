@@ -119,20 +119,9 @@
             <h3 class="card-title"><i class="fa-solid fa-bullseye"></i> {{ 'progressReport.goalCardTitle' | translate }}</h3>
             <button class="goal-clear" (click)="clearGoal()">{{ 'progressReport.goalClear' | translate }}</button>
           </div>
-          <!-- Ring in the centre; cards orbit it: current on top, start left,
-               target right, pace/ETA on the bottom. -->
+          <!-- Ring centred on top; flat rectangular stat cards stacked under it. -->
           <div class="goal-body">
-            <div class="goal-stat goal-stat-current goal-pos-top">
-              <span class="goal-stat-ico"><i class="fa-solid fa-weight-scale"></i></span>
-              <span class="goal-stat-val">{{ currentWeight() }}<small>{{ 'progressReport.unitKg' | translate }}</small></span>
-              <span class="goal-stat-lbl">{{ 'progressReport.goalCurrent' | translate }}</span>
-            </div>
-            <div class="goal-stat goal-pos-start">
-              <span class="goal-stat-ico"><i class="fa-solid fa-flag"></i></span>
-              <span class="goal-stat-val">{{ goalConfig()?.startWeight }}<small>{{ 'progressReport.unitKg' | translate }}</small></span>
-              <span class="goal-stat-lbl">{{ 'progressReport.goalStart' | translate }}</span>
-            </div>
-            <div class="goal-ring-wrap goal-pos-center">
+            <div class="goal-ring-wrap">
               <svg viewBox="0 0 120 120" class="goal-ring-svg">
                 <defs>
                   <linearGradient id="goalRingGrad" x1="0" y1="0" x2="1" y2="1">
@@ -151,13 +140,31 @@
                 <span class="goal-ring-lbl">{{ 'progressReport.goalToGoal' | translate }}</span>
               </div>
             </div>
-            <div class="goal-stat goal-stat-target goal-pos-end">
-              <span class="goal-stat-ico"><i class="fa-solid fa-bullseye"></i></span>
-              <span class="goal-stat-val">{{ goalConfig()?.targetWeight }}<small>{{ 'progressReport.unitKg' | translate }}</small></span>
-              <span class="goal-stat-lbl">{{ 'progressReport.goalTarget' | translate }}</span>
+            <div class="goal-stats">
+              <div class="goal-stat">
+                <span class="goal-stat-ico"><i class="fa-solid fa-flag"></i></span>
+                <span class="goal-stat-txt">
+                  <span class="goal-stat-val">{{ goalConfig()?.startWeight }}<small>{{ 'progressReport.unitKg' | translate }}</small></span>
+                  <span class="goal-stat-lbl">{{ 'progressReport.goalStart' | translate }}</span>
+                </span>
+              </div>
+              <div class="goal-stat goal-stat-current">
+                <span class="goal-stat-ico"><i class="fa-solid fa-weight-scale"></i></span>
+                <span class="goal-stat-txt">
+                  <span class="goal-stat-val">{{ currentWeight() }}<small>{{ 'progressReport.unitKg' | translate }}</small></span>
+                  <span class="goal-stat-lbl">{{ 'progressReport.goalCurrent' | translate }}</span>
+                </span>
+              </div>
+              <div class="goal-stat goal-stat-target">
+                <span class="goal-stat-ico"><i class="fa-solid fa-bullseye"></i></span>
+                <span class="goal-stat-txt">
+                  <span class="goal-stat-val">{{ goalConfig()?.targetWeight }}<small>{{ 'progressReport.unitKg' | translate }}</small></span>
+                  <span class="goal-stat-lbl">{{ 'progressReport.goalTarget' | translate }}</span>
+                </span>
+              </div>
             </div>
             @if (goalEta(); as eta) {
-              <div class="goal-eta goal-pos-bottom" [class.reached]="eta.state === 'reached'" [class.off]="eta.state === 'off'">
+              <div class="goal-eta" [class.reached]="eta.state === 'reached'" [class.off]="eta.state === 'off'">
                 <i class="fa-solid" [ngClass]="eta.state === 'reached' ? 'fa-trophy' : eta.state === 'off' ? 'fa-triangle-exclamation' : 'fa-rocket'"></i>
                 @if (eta.state === 'eta') { <span>{{ 'progressReport.goalEtaDays' | translate:{ n: eta.days } }}</span> }
                 @else if (eta.state === 'reached') { <span>{{ 'progressReport.goalReached' | translate }}</span> }
