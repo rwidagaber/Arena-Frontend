@@ -137,4 +137,14 @@ export class PricingComponent implements OnInit {
     }
     return plan.price;
   }
+
+  getRemainingDays(plan: SubscriptionPlan): number | null {
+    if (!plan.discountEndDate) {
+      return null;
+    }
+    const end = new Date(plan.discountEndDate);
+    const now = new Date();
+    const diff = end.getTime() - now.getTime();
+    return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+  }
 }
