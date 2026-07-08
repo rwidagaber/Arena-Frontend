@@ -1,4 +1,4 @@
-// import { CommonModule, Location } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { AfterViewChecked, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -12,7 +12,7 @@ import { NotificationService } from '../../core/services/notification.service';
 import { CreateProgressLogDto, ProgressReportService, ProgressSummaryDto } from '../../core/services/progress-report.service';
 import { MemberService } from '../../core/services/member.service';
 import { UpdateProfileDto } from '../../core/models/member';
-import { Location } from '@angular/common';
+// import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-chat',
