@@ -83,6 +83,11 @@ export class PricingComponent implements OnInit {
       return;
     }
 
+    const selectedPlan = this.plans.find(p => p.id === planId);
+    if (selectedPlan) {
+      localStorage.setItem('checkout_plan_has_ai', String(selectedPlan.hasAI));
+    }
+
     this.loadingPlanId = planId;
     // 4 = Paymob payment method
     this.pricingService.createPayment(planId, 4).subscribe({

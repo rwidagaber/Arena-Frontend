@@ -10,8 +10,4 @@ import { RouterLink } from '@angular/router';
   styleUrl: './hero.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class HeroComponent {
-  scrollToPlans(): void {
-    document.getElementById('membership')?.scrollIntoView({ behavior: 'smooth' });
-  }
-}
+export class HeroComponent {}

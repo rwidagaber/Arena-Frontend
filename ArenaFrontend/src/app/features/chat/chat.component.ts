@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { AfterViewChecked, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -25,6 +25,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private readonly router = inject(Router);
   private readonly bookingEvents = inject(BookingEventsService);
   private readonly notificationService = inject(NotificationService);
+  private readonly location = inject(Location);
 
   messages: ChatMessage[] = [];
   conversations: ChatConversation[] = [];
@@ -125,7 +126,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   goToHome(): void {
     this.showSubscriptionModal = false;
-    this.router.navigate(['/']);
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      this.location.back();
+    } else {
+      this.router.navigate(['/']);
+    }
   }
 
   ngAfterViewChecked(): void {
