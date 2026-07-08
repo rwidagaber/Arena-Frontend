@@ -152,7 +152,7 @@ export class AuthService {
           isSubscribed,
           firstName: profile.firstName ?? currentUser?.firstName ?? '',
           lastName: profile.lastName ?? currentUser?.lastName ?? '',
-          profileImage: (profile as Record<string, unknown>)['profileImage'] ?? currentUser?.profileImage ?? null,
+          profileImage: (profile as unknown as Record<string, unknown>)['profileImage'] ?? currentUser?.profileImage ?? null,
           // ✅ حافظ على الـ flags من الـ persist
           isGoogleUser: currentUser?.isGoogleUser ?? false,
         };
@@ -244,7 +244,7 @@ export class AuthService {
       memberProfileId: res.memberProfileId ?? current['memberProfileId'],
       firstName: res.firstName ?? current['firstName'] ?? '',
       lastName: res.lastName ?? current['lastName'] ?? '',
-      profileImage: (res as Record<string, unknown>)['profileImage'] ?? current['profileImage'] ?? null,
+      profileImage: (res as unknown as Record<string, unknown>)['profileImage'] ?? current['profileImage'] ?? null,
     };
 
     storage.setItem(KEYS.user, JSON.stringify(user));
