@@ -1,0 +1,9 @@
+{
+  "framework": "angular",
+  "buildCommand": "cd ArenaFrontend && npm run build",
+  "outputDirectory": "ArenaFrontend/dist/ArenaFrontend/browser",
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
