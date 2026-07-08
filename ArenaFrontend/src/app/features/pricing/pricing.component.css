@@ -242,27 +242,37 @@
 }
 
 .amount.discounted-price-active {
-  color: var(--neon-green);
+  color: #D3F551;
+  text-shadow: 0 0 20px rgba(211, 245, 81, 0.3);
 }
 
 .original-price {
   font-size: 18px;
   text-decoration: line-through;
+  text-decoration-color: #ef4444;
   color: var(--text-secondary);
   font-weight: 500;
-  opacity: 0.6;
+  opacity: 0.7;
 }
 
 .discount-badge {
-  background-color: #ef4444;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
   color: #ffffff;
   font-size: 12px;
   font-weight: 700;
-  padding: 4px 8px;
-  border-radius: 6px;
+  padding: 5px 10px;
+  border-radius: 8px;
   display: inline-flex;
   align-items: center;
   line-height: 1;
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+  animation: pulse-badge 2s ease-in-out infinite;
+}
+
+@keyframes pulse-badge {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
 }
 
 .price-meta {
@@ -566,4 +576,115 @@
 @keyframes scaleUp {
   from { transform: scale(0.9); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
+}
+
+
+/* ═══════════════════════════════════════════ */
+/*         DISCOUNT — SALE RIBBON             */
+/* ═══════════════════════════════════════════ */
+.sale-ribbon {
+  position: absolute;
+  top: 16px;
+  right: -8px;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 5px 16px 5px 12px;
+  border-radius: 4px 0 0 4px;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+  z-index: 5;
+}
+
+.sale-ribbon::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  right: 0;
+  border-width: 0 8px 6px 0;
+  border-style: solid;
+  border-color: transparent #991b1b transparent transparent;
+}
+
+:host-context([dir="rtl"]) .sale-ribbon {
+  right: auto;
+  left: -8px;
+  border-radius: 0 4px 4px 0;
+  padding: 5px 12px 5px 16px;
+}
+
+:host-context([dir="rtl"]) .sale-ribbon::after {
+  right: auto;
+  left: 0;
+  border-width: 0 0 6px 8px;
+  border-color: transparent transparent transparent #991b1b;
+}
+
+/* ═══════════════════════════════════════════ */
+/*      DISCOUNT — EXPIRY COUNTDOWN           */
+/* ═══════════════════════════════════════════ */
+.discount-expiry {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #f87171;
+  margin-bottom: 12px;
+  padding: 6px 12px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  border-radius: 10px;
+  transition: color 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+}
+
+.discount-expiry svg {
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════ */
+/*         DISCOUNT — LIGHT THEME             */
+/* ═══════════════════════════════════════════ */
+:host-context([data-theme="light"]) .amount.discounted-price-active {
+  color: #16a34a;
+  text-shadow: none;
+}
+
+:host-context([data-theme="light"]) .original-price {
+  text-decoration-color: #dc2626;
+  opacity: 0.6;
+}
+
+
+:host-context([data-theme="light"]) .discount-expiry {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.06);
+  border-color: rgba(220, 38, 38, 0.12);
+}
+
+:host-context([data-theme="light"]) .discount-badge {
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
+}
+
+/* ═══════════════════════════════════════════ */
+/*         DISCOUNT — RESPONSIVE              */
+/* ═══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .sale-ribbon {
+    font-size: 10px;
+    padding: 4px 12px 4px 10px;
+    top: 12px;
+  }
+
+  .discount-expiry {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+
+  .discount-badge {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
 }

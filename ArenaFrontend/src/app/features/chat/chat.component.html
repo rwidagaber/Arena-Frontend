@@ -4,112 +4,114 @@
   <section class="chat-shell" [class.sidebar-hidden]="!sidebarOpen" aria-label="Arena chat assistant">
     <aside class="chat-sidebar" [class.drawer-open]="sidebarOpen" aria-label="Chat history">
       <div class="sidebar-header">
-        <div>
-          <span class="panel-kicker">
-            <span></span>
-            AI coach
+        <div class="assistant-brand">
+          <span class="assistant-avatar" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z"/>
+            </svg>
           </span>
-          <h1>Arena Chat</h1>
+          <span class="assistant-meta">
+            <h1>{{ 'CHAT.TITLE' | translate }}</h1>
+            <span class="assistant-status">
+              <span class="assistant-status-dot"></span>
+              {{ 'CHAT.SUBTITLE' | translate }}
+            </span>
+          </span>
         </div>
-        <div class="sidebar-header-actions">
-          <button
-            type="button"
-            class="sidebar-close-btn"
-            (click)="forceCloseSidebar()"
-            aria-label="Close sidebar"
-            title="Close sidebar"
-          >
-            <i class="bi bi-x-lg"></i>
-          </button>
-          <button
-            type="button"
-            class="new-chat-btn"
-            (click)="newChat()"
-            [disabled]="creatingChat || !memberProfileId"
-            aria-label="Start new chat"
-          >
-            <i class="bi bi-plus-lg"></i>
-          </button>
-        </div>
-      </div>
-
-      <div class="prompt-list" aria-label="Quick prompts">
-        <button type="button" *ngFor="let prompt of quickPrompts" (click)="usePrompt(prompt)">
-          <i class="bi bi-lightning-charge"></i>
-          <span>{{ prompt }}</span>
+        <button
+          type="button"
+          class="sidebar-close-btn"
+          (click)="forceCloseSidebar()"
+          [attr.aria-label]="'CHAT.ARIA_CLOSE_SIDEBAR' | translate"
+          [title]="'CHAT.ARIA_CLOSE_SIDEBAR' | translate"
+        >
+          <i class="bi bi-arrow-bar-left"></i>
         </button>
       </div>
 
+      <button
+        type="button"
+        class="new-chat-btn"
+        (click)="newChat()"
+        [disabled]="creatingChat || !memberProfileId"
+        [attr.aria-label]="'CHAT.ARIA_NEW_CHAT' | translate"
+      >
+        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <line x1="8" y1="3" x2="8" y2="13"/>
+          <line x1="3" y1="8" x2="13" y2="8"/>
+        </svg>
+        <span>{{ 'CHAT.NEW_CHAT_TITLE' | translate }}</span>
+      </button>
+
       <div class="history-block">
-        <div class="history-title">
-          <span>Chats</span>
-          <span *ngIf="conversations.length">{{ conversations.length }}</span>
-        </div>
-
-        <div *ngIf="loadingConversations" class="loading-row compact">
-          <span class="spinner"></span>
-          Loading chats...
-        </div>
-
-        <div
-          *ngFor="let conversation of conversations; trackBy: trackConversation"
-          class="history-item"
-          [class.active]="conversation.id === conversationId"
-          (click)="openConversation(conversation)"
-          (keydown.enter)="openConversation(conversation)"
-          (keydown.space)="openConversation(conversation); $event.preventDefault()"
-          role="button"
-          tabindex="0"
-        >
-          <div class="history-item-main">
-            <span class="history-item-title">{{ conversation.title || 'New Chat' }}</span>
-            <span class="history-item-preview">{{ conversation.lastMessage || 'No messages yet' }}</span>
-            <time>{{ conversation.startedAt | date: 'MMM d' }}</time>
+        <div class="history-head">
+          <div class="history-title">
+            <span>{{ 'CHAT.CHATS' | translate }}</span>
+            <span *ngIf="conversations.length">{{ conversations.length }}</span>
           </div>
-          <button
-            type="button"
-            class="delete-chat-btn"
-            (click)="deleteConversation(conversation, $event)"
-            [disabled]="deletingConversationId === conversation.id"
-            aria-label="Delete chat"
-            title="Delete chat"
-          >
-            <i class="bi bi-trash3"></i>
-          </button>
         </div>
 
-        <p *ngIf="!loadingConversations && !conversations.length" class="empty-history">
-          Start your first chat with Arena.
-        </p>
+        <div class="history-list">
+          <div *ngIf="loadingConversations" class="loading-row compact">
+            <span class="spinner"></span>
+            {{ 'CHAT.LOADING_CHATS' | translate }}
+          </div>
+
+          @for (conversation of visibleConversations(); track conversation.id) {
+          <div
+            class="history-item"
+            [class.active]="conversation.id === conversationId"
+            (click)="openConversation(conversation)"
+            (keydown.enter)="openConversation(conversation)"
+            (keydown.space)="openConversation(conversation); $event.preventDefault()"
+            role="button"
+            tabindex="0"
+          >
+            <div class="history-item-main">
+              <span class="history-item-title">{{ conversation.title || ('CHAT.NEW_CHAT_TITLE' | translate) }}</span>
+              <span class="history-item-preview">{{ conversation.lastMessage || ('CHAT.NO_MESSAGES' | translate) }}</span>
+              <time>{{ conversation.startedAt | date: 'MMM d' }}</time>
+            </div>
+            <button
+              type="button"
+              class="delete-chat-btn"
+              (click)="deleteConversation(conversation, $event)"
+              [disabled]="deletingConversationId === conversation.id"
+              [attr.aria-label]="'CHAT.ARIA_DELETE_CHAT' | translate"
+              [title]="'CHAT.ARIA_DELETE_CHAT' | translate"
+            >
+              <i class="bi bi-trash3"></i>
+            </button>
+          </div>
+          }
+
+          <p *ngIf="!loadingConversations && !conversations.length" class="empty-history">
+            {{ 'CHAT.EMPTY_HISTORY' | translate }}
+          </p>
+        </div>
       </div>
     </aside>
 
     <div class="sidebar-backdrop" *ngIf="sidebarOpen" (click)="toggleSidebar()"></div>
 
     <section class="conversation" aria-label="Conversation">
-      <div class="conversation-header">
-        <div class="header-status-group">
-          <button
-            type="button"
-            class="sidebar-toggle-btn"
-            (click)="toggleSidebar()"
-            aria-label="Toggle chat history"
-            title="Toggle chat history"
-          >
-            <i class="bi bi-clock-history"></i>
-          </button>
-          <span class="status-dot"></span>
-          <span class="status-text">Active subscription verified</span>
-        </div>
-        <a routerLink="/" aria-label="Back to home">
-          <i class="bi bi-house"></i>
-        </a>
-      </div>
+      <!-- The chat's own header bar was removed (the site's global header covers
+           navigation). A compact floating toggle keeps the history sidebar
+           reachable when it's collapsed. -->
+      <button
+        type="button"
+        class="history-fab"
+        (click)="toggleSidebar()"
+        [attr.aria-label]="'CHAT.ARIA_TOGGLE_HISTORY' | translate"
+        [title]="'CHAT.ARIA_TOGGLE_HISTORY' | translate"
+      >
+        <i class="bi" [ngClass]="sidebarOpen ? 'bi-arrow-bar-left' : 'bi-arrow-bar-right'"></i>
+      </button>
 
-      <div #messagesViewport class="messages">
+      <div #messagesViewport class="messages" (scroll)="onMessagesScroll()">
         <div *ngIf="loadingHistory" class="loading-row">
           <span class="spinner"></span>
-          Loading conversation...
+          {{ 'CHAT.LOADING_CONVERSATION' | translate }}
         </div>
 
         <article
@@ -118,12 +120,22 @@
           [class.from-user]="message.sender === 'user'"
         >
           <div class="avatar" aria-hidden="true">
-            <i [class]="message.sender === 'user' ? 'bi bi-person' : 'bi bi-stars'"></i>
+            <ng-container *ngIf="message.sender === 'user'; else assistantAvatarIcon">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="8" r="4"/>
+                <path d="M4 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"/>
+              </svg>
+            </ng-container>
+            <ng-template #assistantAvatarIcon>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z"/>
+              </svg>
+            </ng-template>
           </div>
           <div class="bubble" [class.rich-response]="message.sender !== 'user'">
             <ng-container *ngIf="message.sender === 'user'; else assistantResponse">
               <span *ngIf="message.isVoice" class="voice-tag">
-                <i class="bi bi-mic-fill"></i> Voice
+                <i class="bi bi-mic-fill"></i> {{ 'CHAT.VOICE' | translate }}
               </span>
               <p>{{ message.content }}</p>
 
@@ -132,7 +144,7 @@
                   type="button"
                   class="vn-play"
                   (click)="toggleClip(clipAudio, message)"
-                  [attr.aria-label]="isClipPlaying(message) ? 'Pause voice note' : 'Play voice note'"
+                  [attr.aria-label]="(isClipPlaying(message) ? 'CHAT.ARIA_PAUSE_VOICE' : 'CHAT.ARIA_PLAY_VOICE') | translate"
                 >
                   <i [class]="isClipPlaying(message) ? 'bi bi-pause-fill' : 'bi bi-play-fill'"></i>
                 </button>
@@ -157,31 +169,47 @@
               </div>
             </ng-container>
             <ng-template #assistantResponse>
-              <ng-container *ngFor="let block of formatMessage(message.content)">
-                <h3 *ngIf="block.type === 'heading'">{{ block.text }}</h3>
-                <p *ngIf="block.type === 'paragraph'">{{ block.text }}</p>
-                <ul *ngIf="block.type === 'list'">
-                  <li *ngFor="let item of block.items ?? []">{{ item }}</li>
-                </ul>
-                <ol *ngIf="block.type === 'ordered-list'">
-                  <li *ngFor="let item of block.items ?? []">{{ item }}</li>
-                </ol>
+              <ng-container *ngIf="message.i18nKey; else richContent">
+                <p>{{ message.i18nKey | translate }}</p>
               </ng-container>
+              <ng-template #richContent>
+                <ng-container *ngFor="let block of formatMessage(message.content)">
+                  <h3 *ngIf="block.type === 'heading'">{{ block.text }}</h3>
+                  <p *ngIf="block.type === 'paragraph'">{{ block.text }}</p>
+                  <ul *ngIf="block.type === 'list'">
+                    <li *ngFor="let item of block.items ?? []">{{ item }}</li>
+                  </ul>
+                  <ol *ngIf="block.type === 'ordered-list'">
+                    <li *ngFor="let item of block.items ?? []">{{ item }}</li>
+                  </ol>
+                </ng-container>
+              </ng-template>
             </ng-template>
             <time>{{ message.createdAt | date: 'shortTime' }}</time>
           </div>
         </article>
 
+        <div class="chat-suggestions" *ngIf="showQuickPrompts" aria-label="Quick prompts">
+          <button type="button" *ngFor="let prompt of quickPrompts" (click)="startWithPrompt(prompt)">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>
+            <span>{{ prompt | translate }}</span>
+          </button>
+        </div>
+
         <article *ngIf="sending || transcribing" class="message-row">
           <div class="avatar" aria-hidden="true">
-            <i class="bi bi-stars"></i>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z"/>
+            </svg>
           </div>
           <div class="bubble typing" [class.transcribing]="transcribing">
             <ng-container *ngIf="transcribing; else typingDots">
               <div class="transcribe-eq" aria-hidden="true">
                 <span></span><span></span><span></span><span></span><span></span>
               </div>
-              <span class="typing-label">Transcribing your voice…</span>
+              <span class="typing-label">{{ 'CHAT.TRANSCRIBING' | translate }}</span>
             </ng-container>
             <ng-template #typingDots>
               <span></span>
@@ -192,6 +220,17 @@
         </article>
       </div>
 
+      <button
+        type="button"
+        class="scroll-down-btn"
+        *ngIf="showScrollDown"
+        (click)="scrollToLatest()"
+        [attr.aria-label]="'CHAT.ARIA_SCROLL_LATEST' | translate"
+        [title]="'CHAT.ARIA_SCROLL_LATEST' | translate"
+      >
+        <i class="bi bi-arrow-down"></i>
+      </button>
+
       <div *ngIf="error" class="chat-error">
         <span class="chat-error-text">{{ error }}</span>
         <span *ngIf="voiceRetry" class="chat-error-actions">
@@ -201,28 +240,34 @@
             (click)="retryVoice()"
             [disabled]="transcribing || sending"
           >
-            <i class="bi bi-arrow-clockwise"></i> Retry
+            <i class="bi bi-arrow-clockwise"></i> {{ 'CHAT.RETRY' | translate }}
           </button>
           <button
             type="button"
             class="voice-dismiss-btn"
             (click)="dismissVoiceRetry()"
-            aria-label="Dismiss"
-            title="Dismiss"
+            [attr.aria-label]="'CHAT.ARIA_DISMISS' | translate"
+            [title]="'CHAT.ARIA_DISMISS' | translate"
           >
             <i class="bi bi-x-lg"></i>
           </button>
         </span>
       </div>
 
+      <p class="chat-injury-note" role="note">
+        <i class="bi bi-heart-pulse" aria-hidden="true"></i>
+        <span>{{ 'CHAT.INJURY_NOTICE' | translate }}</span>
+      </p>
+
       <form class="composer" [class.is-recording]="recording" (ngSubmit)="send()">
+        <div class="composer-inner">
         <textarea
           *ngIf="!recording"
           name="message"
           [(ngModel)]="draft"
           rows="1"
-          placeholder="Message Arena assistant..."
-          aria-label="Message Arena assistant"
+          [placeholder]="'CHAT.PLACEHOLDER' | translate"
+          [attr.aria-label]="'CHAT.INPUT_ARIA' | translate"
           [disabled]="sending || transcribing || !memberProfileId"
           (keydown)="onKeyDown($event)"
         ></textarea>
@@ -238,8 +283,8 @@
           </div>
           <span class="rec-hint">
             {{ recordingSeconds >= maxRecordingSeconds - 10
-              ? 'Max ' + formatDuration(maxRecordingSeconds)
-              : 'Listening…' }}
+              ? ('CHAT.MAX_DURATION' | translate: { time: formatDuration(maxRecordingSeconds) })
+              : ('CHAT.LISTENING' | translate) }}
           </span>
         </div>
 
@@ -248,8 +293,8 @@
           type="button"
           class="cancel-btn"
           (click)="cancelRecording()"
-          aria-label="Discard recording"
-          title="Discard recording"
+          [attr.aria-label]="'CHAT.ARIA_DISCARD' | translate"
+          [title]="'CHAT.ARIA_DISCARD' | translate"
         >
           <i class="bi bi-x-lg"></i>
         </button>
@@ -260,8 +305,8 @@
           [class.recording]="recording"
           (click)="toggleRecording()"
           [disabled]="sending || transcribing || !memberProfileId"
-          [attr.aria-label]="recording ? 'Stop recording and send' : 'Record voice command'"
-          [title]="recording ? 'Stop & send' : 'Record voice command'"
+          [attr.aria-label]="(recording ? 'CHAT.ARIA_STOP_SEND' : 'CHAT.ARIA_RECORD') | translate"
+          [title]="(recording ? 'CHAT.ARIA_STOP_SEND' : 'CHAT.ARIA_RECORD') | translate"
         >
           <i [class]="recording ? 'bi bi-stop-fill' : 'bi bi-mic-fill'"></i>
         </button>
@@ -270,11 +315,14 @@
           *ngIf="!recording"
           type="submit"
           [disabled]="!draft.trim() || sending || transcribing || !memberProfileId"
-          aria-label="Send message"
+          [attr.aria-label]="'CHAT.ARIA_SEND' | translate"
         >
-          <i class="bi bi-send-fill"></i>
+          <i class="bi bi-arrow-up"></i>
         </button>
+        </div>
       </form>
+
+      <p class="chat-ai-disclaimer">{{ 'CHAT.AI_DISCLAIMER' | translate }}</p>
     </section>
   </section>
 
@@ -308,5 +356,62 @@
       </div>
     </div>
   </div>
-</main>
 
+  <!-- ════ Body-composition onboarding prompt (shows until the AI has body data) ════ -->
+  <div class="welcome-overlay" *ngIf="showBodyPrompt" (click)="dismissBodyPrompt()">
+    <div class="welcome-modal" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="bodyPromptTitle">
+      <button type="button" class="welcome-close" (click)="dismissBodyPrompt()" [disabled]="savingBody" [attr.aria-label]="'profile.cancel' | translate">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+
+      <div class="welcome-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="40" height="40"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M12 11v6"/><path d="M9 14h6"/></svg>
+      </div>
+
+      <!-- Intro / nudge state -->
+      <ng-container *ngIf="!bodyEditOpen; else bodyForm">
+        <span class="welcome-eyebrow">{{ 'memberProfile.bodyPrompt.eyebrow' | translate }}</span>
+        <h3 class="welcome-title" id="bodyPromptTitle">{{ 'memberProfile.bodyPrompt.title' | translate }}</h3>
+        <p class="welcome-sub">{{ 'memberProfile.bodyPrompt.sub' | translate }}</p>
+        <button type="button" class="welcome-cta" (click)="openBodyEditFromPrompt()">{{ 'memberProfile.bodyPrompt.cta' | translate }}</button>
+        <button type="button" class="welcome-later" (click)="dismissBodyPrompt()">{{ 'memberProfile.bodyPrompt.later' | translate }}</button>
+      </ng-container>
+
+      <!-- Inline editor state -->
+      <ng-template #bodyForm>
+        <h3 class="welcome-title" id="bodyPromptTitle">{{ 'memberProfile.bodyPrompt.title' | translate }}</h3>
+        <p class="welcome-sub">{{ 'memberProfile.dash.grpBody' | translate }}</p>
+
+        <div class="body-fields">
+          <label>{{ 'profile.weight' | translate }} (kg)
+            <input type="number" min="1" [value]="editWeight ?? ''" (input)="editWeight = parseEditNum($any($event.target).value)" />
+          </label>
+          <label>{{ 'profile.height' | translate }} (cm)
+            <input type="number" min="1" [value]="editHeight ?? ''" (input)="editHeight = parseEditNum($any($event.target).value)" />
+          </label>
+          <label>{{ 'memberProfile.dash.bodyFat' | translate }} (%)
+            <input type="number" step="0.1" min="1" max="100" [value]="editBodyFat ?? ''" (input)="editBodyFat = parseEditNum($any($event.target).value)" />
+          </label>
+          <label>{{ 'memberProfile.dash.muscle' | translate }} (kg)
+            <input type="number" step="0.1" min="1" [value]="editMuscle ?? ''" (input)="editMuscle = parseEditNum($any($event.target).value)" />
+          </label>
+          <label class="full">{{ 'memberProfile.dash.fitnessGoal' | translate }}
+            <select (change)="editGoal = $any($event.target).value">
+              <option value="" [selected]="!editGoal">{{ 'profile.notSet' | translate }}</option>
+              <option *ngFor="let g of goalOptions" [value]="g.value" [selected]="g.value === editGoal">{{ g.labelKey | translate }}</option>
+            </select>
+          </label>
+        </div>
+
+        <p class="body-edit-error" *ngIf="bodyMeasurementCleared" role="alert">{{ 'memberProfile.bodyPrompt.cantClear' | translate }}</p>
+        <p class="body-edit-error" *ngIf="bodyEditError" role="alert">{{ bodyEditError }}</p>
+
+        <button type="button" class="welcome-cta" (click)="saveBodyEdit()" [disabled]="savingBody || !bodyEditValid">
+          <span *ngIf="savingBody" class="edit-spinner" aria-hidden="true"></span>
+          {{ (savingBody ? 'memberProfile.dash.saving' : 'profile.saveChanges') | translate }}
+        </button>
+        <button type="button" class="welcome-later" (click)="closeBodyEdit()" [disabled]="savingBody">{{ 'profile.cancel' | translate }}</button>
+      </ng-template>
+    </div>
+  </div>
+</main>

@@ -38,6 +38,7 @@
            *ngFor="let plan of aiPlans; let i = index"
            [class.popular]="plan.durationMonths === 3"
            [class.best-value]="plan.durationMonths === 12"
+           [class.has-discount]="isDiscountActive(plan)"
            appScrollReveal [revealDelay]="i * 120">
 
         <!-- Badge: Most Popular -->
@@ -47,6 +48,11 @@
         <!-- Badge: Best Value -->
         <div class="card-badge value-badge" *ngIf="plan.durationMonths === 12">
           {{ 'PRICING.BADGE_VALUE' | translate }}
+        </div>
+
+        <!-- Discount Sale Ribbon -->
+        <div class="sale-ribbon" *ngIf="isDiscountActive(plan)">
+          <span>{{ 'PRICING.SALE' | translate }}</span>
         </div>
 
         <div class="card-header">
@@ -70,6 +76,14 @@
           <div class="discount-badge" *ngIf="isDiscountActive(plan)">
             {{ 'PRICING.PERCENT_OFF' | translate:{value: plan.discountPercentage} }}
           </div>
+        </div>
+
+        <!-- Discount Expiry Countdown -->
+        <div class="discount-expiry" *ngIf="isDiscountActive(plan) && getRemainingDays(plan) !== null">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+          {{ 'PRICING.DISCOUNT_ENDS' | translate }} {{ getRemainingDays(plan) }} {{ 'PRICING.DISCOUNT_DAYS' | translate }}
         </div>
 
         <div class="session-limit" *ngIf="plan.sessionLimit">
@@ -125,7 +139,13 @@
     <div class="pricing-grid">
       <div class="pricing-card standard-card"
            *ngFor="let plan of standardPlans; let i = index"
+           [class.has-discount]="isDiscountActive(plan)"
            appScrollReveal [revealDelay]="i * 120">
+
+        <!-- Discount Sale Ribbon -->
+        <div class="sale-ribbon" *ngIf="isDiscountActive(plan)">
+          <span>{{ 'PRICING.SALE' | translate }}</span>
+        </div>
 
         <div class="card-header">
           <h3 class="plan-name">{{ plan.name | translate }}</h3>
@@ -148,6 +168,14 @@
           <div class="discount-badge" *ngIf="isDiscountActive(plan)">
             {{ 'PRICING.PERCENT_OFF' | translate:{value: plan.discountPercentage} }}
           </div>
+        </div>
+
+        <!-- Discount Expiry Countdown -->
+        <div class="discount-expiry" *ngIf="isDiscountActive(plan) && getRemainingDays(plan) !== null">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+          {{ 'PRICING.DISCOUNT_ENDS' | translate }} {{ getRemainingDays(plan) }} {{ 'PRICING.DISCOUNT_DAYS' | translate }}
         </div>
 
         <div class="session-limit" *ngIf="plan.sessionLimit">

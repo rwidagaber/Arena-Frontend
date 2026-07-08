@@ -43,10 +43,10 @@
    ========================================================================== */
 .contact-hero-section {
   position: relative;
-  width: 100%; 
+  width: 95%; 
   max-width: 100%; 
-  margin: 90px auto 0 auto; 
-  padding: 0 40px; 
+  margin: 28px auto 0 auto; 
+  padding: 0 ; 
   box-sizing: border-box; 
   height: 50vh; 
   min-height: 320px; 

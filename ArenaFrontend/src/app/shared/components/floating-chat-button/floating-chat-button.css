@@ -277,7 +277,9 @@
   .fab-chat {
     width: 52px;
     height: 52px;
-    bottom: 80px;
+    /* Sits above the raised back-to-top button, which itself clears the
+       fixed bottom nav bar (subscriber sidebar) and its logout item. */
+    bottom: calc(146px + env(safe-area-inset-bottom, 0px));
     right: 20px;
   }
 
@@ -309,7 +311,7 @@
   .fab-chat {
     width: 48px;
     height: 48px;
-    bottom: 76px;
+    bottom: calc(142px + env(safe-area-inset-bottom, 0px));
     right: 16px;
   }
 }

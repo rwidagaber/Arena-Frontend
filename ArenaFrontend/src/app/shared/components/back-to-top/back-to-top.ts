@@ -28,7 +28,9 @@ import { TranslateModule } from '@ngx-translate/core';
     .back-to-top {
       position: fixed;
       bottom: 24px;
-      inset-inline-end: 28px;
+      /* Center-aligned under the 60px floating chat button (right: 28px), whose
+         centre sits 58px from the edge → 58 - 46/2 = 35px. */
+      inset-inline-end: 35px;
       width: 46px; height: 46px;
       border-radius: 50%;
       border: none;
@@ -56,6 +58,18 @@ import { TranslateModule } from '@ngx-translate/core';
       transform: translateY(-3px) scale(1.05);
     }
     .back-to-top i { position: relative; z-index: 1; }
+
+    @media (max-width: 768px) {
+      /* Clear the fixed bottom nav bar (subscriber sidebar) so the button
+         never covers its logout item. */
+      .back-to-top {
+        inset-inline-end: 21px;
+        bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+      }
+    }
+    @media (max-width: 380px) {
+      .back-to-top { inset-inline-end: 15px; }
+    }
   `]
 })
 export class BackToTopComponent {

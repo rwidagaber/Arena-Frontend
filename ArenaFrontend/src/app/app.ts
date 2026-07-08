@@ -61,6 +61,15 @@ export class App implements OnInit {
    *  sidebar — so the global one is suppressed there to avoid duplicates. */
   isDashboard = false;
 
+  /** True on the chat route, which owns the full width with its own history
+   *  sidebar — so the global subscriber sidebar is suppressed there too. */
+  isChat = false;
+
+  /** True once the routed component has actually rendered into the outlet.
+   *  The footer is gated on this so it never flashes in the empty outlet gap
+   *  while a lazy-loaded route is still downloading. */
+  contentReady = false;
+
   /** Drives the global subscriber sidebar (shown on every page when subscribed). */
   protected readonly currentUser$ = this.auth.currentUser$;
 
@@ -88,6 +97,12 @@ export class App implements OnInit {
       )
       .subscribe(event => {
 
+        // A new route was matched but its component hasn't rendered yet — hide
+        // the footer until the outlet activates so it doesn't lead the page.
+        if (event instanceof RoutesRecognized) {
+          this.contentReady = false;
+        }
+
         const rootSnapshot = event instanceof RoutesRecognized
           ? event.state.root
           : this.router.routerState.snapshot.root;
@@ -100,7 +115,14 @@ export class App implements OnInit {
         this.showLayout = !deepest.data['hideLayout'];
         this.showFooter = !deepest.data['hideFooter'];
         this.isDashboard = this.router.url.split('?')[0].startsWith('/dashboard');
+        this.isChat = this.router.url.split('?')[0].startsWith('/chat');
       });
+  }
+
+  /** Fired by <router-outlet> once the routed component is instantiated —
+   *  only now is it safe to render the footer beneath it. */
+  onOutletActivate(): void {
+    this.contentReady = true;
   }
 
   /** Global sidebar item click → open that section on the dashboard. */

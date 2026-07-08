@@ -137,7 +137,7 @@ app-root {
      so pages no longer need their own magic top offset to clear it. This single
      value is still used where an explicit offset is required (e.g. the
      sticky dashboard sidebar that pins just below the header). */
-  --header-h: 104px;
+  --header-h: 62px;
 
   /* Light Theme */
   --bg-primary: #ffffff;

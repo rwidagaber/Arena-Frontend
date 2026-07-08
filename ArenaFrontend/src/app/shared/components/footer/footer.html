@@ -41,7 +41,7 @@
       </div>
       <div class="fcb-info">
         <a class="fcb-item" [href]="'tel:' + phone">
-          <i class="bi bi-telephone-fill"></i><span>{{ phone }}</span>
+          <i class="bi bi-telephone-fill"></i><span>{{ 'footer.phoneNumber' | translate }} </span>
         </a>
         <a class="fcb-item" [href]="'mailto:' + email">
           <i class="bi bi-envelope-fill"></i><span>{{ email }}</span>
@@ -109,7 +109,7 @@
             </a>
           </li>
           <li class="footer-contact-item">
-            <a [href]="'tel:' + phone"><i class="bi bi-telephone"></i><span>{{ phone }}</span></a>
+            <a [href]="'tel:' + phone"><i class="bi bi-telephone"></i><span>{{ 'footer.phoneNumber' | translate }} </span></a>
           </li>
           <li class="footer-contact-item">
             <a [href]="'mailto:' + email"><i class="bi bi-envelope"></i><span>{{ email }}</span></a>
