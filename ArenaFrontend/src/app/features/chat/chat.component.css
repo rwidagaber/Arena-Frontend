@@ -377,10 +377,10 @@
   pointer-events: none;
 }
 
-/* Close button is only meaningful for the mobile drawer — hidden on desktop
-   (the conversation header's toggle handles collapse there). */
+/* Close button collapses the sidebar on every screen size — the floating
+   history toggle (.history-fab) brings it back. */
 .sidebar-close-btn {
-  display: none;
+  display: grid;
   place-items: center;
   width: 34px;
   height: 34px;
