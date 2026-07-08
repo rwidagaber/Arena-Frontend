@@ -13,11 +13,12 @@ type View = 'plans' | 'plan-detail' | 'meal-detail';
 import { TranslationService } from '../../../core/services/translation.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { catchError, of } from 'rxjs';
+import { DailyNutritionSummary } from '../daily-nutrition-summary/daily-nutrition-summary';
 
 @Component({
   selector: 'app-nutritionplan',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [CommonModule, TranslateModule, DailyNutritionSummary],
   templateUrl: './nutritionplan.html',
   styleUrl: './nutritionplan.css',
 })
