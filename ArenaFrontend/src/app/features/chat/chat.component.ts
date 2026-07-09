@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { AfterViewChecked, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -12,6 +12,7 @@ import { NotificationService } from '../../core/services/notification.service';
 import { CreateProgressLogDto, ProgressReportService, ProgressSummaryDto } from '../../core/services/progress-report.service';
 import { MemberService } from '../../core/services/member.service';
 import { UpdateProfileDto } from '../../core/models/member';
+// import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-chat',
@@ -28,6 +29,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private readonly router = inject(Router);
   private readonly bookingEvents = inject(BookingEventsService);
   private readonly notificationService = inject(NotificationService);
+  private readonly location = inject(Location);
   private readonly translate = inject(TranslateService);
   private readonly progressService = inject(ProgressReportService);
   private readonly memberService = inject(MemberService);
@@ -331,7 +333,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   goToHome(): void {
     this.showSubscriptionModal = false;
-    this.router.navigate(['/']);
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      this.location.back();
+    } else {
+      this.router.navigate(['/']);
+    }
   }
 
   ngAfterViewChecked(): void {

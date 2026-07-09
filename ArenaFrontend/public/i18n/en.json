@@ -416,12 +416,12 @@
     "VIEW_PROGRAM": "Start Training",
     "PROGRAM_1_TITLE": "Train with our AI",
     "PROGRAM_1_DESC": "Train with our Agentic AI coach that guides you through every exercise, provides real-time workout advice, and automatically tracks your progress over time.",
-    "PROGRAM_2_TITLE": "Eat Smarter, Effortlessly",
+    "PROGRAM_2_TITLE": "Nutrition plan",
     "PROGRAM_2_DESC": "Take the guesswork out of nutrition. Take a photo of your plate to instantly estimate your macros and stay on track with your nutrition every day.",
     "PROGRAM_3_TITLE": "See Your Progress",
     "PROGRAM_3_DESC": "Watch your hard work pay off. Visualize your transformation with an interactive 3D body model generated from your real weight and measurements.",
-    "PROGRAM_4_TITLE": "Custom Workout & Meal Plans",
-    "PROGRAM_4_DESC": "Get tailor-made training splits and nutrition plans designed specifically for your goals, preferences, and body stats.",
+    "PROGRAM_4_TITLE": "Workout plan",
+    "PROGRAM_4_DESC": "Get tailor-made training splits designed specifically for your goals, preferences, and body stats.",
     "PROGRAM_5_TITLE": "Train Without Crowds",
     "PROGRAM_5_DESC": "Check live gym occupancy peaks and schedule your training sessions during quieter hours for a distraction-free workout.",
     "PROGRAM_6_TITLE": "Instant QR Entry",
@@ -1345,6 +1345,7 @@
     "MODAL_TITLE": "AI Coach Access",
     "MODAL_DESC": "You can explore our AI Coach with limited access. Subscribe to a plan with AI features for the full experience!",
     "BTN_STAY": "Stay in Home",
+    "BTN_STAY_HERE": "Stay here",
     "BTN_SUBSCRIBE": "Go to Subscription Plans"
   },
   "CHAT": {

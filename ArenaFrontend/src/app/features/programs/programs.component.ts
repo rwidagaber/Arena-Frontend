@@ -3,6 +3,15 @@ import { TranslateModule } from '@ngx-translate/core';
 import { RouterLink } from '@angular/router';
 import { ScrollRevealDirective } from '../../shared/directives/scroll-reveal.directive';
 
+interface ProgramItem {
+  title: string;
+  description: string;
+  icon: string;
+  route: string;
+  queryParams?: { [key: string]: string };
+  image: string;
+}
+
 @Component({
   selector: 'app-programs',
   standalone: true,
@@ -12,7 +21,7 @@ import { ScrollRevealDirective } from '../../shared/directives/scroll-reveal.dir
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProgramsComponent {
-  programs = [
+  programs: ProgramItem[] = [
     {
       title: 'PROGRAMS.PROGRAM_1_TITLE',
       description: 'PROGRAMS.PROGRAM_1_DESC',
@@ -25,6 +34,7 @@ export class ProgramsComponent {
       description: 'PROGRAMS.PROGRAM_2_DESC',
       icon: 'scan',
       route: '/dashboard',
+      queryParams: { section: 'diet' },
       image: 'assets/images/program_meal_scanner.png'
     },
     {
@@ -32,6 +42,7 @@ export class ProgramsComponent {
       description: 'PROGRAMS.PROGRAM_3_DESC',
       icon: 'body',
       route: '/dashboard',
+      queryParams: { section: 'progress' },
       image: 'assets/images/program_body_model.png'
     },
     {
@@ -39,13 +50,14 @@ export class ProgramsComponent {
       description: 'PROGRAMS.PROGRAM_4_DESC',
       icon: 'plan',
       route: '/dashboard',
-      image: 'assets/images/program_custom_plans.png'
+      queryParams: { section: 'workout' },
+      image: 'assets/images/program_workout_plan.png'
     },
     {
       title: 'PROGRAMS.PROGRAM_5_TITLE',
       description: 'PROGRAMS.PROGRAM_5_DESC',
       icon: 'calendar',
-      route: '/working-hours',
+      route: '/chat',
       image: 'assets/images/program_occupancy_peaks.png'
     },
     {
@@ -53,6 +65,7 @@ export class ProgramsComponent {
       description: 'PROGRAMS.PROGRAM_6_DESC',
       icon: 'qr',
       route: '/dashboard',
+      queryParams: { section: 'qr' },
       image: 'assets/images/program_qr_entry.png'
     }
   ];
