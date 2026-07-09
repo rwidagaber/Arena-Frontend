@@ -243,6 +243,12 @@
   transition: all 0.3s ease;
 }
 
+/* Filled amber sun so light mode reads warm and vivid instead of a washed-out
+   grey outline. */
+.sun-icon {
+  color: #f6a609;
+}
+
 /* ==========================================================================
    Buttons
    ========================================================================== */

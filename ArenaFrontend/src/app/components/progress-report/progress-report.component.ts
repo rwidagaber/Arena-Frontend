@@ -802,6 +802,18 @@ export class ProgressReportComponent {
     });
   }
 
+  /** Opens the goal modal pre-filled with the current goal for editing. */
+  editGoal(): void {
+    this.goalFormWeight.set(this.profileTargetWeight());
+    this.goalFormStart.set(this.goalStartWeight());
+    this.formError.set('');
+    this.lockScroll(true);
+    this.zone.run(() => {
+      this.showGoalForm.set(true);
+      this.cdr.markForCheck();
+    });
+  }
+
   closeGoalForm(): void {
     this.lockScroll(false);
     this.zone.run(() => {
