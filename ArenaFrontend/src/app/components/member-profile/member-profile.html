@@ -204,7 +204,7 @@
                         <div class="hm-days"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div>
                         <div class="cin-grid">
                           @for (c of checkinCalendar(); track $index) {
-                            <div class="cin-cell" [class.cin-active]="c.active" [class.cin-today]="c.isToday" [class.cin-future]="c.future">
+                            <div class="cin-cell" [class.cin-active]="c.active" [class.cin-today]="c.isToday" [class.cin-future]="c.future" [class.cin-missed]="c.missed">
                               <span class="cin-num">{{ c.dayNum }}</span>
                               @if (c.active) {
                                 <span class="cin-label">{{ c.label || ('memberProfile.dash.hmTrained' | translate) }}</span>
@@ -215,6 +215,7 @@
                         <div class="hm-foot">
                           <span class="hm-legend"><span class="hm-swatch hm-swatch-dim"></span> {{ 'memberProfile.dash.hmRest' | translate }}</span>
                           <span class="hm-legend"><span class="hm-swatch hm-swatch-on"></span> {{ 'memberProfile.dash.hmTrained' | translate }}</span>
+                          <span class="hm-legend"><span class="hm-swatch hm-swatch-missed"></span> {{ 'memberProfile.dash.hmMissed' | translate }}</span>
                         </div>
                       } @else {
                         <div class="hm-empty">
@@ -380,7 +381,7 @@
                     <span class="rest-sub">{{ 'memberProfile.dash.restProtectedSub' | translate }}</span>
                   } @else if (freezeAvailable()) {
                     <span class="rest-icon rest-ready" aria-hidden="true" [innerHTML]="getSvgIcon('shield')"></span>
-                    <span class="rest-title">{{ 'memberProfile.dash.restAvailable' | translate }}</span>
+                    <span class="rest-title">{{ 'memberProfile.dash.restAvailable' | translate:{ n: freezesLeft(), total: restPassAllowance() } }}</span>
                     <span class="rest-sub">{{ 'memberProfile.dash.restAvailableSub' | translate }}</span>
                     @if (streakAtRisk()) {
                       <button type="button" class="rest-cta" (click)="useFreeze()">{{ 'memberProfile.dash.useRestPass' | translate }}</button>

@@ -117,7 +117,9 @@
         <div class="goal-card">
           <div class="card-header">
             <h3 class="card-title"><i class="fa-solid fa-bullseye"></i> {{ 'progressReport.goalCardTitle' | translate }}</h3>
-            <button class="goal-clear" (click)="clearGoal()">{{ 'progressReport.goalClear' | translate }}</button>
+            <div class="goal-actions">
+              <button class="goal-edit" (click)="editGoal()">{{ 'progressReport.goalEdit' | translate }}</button>
+            </div>
           </div>
           <!-- Ring centred on top; flat rectangular stat cards stacked under it. -->
           <div class="goal-body">
@@ -654,7 +656,7 @@
             <span class="fld-unit">{{ 'progressReport.unitKg' | translate }}</span>
           </label>
           <div class="fld-control">
-            <input #goalTargetInput id="pr-goal-target" type="number" inputmode="decimal" step="0.1" min="0" class="fld-input" [placeholder]="'progressReport.phTarget' | translate" (input)="onGoalWeightInput(goalTargetInput.value)" (keydown.enter)="saveGoal()" />
+            <input #goalTargetInput id="pr-goal-target" type="number" inputmode="decimal" step="0.1" min="0" class="fld-input" [value]="goalFormWeight() ?? ''" [placeholder]="'progressReport.phTarget' | translate" (input)="onGoalWeightInput(goalTargetInput.value)" (keydown.enter)="saveGoal()" />
             <div class="fld-stepper">
               <button type="button" class="fld-step" tabindex="-1" aria-label="Increase" (click)="applyStep(goalTargetInput, 0.1, 0, 999, goalFormWeight)">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
@@ -671,7 +673,7 @@
             <span class="fld-unit">{{ 'progressReport.unitKg' | translate }}</span>
           </label>
           <div class="fld-control">
-            <input #goalStartInput id="pr-goal-start" type="number" inputmode="decimal" step="0.1" min="0" class="fld-input" [placeholder]="'progressReport.phStart' | translate" (input)="onGoalStartInput(goalStartInput.value)" (keydown.enter)="saveGoal()" />
+            <input #goalStartInput id="pr-goal-start" type="number" inputmode="decimal" step="0.1" min="0" class="fld-input" [value]="goalFormStart() ?? ''" [placeholder]="'progressReport.phStart' | translate" (input)="onGoalStartInput(goalStartInput.value)" (keydown.enter)="saveGoal()" />
             <div class="fld-stepper">
               <button type="button" class="fld-step" tabindex="-1" aria-label="Increase" (click)="applyStep(goalStartInput, 0.1, 0, 999, goalFormStart)">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>

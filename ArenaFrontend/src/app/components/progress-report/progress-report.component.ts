@@ -188,8 +188,10 @@ export class ProgressReportComponent {
     return s.value;
   }
 
+  /** Logs sorted newest -> oldest; every consumer below assumes this order. */
   private get logs(): ProgressLogDto[] {
-    return this.summary?.logs ?? [];
+    return [...(this.summary?.logs ?? [])]
+      .sort((a, b) => +new Date(b.loggedAt) - +new Date(a.loggedAt));
   }
 
   protected currentWeight = computed(() => this.summary?.currentWeight ?? null);
@@ -792,6 +794,18 @@ export class ProgressReportComponent {
     const cur = this.currentWeight();
     this.goalFormWeight.set(null);
     this.goalFormStart.set(cur);
+    this.formError.set('');
+    this.lockScroll(true);
+    this.zone.run(() => {
+      this.showGoalForm.set(true);
+      this.cdr.markForCheck();
+    });
+  }
+
+  /** Opens the goal modal pre-filled with the current goal for editing. */
+  editGoal(): void {
+    this.goalFormWeight.set(this.profileTargetWeight());
+    this.goalFormStart.set(this.goalStartWeight());
     this.formError.set('');
     this.lockScroll(true);
     this.zone.run(() => {

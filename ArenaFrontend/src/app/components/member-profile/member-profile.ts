@@ -295,12 +295,12 @@ export class MemberProfile implements OnInit {
   });
 
   /** Last 5 weeks (Mon-aligned) of check-in cells for the calendar. Each trained
-   *  day is labelled with the plan's workout for that weekday (e.g. "Leg Day"),
-   *  derived by rotating the plan's days across the week — same rule as
-   *  todaysWorkout so the calendar and the suggested session stay in sync. */
-  checkinCalendar = computed<{ dayNum: number; active: boolean; isToday: boolean; future: boolean; firstOfMonth: boolean; label: string }[]>(() => {
+   *  day is labelled with the weekday it fell on (e.g. "Mon"), localized to the
+   *  active language. */
+  checkinCalendar = computed<{ dayNum: number; active: boolean; isToday: boolean; future: boolean; missed: boolean; firstOfMonth: boolean; label: string }[]>(() => {
     const active = new Set(this.attendanceDays().map(d => d.getTime()));
-    const planDays = this.workoutPlan()?.days ?? [];
+    const frozen = new Set(this.allFrozenDates());
+    const locale = this.currentLang() === 'ar' ? 'ar' : 'en';
     const today = new Date(this.startOfDay(new Date()));
     const dow = today.getDay();
     const monThisWeek = new Date(today);
@@ -314,14 +314,16 @@ export class MemberProfile implements OnInit {
       const t = d.getTime();
       const isActive = active.has(t);
       let label = '';
-      if (isActive && planDays.length) {
-        label = (planDays[d.getDay() % planDays.length]?.dayName ?? '').trim();
+      if (isActive) {
+        label = d.toLocaleDateString(locale, { weekday: 'short' });
       }
       cells.push({
         dayNum: d.getDate(),
         active: isActive,
         isToday: t === today.getTime(),
         future: t > today.getTime(),
+        // Skipped: a past day with no check-in that wasn't covered by a rest-day pass.
+        missed: !isActive && t < today.getTime() && !frozen.has(t),
         firstOfMonth: d.getDate() === 1,
         label,
       });
@@ -534,9 +536,15 @@ export class MemberProfile implements OnInit {
      All derived from existing attendance / progress / booking signals.
      ════════════════════════════════════════════════════════════════ */
 
-  // ── Rest-day freeze (1 forgiveness token per calendar month, localStorage) ──
+  // ── Rest-day freeze (weekly allowance scales with training volume, localStorage) ──
+  /** One weekly pass per 3 sessions attended this month (12/month → 4/week), clamped 1–7. */
+  restPassAllowance = computed(() =>
+    Math.max(1, Math.min(7, Math.round(this.sessionsThisMonth() / 3))));
   private freezeKeyFor(d = new Date()): string {
-    return `arena_freeze_${d.getFullYear()}-${d.getMonth()}`;
+    const monday = new Date(this.startOfDay(d));
+    const dow = monday.getDay();
+    monday.setDate(monday.getDate() - (dow === 0 ? 6 : dow - 1));
+    return `arena_freeze_${monday.getFullYear()}-${monday.getMonth()}-${monday.getDate()}`;
   }
   frozenDates = signal<number[]>(this.loadFrozenDates());
   private loadFrozenDates(): number[] {
@@ -546,14 +554,31 @@ export class MemberProfile implements OnInit {
       return Array.isArray(arr) ? arr : [];
     } catch { return []; }
   }
-  /** One token per month; spent once any freeze exists this month. */
-  freezeAvailable = computed(() => this.frozenDates().length === 0);
+  /** Frozen dates across ALL stored weeks — the check-in calendar looks back 5 weeks. */
+  allFrozenDates = signal<number[]>(this.loadAllFrozenDates());
+  private loadAllFrozenDates(): number[] {
+    const out: number[] = [];
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (!key?.startsWith('arena_freeze_')) continue;
+        const arr = JSON.parse(localStorage.getItem(key) ?? '[]');
+        if (Array.isArray(arr)) out.push(...arr.filter((v): v is number => typeof v === 'number'));
+      }
+    } catch { /* ignore */ }
+    return out;
+  }
+  /** Passes left this week out of the volume-based weekly allowance. */
+  freezesLeft = computed(() =>
+    Math.max(0, this.restPassAllowance() - this.frozenDates().length));
+  freezeAvailable = computed(() => this.freezesLeft() > 0);
   frozenToday = computed(() => this.frozenDates().includes(this.startOfDay(new Date())));
   useFreeze(): void {
-    if (!this.freezeAvailable()) return;
+    if (!this.freezeAvailable() || this.frozenToday()) return;
     const next = [...this.frozenDates(), this.startOfDay(new Date())];
     this.frozenDates.set(next);
     try { localStorage.setItem(this.freezeKeyFor(), JSON.stringify(next)); } catch { /* ignore */ }
+    this.allFrozenDates.set(this.loadAllFrozenDates());
   }
 
   /** Check-in days plus any frozen (rest-day-pass) days — used for streak math only. */
@@ -613,12 +638,18 @@ export class MemberProfile implements OnInit {
     const first = data[0];
     const last = data[data.length - 1];
     const spanDays = (last.date.getTime() - first.date.getTime()) / 86400000;
-    if (spanDays <= 0) return { reached: false, date: null };
+    // Need at least a week of history — a couple of same-day logs would
+    // extrapolate wild rates (e.g. "10 kg in 8 days").
+    if (spanDays < 7) return { reached: false, date: null };
     const remaining = target - last.weight;
     if (Math.abs(remaining) < 0.1) return { reached: true, date: null };
-    const ratePerDay = (last.weight - first.weight) / spanDays;
+    let ratePerDay = (last.weight - first.weight) / spanDays;
     // Only project if the trend is actually moving toward the target
     if (ratePerDay === 0 || Math.sign(ratePerDay) !== Math.sign(remaining)) return { reached: false, date: null };
+    // Cap the projected pace at ~1.5 kg/week so noisy logs can't promise
+    // physiologically impossible timelines.
+    const maxRatePerDay = 1.5 / 7;
+    if (Math.abs(ratePerDay) > maxRatePerDay) ratePerDay = Math.sign(ratePerDay) * maxRatePerDay;
     const daysToGo = remaining / ratePerDay;
     if (daysToGo <= 0 || daysToGo > 3650) return { reached: false, date: null };
     return { reached: false, date: new Date(last.date.getTime() + daysToGo * 86400000) };

@@ -4524,6 +4524,14 @@ app-footer {
 .cin-cell:hover { transform: translateY(-2px); }
 .cin-today { outline: 2px solid var(--c-accent, #C6EF2E); outline-offset: 2px; }
 .cin-future { opacity: 0.25; }
+/* Missed day — past, no check-in, and not covered by a rest-day pass. */
+.cin-missed {
+  background: rgba(20,20,20,0.045);
+  border-color: transparent;
+}
+[data-theme="dark"] .cin-missed { background: rgba(255,255,255,0.05); }
+.cin-missed .cin-num { color: var(--lux-ink-soft, #5f5f5c); }
+[data-theme="dark"] .cin-missed .cin-num { color: var(--lux-cream, #eef1f6); }
 .hm-foot { display: flex; gap: 16px; margin-top: 4px; }
 .hm-legend { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: var(--lux-ink-soft, #5f5f5c); }
 [data-theme="dark"] .hm-legend { color: var(--lux-cream-soft, rgba(238,241,246,0.6)); }
@@ -4531,6 +4539,8 @@ app-footer {
 .hm-swatch-dim { background: rgba(20,20,20,0.10); }
 [data-theme="dark"] .hm-swatch-dim { background: rgba(255,255,255,0.10); }
 .hm-swatch-on { background: var(--c-accent, #C6EF2E); }
+.hm-swatch-missed { background: rgba(20,20,20,0.10); }
+[data-theme="dark"] .hm-swatch-missed { background: rgba(255,255,255,0.10); }
 .hm-empty { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 6px 0 2px; }
 .hm-empty span { font-size: 13px; color: var(--lux-ink-soft, #5f5f5c); }
 [data-theme="dark"] .hm-empty span { color: var(--lux-cream-soft, rgba(238,241,246,0.6)); }

@@ -498,13 +498,17 @@ export class BodyModelComponent {
     // stay comparatively lean through the hips, seat and thighs. Women follow the
     // body-type chart (hips / thighs / seat / bust). This keeps a heavy male
     // reading as a man (android "apple") rather than a wide-hipped pear.
+    // The male depots scale with the MEASURED body fat (fatT) instead of fixed
+    // floors: a lean member reads flat/athletic through the chest and midsection,
+    // and the gut / moobs / love handles only grow as body fat actually rises.
+    const fatT = Math.min(1, Math.max(0, inf.bodyFat * 1.4 - 0.15));
     const fw: ShapePreset = female
       ? p
       : {
           shoulders: p.shoulders * 0.85,
-          bust: Math.max(p.bust, 0.4),         // chest fat that fills out (moobs) as fat rises
-          waist: p.waist + 0.3,                // love handles / thicker midsection
-          belly: Math.max(p.belly, 0.6),       // the gut — where men carry weight
+          bust: p.bust * 0.25 + 0.3 * fatT,    // chest fat that fills out (moobs) as fat rises
+          waist: p.waist * 0.5 + 0.45 * fatT,  // love handles / thicker midsection
+          belly: p.belly * 0.4 + 0.75 * fatT,  // the gut — where men carry weight
           hips: p.hips * 0.3,
           thighs: p.thighs * 0.5,
           glutesBack: p.glutesBack * 0.35,
@@ -523,6 +527,10 @@ export class BodyModelComponent {
       const t = clamp01((x - e0) / (e1 - e0));
       return t * t * (3 - 2 * t);
     };
+    // Lean, muscular composition (muscle index well above fat index): most of
+    // the body's volume is firm tissue, so the silhouette tightens and smooths
+    // instead of rounding out the way subcutaneous fat does.
+    const lean = clamp01((inf.muscle - inf.bodyFat) * 1.5);
 
     for (const t of this.deformTargets) {
       const attr = t.geom.attributes['position'] as THREE.BufferAttribute;
@@ -533,19 +541,18 @@ export class BodyModelComponent {
         const bx = a[i], by = a[i + 1], bz = a[i + 2];
         const nx = n[i], ny = n[i + 1], nz = n[i + 2];
         const h = (by - t.minY) / t.height; // 0 feet .. 1 head
+        const ax = Math.abs(bx - t.cx) / t.height; // lateral distance from centre
         const rx = bx - t.cx, rz = bz - t.cz;
         const r = Math.hypot(rx, rz);
 
         // Split torso from arms by radius within the arm height band. The torso
         // gate drives torso fat/muscle/shaping (hips, seat and thighs are off-axis
-        // but at other heights, so they're kept). The arm gate — its complement,
-        // out on the limbs — drives the arms' OWN muscle + fat so they thicken
-        // with muscle mass and round out with fat like the rest of the body.
-        // Mask the whole arm (forearm, hand and thumb) OUT of all deformation:
-        // this static T-pose mesh can't be inflated procedurally without lumping
-        // those small, many-normalled clusters. The arms keep their clean,
-        // anatomically-correct rest shape; the deltoid/shoulder — just inboard of
-        // the arm — still takes muscle through the torso terms below.
+        // but at other heights, so they're kept). Mask the whole arm (forearm,
+        // hand and thumb) OUT of all deformation: this static T-pose mesh can't
+        // be inflated procedurally without lumping those small, many-normalled
+        // clusters. The arms keep their clean, anatomically-correct rest shape;
+        // the deltoid/shoulder — just inboard of the arm — still takes muscle
+        // through the torso terms below.
         const armBand = smooth(0.4, 0.48, h) * (1 - smooth(0.72, 0.8, h));
         const armRegion = armBand * smooth(0.19, 0.25, r / t.height); // 1 out on the arms
         const vert = clamp01((h - 0.05) / 0.08) * (1 - smooth(0.78, 0.92, h));
@@ -560,7 +567,11 @@ export class BodyModelComponent {
         // small constant adds all-over fullness so heavier bodies round out
         // everywhere, not only in the body-type zones.
         const w =
-          (0.06 + inf.bodyFat * 0.18 + inf.mass * 0.22 + // all-over volume: subcutaneous softness (fat) + overall mass (BMI) so a heavier member reads bigger
+          // All-over volume: subcutaneous softness (fat) + overall mass (BMI) so a
+          // heavier member reads bigger. On a lean, muscular body most of that
+          // mass is firm tissue (it shows via the muscle terms), so the soft
+          // share shrinks with `lean` and the surface stays tight.
+          (0.06 + inf.bodyFat * 0.18 + inf.mass * 0.22 * (1 - 0.55 * lean) +
             fw.shoulders * g(0.72, 0.06) * side +
             fw.bust * g(0.66, 0.075) * front + // broad chest fat, not a pointed bust
             fw.belly * g(0.5, 0.09) * front + // soft, low, rounded belly (gut / lower pooch)
@@ -574,9 +585,12 @@ export class BodyModelComponent {
         // with broader shoulders and narrower hips, the chest shaped by the pec
         // muscle below (only a touch of flattening so it's not a female bust);
         // female with a little bust and hip.
+        // The male hip term narrows only GENTLY and over a wide band — a sharp,
+        // strong negative here carved a visible dent below the hip bone ("hip
+        // dips"), which real male anatomy doesn't show.
         const gb = female
           ? (0.5 * g(0.66, 0.05) * front + 0.25 * g(0.47, 0.05) * side) * gate
-          : (-0.05 * g(0.66, 0.05) * front + 0.5 * g(0.72, 0.06) * side - 0.3 * g(0.47, 0.05) * side) * gate;
+          : (-0.12 * g(0.66, 0.05) * front + 0.35 * g(0.72, 0.06) * side - 0.1 * g(0.47, 0.09) * side) * gate;
 
         // Muscularity (the athletic build): broad deltoids, a full chest/pecs, a
         // wider upper back that tapers to the waist (the V-taper) and thicker
@@ -586,34 +600,68 @@ export class BodyModelComponent {
         const muStrength = female ? 0.4 : 1;
         // Girth muscles swell all-around the limb: deltoids, quadriceps, calves.
         const muGirth =
-          0.55 * g(0.73, 0.06) + // deltoid caps
-          0.4 * g(0.38, 0.07) +  // quads / thigh
-          0.3 * g(0.2, 0.06);    // calves
+          0.45 * g(0.73, 0.06) +  // deltoid caps
+          0.42 * g(0.4, 0.065) +  // quads / thigh — centred on the thigh, off the knee
+          0.32 * g(0.2, 0.06) -   // calves
+          0.16 * g(0.3, 0.03);    // bony knee — the joint stays narrow between quad and calf
         // Directional muscles: pecs (forward), lats / back-width (sideways → the
-        // V-taper), trapezius (upper back) and glutes / hamstrings (back).
+        // V-taper), trapezius (upper back), glutes and hamstrings (back).
         const muDir =
-          0.85 * g(0.67, 0.055) * front + // pectorals — project the chest forward
+          // Chest: a broad pec SLAB. sqrt(front) widens the projection plateau so
+          // the whole chest wall comes forward evenly — a tight gaussian weighted
+          // by raw `front` is a ball centred at nipple height, i.e. a breast.
+          // No carved "pec line" either: tight negative cuts crease this coarse
+          // mesh into a bra-like fold.
+          0.4 * g(0.675, 0.07) * Math.sqrt(front) + // pec slab — wide and even
+          0.12 * g(0.72, 0.04) * front +            // upper pec toward the collarbone
+          0.18 * g(0.67, 0.05) * side +             // pec / ribcage width
           0.45 * g(0.57, 0.07) * side +
           0.3 * g(0.78, 0.045) * back +
-          0.3 * g(0.46, 0.06) * back;
+          // Glutes: two rounded masses, not a level shelf — the lateral cheek
+          // weight domes each side at its centre, softens into the cleft and
+          // rounds off toward the outer hip.
+          0.42 * g(0.46, 0.055) * back *
+            Math.exp(-((ax - 0.055) * (ax - 0.055)) / (2 * 0.04 * 0.04)) +
+          0.26 * g(0.38, 0.06) * back + // hamstrings — fill the back of the thigh
+          // Abdomen: the rectus plate is firm forward volume that only shows on
+          // a lean composition (fat hides it under the belly depot instead), and
+          // the obliques give the midsection a slight athletic side taper.
+          0.25 * g(0.55, 0.05) * front * (0.25 + 0.75 * lean) +
+          0.15 * g(0.52, 0.045) * side * lean;
         // Amount comes from the member's MEASURED skeletal muscle mass
         // (inf.muscle = muscle kg normalised 25→50); the small baseline is just
         // resting musculature. Strong on the male, lighter on the female.
         const mu = (muGirth + muDir) * gate * (0.15 + inf.muscle) * muStrength;
 
-        // A natural waist: the torso nips in between the ribcage and hips. It's
+        // Arms: biceps/triceps girth from the measured muscle mass, plus a touch
+        // of softness with body fat. Gated to the UPPER arm only — anything at or
+        // below the forearm/wrist swells the fingers, whose small, many-normalled
+        // clusters lump when displaced, so they stay at the clean rest shape.
+        // The gate rises over a wide band ABOVE the elbow so the swell grows
+        // smoothly out of the joint instead of stepping at it.
+
+        // A natural waist: the torso nips in between the ribcage and hips, all
+        // the way around (flanks most, belly and small-of-back a little). It's
         // skeletal, so always present when lean, but fills back in as body fat
         // rises (a high-fat midsection has no visible waist).
         const waistDef =
-          -0.2 * g(0.53, 0.055) * (0.7 * side + 0.3 * front) * gate * clamp01(1 - inf.bodyFat * 1.2);
+          -0.24 * g(0.53, 0.055) * (0.6 * side + 0.15 * front + 0.15 * back) * gate * clamp01(1 - inf.bodyFat * 1.2);
 
         // Separate soft fat from firm structure/muscle. Fat is pushed out along
         // the normal AND sags downward under gravity (belly overhang, sagging
         // chest/seat), more the higher the body fat; muscle and bone don't sag.
-        const fatDisp = w * mag * 0.045 * t.height;
-        const firmDisp = (gb * 0.03 + waistDef * 0.03 + mu * 0.02) * t.height;
+        // Cap the stacked depot weights so overlapping gaussians (waist + belly +
+        // bust around the midriff) can never compound into runaway inflation.
+        const fatDisp = Math.min(w, 1.1) * mag * 0.045 * t.height;
+        const firmDisp = (gb * 0.03 + waistDef * 0.03 + mu * 0.03) * t.height;
         const disp = fatDisp + firmDisp;
-        const sag = fatDisp * (0.12 + inf.bodyFat * 0.3);
+        // Gravity sag is a soft-tissue effect: pronounced on a high-fat body,
+        // nearly absent on a lean muscular one whose volume is firm. The chest
+        // band is excluded — sagging the chest bulge droops it into a pointed,
+        // creased bust; pec-height tissue reads firm while the belly overhang
+        // and seat keep their natural drop.
+        const sag =
+          fatDisp * (0.06 + inf.bodyFat * 0.34) * (1 - 0.5 * lean) * (1 - 0.85 * g(0.665, 0.06));
         out[i] = bx + nx * disp;
         out[i + 1] = by + ny * disp - sag;
         out[i + 2] = bz + nz * disp;
