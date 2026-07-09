@@ -380,7 +380,7 @@
                     <span class="rest-sub">{{ 'memberProfile.dash.restProtectedSub' | translate }}</span>
                   } @else if (freezeAvailable()) {
                     <span class="rest-icon rest-ready" aria-hidden="true" [innerHTML]="getSvgIcon('shield')"></span>
-                    <span class="rest-title">{{ 'memberProfile.dash.restAvailable' | translate }}</span>
+                    <span class="rest-title">{{ 'memberProfile.dash.restAvailable' | translate:{ n: freezesLeft() } }}</span>
                     <span class="rest-sub">{{ 'memberProfile.dash.restAvailableSub' | translate }}</span>
                     @if (streakAtRisk()) {
                       <button type="button" class="rest-cta" (click)="useFreeze()">{{ 'memberProfile.dash.useRestPass' | translate }}</button>
