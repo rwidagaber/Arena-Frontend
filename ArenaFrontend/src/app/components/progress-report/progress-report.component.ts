@@ -188,8 +188,10 @@ export class ProgressReportComponent {
     return s.value;
   }
 
+  /** Logs sorted newest -> oldest; every consumer below assumes this order. */
   private get logs(): ProgressLogDto[] {
-    return this.summary?.logs ?? [];
+    return [...(this.summary?.logs ?? [])]
+      .sort((a, b) => +new Date(b.loggedAt) - +new Date(a.loggedAt));
   }
 
   protected currentWeight = computed(() => this.summary?.currentWeight ?? null);
