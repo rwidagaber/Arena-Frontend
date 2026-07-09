@@ -227,10 +227,10 @@ export class WorkoutComponent implements OnInit {
   }
 
   getLocalizedDescription(ex: WorkoutExerciseDto): string {
-    if (this.isArabic()) {
-      return ex.exercise?.descriptionAr || ex.exercise?.description || '';
-    }
-    return ex.exercise?.description || '';
+    const desc = this.isArabic()
+      ? (ex.exercise?.descriptionAr || ex.exercise?.description || '')
+      : (ex.exercise?.description || '');
+    return desc.replace(/<iframe[^>]*>.*?<\/iframe>/gi, '').trim();
   }
 
   getLocalizedEquipment(ex: WorkoutExerciseDto): string {
