@@ -1678,6 +1678,24 @@
 .goal-stat-target .goal-stat-val { color: var(--c-accent); }
 .goal-stat-target .goal-stat-val small { color: var(--c-accent); opacity: 0.75; }
 
+.goal-edit {
+  background: rgba(198, 239, 46, 0.10);
+  border: 1px solid rgba(198, 239, 46, 0.30);
+  border-radius: 100px;
+  padding: 5px 15px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--c-accent, #C6EF2E);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  letter-spacing: 0.02em;
+}
+.goal-edit:hover {
+  background: rgba(198, 239, 46, 0.18);
+  border-color: var(--c-accent, #C6EF2E);
+  box-shadow: 0 0 12px rgba(198, 239, 46, 0.15);
+}
+
 .goal-clear {
   background: none;
   border: 1px solid var(--card-border, rgba(255,255,255,0.08));

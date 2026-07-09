@@ -644,6 +644,7 @@
     "goalStart": "Start",
     "goalCurrent": "Current",
     "goalTarget": "Target",
+    "goalEdit": "Edit goal",
     "goalClear": "Clear goal",
     "goalSetPrompt": "Set a weight goal",
     "goalSetPromptSub": "Define your target and track progress",
