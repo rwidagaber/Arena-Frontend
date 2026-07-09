@@ -83,7 +83,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
         if (res.isGoogleUser) {
           this.router.navigate(['/complete-profile']);
         } else if (res.isSubscribed) {
-          this.router.navigate(['/dashboard']);
+          this.router.navigate(['/']);
         } else {
           const ret = new URLSearchParams(window.location.search).get('returnUrl') ?? '/';
           this.router.navigateByUrl(ret);
@@ -107,7 +107,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
       next: () => {
         this.loading = false;
         if (this.auth.isSubscribed) {
-          this.router.navigate(['/dashboard']);
+          this.router.navigate(['/']);
         } else {
           const ret = new URLSearchParams(window.location.search).get('returnUrl') ?? '/';
           this.router.navigateByUrl(ret);
